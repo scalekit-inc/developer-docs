@@ -1,0 +1,46 @@
+{/* TODO: stub cloned from _setup-atlassianmcp.mdx for Facebook Ads MCP, then rewritten for bring-your-own OAuth 2.1 with PKCE. Add screenshots and verify provider-specific navigation before merging. */}
+import { Steps, Aside } from '@astrojs/starlight/components'
+
+Facebook Ads MCP uses OAuth 2.1 with PKCE. Meta's Ads MCP server advertises Dynamic Client Registration (DCR) support, but its registration endpoint rejects DCR requests — so you need to register your own OAuth app in Meta's developer console and add the client ID and secret to Scalekit.
+
+<Steps>
+1. ### Copy the redirect URI from Scalekit
+
+   In the [Scalekit dashboard](https://app.scalekit.com), go to **AgentKit** > **Connections** > **Create Connection**. Find **Facebook Ads MCP** and click **Create**. Copy the redirect URI — it looks like `https://<SCALEKIT_ENVIRONMENT_URL>/sso/v1/oauth/<CONNECTION_ID>/callback`.
+
+   {/* TODO: add screenshot — alt: "Copy redirect URI from Scalekit dashboard for Facebook Ads MCP", original src: @/assets/docs/agent-connectors/facebookadsmcp/copy-redirect-uri.png */}
+
+2. ### Create an OAuth app in Meta for Developers
+
+   {/* TODO: add provider-specific steps — exact navigation for creating a Business app with the Marketing API / Ads Management Standard Access product in the current Meta for Developers console, since Meta's app dashboard changes layout periodically. */}
+
+   - Go to [developers.facebook.com/apps](https://developers.facebook.com/apps) and create (or select) an app with access to the Marketing API.
+   - Under the app's **Facebook Login for Business** (or equivalent OAuth) settings, add the redirect URI you copied from Scalekit to the list of valid OAuth redirect URIs.
+   - Request the scopes your agent needs. At minimum:
+     - `ads_management` — create and manage ad campaigns, ad sets, and ads
+     - `ads_read` — read ad account, campaign, and reporting data
+     - `business_management` — manage business assets (ad accounts, catalogs, pages) under a Business Manager
+   - Depending on your use case, also request:
+     - `catalog_management` — create and manage product catalogs for ads
+     - `instagram_basic` — read basic Instagram account info for ad placements
+     - `pages_show_list` — list Facebook Pages the user manages
+     - `ads_mcp_management` — MCP-server-specific management scope for the Ads MCP tool surface
+
+   {/* TODO: add screenshot — alt: "Configure OAuth redirect URI and scopes in Meta for Developers", original src: @/assets/docs/agent-connectors/facebookadsmcp/meta-app-oauth-settings.png */}
+
+3. ### Get the client ID and client secret
+
+   In your Meta app's **Settings** > **Basic** page, copy the **App ID** and **App Secret**. Meta apps typically start in development mode — submit the app for App Review (or add test users) before real customer accounts can authorize it.
+
+   {/* TODO: add screenshot — alt: "App ID and App Secret in Meta app basic settings", original src: @/assets/docs/agent-connectors/facebookadsmcp/meta-app-credentials.png */}
+
+   <Aside type="note" title="App Review required for production">
+     Meta requires App Review approval for `ads_management` and most other advertising scopes before your app can access live ad accounts beyond its own test users.
+   </Aside>
+
+4. ### Add the credentials to Scalekit
+
+   Back in the Scalekit dashboard's **Create Connection** flow for **Facebook Ads MCP**, paste the **App ID** as the client ID and the **App Secret** as the client secret, then save. Scalekit stores these credentials, drives the OAuth 2.1 + PKCE flow, and manages token storage and refresh for every user who authorizes the connection.
+
+   {/* TODO: add screenshot — alt: "Add client ID and client secret for Facebook Ads MCP in Scalekit dashboard", original src: @/assets/docs/agent-connectors/facebookadsmcp/add-credentials-scalekit.png */}
+</Steps>
