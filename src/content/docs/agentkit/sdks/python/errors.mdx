@@ -53,6 +53,49 @@ except ScalekitServerException as e:
 
 `ScalekitServerException` is the base type. Prefer checking subclasses first so not-found and auth failures get the right UX.
 
+## Tool execution errors
+
+A failure during `scalekit_client.tools.execute_tool` comes from one of two places, and the fix differs for each:
+
+- **The upstream provider rejected the call** (Gmail, Slack, Salesforce, and so on). Scalekit raises a dedicated `ScalekitTool*` exception. The most common is `ScalekitToolUnauthorizedException`, which means the connected account's provider token was expired or revoked — re-authorize the connected account. Do not change your client credentials.
+- **Scalekit rejected the call.** A plain `ScalekitUnauthorizedException` (no tool details) means your `client_id`/`client_secret` or Scalekit token is invalid. The SDK already refreshed and retried before surfacing it, so fix the credentials.
+
+Each tool exception subclasses both `ScalekitToolException` and its plain counterpart — `ScalekitToolUnauthorizedException` extends `ScalekitUnauthorizedException` — so **catch the tool type first**. Catch the `ScalekitToolException` base to handle any upstream tool failure, and read `tool_error_code`, `tool_error_message`, and `execution_id` for logging.
+
+```python wrap showLineNumbers=false
+from scalekit.common.exceptions import (
+    ScalekitToolUnauthorizedException,
+    ScalekitToolRateLimitException,
+    ScalekitUnauthorizedException,
+    ScalekitToolException,
+)
+
+try:
+    result = scalekit_client.tools.execute_tool(
+        tool_name="gmail_send_email",
+        identifier="user@example.com",
+    )
+except ScalekitToolUnauthorizedException:
+    # Upstream provider rejected the token — re-authorize the connected account
+    pass
+except ScalekitToolRateLimitException:
+    # Upstream provider rate limit — back off, then retry the tool call
+    pass
+except ScalekitUnauthorizedException:
+    # Scalekit-side credentials are invalid — fix client ID/secret
+    pass
+except ScalekitToolException as e:
+    # Any other upstream tool failure — inspect the provider's error code
+    print(e.tool_error_code, e.execution_id)
+```
+
+| Exception | When it is raised | Typical response |
+| --- | --- | --- |
+| `ScalekitToolUnauthorizedException` | Upstream provider returned 401 during tool execution | Re-authorize the connected account |
+| `ScalekitToolForbiddenException` | Upstream provider returned 403 during tool execution | Add the missing provider scope, then re-authorize |
+| `ScalekitToolRateLimitException` | Upstream provider returned 429 during tool execution | Back off and retry the tool call |
+| `ScalekitToolException` | Base class for any upstream provider error during tool execution | Log `tool_error_code` and `execution_id`; surface a clear message |
+
 ## Related
 
 - [Connected accounts](/agentkit/sdks/python/actions/) — connect accounts and execute tools  
