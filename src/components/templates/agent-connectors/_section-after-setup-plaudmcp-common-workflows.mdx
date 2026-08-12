@@ -5,7 +5,7 @@ import { Tabs, TabItem, Aside } from '@astrojs/starlight/components'
 `plaudmcp_get_file`, `plaudmcp_get_note`, and `plaudmcp_get_transcript` require a **file ID** — the identifier of a single recording. Start with `plaudmcp_list_files` to discover recordings, then pass a `file_id` to the details, notes, or transcript tools.
 
 <Aside type="caution" title="Read tool output from the response wrapper">
-  `execute_tool` / `executeTool` returns a wrapper object, not the Plaud payload. Tool output lives under `response.data` (Python) or `result.data` (Node.js), and the keys inside `data` come from the upstream Plaud MCP server. Log `data` once when you integrate a tool, then read the fields you need — see [Understand tool response shape](/agentkit/tools/scalekit-optimized-tools/#understand-tool-response-shape).
+  `execute_tool` / `executeTool` returns a wrapper object, not the Plaud payload. Tool output lives under `response.data` (Python) or `result.data` (Node.js), and the keys inside `data` come from the upstream Plaud MCP server. Log `data` once **in development against a recording you own** to learn the field names, then read only the fields you need — see [Understand tool response shape](/agentkit/tools/scalekit-optimized-tools/#understand-tool-response-shape). Plaud payloads carry meeting content, so never log them in production: transcripts and AI notes reach your log store and anyone with access to it.
 </Aside>
 
 ### Find a recording, then read its notes
@@ -39,6 +39,9 @@ Filter the recording list by name substring or date range, take the `file_id` of
       connector: 'plaudmcp',
       toolInput: { file_id: '66f2b1c8e4b0a1d2c3e4f5a6' },
     });
+
+    // Security: AI notes summarize the recording. Log only in development, and
+    // pass the notes to your agent rather than persisting them.
     console.log(noteResult.data);
     ```
   </TabItem>
@@ -68,6 +71,9 @@ Filter the recording list by name substring or date range, take the `file_id` of
         connection_name="plaudmcp",
         tool_input={"file_id": "66f2b1c8e4b0a1d2c3e4f5a6"},
     )
+
+    # Security: AI notes summarize the recording. Log only in development, and
+    # pass the notes to your agent rather than persisting them.
     print(note_response.data)
     ```
   </TabItem>
