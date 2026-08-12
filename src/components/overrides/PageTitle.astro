@@ -205,31 +205,85 @@ const isConnectorPage = Boolean(connectorIcon)
 </style>
 
 <script define:vars={{ agentPluginHeader: AGENT_PLUGIN_HEADER }}>
-  // Intercept the "Copy Markdown" button from starlight-page-actions to prepend
-  // agent plugin installation instructions before the copied content.
-  const copyBtn = document.querySelector('#copy-markdown')
-  if (copyBtn) {
-    copyBtn.addEventListener(
-      'click',
-      async (e) => {
-        e.stopImmediatePropagation()
-        copyBtn.disabled = true
+  // starlight-page-actions (Button.astro / Dropdown.astro, in node_modules)
+  // binds "Copy Markdown" and both dropdowns at module scope with no
+  // `astro:page-load` hook. Astro's ClientRouter swaps in a fresh <body> on
+  // every soft navigation but never reruns an inline script whose textContent
+  // already ran (see swap-functions.js `scriptsAlreadyRan`), so the package's
+  // own listeners go dead after the first navigation. We can't patch
+  // node_modules, so this override takes ownership of all three controls:
+  // clone each control to strip the package's listeners (a clone carries no
+  // event listeners), then bind our own — no capture-phase interception
+  // needed once we own the element outright. Reruns on `astro:page-load`
+  // (fires on first load AND after every soft nav), guarded per-render on
+  // the fresh `.actions-container` so it never double-binds.
+  function initPageActions() {
+    const container = document.querySelector('.actions-container')
+    if (!container || container.dataset.pageActionsReady === 'true') return
+    container.dataset.pageActionsReady = 'true'
+
+    const copyBtn = container.querySelector('#copy-markdown')
+    if (copyBtn) {
+      const clone = copyBtn.cloneNode(true)
+      copyBtn.replaceWith(clone)
+      clone.addEventListener('click', async () => {
+        clone.disabled = true
         let cls = 'copied'
         try {
-          const agentRes = await fetch(`${copyBtn.dataset.path}.agent.md`)
-          const res = agentRes.ok ? agentRes : await fetch(`${copyBtn.dataset.path}.md`)
+          const agentRes = await fetch(`${clone.dataset.path}.agent.md`)
+          const res = agentRes.ok ? agentRes : await fetch(`${clone.dataset.path}.md`)
           if (!res.ok) throw new Error(`Failed to fetch markdown: ${res.status}`)
           const md = await res.text()
           await navigator.clipboard.writeText(agentPluginHeader + md)
         } catch {
           cls = 'error'
         } finally {
-          copyBtn.classList.add(cls)
-          copyBtn.disabled = false
-          setTimeout(() => copyBtn.classList.remove(cls), 3000)
+          clone.disabled = false
+          clone.classList.add(cls)
+          setTimeout(() => clone.classList.remove(cls), 3000)
         }
-      },
-      true, // capture phase — fires before the package's own listener
-    )
+      })
+    }
+
+    for (const dropdownId of ['dropdown-0', 'dropdown-1']) {
+      const dropdown = container.querySelector(`#${dropdownId}`)
+      const toggle = dropdown?.querySelector('#dropdown-toggle')
+      const menu = dropdown?.querySelector('#dropdown-menu')
+      if (!toggle || !menu) continue
+
+      const toggleClone = toggle.cloneNode(true)
+      toggle.replaceWith(toggleClone)
+      toggleClone.addEventListener('click', (e) => {
+        e.stopPropagation()
+        container.querySelectorAll('#dropdown-menu.show').forEach((m) => m.classList.remove('show'))
+        menu.classList.toggle('show')
+      })
+
+      menu.addEventListener('click', (e) => e.stopPropagation())
+    }
   }
+
+  // `document` survives soft navigations, so the outside-click close is
+  // registered once at module scope instead of inside initPageActions
+  // (which would otherwise stack a duplicate listener per navigation).
+  document.addEventListener('click', () => {
+    document.querySelectorAll('.actions-container #dropdown-menu.show').forEach((m) => {
+      m.classList.remove('show')
+    })
+  })
+
+  // define:vars forces this script to render as a plain synchronous inline
+  // script, which executes immediately while parsing — before the package's
+  // own <script type="module"> control scripts, which are deferred until
+  // after parsing. Calling initPageActions() immediately would clone the
+  // buttons before the package binds anything to strip, so the package's
+  // listener ends up bound to our clone too (double-fires copy/dropdown on
+  // first load). Wait for DOMContentLoaded on first load so the package's
+  // deferred scripts run first — mirrors SecondaryNav.astro.
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initPageActions, { once: true })
+  } else {
+    initPageActions()
+  }
+  document.addEventListener('astro:page-load', initPageActions)
 </script>
