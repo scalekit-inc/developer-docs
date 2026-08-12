@@ -20,7 +20,7 @@ export const tools: Tool[] = [
   },
   {
     name: 'pandadocmcp_documents_content_get',
-    description: `Get the content of a document in HTML or PDF format by document ID.`,
+    description: `Get the textual content of a document in plaintext or markdown format by document ID.`,
     params: [
       {
         name: 'content_format',
@@ -33,103 +33,13 @@ export const tools: Tool[] = [
   },
   {
     name: 'pandadocmcp_documents_create',
-    description: `Create a new document from an existing template with optional recipients, tokens, fields, and metadata.`,
-    params: [
-      { name: 'name', type: 'string', required: true, description: `New document name` },
-      {
-        name: 'recipients',
-        type: 'array',
-        required: true,
-        description: `List of recipients for the document`,
-      },
-      { name: 'template_uuid', type: 'string', required: true, description: `Template UUID` },
-      {
-        name: 'content_placeholders',
-        type: 'string',
-        required: false,
-        description: `Content placeholders for content library blocks`,
-      },
-      {
-        name: 'detect_title_variables',
-        type: 'string',
-        required: false,
-        description: `Use title variables from template in document name`,
-      },
-      {
-        name: 'fields',
-        type: 'string',
-        required: false,
-        description: `Document fields as key-value pairs`,
-      },
-      {
-        name: 'folder_uuid',
-        type: 'string',
-        required: false,
-        description: `Destination folder UUID`,
-      },
-      {
-        name: 'images',
-        type: 'string',
-        required: false,
-        description: `Images to populate in template image blocks`,
-      },
-      {
-        name: 'metadata',
-        type: 'string',
-        required: false,
-        description: `Document metadata as key-value pairs`,
-      },
-      {
-        name: 'owner',
-        type: 'string',
-        required: false,
-        description: `Document owner (email or membership_id)`,
-      },
-      { name: 'pricing_tables', type: 'string', required: false, description: `Pricing tables` },
-      { name: 'tables', type: 'string', required: false, description: `Tables` },
-      { name: 'tags', type: 'string', required: false, description: `Document tags` },
-      {
-        name: 'texts',
-        type: 'string',
-        required: false,
-        description: `Text blocks to populate by name`,
-      },
-      {
-        name: 'tokens',
-        type: 'string',
-        required: false,
-        description: `Document tokens (variables) as name/value pairs`,
-      },
-    ],
-  },
-  {
-    name: 'pandadocmcp_documents_create_from_markdown',
-    description: `Create a new PandaDoc document from Markdown content with optional recipients and role-based fields.`,
+    description: `Create a document from a template, markdown content, or a PDF/DOCX file URL. Pass a single 'request' object whose 'source' selects the creation mode; each source accepts only its own parameters. Creation is asynchronous - poll Get Document Status until the document is Draft or Error.`,
     params: [
       {
-        name: 'document_markdown',
-        type: 'string',
+        name: 'request',
+        type: 'object',
         required: true,
-        description: `Content of the document in markdown`,
-      },
-      { name: 'name', type: 'string', required: true, description: `Name of the new document` },
-      {
-        name: 'folder_id',
-        type: 'string',
-        required: false,
-        description: `ID of the folder to create the document in. Optional, if not provided document will be created in root folder.`,
-      },
-      {
-        name: 'recipients',
-        type: 'string',
-        required: false,
-        description: `List of document recipients. Optional, if not provided document will be created without recipients.`,
-      },
-      {
-        name: 'role_fields',
-        type: 'string',
-        required: false,
-        description: `List of roles with assigned fields. Optional, if not provided no fields will be assigned to recipients by default. MUST be used together with \`recipients\`: every role referenced here must match the \`role\` of a recipient in the \`recipients\` argument. Passing \`role_fields\` without a matching recipient role will cause an error.`,
+        description: `Document to create. Set \`source\` to \`template\` (create from a PandaDoc template), \`markdown\` (create from markdown content), or \`file\` (create from a PDF/DOCX file URL). Each source accepts only its own parameters.`,
       },
     ],
   },
@@ -153,8 +63,20 @@ export const tools: Tool[] = [
   },
   {
     name: 'pandadocmcp_documents_list',
-    description: `List documents with optional filters for status, folder, tag, and search query. Returns paginated results.`,
+    description: `List documents with filters for status, folder, tag, free-text search, sorting, and created/completed date ranges. Returns paginated results.`,
     params: [
+      {
+        name: 'completed_from',
+        type: 'string',
+        required: false,
+        description: `Only documents completed on or after this ISO-8601 datetime.`,
+      },
+      {
+        name: 'completed_to',
+        type: 'string',
+        required: false,
+        description: `Only documents completed before this ISO-8601 datetime.`,
+      },
       {
         name: 'count',
         type: 'string',
@@ -162,10 +84,22 @@ export const tools: Tool[] = [
         description: `Limits the size of the response. Default is 50 documents, maximum is 100 documents.`,
       },
       {
+        name: 'created_from',
+        type: 'string',
+        required: false,
+        description: `Only documents created on or after this ISO-8601 datetime, e.g. \`\`2026-03-01T00:00:00Z\`\`.`,
+      },
+      {
+        name: 'created_to',
+        type: 'string',
+        required: false,
+        description: `Only documents created before this ISO-8601 datetime, e.g. \`\`2026-03-31T23:59:59Z\`\`.`,
+      },
+      {
         name: 'folder_uuid',
         type: 'string',
         required: false,
-        description: `Filters by the folder where the documents are stored.`,
+        description: `UUID of the folder to list from (folder_uuid, NOT folder_id).`,
       },
       {
         name: 'page',
@@ -180,12 +114,42 @@ export const tools: Tool[] = [
         description: `Filters documents by name or reference number (stored on the template level).`,
       },
       {
+        name: 'sort_by',
+        type: 'string',
+        required: false,
+        description: `Field to sort documents by. Defaults to date_status_changed when omitted.`,
+      },
+      {
+        name: 'sort_order',
+        type: 'string',
+        required: false,
+        description: `Sort direction, ascending when omitted. Keep consistent across pages of the same query.`,
+      },
+      {
         name: 'status',
         type: 'string',
         required: false,
-        description: `Filters documents by the status. 0: document.draft, 1: document.sent, 2: document.completed, 3: document.uploaded, 4: document.error, 5: document.viewed, 6: document.waiting_approval, 7: document.approved, 8: document.rejected, 9: document.waiting_pay, 10: document.paid, 11: document.voided, 12: document.declined, 13: document.external_review.`,
+        description: `Filters documents by status. Valid values: Draft, Sent, Completed, Uploaded, Error, Viewed, Waiting for Approval, Approved, Rejected, Waiting for Payment, Paid, Expired, Declined, External Review, Scheduled.`,
       },
       { name: 'tag', type: 'string', required: false, description: `Filters documents by tag.` },
+    ],
+  },
+  {
+    name: 'pandadocmcp_documents_metadata_batch_get',
+    description: `Retrieve metadata for 1-40 documents in one request. Preferred over calling Get Document Metadata in a loop; a failure for one document does not fail the batch.`,
+    params: [
+      {
+        name: 'document_ids',
+        type: 'array',
+        required: true,
+        description: `1-40 document IDs to fetch metadata for. Duplicates are rejected by the server.`,
+      },
+      {
+        name: 'field_keys',
+        type: 'string',
+        required: false,
+        description: `Optional case-sensitive filter on metadata field \`key\` (the human-readable name returned as \`results[].key\` by the single-document endpoint, e.g. \`Contract value\`). Unknown keys are silently ignored. When omitted, every populated field is returned per document.`,
+      },
     ],
   },
   {
@@ -245,7 +209,7 @@ export const tools: Tool[] = [
         name: 'status',
         type: 'string',
         required: false,
-        description: `Restrict hits to these PandaDoc document status codes (omit to ignore status). 0 draft, 1 sent, 2 completed, 5 viewed, 6 waiting approval, 7 approved, 8 rejected, 9 waiting pay, 10 paid, 11 expired, 12 declined, 13 external review. Example: \`\`[1, 2]\`\` for sent or completed.`,
+        description: `Restrict hits to documents with these statuses (omit to ignore status). Valid values: Draft, Sent, Completed, Uploaded, Error, Viewed, Waiting for Approval, Approved, Rejected, Waiting for Payment, Paid, Expired, Declined, External Review, Scheduled. Example: ["Sent", "Completed"].`,
       },
       {
         name: 'to_date',
@@ -297,6 +261,12 @@ export const tools: Tool[] = [
         description: `If true, disables email notifications for document recipients and the sender. Also disables scheduled reminders. Does not affect 'Approve document' email notification.`,
       },
       {
+        name: 'skip_unfilled_variables',
+        type: 'boolean',
+        required: false,
+        description: `Must be false by default. Only set to true when the user has explicitly chosen to send with empty variables.`,
+      },
+      {
         name: 'subject',
         type: 'string',
         required: false,
@@ -306,14 +276,14 @@ export const tools: Tool[] = [
   },
   {
     name: 'pandadocmcp_documents_status_change',
-    description: `Manually change a document status to completed, expired, paid, or voided.`,
+    description: `Manually change a document's status. Only Completed, Paid, Expired, and Declined are settable; other statuses are managed automatically by PandaDoc.`,
     params: [
       { name: 'document_id', type: 'string', required: true, description: `Document ID` },
       {
         name: 'status',
-        type: 'integer',
+        type: 'string',
         required: true,
-        description: `Document status code (2=completed, 10=paid, 11=expired, 12=declined)`,
+        description: `Target status. Valid values: Completed, Paid, Expired, Declined.`,
       },
       {
         name: 'note',
@@ -336,7 +306,7 @@ export const tools: Tool[] = [
   },
   {
     name: 'pandadocmcp_documents_summary_get',
-    description: `Get an AI-generated or standard summary for a document by ID.`,
+    description: `Get a summary for a document at one of three granularity levels: detailed, short, or headline.`,
     params: [
       { name: 'document_id', type: 'string', required: true, description: `Document ID` },
       {
@@ -366,14 +336,24 @@ export const tools: Tool[] = [
         description: `Document metadata as key-value pairs`,
       },
       { name: 'name', type: 'string', required: false, description: `Document name` },
-      { name: 'pricing_tables', type: 'string', required: false, description: `Pricing tables` },
+      {
+        name: 'pricing_tables',
+        type: 'string',
+        required: false,
+        description: `Pricing tables to populate by name`,
+      },
       {
         name: 'recipients',
         type: 'string',
         required: false,
         description: `List of recipients. Each should have email, first_name, last_name, etc.`,
       },
-      { name: 'tables', type: 'string', required: false, description: `Tables` },
+      {
+        name: 'tables',
+        type: 'string',
+        required: false,
+        description: `Tables to populate by name`,
+      },
       { name: 'tags', type: 'string', required: false, description: `Document tags` },
       {
         name: 'texts',
@@ -388,6 +368,99 @@ export const tools: Tool[] = [
         description: `Document tokens (variables). Each should have name and value.`,
       },
       { name: 'url', type: 'string', required: false, description: `Document URL` },
+    ],
+  },
+  {
+    name: 'pandadocmcp_recipients_add_cc',
+    description: `Add a CC (non-signing) recipient to a document using an existing contact ID. Cannot add to expired or declined documents.`,
+    params: [
+      {
+        name: 'contact_id',
+        type: 'string',
+        required: true,
+        description: `Contact UUID to add as CC.`,
+      },
+      { name: 'document_id', type: 'string', required: true, description: `Document UUID` },
+      {
+        name: 'kind',
+        type: 'string',
+        required: false,
+        description: `'contact' or 'contact_group'.`,
+      },
+    ],
+  },
+  {
+    name: 'pandadocmcp_recipients_delete',
+    description: `Remove a recipient from a document. Signers can only be removed while the document is in draft; CC recipients can be removed in any status except expired or declined.`,
+    params: [
+      { name: 'document_id', type: 'string', required: true, description: `Document UUID` },
+      {
+        name: 'recipient_id',
+        type: 'string',
+        required: true,
+        description: `Recipient UUID to remove.`,
+      },
+    ],
+  },
+  {
+    name: 'pandadocmcp_recipients_edit',
+    description: `Update a recipient's details such as email, name, phone, company, address, or redirect. A signer's email cannot be changed after they have signed.`,
+    params: [
+      { name: 'document_id', type: 'string', required: true, description: `Document UUID` },
+      {
+        name: 'recipient_id',
+        type: 'string',
+        required: true,
+        description: `Recipient UUID from document details.`,
+      },
+      { name: 'city', type: 'string', required: false, description: `City.` },
+      { name: 'company', type: 'string', required: false, description: `Company name.` },
+      { name: 'country', type: 'string', required: false, description: `Country.` },
+      {
+        name: 'delivery_methods',
+        type: 'string',
+        required: false,
+        description: `Delivery methods (email/sms).`,
+      },
+      { name: 'email', type: 'string', required: false, description: `New email address.` },
+      { name: 'first_name', type: 'string', required: false, description: `First name.` },
+      { name: 'job_title', type: 'string', required: false, description: `Job title.` },
+      { name: 'last_name', type: 'string', required: false, description: `Last name.` },
+      { name: 'phone', type: 'string', required: false, description: `Phone number.` },
+      { name: 'postal_code', type: 'string', required: false, description: `Postal / ZIP code.` },
+      {
+        name: 'redirect',
+        type: 'string',
+        required: false,
+        description: `Post-signing redirect (is_enabled, url).`,
+      },
+      { name: 'state', type: 'string', required: false, description: `State or region.` },
+      { name: 'street_address', type: 'string', required: false, description: `Street address.` },
+    ],
+  },
+  {
+    name: 'pandadocmcp_recipients_reassign',
+    description: `Replace a signer with another contact, transferring all assigned fields to the new signer. Cannot reassign recipients who have already signed.`,
+    params: [
+      { name: 'document_id', type: 'string', required: true, description: `Document UUID` },
+      {
+        name: 'new_contact_id',
+        type: 'string',
+        required: true,
+        description: `Contact UUID of the new signer.`,
+      },
+      {
+        name: 'recipient_id',
+        type: 'string',
+        required: true,
+        description: `Recipient UUID of the signer to replace.`,
+      },
+      {
+        name: 'kind',
+        type: 'string',
+        required: false,
+        description: `'contact' or 'contact_group'.`,
+      },
     ],
   },
   {
