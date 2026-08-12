@@ -1,0 +1,170 @@
+export const sectionTitle = 'Common workflows'
+
+import { Tabs, TabItem, Aside } from '@astrojs/starlight/components'
+
+Every Plaud tool except `plaudmcp_get_current_user` works from a **file ID** — the identifier of a single recording. Start with `plaudmcp_list_files` to find the recording, then pass its `file_id` to the transcript, notes, or details tools.
+
+### Find a recording, then read its notes
+
+Filter the recording list by name substring or date range, take the `file_id` of the match, and fetch the AI-generated summary and action items.
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    // Step 1 — find the recording. `query` matches the name, case-insensitively.
+    const recordings = await actions.executeTool({
+      connectionName: 'plaudmcp',
+      identifier: 'user_123',
+      toolName: 'plaudmcp_list_files',
+      toolInput: {
+        query: 'weekly sync',
+        date_from: '2026-01-01',
+        date_to: '2026-01-31',
+      },
+    });
+
+    // Step 2 — read the AI notes for the first match.
+    const notes = await actions.executeTool({
+      connectionName: 'plaudmcp',
+      identifier: 'user_123',
+      toolName: 'plaudmcp_get_note',
+      toolInput: { file_id: recordings[0].id },
+    });
+    console.log(notes);
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    # Step 1 — find the recording. `query` matches the name, case-insensitively.
+    recordings = actions.execute_tool(
+        connection_name="plaudmcp",
+        identifier="user_123",
+        tool_name="plaudmcp_list_files",
+        tool_input={
+            "query": "weekly sync",
+            "date_from": "2026-01-01",
+            "date_to": "2026-01-31",
+        },
+    )
+
+    # Step 2 — read the AI notes for the first match.
+    notes = actions.execute_tool(
+        connection_name="plaudmcp",
+        identifier="user_123",
+        tool_name="plaudmcp_get_note",
+        tool_input={"file_id": recordings[0]["id"]},
+    )
+    print(notes)
+    ```
+  </TabItem>
+</Tabs>
+
+<Aside type="note" title="Filters change how pagination works">
+  When you set `query`, `date_from`, or `date_to`, `plaudmcp_list_files` ignores `page` and `page_size` and scans up to 5 pages of 100 recordings to return every match. Without filters, it honors `page` and `page_size` (default 20).
+</Aside>
+
+### Page through a long transcript
+
+`plaudmcp_get_transcript` returns one page of utterances at a time. Pass the `next_cursor` from the previous response to fetch the following page, and stop when the response returns no cursor.
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    const utterances = [];
+    let cursor = undefined;
+
+    do {
+      const page = await actions.executeTool({
+        connectionName: 'plaudmcp',
+        identifier: 'user_123',
+        toolName: 'plaudmcp_get_transcript',
+        toolInput: {
+          file_id: '66f2b1c8e4b0a1d2c3e4f5a6',
+          block: 'transaction', // raw transcript with speaker names and timestamps
+          limit: 200,
+          ...(cursor ? { cursor } : {}),
+        },
+      });
+      utterances.push(...page.items);
+      cursor = page.next_cursor;
+    } while (cursor);
+
+    console.log(`Fetched ${utterances.length} utterances`);
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    utterances = []
+    cursor = None
+
+    while True:
+        tool_input = {
+            "file_id": "66f2b1c8e4b0a1d2c3e4f5a6",
+            "block": "transaction",  # raw transcript with speaker names and timestamps
+            "limit": 200,
+        }
+        if cursor:
+            tool_input["cursor"] = cursor
+
+        page = actions.execute_tool(
+            connection_name="plaudmcp",
+            identifier="user_123",
+            tool_name="plaudmcp_get_transcript",
+            tool_input=tool_input,
+        )
+        utterances.extend(page["items"])
+        cursor = page.get("next_cursor")
+        if not cursor:
+            break
+
+    print(f"Fetched {len(utterances)} utterances")
+    ```
+  </TabItem>
+</Tabs>
+
+### Choose the right transcript block
+
+`plaudmcp_get_transcript` reads one of three blocks. Pick the block that matches what the agent needs:
+
+| Block | Returns | Use it when |
+| --- | --- | --- |
+| `transaction` | Raw utterances with speaker labels and timestamps. This is the default. | Exact wording matters — quoting, compliance review, or speaker attribution |
+| `transaction_polish` | The same per-utterance shape, cleaned up by AI. Keeps speaker and timestamps. | You want readable prose without filler words, but still need timestamps |
+| `outline` | A structured outline of the recording. | You need the shape of the conversation rather than its full text |
+
+<Aside type="tip" title="Prefer notes over transcripts for summaries">
+  `plaudmcp_get_note` already returns a summary, action items, and key topics as Markdown. Reach for it before pulling a full transcript — it uses far fewer tokens than paging through every utterance.
+</Aside>
+
+### Get one recording's metadata and audio
+
+`plaudmcp_get_file` returns everything about a single recording in one call: name, timestamps, duration, transcript segments, AI notes, and a temporary audio download URL.
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    const recording = await actions.executeTool({
+      connectionName: 'plaudmcp',
+      identifier: 'user_123',
+      toolName: 'plaudmcp_get_file',
+      toolInput: { file_id: '66f2b1c8e4b0a1d2c3e4f5a6' },
+    });
+    console.log(recording.name, recording.duration);
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    recording = actions.execute_tool(
+        connection_name="plaudmcp",
+        identifier="user_123",
+        tool_name="plaudmcp_get_file",
+        tool_input={"file_id": "66f2b1c8e4b0a1d2c3e4f5a6"},
+    )
+    print(recording["name"], recording["duration"])
+    ```
+  </TabItem>
+</Tabs>
+
+<Aside type="caution" title="Audio URLs expire">
+  The audio download URL in the response is short-lived and grants access to the recording to anyone holding it. Download the file during the request that produced the URL, and never store it in logs, prompts, or conversation history.
+</Aside>

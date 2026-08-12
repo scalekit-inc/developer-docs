@@ -1,0 +1,76 @@
+---
+title: 'Plaud MCP connector'
+tableOfContents: true
+description: 'Connect to Plaud MCP. Browse your Plaud recordings, read AI-generated notes, and pull timestamped transcripts with speaker labels into your AI workflows.'
+sidebar:
+  label: 'Plaud MCP'
+overviewTitle: 'Quickstart'
+connectorIcon: https://docs.plaud.ai/mintlify-assets/_mintlify/favicons/plaud/nlLfkc9tz92mhJFv/_generated/favicon/android-chrome-192x192.png
+connectorAuthType: OAuth 2.1/DCR
+connectorCategories: [Transcription, Productivity, Media]
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
+---
+
+import ToolList from '@/components/ToolList.astro'
+import { tools } from '@/data/agent-connectors/plaudmcp'
+import { Steps, Tabs, TabItem } from '@astrojs/starlight/components'
+import { AgentKitCredentials } from '@components/templates'
+import { QuickstartGenericOauthSection } from '@components/templates'
+import { SectionAfterSetupPlaudmcpCommonWorkflows } from '@components/templates'
+
+<Steps>
+
+1. ### Install the SDK
+
+   <Tabs syncKey="tech-stack">
+     <TabItem label="Node.js">
+       ```bash frame="terminal"
+       npm install @scalekit-sdk/node
+       ```
+     </TabItem>
+     <TabItem label="Python">
+       ```bash frame="terminal"
+       pip install scalekit
+       ```
+     </TabItem>
+   </Tabs>
+
+   Full SDK reference: [Node.js](/agentkit/sdks/node/) | [Python](/agentkit/sdks/python/)
+
+2. ### Set your credentials
+
+   <AgentKitCredentials />
+
+3. ### Authorize and make your first call
+
+   <QuickstartGenericOauthSection connector="plaudmcp" toolName="plaudmcp_get_current_user" providerName="Plaud MCP" />
+
+</Steps>
+
+## What you can do
+
+Connect this agent connector to let your agent:
+
+- **List recordings** — browse Plaud recordings, narrowed by a name substring and an inclusive `date_from`/`date_to` range
+- **Get recording details** — read a recording's name, timestamps, duration, transcript segments, AI notes, and temporary audio download URL
+- **Read timestamped transcripts** — fetch raw or AI-cleaned transcripts with speaker attribution, one cursor-paginated page of utterances at a time
+- **Read AI-generated notes** — retrieve the summary, action items, and key topics for a recording as Markdown blocks
+- **Identify the connected account** — confirm which Plaud account the current tool calls run against
+
+## Common workflows
+
+<SectionAfterSetupPlaudmcpCommonWorkflows />
+
+## Tool list
+
+Use the exact tool names from the **Tool list** below when you call `execute_tool`. If you're not sure which name to use, list the tools available for the current user first.
+
+<ToolList tools={tools} />
