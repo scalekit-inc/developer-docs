@@ -20,7 +20,7 @@ export const tools: Tool[] = [
   },
   {
     name: 'pandadocmcp_documents_content_get',
-    description: `Get the content of a document in HTML or PDF format by document ID.`,
+    description: `Get the textual content of a document in plaintext or markdown format by document ID.`,
     params: [
       {
         name: 'content_format',
@@ -37,7 +37,7 @@ export const tools: Tool[] = [
     params: [
       {
         name: 'request',
-        type: 'string',
+        type: 'object',
         required: true,
         description: `Document to create. Set \`source\` to \`template\` (create from a PandaDoc template), \`markdown\` (create from markdown content), or \`file\` (create from a PDF/DOCX file URL). Each source accepts only its own parameters.`,
       },
@@ -306,7 +306,7 @@ export const tools: Tool[] = [
   },
   {
     name: 'pandadocmcp_documents_summary_get',
-    description: `Get an AI-generated or standard summary for a document by ID.`,
+    description: `Get a summary for a document at one of three granularity levels: detailed, short, or headline.`,
     params: [
       { name: 'document_id', type: 'string', required: true, description: `Document ID` },
       {
