@@ -1700,4 +1700,10 @@ export const catalog: Record<string, ProviderMeta> = {
     authType: 'Bearer Token',
     categories: ['Communication', 'Marketing', 'Developer Tools'],
   },
+  plaudmcp: {
+    iconUrl:
+      'https://docs.plaud.ai/mintlify-assets/_mintlify/favicons/plaud/nlLfkc9tz92mhJFv/_generated/favicon/android-chrome-192x192.png',
+    authType: 'OAuth 2.1/DCR',
+    categories: ['Transcription', 'Productivity', 'Media'],
+  },
 }

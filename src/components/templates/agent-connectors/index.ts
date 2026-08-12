@@ -214,6 +214,7 @@ export { default as SectionAfterSetupOnenoteCommonWorkflows } from './_section-a
 export { default as SectionAfterSetupOutlookCommonWorkflows } from './_section-after-setup-outlook-common-workflows.mdx'
 export { default as SectionAfterSetupParallelaitaskmcpCommonWorkflows } from './_section-after-setup-parallelaitaskmcp-common-workflows.mdx'
 export { default as SectionAfterSetupPhantombusterCommonWorkflows } from './_section-after-setup-phantombuster-common-workflows.mdx'
+export { default as SectionAfterSetupPlaudmcpCommonWorkflows } from './_section-after-setup-plaudmcp-common-workflows.mdx'
 export { default as SectionAfterSetupPosthogmcpCommonWorkflows } from './_section-after-setup-posthogmcp-common-workflows.mdx'
 export { default as SectionAfterSetupQuickbooksCommonWorkflows } from './_section-after-setup-quickbooks-common-workflows.mdx'
 export { default as SectionAfterSetupSalesforceCommonWorkflows } from './_section-after-setup-salesforce-common-workflows.mdx'
