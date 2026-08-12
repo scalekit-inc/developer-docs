@@ -2,20 +2,24 @@ export const sectionTitle = 'Common workflows'
 
 import { Tabs, TabItem, Aside } from '@astrojs/starlight/components'
 
-Every Plaud tool except `plaudmcp_get_current_user` works from a **file ID** — the identifier of a single recording. Start with `plaudmcp_list_files` to find the recording, then pass its `file_id` to the transcript, notes, or details tools.
+`plaudmcp_get_file`, `plaudmcp_get_note`, and `plaudmcp_get_transcript` require a **file ID** — the identifier of a single recording. Start with `plaudmcp_list_files` to discover recordings, then pass a `file_id` to the details, notes, or transcript tools.
+
+<Aside type="caution" title="Read tool output from the response wrapper">
+  `execute_tool` / `executeTool` returns a wrapper object, not the Plaud payload. Tool output lives under `response.data` (Python) or `result.data` (Node.js), and the keys inside `data` come from the upstream Plaud MCP server. Log `data` once when you integrate a tool, then read the fields you need — see [Understand tool response shape](/agentkit/tools/scalekit-optimized-tools/#understand-tool-response-shape).
+</Aside>
 
 ### Find a recording, then read its notes
 
-Filter the recording list by name substring or date range, take the `file_id` of the match, and fetch the AI-generated summary and action items.
+Filter the recording list by name substring or date range, take the `file_id` of a match, and fetch the AI-generated summary and action items.
 
 <Tabs syncKey="tech-stack">
   <TabItem label="Node.js">
     ```typescript
     // Step 1 — find the recording. `query` matches the name, case-insensitively.
-    const recordings = await actions.executeTool({
-      connectionName: 'plaudmcp',
-      identifier: 'user_123',
+    const listResult = await scalekit.actions.executeTool({
       toolName: 'plaudmcp_list_files',
+      identifier: 'user_123',
+      connector: 'plaudmcp',
       toolInput: {
         query: 'weekly sync',
         date_from: '2026-01-01',
@@ -23,23 +27,28 @@ Filter the recording list by name substring or date range, take the `file_id` of
       },
     });
 
-    // Step 2 — read the AI notes for the first match.
-    const notes = await actions.executeTool({
-      connectionName: 'plaudmcp',
-      identifier: 'user_123',
+    // Inspect the payload once to learn how Plaud names the recording list and
+    // its file IDs, then read those fields directly in your own code.
+    // Security: Log only in development; recording names may expose user data.
+    console.log(listResult.data);
+
+    // Step 2 — read the AI notes for a recording you picked from that payload.
+    const noteResult = await scalekit.actions.executeTool({
       toolName: 'plaudmcp_get_note',
-      toolInput: { file_id: recordings[0].id },
+      identifier: 'user_123',
+      connector: 'plaudmcp',
+      toolInput: { file_id: '66f2b1c8e4b0a1d2c3e4f5a6' },
     });
-    console.log(notes);
+    console.log(noteResult.data);
     ```
   </TabItem>
   <TabItem label="Python">
     ```python
     # Step 1 — find the recording. `query` matches the name, case-insensitively.
-    recordings = actions.execute_tool(
-        connection_name="plaudmcp",
-        identifier="user_123",
+    list_response = actions.execute_tool(
         tool_name="plaudmcp_list_files",
+        identifier="user_123",
+        connection_name="plaudmcp",
         tool_input={
             "query": "weekly sync",
             "date_from": "2026-01-01",
@@ -47,37 +56,42 @@ Filter the recording list by name substring or date range, take the `file_id` of
         },
     )
 
-    # Step 2 — read the AI notes for the first match.
-    notes = actions.execute_tool(
-        connection_name="plaudmcp",
-        identifier="user_123",
+    # Inspect the payload once to learn how Plaud names the recording list and
+    # its file IDs, then read those fields directly in your own code.
+    # Security: Log only in development; recording names may expose user data.
+    print(list_response.data)
+
+    # Step 2 — read the AI notes for a recording you picked from that payload.
+    note_response = actions.execute_tool(
         tool_name="plaudmcp_get_note",
-        tool_input={"file_id": recordings[0]["id"]},
+        identifier="user_123",
+        connection_name="plaudmcp",
+        tool_input={"file_id": "66f2b1c8e4b0a1d2c3e4f5a6"},
     )
-    print(notes)
+    print(note_response.data)
     ```
   </TabItem>
 </Tabs>
 
 <Aside type="note" title="Filters change how pagination works">
-  When you set `query`, `date_from`, or `date_to`, `plaudmcp_list_files` ignores `page` and `page_size` and scans up to 5 pages of 100 recordings to return every match. Without filters, it honors `page` and `page_size` (default 20).
+  When you set `query`, `date_from`, or `date_to`, `plaudmcp_list_files` ignores `page` and `page_size` and scans up to 5 pages of 100 recordings. It returns the matches found within those pages, so a match past the 500th recording is not returned — narrow the date range to reach older recordings. Without filters, the tool honors `page` and `page_size` (default 20).
 </Aside>
 
 ### Page through a long transcript
 
-`plaudmcp_get_transcript` returns one page of utterances at a time. Pass the `next_cursor` from the previous response to fetch the following page, and stop when the response returns no cursor.
+`plaudmcp_get_transcript` returns one page of utterances at a time and includes a `next_cursor` when more remain. Pass that cursor back on the next call, and stop when the response returns no cursor.
 
 <Tabs syncKey="tech-stack">
   <TabItem label="Node.js">
     ```typescript
-    const utterances = [];
-    let cursor = undefined;
+    const pages = [];
+    let cursor: string | undefined = undefined;
 
     do {
-      const page = await actions.executeTool({
-        connectionName: 'plaudmcp',
-        identifier: 'user_123',
+      const result = await scalekit.actions.executeTool({
         toolName: 'plaudmcp_get_transcript',
+        identifier: 'user_123',
+        connector: 'plaudmcp',
         toolInput: {
           file_id: '66f2b1c8e4b0a1d2c3e4f5a6',
           block: 'transaction', // raw transcript with speaker names and timestamps
@@ -85,16 +99,17 @@ Filter the recording list by name substring or date range, take the `file_id` of
           ...(cursor ? { cursor } : {}),
         },
       });
-      utterances.push(...page.items);
-      cursor = page.next_cursor;
+
+      pages.push(result.data);
+      cursor = (result.data as { next_cursor?: string }).next_cursor;
     } while (cursor);
 
-    console.log(`Fetched ${utterances.length} utterances`);
+    console.log(`Fetched ${pages.length} transcript page(s)`);
     ```
   </TabItem>
   <TabItem label="Python">
     ```python
-    utterances = []
+    pages = []
     cursor = None
 
     while True:
@@ -106,21 +121,26 @@ Filter the recording list by name substring or date range, take the `file_id` of
         if cursor:
             tool_input["cursor"] = cursor
 
-        page = actions.execute_tool(
-            connection_name="plaudmcp",
-            identifier="user_123",
+        response = actions.execute_tool(
             tool_name="plaudmcp_get_transcript",
+            identifier="user_123",
+            connection_name="plaudmcp",
             tool_input=tool_input,
         )
-        utterances.extend(page["items"])
-        cursor = page.get("next_cursor")
+
+        pages.append(response.data)
+        cursor = response.data.get("next_cursor")
         if not cursor:
             break
 
-    print(f"Fetched {len(utterances)} utterances")
+    print(f"Fetched {len(pages)} transcript page(s)")
     ```
   </TabItem>
 </Tabs>
+
+<Aside type="tip" title="Set a limit that matches the job">
+  `limit` accepts 1 to 500 utterances and defaults to 50. Raise it to reduce round trips on long recordings, and lower it when you only need the opening exchange.
+</Aside>
 
 ### Choose the right transcript block
 
@@ -143,24 +163,28 @@ Filter the recording list by name substring or date range, take the `file_id` of
 <Tabs syncKey="tech-stack">
   <TabItem label="Node.js">
     ```typescript
-    const recording = await actions.executeTool({
-      connectionName: 'plaudmcp',
-      identifier: 'user_123',
+    const result = await scalekit.actions.executeTool({
       toolName: 'plaudmcp_get_file',
+      identifier: 'user_123',
+      connector: 'plaudmcp',
       toolInput: { file_id: '66f2b1c8e4b0a1d2c3e4f5a6' },
     });
-    console.log(recording.name, recording.duration);
+
+    // Security: Log only in development; recordings may contain sensitive content.
+    console.log(result.data);
     ```
   </TabItem>
   <TabItem label="Python">
     ```python
-    recording = actions.execute_tool(
-        connection_name="plaudmcp",
-        identifier="user_123",
+    response = actions.execute_tool(
         tool_name="plaudmcp_get_file",
+        identifier="user_123",
+        connection_name="plaudmcp",
         tool_input={"file_id": "66f2b1c8e4b0a1d2c3e4f5a6"},
     )
-    print(recording["name"], recording["duration"])
+
+    # Security: Log only in development; recordings may contain sensitive content.
+    print(response.data)
     ```
   </TabItem>
 </Tabs>
