@@ -338,52 +338,92 @@ const { tools } = Astro.props
 </style>
 
 <script>
-  // Inject tool names into Starlight's right-sidebar TOC
-  document.addEventListener('DOMContentLoaded', () => {
+  // Astro's ClientRouter (view transitions) swaps in a fresh <body> on every
+  // soft navigation but only ever runs an inline script's identical
+  // textContent once per session (see swap-functions.js `scriptsAlreadyRan`).
+  // So every piece of setup below is wrapped in an idempotent init function
+  // that reruns on `astro:page-load` (fires on first load AND after every
+  // soft nav), guarded on the fresh `.tool-list` element itself rather than
+  // a module-level flag — mirrors the pattern in ProviderCatalog.astro.
+  function initToolList(): void {
+    const root = document.querySelector<HTMLElement>('.tool-list')
+    if (!root || root.dataset.toolListReady === 'true') return
+    root.dataset.toolListReady = 'true'
+
+    // Inject tool names into Starlight's right-sidebar TOC
     const tocNav = document.querySelector<HTMLElement>('starlight-toc nav > ul')
-    if (!tocNav) return
+    const toolListLink = tocNav
+      ? Array.from(tocNav.querySelectorAll<HTMLAnchorElement>(':scope > li a')).find(
+          (a) => a.getAttribute('href') === '#tool-list',
+        )
+      : undefined
+    const toolListItem = toolListLink?.closest('li')
+    // Guard against the TOC nav itself surviving a swap (unlikely, but keeps
+    // this idempotent even if Starlight ever reuses the sidebar DOM).
+    if (toolListItem && !toolListItem.querySelector('ul')) {
+      const cards = root.querySelectorAll<HTMLElement>('.tool-card[id]')
 
-    const toolListLink = Array.from(
-      tocNav.querySelectorAll<HTMLAnchorElement>(':scope > li a'),
-    ).find((a) => a.getAttribute('href') === '#tool-list')
-    if (!toolListLink) return
-    const toolListItem = toolListLink.closest('li')
-    if (!toolListItem) return
+      if (cards.length) {
+        const nestedUl = document.createElement('ul')
+        nestedUl.style.cssText =
+          'list-style:none;padding-inline-start:1rem;margin:0.25rem 0 0;display:flex;flex-direction:column;gap:0.125rem;'
 
-    const cards = document.querySelectorAll<HTMLElement>('.tool-list .tool-card[id]')
-    if (!cards.length) return
+        cards.forEach((card) => {
+          const name = card.querySelector('.tool-name')?.textContent?.trim() ?? card.id
+          const li = document.createElement('li')
+          const a = document.createElement('a')
+          a.href = `#${card.id}`
+          a.textContent = name
+          a.style.cssText =
+            'font-size:var(--sl-text-xs);font-family:var(--sl-font-system-mono);color:var(--sl-color-gray-2);text-decoration:none;display:block;padding:0.125rem 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;'
+          a.addEventListener('mouseenter', () => (a.style.color = 'var(--sl-color-text-accent)'))
+          a.addEventListener('mouseleave', () => (a.style.color = 'var(--sl-color-gray-2)'))
+          a.addEventListener('click', (e) => {
+            e.preventDefault()
+            const target = document.getElementById(card.id) as HTMLDetailsElement | null
+            if (target) {
+              target.open = true
+              target.scrollIntoView({ behavior: 'smooth', block: 'start' })
+              history.pushState(null, '', `#${card.id}`)
+            }
+          })
+          li.appendChild(a)
+          nestedUl.appendChild(li)
+        })
 
-    const nestedUl = document.createElement('ul')
-    nestedUl.style.cssText =
-      'list-style:none;padding-inline-start:1rem;margin:0.25rem 0 0;display:flex;flex-direction:column;gap:0.125rem;'
+        toolListItem.appendChild(nestedUl)
+      }
+    }
 
-    cards.forEach((card) => {
-      const name = card.querySelector('.tool-name')?.textContent?.trim() ?? card.id
-      const li = document.createElement('li')
-      const a = document.createElement('a')
-      a.href = `#${card.id}`
-      a.textContent = name
-      a.style.cssText =
-        'font-size:var(--sl-text-xs);font-family:var(--sl-font-system-mono);color:var(--sl-color-gray-2);text-decoration:none;display:block;padding:0.125rem 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;'
-      a.addEventListener('mouseenter', () => (a.style.color = 'var(--sl-color-text-accent)'))
-      a.addEventListener('mouseleave', () => (a.style.color = 'var(--sl-color-gray-2)'))
-      a.addEventListener('click', (e) => {
-        e.preventDefault()
-        const target = document.getElementById(card.id) as HTMLDetailsElement | null
-        if (target) {
-          target.open = true
-          target.scrollIntoView({ behavior: 'smooth', block: 'start' })
-          history.pushState(null, '', `#${card.id}`)
-        }
+    // Open and scroll to the target tool when navigating directly via URL hash
+    openFromHash()
+
+    // Simple client-side filter for the tool list (name + description)
+    const filterInput = root.querySelector<HTMLInputElement>('.tool-filter-input')
+    if (filterInput) {
+      filterInput.addEventListener('input', () => {
+        const q = filterInput.value.toLowerCase().trim()
+        const cards = root.querySelectorAll<HTMLElement>('.tool-card')
+
+        let visibleCount = 0
+
+        cards.forEach((card) => {
+          const n = card.dataset.toolName || ''
+          const d = card.dataset.toolDesc || ''
+          const show = !q || n.includes(q) || d.includes(q)
+          card.style.display = show ? '' : 'none'
+
+          if (show && q) {
+            if (visibleCount < 3) {
+              ;(card as HTMLDetailsElement).open = true
+            }
+            visibleCount++
+          }
+        })
       })
-      li.appendChild(a)
-      nestedUl.appendChild(li)
-    })
+    }
+  }
 
-    toolListItem.appendChild(nestedUl)
-  })
-
-  // Open and scroll to the target tool when navigating directly via URL hash
   function openFromHash(): void {
     const hash = location.hash.slice(1)
     if (!hash) return
@@ -394,31 +434,11 @@ const { tools } = Astro.props
     }
   }
 
-  openFromHash()
+  // `window` survives soft navigations, so these are registered once at
+  // module scope instead of inside initToolList (which would otherwise
+  // stack a duplicate listener on every navigation).
   window.addEventListener('hashchange', openFromHash)
 
-  // Simple client-side filter for the tool list (name + description)
-  const filterInput = document.querySelector<HTMLInputElement>('.tool-list .tool-filter-input')
-  if (filterInput) {
-    filterInput.addEventListener('input', () => {
-      const q = filterInput.value.toLowerCase().trim()
-      const cards = document.querySelectorAll<HTMLElement>('.tool-list .tool-card')
-
-      let visibleCount = 0
-
-      cards.forEach((card) => {
-        const n = card.dataset.toolName || ''
-        const d = card.dataset.toolDesc || ''
-        const show = !q || n.includes(q) || d.includes(q)
-        card.style.display = show ? '' : 'none'
-
-        if (show && q) {
-          if (visibleCount < 3) {
-            ;(card as HTMLDetailsElement).open = true
-          }
-          visibleCount++
-        }
-      })
-    })
-  }
+  initToolList()
+  document.addEventListener('astro:page-load', initToolList)
 </script>
