@@ -4,8 +4,6 @@ import { Tabs, TabItem } from '@astrojs/starlight/components'
 
 `plaudmcp_get_file`, `plaudmcp_get_note`, and `plaudmcp_get_transcript` require a **file ID** — the identifier of a single recording. Start with `plaudmcp_list_files` to discover recordings, then pass a `file_id` to the details, notes, or transcript tools.
 
-**Read tool output from the response wrapper.** `execute_tool` / `executeTool` returns a wrapper object, not the Plaud payload. Tool output lives under `response.data` (Python) or `result.data` (Node.js), and the keys inside `data` come from the upstream Plaud MCP server. Log `data` once **in development against a recording you own** to learn the field names, then read only the fields you need — see [Understand tool response shape](/agentkit/tools/scalekit-optimized-tools/#understand-tool-response-shape). Plaud payloads carry meeting content, so never log them in production: transcripts and AI notes reach your log store and anyone with access to it.
-
 ### Find a recording, then read its notes
 
 Filter the recording list by name substring or date range, take the `file_id` of a match, and fetch the AI-generated summary and action items.
@@ -77,8 +75,6 @@ Filter the recording list by name substring or date range, take the `file_id` of
   </TabItem>
 </Tabs>
 
-**Filters change how pagination works.** When you set `query`, `date_from`, or `date_to`, `plaudmcp_list_files` ignores `page` and `page_size` and scans up to 5 pages of 100 recordings. It returns the matches found within those pages, so a match past the 500th recording is not returned — narrow the date range to reach older recordings. Without filters, the tool honors `page` and `page_size` (default 20).
-
 ### Page through a long transcript
 
 `plaudmcp_get_transcript` returns one page of utterances at a time and includes a `next_cursor` when more remain. Pass that cursor back on the next call, and stop when the response returns no cursor.
@@ -140,8 +136,6 @@ Filter the recording list by name substring or date range, take the `file_id` of
   </TabItem>
 </Tabs>
 
-**Set a limit that matches the job.** `limit` accepts 1 to 500 utterances and defaults to 50. Raise it to reduce round trips on long recordings, and lower it when you only need the opening exchange.
-
 ### Choose the right transcript block
 
 `plaudmcp_get_transcript` reads one of three blocks. Pick the block that matches what the agent needs:
@@ -151,8 +145,6 @@ Filter the recording list by name substring or date range, take the `file_id` of
 | `transaction` | Raw utterances with speaker labels and timestamps. This is the default. | Exact wording matters — quoting, compliance review, or speaker attribution |
 | `transaction_polish` | The same per-utterance shape, cleaned up by AI. Keeps speaker and timestamps. | You want readable prose without filler words, but still need timestamps |
 | `outline` | A structured outline of the recording. | You need the shape of the conversation rather than its full text |
-
-**Prefer notes over transcripts for summaries.** `plaudmcp_get_note` already returns a summary, action items, and key topics as Markdown. Reach for it before pulling a full transcript — it uses far fewer tokens than paging through every utterance.
 
 ### Get one recording's metadata and audio
 
@@ -186,5 +178,3 @@ Filter the recording list by name substring or date range, take the `file_id` of
     ```
   </TabItem>
 </Tabs>
-
-**Audio URLs expire.** The audio download URL in the response is short-lived and grants access to the recording to anyone holding it. Download the file during the request that produced the URL, and never store it in logs, prompts, or conversation history.
