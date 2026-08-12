@@ -272,6 +272,18 @@ const isConnectorPage = Boolean(connectorIcon)
     })
   })
 
-  initPageActions()
+  // define:vars forces this script to render as a plain synchronous inline
+  // script, which executes immediately while parsing — before the package's
+  // own <script type="module"> control scripts, which are deferred until
+  // after parsing. Calling initPageActions() immediately would clone the
+  // buttons before the package binds anything to strip, so the package's
+  // listener ends up bound to our clone too (double-fires copy/dropdown on
+  // first load). Wait for DOMContentLoaded on first load so the package's
+  // deferred scripts run first — mirrors SecondaryNav.astro.
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initPageActions, { once: true })
+  } else {
+    initPageActions()
+  }
   document.addEventListener('astro:page-load', initPageActions)
 </script>

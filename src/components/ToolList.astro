@@ -346,8 +346,11 @@ const { tools } = Astro.props
   // soft nav), guarded on the fresh `.tool-list` element itself rather than
   // a module-level flag — mirrors the pattern in ProviderCatalog.astro.
   function initToolList(): void {
-    const root = document.querySelector<HTMLElement>('.tool-list')
-    if (!root || root.dataset.toolListReady === 'true') return
+    document.querySelectorAll<HTMLElement>('.tool-list').forEach(initToolListRoot)
+  }
+
+  function initToolListRoot(root: HTMLElement): void {
+    if (root.dataset.toolListReady === 'true') return
     root.dataset.toolListReady = 'true'
 
     // Inject tool names into Starlight's right-sidebar TOC
