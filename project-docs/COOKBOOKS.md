@@ -19,7 +19,7 @@ How-to guides (short dashboard answers) live beside them:
 Each product has a **dedicated guides sidebar** (not the journey rail):
 
 - **AgentKit** secondary nav → **Guides** → left rail shows **Cookbooks** and **How-to** collapsibles
-- **Auth for SaaS** secondary nav → Developer Resources → **Cookbooks** / **How-to** → same pattern
+- **Auth for SaaS** secondary nav → **Guides** → same pattern (not under Developer Resources)
 
 New topic IDs in `src/configs/sidebar.config.ts`:
 
