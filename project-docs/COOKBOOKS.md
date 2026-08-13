@@ -28,11 +28,16 @@ New topic IDs in `src/configs/sidebar.config.ts`:
 
 Each uses `autogenerate` on the product directory. Drop a new `.mdx` file in the folder and it appears in the collapsible.
 
-A cross-product hub remains at `/cookbooks/` (`src/content/docs/cookbooks.mdx`).
+A cross-product hub remains at `/cookbooks/` (`src/content/docs/cookbooks.mdx`). It belongs to no
+single product, so it is listed in `exclude` in `src/configs/sidebar.config.ts` — that keeps it from
+inheriting a product journey rail or lighting up a product nav pill. Both product overview pages
+link to it, and it links back to both shelves.
 
 ## What a cookbook is
 
 A cookbook is a practical, developer-focused guide that solves one specific real-world problem. It is not a feature announcement, a product tour, or a reference page.
+
+The best cookbooks share knowledge, not features. They are useful even for developers who have not yet adopted Scalekit. Each cookbook should be independently useful — a developer should be able to land on one recipe, solve their problem, and continue without reading anything else.
 
 **Cookbooks are:**
 
@@ -46,6 +51,47 @@ A cookbook is a practical, developer-focused guide that solves one specific real
 - First-time setup quickstarts (journey guides)
 - API reference documentation
 - Short dashboard answers (those belong in **How-to**)
+
+### Two layers of content
+
+Every cookbook belongs to one of two layers:
+
+**Layer 1 — Orientation**: Mental models, architecture maps, prerequisites, recommended learning paths. Explains _why_ a pattern matters before showing how to implement it. Use this layer when the reader needs context before they can act.
+
+**Layer 2 — Recipes**: Concrete implementation tasks with working code, expected outcomes, failure modes, and production notes. Use this layer when the reader knows what they want to build and just needs the how.
+
+Most cookbooks are Layer 2. A cookbook may contain both layers — a brief orientation section followed by one or more recipes.
+
+## The P.A.T. framework
+
+Every cookbook must be structured around three layers:
+
+1. **Problem** — Start from the real developer pain, workflow, or use case. What is hard or broken without this recipe?
+2. **Angle** — Give a clear point of view on the solution. Why this approach? What makes it better than the alternatives?
+3. **Teach** — Teach step by step with code, explanations, expected outcomes, common mistakes, and extensions.
+
+Apply P.A.T. to the cookbook as a whole and to each major section.
+
+## Naming
+
+Filename rules:
+
+- Lowercase, hyphen-separated: `implement-nextjs-auth.mdx`
+- Descriptive of the task, not the product: prefer `building-custom-org-switcher` over `scalekit-org-switcher`
+- Name files like search queries a developer would type: `handle-token-refresh-long-running-agents.mdx`, `pass-user-context-to-tools.mdx`, `debug-failed-oauth-flows.mdx`
+
+**Title naming rules:**
+
+Name the cookbook like a concrete developer task. Prefer titles that expose the action, mechanism, or target outcome.
+
+| Bad                                  | Better                                                |
+| ------------------------------------ | ----------------------------------------------------- |
+| "Authentication concepts for agents" | "Set up agent auth in JavaScript"                     |
+| "Scalekit org switcher"              | "Build a custom organization switcher"                |
+| "Token handling"                     | "Handle token refresh in long-running agent sessions" |
+| "User identity in agents"            | "Pass user identity from your app to an agent safely" |
+
+Prefer title patterns: "How to…", "Build…", "Handle…", "Debug…", "Pass…", "Validate…", "Set up…"
 
 ## Frontmatter
 
@@ -75,8 +121,17 @@ tableOfContents: true
 1. Choose the product shelf (`agentkit/cookbooks` or `saaskit/cookbooks`).
 2. Create `src/content/docs/<product>/cookbooks/<slug>.mdx`.
 3. Write the recipe body (problem, steps, working code, failure modes).
-4. If the page replaces an old `/cookbooks/<slug>` URL, add a redirect in `src/configs/redirects.config.ts`.
+4. Put images under `src/assets/docs/<product>/cookbooks/<slug>/` and reference them as
+   `@/assets/docs/<product>/cookbooks/<slug>/<file>.png`.
 5. Run a local build or `pnpm start` and confirm the page appears under the product **Guides** / **Cookbooks** sidebar.
+
+**Redirects:** a brand-new cookbook needs none. Only a page whose published URL changes needs an
+entry in `src/configs/redirects.config.ts`, and it must be listed one slug at a time — a
+`/cookbooks/*` splat cannot work, because the old flat namespace now splits across two products.
+
+**Images:** moving a cookbook means moving its assets in the same commit. A stale `@/assets/…` path
+is a hard build failure (`[ImageNotFound]`), and `pnpm start` will not surface it because dev
+compiles pages only when you visit them. Run a full `pnpm build` before pushing a move.
 
 ## Content structure
 

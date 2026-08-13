@@ -301,6 +301,7 @@ export const sidebar = [
         items: [
           'dev-kit/tools/scalekit-dryrun',
           'dev-kit/tools/sso-simulator',
+          'dev-kit/tools/scim-simulator',
           'dev-kit/tools/use-scalekit-credentials',
         ],
       },
@@ -635,6 +636,9 @@ export const exclude = [
   '/blog',
   '/404', // Error page
   '/apis/**/*', // REST API reference has Scalar-powered navigation
+  // Cross-product cookbook hub: belongs to no single product, so it must not
+  // inherit the Auth for SaaS journey rail or light up a product nav pill.
+  '/cookbooks',
 ]
 
 /**
@@ -692,7 +696,6 @@ export const topics = {
     '/guides/**/*',
     '/browse/**/*',
     '/reference/**/*',
-    '/cookbooks', // Cross-product hub only
     '/**/*', // Catch-all: anything not matched above defaults here
   ],
 
@@ -822,7 +825,6 @@ export const sidebarToSecondaryNav: Record<string, SecondaryNavMapping> = {
       '/authenticate/interceptors': 'workflows',
       '/reference/interceptors': 'workflows',
       '/reference/admin-portal': 'workflows',
-      '/cookbooks': 'saaskit-cookbooks',
     },
   },
 
