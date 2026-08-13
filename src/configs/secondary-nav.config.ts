@@ -129,6 +129,13 @@ const saasKitItems: NavItem[] = [
     iconComponent: IconSolarServerPathOutline,
   },
   {
+    // Opens the dedicated Auth for SaaS guides sidebar (Cookbooks + How-to collapsibles)
+    id: 'saaskit-guides',
+    href: '/saaskit/cookbooks/',
+    label: 'Guides',
+    iconComponent: IconLucideBookOpenText,
+  },
+  {
     id: 'developer-resources',
     href: '#developer-resources',
     label: 'Developer Resources',
@@ -179,24 +186,6 @@ const saasKitItems: NavItem[] = [
         dropdownLabel: 'Workflows',
         iconComponent: IconLucideWorkflow,
         description: 'Automate user lifecycle and auth events with webhooks',
-        columnGroup: 'right',
-      },
-      {
-        id: 'saaskit-cookbooks',
-        href: '/saaskit/cookbooks/',
-        label: 'Developer Resources',
-        dropdownLabel: 'Cookbooks',
-        iconComponent: IconLucideBookOpenText,
-        description: 'Implement common patterns with step-by-step recipes',
-        columnGroup: 'right',
-      },
-      {
-        id: 'saaskit-how-to',
-        href: '/saaskit/how-to/',
-        label: 'Developer Resources',
-        dropdownLabel: 'How-to guides',
-        iconComponent: IconLucideBookOpenText,
-        description: 'Short answers to dashboard, workspace, and account tasks',
         columnGroup: 'right',
       },
       {
