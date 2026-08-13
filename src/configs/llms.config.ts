@@ -57,6 +57,8 @@ Start with the Quickstart Collection, then follow the developer's question to th
         'directory/scim/**',
         'guides/user-auth/**',
         'guides/user-management/**',
+        'saaskit/cookbooks/**',
+        'saaskit/how-to/**',
       ],
     },
     {
@@ -122,6 +124,7 @@ Start with the Quickstart Collection, then follow the developer's question to th
         'guides/integrations/index',
         'guides/integrations/*/index',
         'guides/dashboard/**',
+        'saaskit/how-to/**', // Workspace/dashboard how-tos moved here from dev-kit/guides/dashboard
         'dev-kit/api-collections/**',
       ],
     },

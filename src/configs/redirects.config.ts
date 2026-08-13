@@ -509,10 +509,26 @@ export const redirects = {
   '/cookbooks/sync-b2b-billing-with-chargebee':
     '/saaskit/cookbooks/sync-b2b-billing-with-chargebee/',
 
+  // Routes that `starlight-blog` generated and nothing replaces. It injected
+  // `/[...prefix]/tags/[tag]`, `/[...prefix]/authors/[author]`, and a paginated
+  // `/[...prefix]/[...page]` (default 5 posts per page, so pages 2–5 existed for
+  // 22 cookbooks). Collapse all of them onto the hub instead of serving 404s.
+  // Listed after the slug redirects above; these patterns cannot shadow them.
+  '/cookbooks/tags/*': '/cookbooks/',
+  '/cookbooks/authors/*': '/cookbooks/',
+  '/cookbooks/2': '/cookbooks/',
+  '/cookbooks/3': '/cookbooks/',
+  '/cookbooks/4': '/cookbooks/',
+  '/cookbooks/5': '/cookbooks/',
+
   // =============================================================================
   // WORKSPACE HOW-TO REDIRECTS
   // =============================================================================
   '/dev-kit/guides/dashboard/billing': '/saaskit/how-to/billing/',
   '/dev-kit/guides/dashboard/environments': '/saaskit/how-to/environments/',
   '/dev-kit/guides/dashboard/manage-team-members': '/saaskit/how-to/manage-team-members/',
+
+  // Moving the dashboard how-tos out left `dev-kit/guides/` holding one orphaned
+  // page. It now sits with the other testing utilities.
+  '/dev-kit/guides/testing/scim-simulator': '/dev-kit/tools/scim-simulator/',
 }
