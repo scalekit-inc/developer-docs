@@ -200,6 +200,222 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'asana_audit_log_events_list',
+    description: `List audit log events captured for a workspace domain since October 2021, optionally filtered by time range, event type, actor, or resource.`,
+    params: [
+      {
+        name: 'workspace_gid',
+        type: 'string',
+        required: true,
+        description: `GID of the workspace or organization`,
+      },
+      {
+        name: 'actor_gid',
+        type: 'string',
+        required: false,
+        description: `Filter to events triggered by the actor with this GID`,
+      },
+      {
+        name: 'end_at',
+        type: 'string',
+        required: false,
+        description: `Filter to events created before this time (exclusive, ISO 8601)`,
+      },
+      {
+        name: 'event_type',
+        type: 'string',
+        required: false,
+        description: `Filter to events of this type`,
+      },
+      {
+        name: 'resource_gid',
+        type: 'string',
+        required: false,
+        description: `Filter to events with this resource GID`,
+      },
+      {
+        name: 'start_at',
+        type: 'string',
+        required: false,
+        description: `Filter to events created after this time (inclusive, ISO 8601)`,
+      },
+    ],
+  },
+  {
+    name: 'asana_batch_create',
+    description: `Submit up to 10 standard Asana API requests as a single batch call, dispatched in parallel to their existing endpoints. Each action counts separately against rate limits, as though the requests were made individually.`,
+    params: [
+      {
+        name: 'actions',
+        type: 'array',
+        required: true,
+        description: `List of action objects to execute. Each action needs relative_path (endpoint path relative to the API base, e.g. '/tasks/1234567890') and method (get, post, put, delete, patch, or head). 'data' holds query parameters for a GET/HEAD action or the request body for post/put/patch. 'options' can hold pagination (limit, offset) and output options (fields, expand). Maximum of 10 actions; zero actions is a 400 error.`,
+      },
+    ],
+  },
+  {
+    name: 'asana_budget_create',
+    description: `Create a budget for a project, tracking either cost or time against an estimate and a user-defined total.`,
+    params: [
+      {
+        name: 'budget_type',
+        type: 'string',
+        required: true,
+        description: `Whether the budget tracks cost or time`,
+      },
+      {
+        name: 'parent',
+        type: 'string',
+        required: true,
+        description: `GID of the project this budget belongs to`,
+      },
+      {
+        name: 'actual_billable_status_filter',
+        type: 'string',
+        required: false,
+        description: `Billable status filter applied to time entries contributing to the actual value`,
+      },
+      {
+        name: 'estimate_billable_status_filter',
+        type: 'string',
+        required: false,
+        description: `Billable status filter applied when estimate source is tasks`,
+      },
+      {
+        name: 'estimate_enabled',
+        type: 'boolean',
+        required: false,
+        description: `Whether the estimate is displayed on the budget`,
+      },
+      {
+        name: 'estimate_source',
+        type: 'string',
+        required: false,
+        description: `Data source for the estimate`,
+      },
+      {
+        name: 'opt_fields',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of optional fields to include in response`,
+      },
+      {
+        name: 'total_enabled',
+        type: 'boolean',
+        required: false,
+        description: `Whether the user-defined total is displayed on the budget`,
+      },
+      {
+        name: 'total_value',
+        type: 'number',
+        required: false,
+        description: `The target total. Minutes if budget_type is time, monetary amount if cost.`,
+      },
+    ],
+  },
+  {
+    name: 'asana_budget_delete',
+    description: `Permanently delete a budget. This action cannot be undone.`,
+    params: [
+      {
+        name: 'budget_gid',
+        type: 'string',
+        required: true,
+        description: `GID of the budget to permanently delete`,
+      },
+    ],
+  },
+  {
+    name: 'asana_budget_get',
+    description: `Get the full record for a single budget.`,
+    params: [
+      {
+        name: 'budget_gid',
+        type: 'string',
+        required: true,
+        description: `GID of the budget to retrieve`,
+      },
+      {
+        name: 'opt_fields',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of optional fields to include in response`,
+      },
+    ],
+  },
+  {
+    name: 'asana_budget_update',
+    description: `Update an existing budget's total, estimate, or actual configuration. The parent and budget type are immutable after creation.`,
+    params: [
+      {
+        name: 'budget_gid',
+        type: 'string',
+        required: true,
+        description: `GID of the budget to update`,
+      },
+      {
+        name: 'actual_billable_status_filter',
+        type: 'string',
+        required: false,
+        description: `Billable status filter applied to time entries contributing to the actual value`,
+      },
+      {
+        name: 'estimate_billable_status_filter',
+        type: 'string',
+        required: false,
+        description: `Billable status filter applied when estimate source is tasks`,
+      },
+      {
+        name: 'estimate_enabled',
+        type: 'boolean',
+        required: false,
+        description: `Whether the estimate is displayed on the budget`,
+      },
+      {
+        name: 'estimate_source',
+        type: 'string',
+        required: false,
+        description: `Data source for the estimate`,
+      },
+      {
+        name: 'opt_fields',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of optional fields to include in response`,
+      },
+      {
+        name: 'total_enabled',
+        type: 'boolean',
+        required: false,
+        description: `Whether the user-defined total is displayed on the budget`,
+      },
+      {
+        name: 'total_value',
+        type: 'number',
+        required: false,
+        description: `The target total. Minutes if budget_type is time, monetary amount if cost.`,
+      },
+    ],
+  },
+  {
+    name: 'asana_budgets_list',
+    description: `List the budgets for a given parent project. Returns at most one budget per parent.`,
+    params: [
+      {
+        name: 'parent',
+        type: 'string',
+        required: true,
+        description: `GID of the project to list budgets for`,
+      },
+      {
+        name: 'opt_fields',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of optional fields to include in response`,
+      },
+    ],
+  },
+  {
     name: 'asana_custom_field_create',
     description: `Create a custom field in a workspace.`,
     params: [
@@ -335,6 +551,54 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'asana_events_list',
+    description: `Get events that have occurred on a resource (task, project, or goal) since a sync token was created. Omit the sync token on the first call; store the returned sync token for the next call.`,
+    params: [
+      {
+        name: 'resource',
+        type: 'string',
+        required: true,
+        description: `GID of the task, project, or goal to subscribe to`,
+      },
+      {
+        name: 'opt_fields',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of optional fields to include in response`,
+      },
+      {
+        name: 'sync',
+        type: 'string',
+        required: false,
+        description: `Sync token from a previous call. Omit on the first call.`,
+      },
+    ],
+  },
+  {
+    name: 'asana_goal_add_custom_field',
+    description: `Add a custom field to a goal. Optionally mark the field as important (displayed prominently on the goal).`,
+    params: [
+      {
+        name: 'custom_field_gid',
+        type: 'string',
+        required: true,
+        description: `GID of the custom field to add to the goal`,
+      },
+      {
+        name: 'goal_gid',
+        type: 'string',
+        required: true,
+        description: `GID of the goal to add the custom field to`,
+      },
+      {
+        name: 'is_important',
+        type: 'boolean',
+        required: false,
+        description: `Set to true to display this custom field prominently on the goal`,
+      },
+    ],
+  },
+  {
     name: 'asana_goal_add_followers',
     description: `Add one or more followers to a goal.`,
     params: [
@@ -414,6 +678,24 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'asana_goal_custom_field_settings_list',
+    description: `List the custom field settings applied to a goal.`,
+    params: [
+      {
+        name: 'goal_gid',
+        type: 'string',
+        required: true,
+        description: `GID of the goal whose custom field settings to list`,
+      },
+      {
+        name: 'opt_fields',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of optional fields to include in response`,
+      },
+    ],
+  },
+  {
     name: 'asana_goal_delete',
     description: `Permanently delete a goal. This action cannot be undone.`,
     params: [
@@ -480,6 +762,30 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'asana_goal_relationship_update',
+    description: `Update the contribution weight of an existing goal relationship (how much the supporting resource's progress contributes to the supported goal).`,
+    params: [
+      {
+        name: 'contribution_weight',
+        type: 'number',
+        required: true,
+        description: `Weight (0 to 1) that the supporting resource's progress contributes to the supported goal`,
+      },
+      {
+        name: 'goal_relationship_gid',
+        type: 'string',
+        required: true,
+        description: `GID of the goal relationship to update`,
+      },
+      {
+        name: 'opt_fields',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of optional fields to include in response`,
+      },
+    ],
+  },
+  {
     name: 'asana_goal_relationships_list',
     description: `List goal relationships, optionally filtered by a supported goal.`,
     params: [
@@ -494,6 +800,24 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Comma-separated list of optional fields to include in response`,
+      },
+    ],
+  },
+  {
+    name: 'asana_goal_remove_custom_field',
+    description: `Remove a custom field setting from a goal.`,
+    params: [
+      {
+        name: 'custom_field_gid',
+        type: 'string',
+        required: true,
+        description: `GID of the custom field to remove from the goal`,
+      },
+      {
+        name: 'goal_gid',
+        type: 'string',
+        required: true,
+        description: `GID of the goal to remove the custom field from`,
       },
     ],
   },
@@ -829,6 +1153,66 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'asana_organization_export_create',
+    description: `Create a request to export the complete data of an organization/workspace in JSON format. Asana completes the export asynchronously; poll Get Organization Export with the returned gid until state is 'finished', then download the data from download_url. Only available to Service Accounts of an Enterprise+ organization.`,
+    params: [
+      {
+        name: 'organization_gid',
+        type: 'string',
+        required: true,
+        description: `GID of the organization (workspace) to export.`,
+      },
+      {
+        name: 'opt_fields',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of optional fields to include in response`,
+      },
+    ],
+  },
+  {
+    name: 'asana_organization_export_get',
+    description: `Get the status of an organization export request, including its state (pending, started, finished, or error) and the download_url once finished. Only available to Service Accounts of an Enterprise+ organization.`,
+    params: [
+      {
+        name: 'organization_export_gid',
+        type: 'string',
+        required: true,
+        description: `GID of the organization export request to retrieve`,
+      },
+      {
+        name: 'opt_fields',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of optional fields to include in response`,
+      },
+    ],
+  },
+  {
+    name: 'asana_portfolio_add_custom_field',
+    description: `Add a custom field to a portfolio. Optionally mark the field as important (displayed prominently in the portfolio view).`,
+    params: [
+      {
+        name: 'custom_field_gid',
+        type: 'string',
+        required: true,
+        description: `GID of the custom field to add to the portfolio`,
+      },
+      {
+        name: 'portfolio_gid',
+        type: 'string',
+        required: true,
+        description: `GID of the portfolio to add the custom field to`,
+      },
+      {
+        name: 'is_important',
+        type: 'boolean',
+        required: false,
+        description: `Set to true to display this custom field prominently in the portfolio view`,
+      },
+    ],
+  },
+  {
     name: 'asana_portfolio_add_item',
     description: `Add a project to a portfolio.`,
     params: [
@@ -969,6 +1353,36 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'asana_portfolio_memberships_for_user_list',
+    description: `Query portfolio memberships across a workspace. Specify portfolio, portfolio and user, or workspace and user.`,
+    params: [
+      {
+        name: 'opt_fields',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of optional fields to include in response`,
+      },
+      {
+        name: 'portfolio',
+        type: 'string',
+        required: false,
+        description: `GID of a portfolio to filter memberships by`,
+      },
+      {
+        name: 'user',
+        type: 'string',
+        required: false,
+        description: `GID or 'me' of a user to filter memberships by`,
+      },
+      {
+        name: 'workspace',
+        type: 'string',
+        required: false,
+        description: `GID of a workspace to filter memberships by (requires user)`,
+      },
+    ],
+  },
+  {
     name: 'asana_portfolio_memberships_list',
     description: `List all members of a portfolio, optionally filtered by a specific user.`,
     params: [
@@ -989,6 +1403,24 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `GID of a user to filter memberships by`,
+      },
+    ],
+  },
+  {
+    name: 'asana_portfolio_remove_custom_field',
+    description: `Remove a custom field setting from a portfolio.`,
+    params: [
+      {
+        name: 'custom_field_gid',
+        type: 'string',
+        required: true,
+        description: `GID of the custom field to remove from the portfolio`,
+      },
+      {
+        name: 'portfolio_gid',
+        type: 'string',
+        required: true,
+        description: `GID of the portfolio to remove the custom field from`,
       },
     ],
   },
@@ -1176,6 +1608,18 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Plain text content for the project brief body. Cannot be used together with html_text. e.g. 'This project aims to...'`,
+      },
+    ],
+  },
+  {
+    name: 'asana_project_brief_delete',
+    description: `Permanently delete a project brief. This action cannot be undone.`,
+    params: [
+      {
+        name: 'project_brief_gid',
+        type: 'string',
+        required: true,
+        description: `GID of the project brief to permanently delete`,
       },
     ],
   },
@@ -1404,6 +1848,24 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'asana_project_remove_custom_field',
+    description: `Remove a custom field setting from a project.`,
+    params: [
+      {
+        name: 'custom_field_gid',
+        type: 'string',
+        required: true,
+        description: `GID of the custom field to remove from the project`,
+      },
+      {
+        name: 'project_gid',
+        type: 'string',
+        required: true,
+        description: `GID of the project to remove the custom field from`,
+      },
+    ],
+  },
+  {
     name: 'asana_project_remove_followers',
     description: `Remove followers from a project by their GIDs.`,
     params: [
@@ -1440,6 +1902,42 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'asana_project_save_as_template',
+    description: `Create a new project template from an existing project. Returns a job that asynchronously builds the template.`,
+    params: [
+      {
+        name: 'name',
+        type: 'string',
+        required: true,
+        description: `Name of the new project template`,
+      },
+      {
+        name: 'project_gid',
+        type: 'string',
+        required: true,
+        description: `GID of the project to save as a template`,
+      },
+      {
+        name: 'public',
+        type: 'boolean',
+        required: true,
+        description: `Whether the new project template is public to its team`,
+      },
+      {
+        name: 'team',
+        type: 'string',
+        required: false,
+        description: `GID of the team for the new template. Specify team, not workspace, for org projects.`,
+      },
+      {
+        name: 'workspace',
+        type: 'string',
+        required: false,
+        description: `GID of the workspace for the new template. Only for projects that exist in a workspace (not an org).`,
+      },
+    ],
+  },
+  {
     name: 'asana_project_status_create',
     description: `Create a new status update for a project with a color-coded health indicator.`,
     params: [
@@ -1467,6 +1965,18 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Optional title for the status update`,
+      },
+    ],
+  },
+  {
+    name: 'asana_project_status_delete',
+    description: `Permanently delete a project status update. This action cannot be undone.`,
+    params: [
+      {
+        name: 'project_status_gid',
+        type: 'string',
+        required: true,
+        description: `GID of the project status update to permanently delete`,
       },
     ],
   },
@@ -1543,6 +2053,18 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'asana_project_template_delete',
+    description: `Permanently delete a project template. This action cannot be undone.`,
+    params: [
+      {
+        name: 'project_template_gid',
+        type: 'string',
+        required: true,
+        description: `GID of the project template to permanently delete`,
+      },
+    ],
+  },
+  {
     name: 'asana_project_template_get',
     description: `Get the details of a single project template by its GID.`,
     params: [
@@ -1587,6 +2109,24 @@ export const tools: Tool[] = [
         type: 'boolean',
         required: false,
         description: `If true, the endpoint will fail if any unresolvable variables are found in the template`,
+      },
+    ],
+  },
+  {
+    name: 'asana_project_templates_for_team_list',
+    description: `List project templates owned by a specific team.`,
+    params: [
+      {
+        name: 'team_gid',
+        type: 'string',
+        required: true,
+        description: `GID of the team whose project templates to list`,
+      },
+      {
+        name: 'opt_fields',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of optional fields to include in response`,
       },
     ],
   },
@@ -1725,8 +2265,164 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'asana_rate_create',
+    description: `Create a rate record for a user or placeholder on a project. Modifying placeholder rates requires Enterprise or Enterprise+.`,
+    params: [
+      {
+        name: 'parent',
+        type: 'string',
+        required: true,
+        description: `GID of the project the rate applies to`,
+      },
+      {
+        name: 'rate',
+        type: 'number',
+        required: true,
+        description: `The monetary value of the rate`,
+      },
+      {
+        name: 'resource',
+        type: 'string',
+        required: true,
+        description: `GID of the user or placeholder the rate applies to`,
+      },
+      {
+        name: 'opt_fields',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of optional fields to include in response`,
+      },
+    ],
+  },
+  {
+    name: 'asana_rate_delete',
+    description: `Permanently delete a rate. This action cannot be undone.`,
+    params: [
+      {
+        name: 'rate_gid',
+        type: 'string',
+        required: true,
+        description: `GID of the rate to permanently delete`,
+      },
+    ],
+  },
+  {
+    name: 'asana_rate_get',
+    description: `Get the full record for a single rate.`,
+    params: [
+      {
+        name: 'rate_gid',
+        type: 'string',
+        required: true,
+        description: `GID of the rate to retrieve`,
+      },
+      {
+        name: 'opt_fields',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of optional fields to include in response`,
+      },
+    ],
+  },
+  {
+    name: 'asana_rate_update',
+    description: `Update the monetary value of an existing rate.`,
+    params: [
+      {
+        name: 'rate_gid',
+        type: 'string',
+        required: true,
+        description: `GID of the rate to update`,
+      },
+      {
+        name: 'opt_fields',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of optional fields to include in response`,
+      },
+      {
+        name: 'rate',
+        type: 'number',
+        required: false,
+        description: `New monetary value for the rate`,
+      },
+    ],
+  },
+  {
+    name: 'asana_rates_list',
+    description: `List rate records for a project, optionally filtered to a specific user or placeholder.`,
+    params: [
+      {
+        name: 'opt_fields',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of optional fields to include in response`,
+      },
+      {
+        name: 'parent',
+        type: 'string',
+        required: false,
+        description: `GID of the project to list rates for`,
+      },
+      {
+        name: 'resource',
+        type: 'string',
+        required: false,
+        description: `GID of a user or placeholder to filter to a specific rate`,
+      },
+    ],
+  },
+  {
+    name: 'asana_reactions_list',
+    description: `List the reactions (emoji) left on a status update or story.`,
+    params: [
+      {
+        name: 'emoji_base',
+        type: 'string',
+        required: true,
+        description: `Only return reactions with this emoji base character`,
+      },
+      {
+        name: 'target',
+        type: 'string',
+        required: true,
+        description: `GID of the status update or story to fetch reactions from`,
+      },
+      {
+        name: 'opt_fields',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of optional fields to include in response`,
+      },
+    ],
+  },
+  {
+    name: 'asana_rule_trigger_run',
+    description: `Trigger an Asana Rule programmatically for a task, passing action data the rule's action can use.`,
+    params: [
+      {
+        name: 'action_data',
+        type: 'object',
+        required: true,
+        description: `JSON object of key-value pairs made available to the rule's action`,
+      },
+      {
+        name: 'resource',
+        type: 'string',
+        required: true,
+        description: `GID of the task to run the rule against. The task must exist in the project where the rule was created.`,
+      },
+      {
+        name: 'rule_trigger_gid',
+        type: 'string',
+        required: true,
+        description: `GID of the incoming web request trigger to run`,
+      },
+    ],
+  },
+  {
     name: 'asana_section_add_task',
-    description: `Move a task into a specific section within a project.`,
+    description: `Move an existing task into a specific section. The task must already belong to the project that contains the target section.`,
     params: [
       {
         name: 'section_gid',
@@ -2417,6 +3113,24 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'asana_task_projects_list',
+    description: `List the projects that a task belongs to.`,
+    params: [
+      {
+        name: 'task_gid',
+        type: 'string',
+        required: true,
+        description: `GID of the task whose projects to list`,
+      },
+      {
+        name: 'opt_fields',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of optional fields to include in response`,
+      },
+    ],
+  },
+  {
     name: 'asana_task_remove_dependencies',
     description: `Remove dependencies from a task.`,
     params: [
@@ -2608,6 +3322,36 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Comma-separated list of optional fields to include in response`,
+      },
+    ],
+  },
+  {
+    name: 'asana_task_tags_list',
+    description: `List the tags applied to a task.`,
+    params: [
+      {
+        name: 'task_gid',
+        type: 'string',
+        required: true,
+        description: `GID of the task whose tags to list`,
+      },
+      {
+        name: 'opt_fields',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of optional fields to include in response`,
+      },
+    ],
+  },
+  {
+    name: 'asana_task_template_delete',
+    description: `Permanently delete a task template. This action cannot be undone.`,
+    params: [
+      {
+        name: 'task_template_gid',
+        type: 'string',
+        required: true,
+        description: `GID of the task template to permanently delete`,
       },
     ],
   },
@@ -2849,6 +3593,24 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'asana_team_custom_field_settings_list',
+    description: `List the custom field settings applied to a team.`,
+    params: [
+      {
+        name: 'team_gid',
+        type: 'string',
+        required: true,
+        description: `GID of the team whose custom field settings to list`,
+      },
+      {
+        name: 'opt_fields',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of optional fields to include in response`,
+      },
+    ],
+  },
+  {
     name: 'asana_team_get',
     description: `Get details of a specific team by its GID.`,
     params: [
@@ -2995,6 +3757,84 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'asana_team_users_list',
+    description: `List the compact user records for all members of a team. Results are limited to 2000; for more, use the workspace users endpoint.`,
+    params: [
+      {
+        name: 'team_gid',
+        type: 'string',
+        required: true,
+        description: `GID of the team whose users to list`,
+      },
+      {
+        name: 'opt_fields',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of optional fields to include in response`,
+      },
+    ],
+  },
+  {
+    name: 'asana_time_period_get',
+    description: `Get a single time period (e.g. a quarter like 'Q1 FY23') by its GID.`,
+    params: [
+      {
+        name: 'time_period_gid',
+        type: 'string',
+        required: true,
+        description: `GID of the time period to retrieve`,
+      },
+      {
+        name: 'opt_fields',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of optional fields to include in response`,
+      },
+    ],
+  },
+  {
+    name: 'asana_time_periods_list',
+    description: `List time periods (e.g. quarters like 'Q1 FY23') in a workspace, used for scoping goals and portfolio reporting to a fixed timeframe.`,
+    params: [
+      {
+        name: 'workspace_gid',
+        type: 'string',
+        required: true,
+        description: `GID of the workspace to list time periods for`,
+      },
+      {
+        name: 'end_on',
+        type: 'string',
+        required: false,
+        description: `Only return time periods ending on or before this date (YYYY-MM-DD)`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of time periods to return per page (1-100)`,
+      },
+      {
+        name: 'offset',
+        type: 'string',
+        required: false,
+        description: `Pagination token from a previous response. Omit on the first call.`,
+      },
+      {
+        name: 'opt_fields',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of optional fields to include in response`,
+      },
+      {
+        name: 'start_on',
+        type: 'string',
+        required: false,
+        description: `Only return time periods starting on or after this date (YYYY-MM-DD)`,
+      },
+    ],
+  },
+  {
     name: 'asana_time_tracking_categories_list',
     description: `List all time tracking categories available in a given workspace.`,
     params: [
@@ -3013,6 +3853,78 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'asana_time_tracking_category_create',
+    description: `Create a new time tracking category in a workspace (e.g. 'Development', 'Meetings').`,
+    params: [
+      {
+        name: 'name',
+        type: 'string',
+        required: true,
+        description: `Name of the time tracking category`,
+      },
+      {
+        name: 'workspace_gid',
+        type: 'string',
+        required: true,
+        description: `GID of the workspace to create the category in`,
+      },
+      {
+        name: 'color',
+        type: 'string',
+        required: false,
+        description: `Display color for the category`,
+      },
+      {
+        name: 'opt_fields',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of optional fields to include in response`,
+      },
+    ],
+  },
+  {
+    name: 'asana_time_tracking_category_delete',
+    description: `Permanently delete a time tracking category. This action cannot be undone.`,
+    params: [
+      {
+        name: 'time_tracking_category_gid',
+        type: 'string',
+        required: true,
+        description: `GID of the time tracking category to permanently delete`,
+      },
+    ],
+  },
+  {
+    name: 'asana_time_tracking_category_entries_list',
+    description: `List time tracking entries assigned to a specific time tracking category.`,
+    params: [
+      {
+        name: 'time_tracking_category_gid',
+        type: 'string',
+        required: true,
+        description: `GID of the time tracking category`,
+      },
+      {
+        name: 'end_date',
+        type: 'string',
+        required: false,
+        description: `Only return entries on or before this date (YYYY-MM-DD)`,
+      },
+      {
+        name: 'opt_fields',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of optional fields to include in response`,
+      },
+      {
+        name: 'start_date',
+        type: 'string',
+        required: false,
+        description: `Only return entries on or after this date (YYYY-MM-DD)`,
+      },
+    ],
+  },
+  {
     name: 'asana_time_tracking_category_get',
     description: `Get a single time tracking category by its GID.`,
     params: [
@@ -3027,6 +3939,37 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Comma-separated list of optional fields to include in the response`,
+      },
+    ],
+  },
+  {
+    name: 'asana_time_tracking_category_update',
+    description: `Update an existing time tracking category's name, color, or archived state.`,
+    params: [
+      {
+        name: 'time_tracking_category_gid',
+        type: 'string',
+        required: true,
+        description: `GID of the time tracking category to update`,
+      },
+      {
+        name: 'color',
+        type: 'string',
+        required: false,
+        description: `Display color for the category`,
+      },
+      {
+        name: 'is_archived',
+        type: 'boolean',
+        required: false,
+        description: `Whether the category is archived. Archived categories cannot be assigned to new time entries.`,
+      },
+      { name: 'name', type: 'string', required: false, description: `New name for the category` },
+      {
+        name: 'opt_fields',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of optional fields to include in response`,
       },
     ],
   },
@@ -3278,6 +4221,25 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'asana_user_update',
+    description: `Update a user's name. A user can only update their own record.`,
+    params: [
+      { name: 'name', type: 'string', required: true, description: `New name for the user` },
+      {
+        name: 'user_gid',
+        type: 'string',
+        required: true,
+        description: `GID of the user to update, or 'me'`,
+      },
+      {
+        name: 'opt_fields',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of optional fields to include in response`,
+      },
+    ],
+  },
+  {
     name: 'asana_user_workspace_memberships_list',
     description: `List all workspace memberships for a specific user. Returns membership records showing which workspaces the user belongs to and their role in each.`,
     params: [
@@ -3446,6 +4408,30 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'asana_workspace_events_list',
+    description: `Get all events that have occurred across a workspace domain since a sync token was created. Omit the sync token on the first call; store the returned sync token for the next call.`,
+    params: [
+      {
+        name: 'workspace_gid',
+        type: 'string',
+        required: true,
+        description: `GID of the workspace to get events for`,
+      },
+      {
+        name: 'opt_fields',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of optional fields to include in response`,
+      },
+      {
+        name: 'sync',
+        type: 'string',
+        required: false,
+        description: `Sync token from a previous call. Omit on the first call.`,
+      },
+    ],
+  },
+  {
     name: 'asana_workspace_get',
     description: `Get details of a specific workspace by its GID.`,
     params: [
@@ -3526,6 +4512,25 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `GID of the workspace`,
+      },
+      {
+        name: 'opt_fields',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of optional fields to include in response`,
+      },
+    ],
+  },
+  {
+    name: 'asana_workspace_update',
+    description: `Update the name of a workspace or organization.`,
+    params: [
+      { name: 'name', type: 'string', required: true, description: `New name for the workspace` },
+      {
+        name: 'workspace_gid',
+        type: 'string',
+        required: true,
+        description: `GID of the workspace to update`,
       },
       {
         name: 'opt_fields',

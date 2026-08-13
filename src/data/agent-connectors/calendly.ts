@@ -51,6 +51,97 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'calendly_contact_create',
+    description: `Creates a new Calendly contact. Part of the Contacts API (shipped 2026-05-28).`,
+    params: [
+      {
+        name: 'email',
+        type: 'string',
+        required: true,
+        description: `Email address of the contact.`,
+      },
+      { name: 'name', type: 'string', required: true, description: `Full name of the contact.` },
+    ],
+  },
+  {
+    name: 'calendly_contact_delete',
+    description: `Delete a Calendly contact. Part of the Contacts API (shipped 2026-05-28). This action cannot be undone.`,
+    params: [
+      {
+        name: 'contact_uuid',
+        type: 'string',
+        required: true,
+        description: `The UUID of the contact to delete.`,
+      },
+    ],
+  },
+  {
+    name: 'calendly_contact_get',
+    description: `Retrieve a specific Calendly contact by UUID. Part of the Contacts API (shipped 2026-05-28).`,
+    params: [
+      {
+        name: 'contact_uuid',
+        type: 'string',
+        required: true,
+        description: `The UUID of the contact to retrieve.`,
+      },
+    ],
+  },
+  {
+    name: 'calendly_contact_update',
+    description: `Updates an existing Calendly contact. Only the fields provided will be updated. Part of the Contacts API (shipped 2026-05-28).`,
+    params: [
+      {
+        name: 'contact_uuid',
+        type: 'string',
+        required: true,
+        description: `The UUID of the contact to update.`,
+      },
+      {
+        name: 'email',
+        type: 'string',
+        required: false,
+        description: `Updated email address of the contact.`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: false,
+        description: `Updated full name of the contact.`,
+      },
+    ],
+  },
+  {
+    name: 'calendly_contacts_list',
+    description: `List Calendly contacts, with optional filters by organization and email. Part of the Contacts API (shipped 2026-05-28).`,
+    params: [
+      {
+        name: 'count',
+        type: 'integer',
+        required: false,
+        description: `Number of results per page (max 100).`,
+      },
+      {
+        name: 'email',
+        type: 'string',
+        required: false,
+        description: `Filter contacts by exact email address.`,
+      },
+      {
+        name: 'organization',
+        type: 'string',
+        required: false,
+        description: `Filter by organization URI, e.g. https://api.calendly.com/organizations/{uuid}.`,
+      },
+      {
+        name: 'page_token',
+        type: 'string',
+        required: false,
+        description: `Token for fetching the next page of results.`,
+      },
+    ],
+  },
+  {
     name: 'calendly_current_user_get',
     description: `Returns the profile of the currently authenticated Calendly user.`,
     params: [],
@@ -82,6 +173,78 @@ export const tools: Tool[] = [
         type: 'array',
         required: true,
         description: `Array of invitee email addresses whose data should be deleted.`,
+      },
+    ],
+  },
+  {
+    name: 'calendly_event_invitee_create',
+    description: `Books a Calendly meeting directly via the Scheduling API, without redirects, iframes, or Calendly-hosted UI. Creates a new scheduled event for the given event type and start time with the specified invitee. Use calendly_event_type_available_times_list first to find a valid start_time.`,
+    params: [
+      {
+        name: 'event_type',
+        type: 'string',
+        required: true,
+        description: `URI of the event type to book, e.g. https://api.calendly.com/event_types/{uuid}.`,
+      },
+      {
+        name: 'invitee_email',
+        type: 'string',
+        required: true,
+        description: `Email address of the person being booked`,
+      },
+      {
+        name: 'invitee_name',
+        type: 'string',
+        required: true,
+        description: `Full name of the person being booked`,
+      },
+      {
+        name: 'invitee_timezone',
+        type: 'string',
+        required: true,
+        description: `IANA timezone of the invitee, e.g. 'America/New_York'`,
+      },
+      {
+        name: 'start_time',
+        type: 'string',
+        required: true,
+        description: `Meeting start time in UTC, ISO 8601 with trailing Z.`,
+      },
+      {
+        name: 'booking_source',
+        type: 'string',
+        required: false,
+        description: `Free-text label identifying what booked this meeting, e.g. 'ai_scheduling_assistant'`,
+      },
+      {
+        name: 'event_guests',
+        type: 'array',
+        required: false,
+        description: `Array of additional guest email addresses to invite (max 10)`,
+      },
+      {
+        name: 'invitee_text_reminder_number',
+        type: 'string',
+        required: false,
+        description: `Optional phone number for SMS meeting reminders`,
+      },
+      {
+        name: 'location_kind',
+        type: 'string',
+        required: false,
+        description: `Location type for the meeting, if the event type requires the invitee to specify one (e.g. 'physical', 'ask_invitee', 'outbound_call')`,
+      },
+      {
+        name: 'location_value',
+        type: 'string',
+        required: false,
+        description: `Location detail matching location_kind, e.g. an address or phone number`,
+      },
+      {
+        name: 'questions_and_answers',
+        type: 'array',
+        required: false,
+        description: `Array of booking form question/answer objects, e.g. [{"question":"What do you want to discuss?","answer":"Pricing","position":0}]`,
       },
     ],
   },
@@ -247,6 +410,30 @@ export const tools: Tool[] = [
     description: `Returns the details of a specific Calendly event type by its UUID.`,
     params: [
       { name: 'uuid', type: 'string', required: true, description: `The UUID of the event type.` },
+    ],
+  },
+  {
+    name: 'calendly_event_type_hosts_list',
+    description: `Returns the list of hosts assigned to a collective or round-robin Calendly event type.`,
+    params: [
+      {
+        name: 'event_type',
+        type: 'string',
+        required: true,
+        description: `URI of the event type to list hosts for, e.g. https://api.calendly.com/event_types/{uuid}.`,
+      },
+      {
+        name: 'count',
+        type: 'integer',
+        required: false,
+        description: `Number of results to return per page (max 100).`,
+      },
+      {
+        name: 'page_token',
+        type: 'string',
+        required: false,
+        description: `Token for fetching the next page of results.`,
+      },
     ],
   },
   {
@@ -511,6 +698,90 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Token for paginating to the next set of results.`,
+      },
+    ],
+  },
+  {
+    name: 'calendly_meeting_recap_delete',
+    description: `Delete a meeting recap. Part of the Notetaker API (shipped 2026-07-22). This action cannot be undone.`,
+    params: [
+      {
+        name: 'recap_uuid',
+        type: 'string',
+        required: true,
+        description: `The UUID of the meeting recap to delete.`,
+      },
+    ],
+  },
+  {
+    name: 'calendly_meeting_recap_get',
+    description: `Retrieve a specific meeting recap. Part of the Notetaker API (shipped 2026-07-22).`,
+    params: [
+      {
+        name: 'recap_uuid',
+        type: 'string',
+        required: true,
+        description: `The UUID of the meeting recap to retrieve.`,
+      },
+    ],
+  },
+  {
+    name: 'calendly_meeting_recap_transcript_get',
+    description: `Retrieve the transcript for a meeting recap. Part of the Notetaker API (shipped 2026-07-22).`,
+    params: [
+      {
+        name: 'recap_uuid',
+        type: 'string',
+        required: true,
+        description: `The UUID of the meeting recap whose transcript should be retrieved.`,
+      },
+    ],
+  },
+  {
+    name: 'calendly_meeting_recap_update',
+    description: `Update a meeting recap's title. Part of the Notetaker API (shipped 2026-07-22). Only the fields provided will be updated.`,
+    params: [
+      {
+        name: 'recap_uuid',
+        type: 'string',
+        required: true,
+        description: `The UUID of the meeting recap to update.`,
+      },
+      {
+        name: 'title',
+        type: 'string',
+        required: false,
+        description: `Updated title for the meeting recap.`,
+      },
+    ],
+  },
+  {
+    name: 'calendly_meeting_recaps_list',
+    description: `List Notetaker meeting recaps, with optional filters by host user and scheduled event. Part of the Notetaker API (shipped 2026-07-22).`,
+    params: [
+      {
+        name: 'count',
+        type: 'integer',
+        required: false,
+        description: `Number of results per page (max 100).`,
+      },
+      {
+        name: 'event_uuid',
+        type: 'string',
+        required: false,
+        description: `Filter to the recap for a specific scheduled event.`,
+      },
+      {
+        name: 'page_token',
+        type: 'string',
+        required: false,
+        description: `Token for fetching the next page of results.`,
+      },
+      {
+        name: 'user',
+        type: 'string',
+        required: false,
+        description: `Filter by host user URI, e.g. https://api.calendly.com/users/{uuid}.`,
       },
     ],
   },

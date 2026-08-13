@@ -2,6 +2,179 @@ import type { Tool } from '../../types/agent-connectors'
 
 export const tools: Tool[] = [
   {
+    name: 'pagerduty_abilities_list',
+    description: `List the account's enabled feature abilities (plan and entitlement flags). Useful for an agent to check whether a feature is available before calling a gated endpoint.`,
+    params: [],
+  },
+  {
+    name: 'pagerduty_audit_records_list',
+    description: `List audit trail records — who did what, when — filterable by actor, action, root resource type, and time range. Defaults to the past 24 hours if no date range is given; the range cannot span more than 31 days.`,
+    params: [
+      {
+        name: 'actions',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of actions to filter by. Options: create, update, delete.`,
+      },
+      {
+        name: 'actor_id',
+        type: 'string',
+        required: false,
+        description: `Only return records whose actor has this ID. Must be qualified by also providing actor_type.`,
+      },
+      {
+        name: 'actor_type',
+        type: 'string',
+        required: false,
+        description: `Only return records whose actor is of this type.`,
+      },
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Pagination cursor. Provide the next_cursor value from a previous response to fetch the next page.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `The maximum number of records to return.`,
+      },
+      {
+        name: 'method_truncated_token',
+        type: 'string',
+        required: false,
+        description: `Only return records whose method has this truncated token. Must be qualified by also providing method_type.`,
+      },
+      {
+        name: 'method_type',
+        type: 'string',
+        required: false,
+        description: `Only return records performed via this method.`,
+      },
+      {
+        name: 'root_resource_types',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of resource types to filter by. Options: users, teams, schedules, escalation_policies, services, ip_allow_lists.`,
+      },
+      {
+        name: 'since',
+        type: 'string',
+        required: false,
+        description: `The start of the date range to search. Defaults to now() - 24 hours if omitted.`,
+      },
+      {
+        name: 'until',
+        type: 'string',
+        required: false,
+        description: `The end of the date range to search. Defaults to now() if omitted. May not be more than 31 days after since.`,
+      },
+    ],
+  },
+  {
+    name: 'pagerduty_business_service_create',
+    description: `Create a new business service — a capability or product that spans multiple technical services, optionally owned by a team.`,
+    params: [
+      {
+        name: 'name',
+        type: 'string',
+        required: true,
+        description: `The name of the business service.`,
+      },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `The description of the business service.`,
+      },
+      {
+        name: 'point_of_contact',
+        type: 'string',
+        required: false,
+        description: `The owner of the business service.`,
+      },
+      {
+        name: 'team_id',
+        type: 'string',
+        required: false,
+        description: `The ID of the team that owns this business service.`,
+      },
+    ],
+  },
+  {
+    name: 'pagerduty_business_services_list',
+    description: `List business services — capabilities or products that span multiple technical services and are owned by teams — with standard offset pagination.`,
+    params: [
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `The number of results to return per page.`,
+      },
+      {
+        name: 'offset',
+        type: 'integer',
+        required: false,
+        description: `Offset to start pagination search results.`,
+      },
+      {
+        name: 'total',
+        type: 'boolean',
+        required: false,
+        description: `Set to true to populate the total field in the pagination response, at the cost of slower response times.`,
+      },
+    ],
+  },
+  {
+    name: 'pagerduty_change_events_list',
+    description: `List change events (deploys, config changes, and other events sent via the Change Events API) so they can be correlated in time with incidents. Filterable by team, integration, and date range.`,
+    params: [
+      {
+        name: 'integration_ids',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of integration IDs. Only change events from these integrations are returned.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `The number of results to return per page.`,
+      },
+      {
+        name: 'offset',
+        type: 'integer',
+        required: false,
+        description: `Offset to start pagination search results.`,
+      },
+      {
+        name: 'since',
+        type: 'string',
+        required: false,
+        description: `The start of the date range to search, as a UTC ISO 8601 datetime string.`,
+      },
+      {
+        name: 'team_ids',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of team IDs. Only change events related to these teams are returned. Account must have the teams ability.`,
+      },
+      {
+        name: 'total',
+        type: 'boolean',
+        required: false,
+        description: `Set to true to populate the total field in the pagination response, at the cost of slower response times.`,
+      },
+      {
+        name: 'until',
+        type: 'string',
+        required: false,
+        description: `The end of the date range to search, as a UTC ISO 8601 datetime string.`,
+      },
+    ],
+  },
+  {
     name: 'pagerduty_escalation_policies_list',
     description: `List escalation policies in PagerDuty. Supports filtering by query, user, team, and includes.`,
     params: [
@@ -164,6 +337,144 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'pagerduty_incident_alert_get',
+    description: `Get detailed information about a single alert on a PagerDuty incident.`,
+    params: [
+      {
+        name: 'alert_id',
+        type: 'string',
+        required: true,
+        description: `The unique PagerDuty alert ID.`,
+      },
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The unique PagerDuty incident ID.`,
+      },
+    ],
+  },
+  {
+    name: 'pagerduty_incident_alert_update',
+    description: `Update the status of a single alert on a PagerDuty incident, or reassign it to a different incident.`,
+    params: [
+      {
+        name: 'alert_id',
+        type: 'string',
+        required: true,
+        description: `The unique PagerDuty alert ID to update.`,
+      },
+      {
+        name: 'from_email',
+        type: 'string',
+        required: true,
+        description: `Must be a valid PagerDuty user email address.`,
+      },
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The unique PagerDuty incident ID the alert belongs to.`,
+      },
+      {
+        name: 'status',
+        type: 'string',
+        required: true,
+        description: `The status to apply to the alert.`,
+      },
+      {
+        name: 'target_incident_id',
+        type: 'string',
+        required: false,
+        description: `If set, reassigns the alert to this incident instead of updating status.`,
+      },
+    ],
+  },
+  {
+    name: 'pagerduty_incident_alerts_list',
+    description: `List alerts for a specific PagerDuty incident. Supports filtering by status and alert key.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The unique PagerDuty incident ID.`,
+      },
+      {
+        name: 'alert_key',
+        type: 'string',
+        required: false,
+        description: `Filter alerts by their deduplication key.`,
+      },
+      {
+        name: 'include',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of resources to sideload. Options: services, first_trigger_log_entries, incidents.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Number of results per page (max 100).`,
+      },
+      {
+        name: 'offset',
+        type: 'integer',
+        required: false,
+        description: `Number of records to skip for pagination.`,
+      },
+      {
+        name: 'sort_by',
+        type: 'string',
+        required: false,
+        description: `Field to sort results by, e.g. created_at:desc.`,
+      },
+      {
+        name: 'statuses',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of statuses to filter by. Options: triggered, resolved.`,
+      },
+    ],
+  },
+  {
+    name: 'pagerduty_incident_alerts_manage',
+    description: `Bulk-update the status of multiple alerts on a PagerDuty incident, or reassign them to a different incident. A maximum of 250 alerts may be updated at a time.`,
+    params: [
+      {
+        name: 'alert_ids',
+        type: 'string',
+        required: true,
+        description: `Comma-separated list of alert IDs to update.`,
+      },
+      {
+        name: 'from_email',
+        type: 'string',
+        required: true,
+        description: `Must be a valid PagerDuty user email address.`,
+      },
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The unique PagerDuty incident ID the alerts belong to.`,
+      },
+      {
+        name: 'status',
+        type: 'string',
+        required: true,
+        description: `The status to apply to all specified alerts.`,
+      },
+      {
+        name: 'target_incident_id',
+        type: 'string',
+        required: false,
+        description: `If set, reassigns the alerts to this incident instead of updating status.`,
+      },
+    ],
+  },
+  {
     name: 'pagerduty_incident_create',
     description: `Create a new incident in PagerDuty. Requires a title, service ID, and the email of the user creating the incident.`,
     params: [
@@ -218,6 +529,18 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'pagerduty_incident_custom_fields_list',
+    description: `List the custom fields defined for enriching incidents. Existing tools can create and update incidents but nothing else inspects what custom fields are configured for them.`,
+    params: [
+      {
+        name: 'include',
+        type: 'string',
+        required: false,
+        description: `Additional details to include in the response alongside each field. Only supported value is 'field_options'.`,
+      },
+    ],
+  },
+  {
     name: 'pagerduty_incident_get',
     description: `Get details of a specific PagerDuty incident by its ID, including status, assignments, services, and timeline.`,
     params: [
@@ -226,6 +549,48 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `The ID of the incident to retrieve.`,
+      },
+    ],
+  },
+  {
+    name: 'pagerduty_incident_log_entries_list',
+    description: `List log entries for a specific PagerDuty incident, scoped to that incident only.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The unique PagerDuty incident ID.`,
+      },
+      {
+        name: 'include',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of resources to sideload. Options: incidents, services, channels, teams.`,
+      },
+      {
+        name: 'is_overview',
+        type: 'boolean',
+        required: false,
+        description: `Return only the most relevant log entries for an overview.`,
+      },
+      {
+        name: 'since',
+        type: 'string',
+        required: false,
+        description: `Start datetime in ISO 8601 format, e.g. 2024-01-01T00:00:00Z.`,
+      },
+      {
+        name: 'time_zone',
+        type: 'string',
+        required: false,
+        description: `IANA time zone for the response.`,
+      },
+      {
+        name: 'until',
+        type: 'string',
+        required: false,
+        description: `End datetime in ISO 8601 format, e.g. 2024-12-31T23:59:59Z.`,
       },
     ],
   },
@@ -254,6 +619,30 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'pagerduty_incident_merge',
+    description: `Merge one or more source incidents into a target incident. After the merge, the target incident contains the source incidents' alerts and the source incidents are resolved.`,
+    params: [
+      {
+        name: 'from_email',
+        type: 'string',
+        required: true,
+        description: `Must be a valid PagerDuty user email address.`,
+      },
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The ID of the incident that source incidents will be merged into.`,
+      },
+      {
+        name: 'source_incident_ids',
+        type: 'string',
+        required: true,
+        description: `Comma-separated list of incident IDs to merge into the target incident.`,
+      },
+    ],
+  },
+  {
     name: 'pagerduty_incident_note_create',
     description: `Add a note to a PagerDuty incident. Notes are visible to all responders on the incident.`,
     params: [
@@ -274,6 +663,102 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `The ID of the incident to add a note to.`,
+      },
+    ],
+  },
+  {
+    name: 'pagerduty_incident_notes_list',
+    description: `List existing notes for a PagerDuty incident.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The unique PagerDuty incident ID.`,
+      },
+    ],
+  },
+  {
+    name: 'pagerduty_incident_responder_request_create',
+    description: `Ask additional users or escalation policies to respond to a PagerDuty incident. At least one of user_ids or escalation_policy_ids must be provided.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The unique PagerDuty incident ID.`,
+      },
+      {
+        name: 'message',
+        type: 'string',
+        required: true,
+        description: `The message sent with the responder request.`,
+      },
+      {
+        name: 'requester_id',
+        type: 'string',
+        required: true,
+        description: `The PagerDuty user ID of the person making the request.`,
+      },
+      {
+        name: 'escalation_policy_ids',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of escalation policy IDs to request as responders.`,
+      },
+      {
+        name: 'user_ids',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of user IDs to request as responders.`,
+      },
+    ],
+  },
+  {
+    name: 'pagerduty_incident_snooze',
+    description: `Snooze a PagerDuty incident for a specified number of seconds. After the duration elapses, the incident returns to the triggered state.`,
+    params: [
+      {
+        name: 'duration',
+        type: 'integer',
+        required: true,
+        description: `The number of seconds to snooze the incident for (1 to 604800).`,
+      },
+      {
+        name: 'from_email',
+        type: 'string',
+        required: true,
+        description: `Must be a valid PagerDuty user email address.`,
+      },
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The unique PagerDuty incident ID.`,
+      },
+    ],
+  },
+  {
+    name: 'pagerduty_incident_status_update_create',
+    description: `Post a status update on a PagerDuty incident, visible to subscribers.`,
+    params: [
+      {
+        name: 'from_email',
+        type: 'string',
+        required: true,
+        description: `Must be a valid PagerDuty user email address.`,
+      },
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The unique PagerDuty incident ID.`,
+      },
+      {
+        name: 'message',
+        type: 'string',
+        required: true,
+        description: `The message to post as a status update.`,
       },
     ],
   },
@@ -848,6 +1333,90 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'pagerduty_schedule_override_create',
+    description: `Create a temporary on-call override for a PagerDuty schedule, assigning a specific user to be on call for a time window.`,
+    params: [
+      {
+        name: 'end',
+        type: 'string',
+        required: true,
+        description: `The end date and time of the override, in ISO 8601 format.`,
+      },
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The unique PagerDuty schedule ID.`,
+      },
+      {
+        name: 'start',
+        type: 'string',
+        required: true,
+        description: `The start date and time of the override, in ISO 8601 format.`,
+      },
+      {
+        name: 'user_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the user who should be on call during the override.`,
+      },
+    ],
+  },
+  {
+    name: 'pagerduty_schedule_override_delete',
+    description: `Delete an on-call override from a PagerDuty schedule.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The unique PagerDuty schedule ID.`,
+      },
+      {
+        name: 'override_id',
+        type: 'string',
+        required: true,
+        description: `The unique ID of the override to delete.`,
+      },
+    ],
+  },
+  {
+    name: 'pagerduty_schedule_overrides_list',
+    description: `List the on-call overrides for a PagerDuty schedule within a date range.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The unique PagerDuty schedule ID.`,
+      },
+      {
+        name: 'since',
+        type: 'string',
+        required: true,
+        description: `Start of the date range to list overrides for, in ISO 8601 format.`,
+      },
+      {
+        name: 'until',
+        type: 'string',
+        required: true,
+        description: `End of the date range to list overrides for, in ISO 8601 format.`,
+      },
+      {
+        name: 'editable',
+        type: 'boolean',
+        required: false,
+        description: `If true, only returns overrides that can still be edited.`,
+      },
+      {
+        name: 'overflow',
+        type: 'boolean',
+        required: false,
+        description: `If true, includes overrides that overflow outside the since/until range.`,
+      },
+    ],
+  },
+  {
     name: 'pagerduty_schedule_update',
     description: `Update an existing PagerDuty on-call schedule's name, description, or time zone.`,
     params: [
@@ -874,6 +1443,30 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Updated time zone (IANA format, e.g., America/New_York).`,
+      },
+    ],
+  },
+  {
+    name: 'pagerduty_schedule_users_list',
+    description: `List the users on call for a PagerDuty schedule within an optional date range.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The unique PagerDuty schedule ID.`,
+      },
+      {
+        name: 'since',
+        type: 'string',
+        required: false,
+        description: `Start of the date range in ISO 8601 format.`,
+      },
+      {
+        name: 'until',
+        type: 'string',
+        required: false,
+        description: `End of the date range in ISO 8601 format.`,
       },
     ],
   },
@@ -1066,6 +1659,48 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'pagerduty_tag_create',
+    description: `Create a new tag, which can then be assigned to escalation policies, teams, or users to filter and group them.`,
+    params: [
+      {
+        name: 'label',
+        type: 'string',
+        required: true,
+        description: `The label of the tag. Maximum 191 characters.`,
+      },
+    ],
+  },
+  {
+    name: 'pagerduty_tags_list',
+    description: `List tags, which can be applied to escalation policies, teams, and users to filter and group them. Supports filtering by label text and standard offset pagination.`,
+    params: [
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `The number of results to return per page.`,
+      },
+      {
+        name: 'offset',
+        type: 'integer',
+        required: false,
+        description: `Offset to start pagination search results.`,
+      },
+      {
+        name: 'query',
+        type: 'string',
+        required: false,
+        description: `Filters the result, showing only the tags whose label matches the query.`,
+      },
+      {
+        name: 'total',
+        type: 'boolean',
+        required: false,
+        description: `Set to true to populate the total field in the pagination response, at the cost of slower response times.`,
+      },
+    ],
+  },
+  {
     name: 'pagerduty_team_create',
     description: `Create a new team in PagerDuty. Teams allow grouping of users and services.`,
     params: [
@@ -1086,6 +1721,32 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'pagerduty_team_escalation_policy_add',
+    description: `Associate an escalation policy with a PagerDuty team.`,
+    params: [
+      {
+        name: 'escalation_policy_id',
+        type: 'string',
+        required: true,
+        description: `The unique PagerDuty escalation policy ID to add to the team.`,
+      },
+      { name: 'id', type: 'string', required: true, description: `The unique PagerDuty team ID.` },
+    ],
+  },
+  {
+    name: 'pagerduty_team_escalation_policy_remove',
+    description: `Remove an escalation policy from a PagerDuty team.`,
+    params: [
+      {
+        name: 'escalation_policy_id',
+        type: 'string',
+        required: true,
+        description: `The unique PagerDuty escalation policy ID to remove from the team.`,
+      },
+      { name: 'id', type: 'string', required: true, description: `The unique PagerDuty team ID.` },
+    ],
+  },
+  {
     name: 'pagerduty_team_get',
     description: `Get details of a specific PagerDuty team by its ID.`,
     params: [
@@ -1094,6 +1755,31 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `The ID of the team to retrieve.`,
+      },
+    ],
+  },
+  {
+    name: 'pagerduty_team_members_list',
+    description: `List the members of a PagerDuty team.`,
+    params: [
+      { name: 'id', type: 'string', required: true, description: `The unique PagerDuty team ID.` },
+      {
+        name: 'include',
+        type: 'string',
+        required: false,
+        description: `Additional resources to include. Options: users.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Number of results per page (max 100).`,
+      },
+      {
+        name: 'offset',
+        type: 'integer',
+        required: false,
+        description: `Number of records to skip for pagination.`,
       },
     ],
   },
@@ -1113,6 +1799,38 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `The updated name of the team.`,
+      },
+    ],
+  },
+  {
+    name: 'pagerduty_team_user_add',
+    description: `Add a user to a PagerDuty team with a given role.`,
+    params: [
+      { name: 'id', type: 'string', required: true, description: `The unique PagerDuty team ID.` },
+      {
+        name: 'user_id',
+        type: 'string',
+        required: true,
+        description: `The unique PagerDuty user ID to add to the team.`,
+      },
+      {
+        name: 'role',
+        type: 'string',
+        required: false,
+        description: `The role of the user on the team.`,
+      },
+    ],
+  },
+  {
+    name: 'pagerduty_team_user_remove',
+    description: `Remove a user from a PagerDuty team.`,
+    params: [
+      { name: 'id', type: 'string', required: true, description: `The unique PagerDuty team ID.` },
+      {
+        name: 'user_id',
+        type: 'string',
+        required: true,
+        description: `The unique PagerDuty user ID to remove from the team.`,
       },
     ],
   },
@@ -1198,6 +1916,18 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'pagerduty_user_me_get',
+    description: `Get details of the PagerDuty user associated with the current authentication credentials.`,
+    params: [
+      {
+        name: 'include',
+        type: 'string',
+        required: false,
+        description: `Additional resources to include. Options: contact_methods, notification_rules, teams, subdomains, calendar_urls.`,
+      },
+    ],
+  },
+  {
     name: 'pagerduty_user_update',
     description: `Update an existing PagerDuty user's profile including name, email, role, time zone, and color.`,
     params: [
@@ -1267,6 +1997,18 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Comma-separated list of team IDs to filter users by.`,
+      },
+    ],
+  },
+  {
+    name: 'pagerduty_vendor_get',
+    description: `Get details of a specific PagerDuty vendor (integration type) by its ID.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The unique PagerDuty vendor ID.`,
       },
     ],
   },

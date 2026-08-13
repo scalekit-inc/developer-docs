@@ -488,6 +488,31 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'advancedmd_conceptmap_translate',
+    description: `Invoke the $translate operation on ConceptMap, as declared in AdvancedMD's FHIR CapabilityStatement, to map a source code to its equivalent code(s) in another coding system.`,
+    params: [
+      { name: 'code', type: 'string', required: true, description: `The source code to translate` },
+      {
+        name: 'system',
+        type: 'string',
+        required: true,
+        description: `The source code system URI that the code belongs to`,
+      },
+      {
+        name: 'target',
+        type: 'string',
+        required: false,
+        description: `Target code system or value set URI to translate the code into`,
+      },
+      {
+        name: 'url',
+        type: 'string',
+        required: false,
+        description: `Canonical URL of a specific ConceptMap to use for the translation`,
+      },
+    ],
+  },
+  {
     name: 'advancedmd_condition_create',
     description: `Create a new FHIR Condition resource representing a diagnosis or health problem for a patient.`,
     params: [
@@ -1294,6 +1319,30 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'advancedmd_group_export',
+    description: `Kick off a FHIR Bulk Data $export operation for all patients in a Group, as declared in AdvancedMD's FHIR CapabilityStatement. This starts an asynchronous export job and returns 202 Accepted with a Content-Location header pointing to the status endpoint; it does not return the exported data directly.`,
+    params: [
+      {
+        name: 'group_id',
+        type: 'string',
+        required: true,
+        description: `The logical ID of the Group resource whose members should be exported`,
+      },
+      {
+        name: '_since',
+        type: 'string',
+        required: false,
+        description: `Only include resources updated after this instant (ISO 8601 datetime)`,
+      },
+      {
+        name: '_type',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of resource types to include in the export (e.g. Patient,Observation,Condition)`,
+      },
+    ],
+  },
+  {
     name: 'advancedmd_immunization_create',
     description: `Create a new FHIR Immunization resource recording a vaccination event for a patient.`,
     params: [
@@ -1830,6 +1879,42 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `The logical ID of the Observation resource to delete`,
+      },
+    ],
+  },
+  {
+    name: 'advancedmd_observation_lastn',
+    description: `Invoke the $lastn operation on Observation to retrieve the most recent observations per code/category grouping (e.g. latest vitals or lab results) for a patient, as declared in AdvancedMD's FHIR CapabilityStatement.`,
+    params: [
+      {
+        name: 'category',
+        type: 'string',
+        required: false,
+        description: `Observation category to filter by, e.g. vital-signs, laboratory`,
+      },
+      {
+        name: 'code',
+        type: 'string',
+        required: false,
+        description: `LOINC or local code identifying the observation type`,
+      },
+      {
+        name: 'date',
+        type: 'string',
+        required: false,
+        description: `Filter by observation effective date (YYYY-MM-DD or range with prefix)`,
+      },
+      {
+        name: 'max',
+        type: 'number',
+        required: false,
+        description: `Maximum number of observations to return per code/category grouping. Defaults to 1 if omitted.`,
+      },
+      {
+        name: 'patient',
+        type: 'string',
+        required: false,
+        description: `Patient ID to scope the most-recent observations to`,
       },
     ],
   },

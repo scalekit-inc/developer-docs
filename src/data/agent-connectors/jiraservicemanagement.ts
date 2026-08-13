@@ -1675,4 +1675,28 @@ export const tools: Tool[] = [
       },
     ],
   },
+  {
+    name: 'jiraservicemanagement_temporary_attachment_create',
+    description: `Upload a file to a service desk as a temporary attachment. The file content must be supplied as a base64-encoded string along with a filename; it is uploaded as multipart/form-data with the required X-Atlassian-Token header. Returns a temporaryAttachmentId that must be passed to the 'Create Request Comment With Attachment' tool (or a customer request's requestFieldValues) within a limited time window to permanently attach the file.`,
+    params: [
+      {
+        name: 'file_content_base64',
+        type: 'string',
+        required: true,
+        description: `Base64-encoded contents of the file to upload as a temporary attachment.`,
+      },
+      {
+        name: 'filename',
+        type: 'string',
+        required: true,
+        description: `The name of the file being uploaded, including extension.`,
+      },
+      {
+        name: 'serviceDeskId',
+        type: 'string',
+        required: true,
+        description: `The ID of the service desk to which the temporary file is being attached. This can alternatively be a project identifier (project key or project ID).`,
+      },
+    ],
+  },
 ]

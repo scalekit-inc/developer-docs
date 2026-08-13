@@ -19,6 +19,59 @@ export const tools: Tool[] = [
     params: [],
   },
   {
+    name: 'mailgun_account_ip_allowlist_create',
+    description: `Add an IP address to the account's IP allowlist, restricting API key and SMTP credential usage to allowlisted IPs. This is a separate, account-security feature from the domain-level sender/recipient allowlist (mailgun_allowlist_* tools).`,
+    params: [
+      {
+        name: 'address',
+        type: 'string',
+        required: true,
+        description: `The IP address to allowlist for account/API/SMTP access.`,
+      },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `An optional human-readable description for this allowlist entry. Defaults to an empty string if omitted.`,
+      },
+    ],
+  },
+  {
+    name: 'mailgun_account_ip_allowlist_delete',
+    description: `Remove an IP address from the account's IP allowlist. If this removes the last remaining entry, API key and SMTP credential usage is no longer restricted by IP.`,
+    params: [
+      {
+        name: 'address',
+        type: 'string',
+        required: true,
+        description: `The allowlisted IP address to remove.`,
+      },
+    ],
+  },
+  {
+    name: 'mailgun_account_ip_allowlist_list',
+    description: `List the IP addresses allowlisted for this Mailgun account. When at least one entry exists, API key and SMTP credential usage is restricted to only these IP addresses — an added security layer so a leaked key/credential can't be used from an unrecognized location. This is a separate, account-security feature from the domain-level sender/recipient allowlist (mailgun_allowlist_* tools, which control suppression bypass for specific addresses).`,
+    params: [],
+  },
+  {
+    name: 'mailgun_account_ip_allowlist_update',
+    description: `Update the description of an existing entry on the account's IP allowlist. The IP address itself identifies which entry to update; it is not changed by this call — remove and re-add the entry to change the IP itself.`,
+    params: [
+      {
+        name: 'address',
+        type: 'string',
+        required: true,
+        description: `The already-allowlisted IP address whose description should be updated.`,
+      },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `The new description for this entry. Defaults to an empty string if omitted.`,
+      },
+    ],
+  },
+  {
     name: 'mailgun_account_limits_delete',
     description: `Delete the custom sending limit configured on the Mailgun account, reverting the account to Mailgun's default sending limit behavior.`,
     params: [],
@@ -523,6 +576,114 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `The new account organization name. Leave blank if not updating this setting.`,
+      },
+    ],
+  },
+  {
+    name: 'mailgun_account_webhooks_create',
+    description: `Create an account-level webhook that receives Mailgun's POST callbacks for the given event type(s) across every domain on the account. Webhook URLs are deduplicated by event type across account- and domain-level webhooks, so this won't double-send to a URL already registered at the domain level for the same event. Note: configuration changes can take up to 10 minutes to take effect due to caching.`,
+    params: [
+      {
+        name: 'event_types',
+        type: 'array',
+        required: true,
+        description: `One or more event types this webhook should fire for. Provide each as a separate array element; Mailgun's API accepts this parameter repeated (event_types=opened&event_types=clicked), not as a single comma-joined value.`,
+      },
+      {
+        name: 'url',
+        type: 'string',
+        required: true,
+        description: `The destination URL that will receive Mailgun's POST callback.`,
+      },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `A human-readable description of what this webhook is for.`,
+      },
+    ],
+  },
+  {
+    name: 'mailgun_account_webhooks_delete',
+    description: `Delete a single account-level webhook by its webhook ID. Note: this can take up to 10 minutes to take effect due to caching.`,
+    params: [
+      {
+        name: 'webhook_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the account-level webhook to delete.`,
+      },
+    ],
+  },
+  {
+    name: 'mailgun_account_webhooks_delete_all',
+    description: `Delete multiple account-level webhooks at once by ID, or every account-level webhook on the account. Provide webhook_ids for a targeted deletion, or set delete_all to true to remove all of them — not both. Note: this can take up to 10 minutes to take effect due to caching.`,
+    params: [
+      {
+        name: 'delete_all',
+        type: 'boolean',
+        required: false,
+        description: `If true, deletes every account-level webhook on the account, ignoring webhook_ids. Defaults to false.`,
+      },
+      {
+        name: 'webhook_ids',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of webhook IDs to delete. Required unless delete_all is true.`,
+      },
+    ],
+  },
+  {
+    name: 'mailgun_account_webhooks_get',
+    description: `Retrieve a single account-level webhook by its webhook ID, including its URL, description, and subscribed event types.`,
+    params: [
+      {
+        name: 'webhook_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the account-level webhook to retrieve.`,
+      },
+    ],
+  },
+  {
+    name: 'mailgun_account_webhooks_list',
+    description: `List account-level webhooks, which receive Mailgun's POST callbacks for the given event type across every domain on the account (as opposed to domain-level webhooks, which apply to a single domain). Optionally filter to a specific set of webhook IDs.`,
+    params: [
+      {
+        name: 'webhook_ids',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of webhook IDs to filter results to. Omit to return all account-level webhooks.`,
+      },
+    ],
+  },
+  {
+    name: 'mailgun_account_webhooks_update',
+    description: `Replace an existing account-level webhook's URL, subscribed event types, and description. This fully replaces the webhook's configuration rather than merging with the previous values. Note: configuration changes can take up to 10 minutes to take effect due to caching.`,
+    params: [
+      {
+        name: 'event_types',
+        type: 'array',
+        required: true,
+        description: `The new set of event types this webhook should fire for, replacing the previous set. Provide each as a separate array element; Mailgun's API accepts this parameter repeated (event_types=opened&event_types=clicked), not as a single comma-joined value.`,
+      },
+      {
+        name: 'url',
+        type: 'string',
+        required: true,
+        description: `The new destination URL that will receive Mailgun's POST callback.`,
+      },
+      {
+        name: 'webhook_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the account-level webhook to update.`,
+      },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `A human-readable description of what this webhook is for. Omit to clear it.`,
       },
     ],
   },
@@ -2082,6 +2243,102 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Plain-text footer containing the unsubscribe link, inserted into the plain-text part of outgoing email MIME. Use %unsubscribe_url% as the link placeholder.`,
+      },
+    ],
+  },
+  {
+    name: 'mailgun_domain_webhooks_create',
+    description: `Register one or more URLs to receive Mailgun's POST callbacks whenever the given event type occurs for a domain (e.g. a message is delivered, opened, or bounces permanently). Up to 3 URLs are allowed per event type; webhook URLs are deduplicated by event type across both account-level and domain-level webhooks, so a URL already registered at the account level won't be double-notified. Fails if the event type already has URLs configured — use mailgun_domain_webhooks_update to replace them.`,
+    params: [
+      {
+        name: 'domain_name',
+        type: 'string',
+        required: true,
+        description: `The sending domain to create the webhook on.`,
+      },
+      {
+        name: 'urls',
+        type: 'array',
+        required: true,
+        description: `One or more URLs to receive the POST callback for this event type (max 3). Provide each URL as a separate array element; Mailgun's API accepts this parameter repeated (url=https://a&url=https://b), not as a single comma-joined value.`,
+      },
+      {
+        name: 'webhook_name',
+        type: 'string',
+        required: true,
+        description: `The event type this webhook fires for.`,
+      },
+    ],
+  },
+  {
+    name: 'mailgun_domain_webhooks_delete',
+    description: `Remove all URL(s) registered for a single webhook event type on a domain, effectively disabling callbacks for that event type on this domain.`,
+    params: [
+      {
+        name: 'domain_name',
+        type: 'string',
+        required: true,
+        description: `The sending domain the webhook is configured on.`,
+      },
+      {
+        name: 'webhook_name',
+        type: 'string',
+        required: true,
+        description: `The event type whose webhook URL(s) to remove.`,
+      },
+    ],
+  },
+  {
+    name: 'mailgun_domain_webhooks_get',
+    description: `Retrieve the URL(s) currently registered for a single webhook event type on a domain.`,
+    params: [
+      {
+        name: 'domain_name',
+        type: 'string',
+        required: true,
+        description: `The sending domain the webhook is configured on.`,
+      },
+      {
+        name: 'webhook_name',
+        type: 'string',
+        required: true,
+        description: `The webhook event type to look up.`,
+      },
+    ],
+  },
+  {
+    name: 'mailgun_domain_webhooks_list',
+    description: `Return every webhook event type Mailgun supports for a domain and the URL(s) currently registered for each: accepted, delivered, opened, clicked, unsubscribed, complained, temporary_fail, permanent_fail. Event types with nothing configured are returned with an empty URL list. This is the classic per-domain webhook resource (v3); it is separate from account-level webhooks, which apply across every domain on the account.`,
+    params: [
+      {
+        name: 'domain_name',
+        type: 'string',
+        required: true,
+        description: `The sending domain to list configured webhooks for.`,
+      },
+    ],
+  },
+  {
+    name: 'mailgun_domain_webhooks_update',
+    description: `Replace the URL(s) registered for a webhook event type on a domain. This fully replaces the existing set of URLs for that event type (up to 3) rather than appending to it.`,
+    params: [
+      {
+        name: 'domain_name',
+        type: 'string',
+        required: true,
+        description: `The sending domain the webhook is configured on.`,
+      },
+      {
+        name: 'urls',
+        type: 'array',
+        required: true,
+        description: `The new set of URLs for this event type (max 3), replacing whatever was previously configured. Provide each URL as a separate array element; Mailgun's API accepts this parameter repeated (url=https://a&url=https://b), not as a single comma-joined value.`,
+      },
+      {
+        name: 'webhook_name',
+        type: 'string',
+        required: true,
+        description: `The event type whose webhook URL(s) to replace.`,
       },
     ],
   },
@@ -5603,6 +5860,66 @@ export const tools: Tool[] = [
         type: 'integer',
         required: false,
         description: `The number of users to skip before returning results, for pagination. Leave blank to start from the beginning.`,
+      },
+    ],
+  },
+  {
+    name: 'mailgun_validate_address',
+    description: `Validate a single email address using Mailgun's Validate service: checks syntax, DNS/mailbox deliverability signals, and flags disposable or role-based addresses. The response's 'result' and 'risk' fields are the primary signals — e.g. a 'deliverable' result generally means the recipient's mail server should accept the message. Requires the account to have email validation enabled.`,
+    params: [
+      {
+        name: 'address',
+        type: 'string',
+        required: true,
+        description: `The email address to validate.`,
+      },
+      {
+        name: 'provider_lookup',
+        type: 'boolean',
+        required: false,
+        description: `Whether to perform a mailbox provider lookup as part of validation. Defaults to true on Mailgun's side if omitted.`,
+      },
+    ],
+  },
+  {
+    name: 'mailgun_validate_cancel_job',
+    description: `Cancel a bulk email-address validation job by its list ID, stopping further processing.`,
+    params: [
+      {
+        name: 'list_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the bulk validation job to cancel.`,
+      },
+    ],
+  },
+  {
+    name: 'mailgun_validate_get_job',
+    description: `Get the status and results summary of a single bulk email-address validation job by its list ID, including quantity processed, a pass/fail summary, and (once finished) a download_url for the full results.`,
+    params: [
+      {
+        name: 'list_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the bulk validation job to look up.`,
+      },
+    ],
+  },
+  {
+    name: 'mailgun_validate_list_jobs',
+    description: `List bulk email-address validation jobs previously submitted on this account, with their status (e.g. uploading, preprocessing, running, finished) and result summary. Supports Mailgun's standard limit/skip pagination — page forward by increasing skip by the value of limit until fewer than limit items come back.`,
+    params: [
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of jobs to return per page.`,
+      },
+      {
+        name: 'skip',
+        type: 'integer',
+        required: false,
+        description: `Number of jobs to skip before starting to return results, for pagination.`,
       },
     ],
   },

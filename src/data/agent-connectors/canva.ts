@@ -200,6 +200,18 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'canva_asset_upload_get',
+    description: `Get the current status and result of an asset upload job that was started by directly uploading file bytes (outside this connector, e.g. via the Canva SDK or another integration), identified by its job ID. Returns a job object with \`status\` of \`in_progress\`, \`success\`, or \`failed\`. When \`status\` is \`success\`, the job includes the full \`asset\` object. When \`status\` is \`failed\`, the job includes an \`error\` object with a code (e.g. \`file_too_big\`, \`import_failed\`) and message. Note: this connector cannot itself start such a job, since the create endpoint requires a raw binary request body; use canva_asset_url_upload_create instead to both create and poll a job entirely through this connector.`,
+    params: [
+      {
+        name: 'jobId',
+        type: 'string',
+        required: true,
+        description: `The ID of the asset upload job to check. Job IDs are alphanumeric strings (may include underscores or hyphens, 1-50 characters).`,
+      },
+    ],
+  },
+  {
     name: 'canva_asset_url_upload_create',
     description: `PREVIEW API. Start a new asynchronous job to upload an asset to the user's Canva content library by fetching it from a publicly-accessible URL, instead of sending raw bytes. Useful when the source file is already hosted online. Note: uploading a video from a URL is limited to a 100MB file size - for larger video files, use canva_asset_upload_create instead. The call returns immediately with a job in \`in_progress\` status; poll the job with canva_asset_url_upload_get (using the returned job ID) until its status becomes \`success\` or \`failed\`.`,
     params: [
@@ -596,6 +608,18 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'canva_design_import_get',
+    description: `Get the current status and result of a design import job that was started by directly uploading file bytes (outside this connector, e.g. via the Canva SDK or another integration), identified by its job ID. Returns a job object with \`status\` of \`in_progress\`, \`success\`, or \`failed\`. When \`status\` is \`success\`, the job includes a \`result.designs\` array. When \`status\` is \`failed\`, the job includes an \`error\` object with a code (e.g. \`invalid_file\`, \`fetch_failed\`, \`duplicate_import\`) and message. Note: this connector cannot itself start such a job, since the create endpoint requires a raw binary request body; use canva_design_url_import_create instead to both create and poll a job entirely through this connector.`,
+    params: [
+      {
+        name: 'jobId',
+        type: 'string',
+        required: true,
+        description: `The ID of the design import job to check, as returned when the import job was started.`,
+      },
+    ],
+  },
+  {
     name: 'canva_design_list',
     description: `List metadata for designs in the connected Canva user's projects, optionally filtered by a search term and/or ownership, sorted, and paginated with a continuation cursor. Each returned design includes its ID, title, owner (team and user), thumbnail, edit/view URLs, created/updated Unix timestamps, page count, and design types. If the response contains a \`continuation\` token, more designs are available -- pass that token back in as the \`continuation\` input to fetch the next page. Requires the design:meta:read OAuth scope.`,
     params: [
@@ -886,6 +910,11 @@ Note: at this time Canva only supports a single operation per request by default
         description: `The ID of the design merge job to retrieve, as returned by the Create design merge job tool's response (job.id). Job IDs are alphanumeric strings that may include underscores or hyphens, 1-50 characters.`,
       },
     ],
+  },
+  {
+    name: 'canva_oidc_userinfo_get',
+    description: `Fetch standard OpenID Connect UserInfo claims for the authorized user -- the same claims returned in an id_token during authorization. \`openid\` scope is always required; \`name\`, \`given_name\`, and \`family_name\` are only returned when the \`profile\` scope was granted, and \`email\`/\`email_verified\` are only returned when the \`email\` scope was granted. Use canva_user_me_get instead if you only need the Canva user_id/team_id and no OAuth scopes were granted.`,
+    params: [],
   },
   {
     name: 'canva_resize_create',

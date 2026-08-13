@@ -684,6 +684,176 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'confluence_blogpost_property_create',
+    description: `Create a new content property (custom key/value metadata) on a Confluence blog post. The value can be any JSON type — string, number, boolean, object, or array — passed as a JSON-encoded string.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The ID of the blog post to create a content property for.`,
+      },
+      { name: 'key', type: 'string', required: true, description: `Key of the content property.` },
+      {
+        name: 'value_json',
+        type: 'string',
+        required: true,
+        description: `Value of the content property, as a JSON-encoded string. Can be any JSON type.`,
+      },
+    ],
+  },
+  {
+    name: 'confluence_blogpost_property_delete',
+    description: `Delete a content property from a Confluence blog post by its property ID.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The ID of the blog post the content property belongs to.`,
+      },
+      {
+        name: 'property_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the content property to delete.`,
+      },
+    ],
+  },
+  {
+    name: 'confluence_blogpost_property_get',
+    description: `Retrieve a specific content property attached to a Confluence blog post by its property ID.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The ID of the blog post the content property belongs to.`,
+      },
+      {
+        name: 'property_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the content property to retrieve.`,
+      },
+    ],
+  },
+  {
+    name: 'confluence_blogpost_property_list',
+    description: `List the content properties (custom key/value metadata) attached to a Confluence blog post. Supports filtering by key, sorting, and cursor-based pagination.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The ID of the blog post for which content properties should be returned.`,
+      },
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Cursor token for fetching the next page of results.`,
+      },
+      {
+        name: 'key',
+        type: 'string',
+        required: false,
+        description: `Filter to return only the content property with this exact key (case sensitive).`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of content properties to return per page (default 25, max 250).`,
+      },
+      {
+        name: 'sort',
+        type: 'string',
+        required: false,
+        description: `Sort field for the results: key or -key for descending.`,
+      },
+    ],
+  },
+  {
+    name: 'confluence_blogpost_property_update',
+    description: `Update an existing content property on a Confluence blog post. Requires the new version number to be exactly the current version number plus 1 — retrieve the current version with Get Blog Post Content Property first.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The ID of the blog post the content property belongs to.`,
+      },
+      { name: 'key', type: 'string', required: true, description: `Key of the content property.` },
+      {
+        name: 'property_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the content property to update.`,
+      },
+      {
+        name: 'value_json',
+        type: 'string',
+        required: true,
+        description: `New value of the content property, as a JSON-encoded string. Can be any JSON type.`,
+      },
+      {
+        name: 'version_number',
+        type: 'integer',
+        required: true,
+        description: `The new version number for this update. Must be exactly the current version number plus 1.`,
+      },
+      {
+        name: 'version_message',
+        type: 'string',
+        required: false,
+        description: `Optional message describing what changed in this version.`,
+      },
+    ],
+  },
+  {
+    name: 'confluence_blogpost_redact',
+    description: `Redact sensitive content in a Confluence blog post by replacing specified text ranges in the body and/or title with redaction markers. Processing is asynchronous; each redaction in the response includes a UUID that can be used for restoration (except code block redactions).`,
+    params: [
+      {
+        name: 'created_at',
+        type: 'string',
+        required: true,
+        description: `Timestamp when the content was last updated, used as a concurrency check.`,
+      },
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The ID of the blogpost to redact content from.`,
+      },
+      {
+        name: 'body_redactions_json',
+        type: 'string',
+        required: false,
+        description: `JSON-encoded array of redaction pointer objects to apply to the body, e.g. [{"pointer":"/body/storage/value","from":10,"to":25,"reason":"PII"}].`,
+      },
+      {
+        name: 'clean_history',
+        type: 'boolean',
+        required: false,
+        description: `When true, historical versions containing the redacted text are also squashed/cleaned up.`,
+      },
+      {
+        name: 'title_redactions_json',
+        type: 'string',
+        required: false,
+        description: `JSON-encoded array of redaction pointer objects to apply to the title, e.g. [{"pointer":"/title","from":0,"to":4,"reason":"PII"}].`,
+      },
+      {
+        name: 'version_number',
+        type: 'integer',
+        required: false,
+        description: `Specific version of the content to redact. Omit to redact the current (latest) version.`,
+      },
+    ],
+  },
+  {
     name: 'confluence_blogpost_update',
     description: `Update an existing Confluence blog post. Requires the blog post ID, current status, title, and the next version number (must be exactly current version + 1). Optionally update the body content or add a version message. Retrieve the current version number with the Get Blog Post tool before calling this.`,
     params: [
@@ -782,6 +952,18 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Used to sort the result by a particular field (e.g. modified-date, -modified-date)`,
+      },
+    ],
+  },
+  {
+    name: 'confluence_content_ids_to_types',
+    description: `Convert a list of Confluence content IDs into their v2 content types (e.g. page, blogpost, attachment, inline-comment, footer-comment). Useful when migrating from v1 data that stored only content IDs without their associated type. Accepts up to 100 IDs per call.`,
+    params: [
+      {
+        name: 'content_ids_json',
+        type: 'string',
+        required: true,
+        description: `JSON-encoded array of up to 100 content IDs to convert, as strings or numbers.`,
       },
     ],
   },
@@ -2372,6 +2554,36 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'confluence_page_classification_level_get',
+    description: `Get the data classification level (e.g. Public, Internal, Confidential) currently applied to a Confluence page. Only meaningful on sites with Classification Levels enabled (Premium/Enterprise plans) — returns the classification's ID, name, description, guideline, color, and status.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The ID of the page whose classification level should be returned.`,
+      },
+    ],
+  },
+  {
+    name: 'confluence_page_classification_level_update',
+    description: `Change the data classification level applied to a Confluence page. Only meaningful on sites with Classification Levels enabled (Premium/Enterprise plans). Requires the target classification level's ID (an Atlassian Resource Identifier), which can be found via your site's classification level administration settings.`,
+    params: [
+      {
+        name: 'classification_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the classification level to apply to the page.`,
+      },
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The ID of the page to update the classification level for.`,
+      },
+    ],
+  },
+  {
     name: 'confluence_page_create',
     description: `Create a new Confluence page in a specified space. Requires a space ID and title. Optionally set the initial status (current for published, draft for unpublished), a parent page, and body content. The body requires both body_representation and body_value to be provided together.`,
     params: [
@@ -2744,6 +2956,188 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'confluence_page_operations_get',
+    description: `Return the operations the authenticated user is permitted to perform on a Confluence page, such as read, update, or delete. Useful for checking access before attempting an action.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The ID of the page for which operations should be returned.`,
+      },
+    ],
+  },
+  {
+    name: 'confluence_page_property_create',
+    description: `Create a new content property (custom key/value metadata) on a Confluence page. The value can be any JSON type — string, number, boolean, object, or array — passed as a JSON-encoded string.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The ID of the page to create a content property for.`,
+      },
+      { name: 'key', type: 'string', required: true, description: `Key of the content property.` },
+      {
+        name: 'value_json',
+        type: 'string',
+        required: true,
+        description: `Value of the content property, as a JSON-encoded string. Can be any JSON type.`,
+      },
+    ],
+  },
+  {
+    name: 'confluence_page_property_delete',
+    description: `Delete a content property from a Confluence page by its property ID.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The ID of the page the content property belongs to.`,
+      },
+      {
+        name: 'property_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the content property to delete.`,
+      },
+    ],
+  },
+  {
+    name: 'confluence_page_property_get',
+    description: `Retrieve a specific content property attached to a Confluence page by its property ID.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The ID of the page the content property belongs to.`,
+      },
+      {
+        name: 'property_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the content property to retrieve.`,
+      },
+    ],
+  },
+  {
+    name: 'confluence_page_property_list',
+    description: `List the content properties (custom key/value metadata) attached to a Confluence page. Supports filtering by key, sorting, and cursor-based pagination.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The ID of the page for which content properties should be returned.`,
+      },
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Cursor token for fetching the next page of results.`,
+      },
+      {
+        name: 'key',
+        type: 'string',
+        required: false,
+        description: `Filter to return only the content property with this exact key (case sensitive).`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of content properties to return per page (default 25, max 250).`,
+      },
+      {
+        name: 'sort',
+        type: 'string',
+        required: false,
+        description: `Sort field for the results: key or -key for descending.`,
+      },
+    ],
+  },
+  {
+    name: 'confluence_page_property_update',
+    description: `Update an existing content property on a Confluence page. Requires the new version number to be exactly the current version number plus 1 — retrieve the current version with Get Page Content Property first.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The ID of the page the content property belongs to.`,
+      },
+      { name: 'key', type: 'string', required: true, description: `Key of the content property.` },
+      {
+        name: 'property_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the content property to update.`,
+      },
+      {
+        name: 'value_json',
+        type: 'string',
+        required: true,
+        description: `New value of the content property, as a JSON-encoded string. Can be any JSON type.`,
+      },
+      {
+        name: 'version_number',
+        type: 'integer',
+        required: true,
+        description: `The new version number for this update. Must be exactly the current version number plus 1.`,
+      },
+      {
+        name: 'version_message',
+        type: 'string',
+        required: false,
+        description: `Optional message describing what changed in this version.`,
+      },
+    ],
+  },
+  {
+    name: 'confluence_page_redact',
+    description: `Redact sensitive content in a Confluence page by replacing specified text ranges in the body and/or title with redaction markers. Processing is asynchronous; each redaction in the response includes a UUID that can be used for restoration (except code block redactions).`,
+    params: [
+      {
+        name: 'created_at',
+        type: 'string',
+        required: true,
+        description: `Timestamp when the content was last updated, used as a concurrency check.`,
+      },
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The ID of the page to redact content from.`,
+      },
+      {
+        name: 'body_redactions_json',
+        type: 'string',
+        required: false,
+        description: `JSON-encoded array of redaction pointer objects to apply to the body, e.g. [{"pointer":"/body/storage/value","from":10,"to":25,"reason":"PII"}].`,
+      },
+      {
+        name: 'clean_history',
+        type: 'boolean',
+        required: false,
+        description: `When true, historical versions containing the redacted text are also squashed/cleaned up.`,
+      },
+      {
+        name: 'title_redactions_json',
+        type: 'string',
+        required: false,
+        description: `JSON-encoded array of redaction pointer objects to apply to the title, e.g. [{"pointer":"/title","from":0,"to":4,"reason":"PII"}].`,
+      },
+      {
+        name: 'version_number',
+        type: 'integer',
+        required: false,
+        description: `Specific version of the content to redact. Omit to redact the current (latest) version.`,
+      },
+    ],
+  },
+  {
     name: 'confluence_page_title_update',
     description: `Update only the title of an existing Confluence page, without needing to supply the full page body or version number. Requires the page ID, the desired status (current or draft), and the new title.`,
     params: [
@@ -2920,6 +3314,48 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'confluence_smart_link_create',
+    description: `Create a Smart Link in the content tree of a Confluence space. A Smart Link embeds an external URL as a first-class item in the page tree, alongside pages and whiteboards.`,
+    params: [
+      {
+        name: 'spaceId',
+        type: 'string',
+        required: true,
+        description: `ID of the space to create the Smart Link in.`,
+      },
+      {
+        name: 'embedUrl',
+        type: 'string',
+        required: false,
+        description: `The URL that the Smart Link should be populated with.`,
+      },
+      {
+        name: 'parentId',
+        type: 'string',
+        required: false,
+        description: `The parent content ID of the Smart Link in the content tree.`,
+      },
+      {
+        name: 'title',
+        type: 'string',
+        required: false,
+        description: `Title of the Smart Link in the content tree.`,
+      },
+    ],
+  },
+  {
+    name: 'confluence_smart_link_delete',
+    description: `Delete a Smart Link in the content tree by its ID. This moves the Smart Link to the trash, where it can be restored later.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Smart Link to delete.`,
+      },
+    ],
+  },
+  {
     name: 'confluence_smart_link_descendants_get',
     description: `Retrieve descendants in the content tree for a Confluence Smart Link (embed), in top-to-bottom order (the highest descendant is first in the response). Supports a depth parameter to limit how many levels of descendants are returned, and cursor-based pagination for additional results.`,
     params: [
@@ -2976,6 +3412,42 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Field and direction to sort the results by. Valid values: created-date, -created-date, id, -id, modified-date, -modified-date, child-position, -child-position, title, -title`,
+      },
+    ],
+  },
+  {
+    name: 'confluence_smart_link_get',
+    description: `Retrieve a specific Smart Link in the content tree by its ID. Optionally include collaborators, direct children, permitted operations, or content properties.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Smart Link to retrieve.`,
+      },
+      {
+        name: 'include_collaborators',
+        type: 'boolean',
+        required: false,
+        description: `Set to true to include collaborators on the Smart Link.`,
+      },
+      {
+        name: 'include_direct_children',
+        type: 'boolean',
+        required: false,
+        description: `Set to true to include direct children of the Smart Link.`,
+      },
+      {
+        name: 'include_operations',
+        type: 'boolean',
+        required: false,
+        description: `Set to true to include permitted operations for the Smart Link.`,
+      },
+      {
+        name: 'include_properties',
+        type: 'boolean',
+        required: false,
+        description: `Set to true to include content properties for the Smart Link.`,
       },
     ],
   },
@@ -3236,6 +3708,18 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'confluence_space_operations_get',
+    description: `Return the operations the authenticated user is permitted to perform on a Confluence space, such as read, update, or delete. Useful for checking access before attempting an action.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The ID of the space for which operations should be returned.`,
+      },
+    ],
+  },
+  {
     name: 'confluence_space_pages_list',
     description: `Returns all pages in a Confluence space. Only pages the caller has permission to view are returned. Supports filtering by depth, status, and title, sorting, and cursor-based pagination.`,
     params: [
@@ -3286,6 +3770,176 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Filter the results to pages based on their title`,
+      },
+    ],
+  },
+  {
+    name: 'confluence_space_permission_assignments_get',
+    description: `Retrieve the space permission assignments for a specific Confluence space, showing which principals (users or groups) hold which permissions.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The ID of the space to retrieve permission assignments for.`,
+      },
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Cursor token for fetching the next page of results.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of assignments to return per page (default 25, max 250).`,
+      },
+    ],
+  },
+  {
+    name: 'confluence_space_permissions_list',
+    description: `List the catalog of space permission types available on this Confluence site. Available only on tenants with Role-Based Access Control. Use Get Space Permission Assignments to see who holds which permissions on a specific space.`,
+    params: [
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Cursor token for fetching the next page of results.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of space permissions to return per page (default 25, max 250).`,
+      },
+    ],
+  },
+  {
+    name: 'confluence_space_property_create',
+    description: `Create a new content property (custom key/value metadata) on a Confluence space. Requires space admin permission. The value can be any JSON type — string, number, boolean, object, or array — passed as a JSON-encoded string.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The ID of the space to create a content property for.`,
+      },
+      { name: 'key', type: 'string', required: true, description: `Key of the content property.` },
+      {
+        name: 'value_json',
+        type: 'string',
+        required: true,
+        description: `Value of the content property, as a JSON-encoded string. Can be any JSON type.`,
+      },
+    ],
+  },
+  {
+    name: 'confluence_space_property_delete',
+    description: `Delete a content property from a Confluence space by its property ID.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The ID of the space the content property belongs to.`,
+      },
+      {
+        name: 'property_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the content property to delete.`,
+      },
+    ],
+  },
+  {
+    name: 'confluence_space_property_get',
+    description: `Retrieve a specific content property attached to a Confluence space by its property ID.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The ID of the space the content property belongs to.`,
+      },
+      {
+        name: 'property_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the content property to retrieve.`,
+      },
+    ],
+  },
+  {
+    name: 'confluence_space_property_list',
+    description: `List the content properties (custom key/value metadata) attached to a Confluence space. Supports filtering by key, sorting, and cursor-based pagination.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The ID of the space for which content properties should be returned.`,
+      },
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Cursor token for fetching the next page of results.`,
+      },
+      {
+        name: 'key',
+        type: 'string',
+        required: false,
+        description: `Filter to return only the content property with this exact key (case sensitive).`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of content properties to return per page (default 25, max 250).`,
+      },
+      {
+        name: 'sort',
+        type: 'string',
+        required: false,
+        description: `Sort field for the results: key or -key for descending.`,
+      },
+    ],
+  },
+  {
+    name: 'confluence_space_property_update',
+    description: `Update an existing content property on a Confluence space. Requires the new version number to be exactly the current version number plus 1 — retrieve the current version with Get Space Content Property first.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The ID of the space the content property belongs to.`,
+      },
+      { name: 'key', type: 'string', required: true, description: `Key of the content property.` },
+      {
+        name: 'property_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the content property to update.`,
+      },
+      {
+        name: 'value_json',
+        type: 'string',
+        required: true,
+        description: `New value of the content property, as a JSON-encoded string. Can be any JSON type.`,
+      },
+      {
+        name: 'version_number',
+        type: 'integer',
+        required: true,
+        description: `The new version number for this update. Must be exactly the current version number plus 1.`,
+      },
+      {
+        name: 'version_message',
+        type: 'string',
+        required: false,
+        description: `Optional message describing what changed in this version.`,
       },
     ],
   },

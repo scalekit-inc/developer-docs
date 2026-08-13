@@ -298,6 +298,32 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'quickbooks_class_update',
+    description: `Update an existing class in QuickBooks Online. Requires SyncToken from class_get.`,
+    params: [
+      { name: 'Id', type: 'string', required: true, description: `The ID of the class to update.` },
+      { name: 'Name', type: 'string', required: true, description: `Name of the class.` },
+      {
+        name: 'SyncToken',
+        type: 'string',
+        required: true,
+        description: `SyncToken from the class_get response (optimistic locking).`,
+      },
+      {
+        name: 'Active',
+        type: 'boolean',
+        required: false,
+        description: `Whether the class is active.`,
+      },
+      {
+        name: 'ParentRef',
+        type: 'string',
+        required: false,
+        description: `Parent class reference as JSON.`,
+      },
+    ],
+  },
+  {
     name: 'quickbooks_classes_list',
     description: `List classes from QuickBooks Online.`,
     params: [
@@ -358,6 +384,33 @@ export const tools: Tool[] = [
         required: true,
         description: `The ID of the credit memo.`,
       },
+    ],
+  },
+  {
+    name: 'quickbooks_credit_memo_update',
+    description: `Update an existing credit memo in QuickBooks Online. Requires SyncToken from credit_memo_get.`,
+    params: [
+      {
+        name: 'CustomerRef',
+        type: 'string',
+        required: true,
+        description: `Customer reference as JSON.`,
+      },
+      {
+        name: 'Id',
+        type: 'string',
+        required: true,
+        description: `The ID of the credit memo to update.`,
+      },
+      { name: 'Line', type: 'string', required: true, description: `Line items as JSON array.` },
+      {
+        name: 'SyncToken',
+        type: 'string',
+        required: true,
+        description: `SyncToken from the credit_memo_get response (optimistic locking).`,
+      },
+      { name: 'DocNumber', type: 'string', required: false, description: `Credit memo number.` },
+      { name: 'PrivateNote', type: 'string', required: false, description: `Internal memo.` },
     ],
   },
   {
@@ -528,6 +581,37 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'quickbooks_department_update',
+    description: `Update an existing department in QuickBooks Online. Requires SyncToken from department_get.`,
+    params: [
+      {
+        name: 'Id',
+        type: 'string',
+        required: true,
+        description: `The ID of the department to update.`,
+      },
+      { name: 'Name', type: 'string', required: true, description: `Name of the department.` },
+      {
+        name: 'SyncToken',
+        type: 'string',
+        required: true,
+        description: `SyncToken from the department_get response (optimistic locking).`,
+      },
+      {
+        name: 'Active',
+        type: 'boolean',
+        required: false,
+        description: `Whether the department is active.`,
+      },
+      {
+        name: 'ParentRef',
+        type: 'string',
+        required: false,
+        description: `Parent department reference as JSON.`,
+      },
+    ],
+  },
+  {
     name: 'quickbooks_departments_list',
     description: `List departments from QuickBooks Online.`,
     params: [
@@ -586,6 +670,38 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'quickbooks_deposit_update',
+    description: `Update an existing deposit in QuickBooks Online. Requires SyncToken from deposit_get.`,
+    params: [
+      {
+        name: 'DepositToAccountRef',
+        type: 'string',
+        required: true,
+        description: `Account to deposit into as JSON.`,
+      },
+      {
+        name: 'Id',
+        type: 'string',
+        required: true,
+        description: `The ID of the deposit to update.`,
+      },
+      { name: 'Line', type: 'string', required: true, description: `Deposit lines as JSON array.` },
+      {
+        name: 'SyncToken',
+        type: 'string',
+        required: true,
+        description: `SyncToken from the deposit_get response (optimistic locking).`,
+      },
+      { name: 'PrivateNote', type: 'string', required: false, description: `Internal memo.` },
+      {
+        name: 'TxnDate',
+        type: 'string',
+        required: false,
+        description: `Transaction date YYYY-MM-DD.`,
+      },
+    ],
+  },
+  {
     name: 'quickbooks_deposits_list',
     description: `List deposits from QuickBooks Online.`,
     params: [
@@ -630,6 +746,35 @@ export const tools: Tool[] = [
         required: true,
         description: `The ID of the employee.`,
       },
+    ],
+  },
+  {
+    name: 'quickbooks_employee_update',
+    description: `Update an existing employee in QuickBooks Online. Requires SyncToken from employee_get.`,
+    params: [
+      { name: 'FamilyName', type: 'string', required: true, description: `Employee last name.` },
+      { name: 'GivenName', type: 'string', required: true, description: `Employee first name.` },
+      {
+        name: 'Id',
+        type: 'string',
+        required: true,
+        description: `The ID of the employee to update.`,
+      },
+      {
+        name: 'SyncToken',
+        type: 'string',
+        required: true,
+        description: `SyncToken from the employee_get response (optimistic locking).`,
+      },
+      {
+        name: 'Active',
+        type: 'boolean',
+        required: false,
+        description: `Whether the employee is active.`,
+      },
+      { name: 'DisplayName', type: 'string', required: false, description: `Display name.` },
+      { name: 'PrimaryEmailAddr', type: 'string', required: false, description: `Email as JSON.` },
+      { name: 'PrimaryPhone', type: 'string', required: false, description: `Phone as JSON.` },
     ],
   },
   {
@@ -700,6 +845,57 @@ export const tools: Tool[] = [
         required: true,
         description: `The ID of the estimate.`,
       },
+    ],
+  },
+  {
+    name: 'quickbooks_estimate_send',
+    description: `Send an estimate by email in QuickBooks Online.`,
+    params: [
+      {
+        name: 'estimate_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the estimate to send.`,
+      },
+      {
+        name: 'send_to',
+        type: 'string',
+        required: true,
+        description: `Email address to send the estimate to.`,
+      },
+    ],
+  },
+  {
+    name: 'quickbooks_estimate_update',
+    description: `Update an existing estimate (quote) in QuickBooks Online. Requires SyncToken from estimate_get.`,
+    params: [
+      {
+        name: 'CustomerRef',
+        type: 'string',
+        required: true,
+        description: `Customer reference as JSON.`,
+      },
+      {
+        name: 'Id',
+        type: 'string',
+        required: true,
+        description: `The ID of the estimate to update.`,
+      },
+      { name: 'Line', type: 'string', required: true, description: `Line items as JSON array.` },
+      {
+        name: 'SyncToken',
+        type: 'string',
+        required: true,
+        description: `SyncToken from the estimate_get response (optimistic locking).`,
+      },
+      { name: 'DocNumber', type: 'string', required: false, description: `Estimate number.` },
+      {
+        name: 'ExpirationDate',
+        type: 'string',
+        required: false,
+        description: `Expiration date YYYY-MM-DD.`,
+      },
+      { name: 'PrivateNote', type: 'string', required: false, description: `Internal memo.` },
     ],
   },
   {
@@ -1037,6 +1233,38 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'quickbooks_journal_entry_update',
+    description: `Update an existing journal entry in QuickBooks Online. Requires SyncToken from journal_entry_get.`,
+    params: [
+      {
+        name: 'Id',
+        type: 'string',
+        required: true,
+        description: `The ID of the journal entry to update.`,
+      },
+      {
+        name: 'Line',
+        type: 'string',
+        required: true,
+        description: `Journal entry lines as JSON array with debit/credit amounts.`,
+      },
+      {
+        name: 'SyncToken',
+        type: 'string',
+        required: true,
+        description: `SyncToken from the journal_entry_get response (optimistic locking).`,
+      },
+      { name: 'DocNumber', type: 'string', required: false, description: `Journal entry number.` },
+      { name: 'PrivateNote', type: 'string', required: false, description: `Internal memo.` },
+      {
+        name: 'TxnDate',
+        type: 'string',
+        required: false,
+        description: `Transaction date YYYY-MM-DD.`,
+      },
+    ],
+  },
+  {
     name: 'quickbooks_payment_create',
     description: `Create a new customer payment in QuickBooks Online.`,
     params: [
@@ -1084,6 +1312,30 @@ export const tools: Tool[] = [
     description: `Retrieve a single QuickBooks Online payment by ID.`,
     params: [
       { name: 'payment_id', type: 'string', required: true, description: `The ID of the payment.` },
+    ],
+  },
+  {
+    name: 'quickbooks_payment_methods_list',
+    description: `List payment methods (e.g. Cash, Check, Credit Card) configured in QuickBooks Online, via the SQL-like query endpoint (entity=PaymentMethod). Used to tag Payment and SalesReceipt transactions with how the customer paid.`,
+    params: [
+      {
+        name: 'max_results',
+        type: 'integer',
+        required: true,
+        description: `Maximum number of records to return.`,
+      },
+      {
+        name: 'start_position',
+        type: 'integer',
+        required: true,
+        description: `Starting position for pagination (1-based).`,
+      },
+      {
+        name: 'where_clause',
+        type: 'string',
+        required: false,
+        description: `Optional WHERE clause, e.g. "Active = true"`,
+      },
     ],
   },
   {
@@ -1142,6 +1394,63 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'quickbooks_purchase_create',
+    description: `Create a new purchase (expense paid by cash, check, or credit card) in QuickBooks Online.`,
+    params: [
+      {
+        name: 'AccountRef',
+        type: 'string',
+        required: true,
+        description: `Bank or credit card account the purchase was paid from, as JSON.`,
+      },
+      { name: 'Line', type: 'string', required: true, description: `Line items as JSON array.` },
+      {
+        name: 'PaymentType',
+        type: 'string',
+        required: true,
+        description: `Payment method: Cash, Check, or CreditCard.`,
+      },
+      {
+        name: 'EntityRef',
+        type: 'string',
+        required: false,
+        description: `Payee reference (vendor or employee) as JSON.`,
+      },
+      { name: 'PrivateNote', type: 'string', required: false, description: `Internal memo.` },
+      {
+        name: 'TxnDate',
+        type: 'string',
+        required: false,
+        description: `Transaction date YYYY-MM-DD.`,
+      },
+    ],
+  },
+  {
+    name: 'quickbooks_purchase_delete',
+    description: `Delete a purchase in QuickBooks Online.`,
+    params: [
+      { name: 'Id', type: 'string', required: true, description: `Purchase ID.` },
+      {
+        name: 'SyncToken',
+        type: 'string',
+        required: true,
+        description: `SyncToken from purchase_get.`,
+      },
+    ],
+  },
+  {
+    name: 'quickbooks_purchase_get',
+    description: `Retrieve a single QuickBooks Online purchase by ID.`,
+    params: [
+      {
+        name: 'purchase_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the purchase.`,
+      },
+    ],
+  },
+  {
     name: 'quickbooks_purchase_order_create',
     description: `Create a new purchase order in QuickBooks Online.`,
     params: [
@@ -1183,6 +1492,34 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'quickbooks_purchase_order_update',
+    description: `Update an existing purchase order in QuickBooks Online. Requires SyncToken from purchase_order_get.`,
+    params: [
+      {
+        name: 'Id',
+        type: 'string',
+        required: true,
+        description: `The ID of the purchase order to update.`,
+      },
+      { name: 'Line', type: 'string', required: true, description: `Line items as JSON array.` },
+      {
+        name: 'SyncToken',
+        type: 'string',
+        required: true,
+        description: `SyncToken from the purchase_order_get response (optimistic locking).`,
+      },
+      {
+        name: 'VendorRef',
+        type: 'string',
+        required: true,
+        description: `Vendor reference as JSON.`,
+      },
+      { name: 'DocNumber', type: 'string', required: false, description: `Purchase order number.` },
+      { name: 'DueDate', type: 'string', required: false, description: `Due date YYYY-MM-DD.` },
+      { name: 'PrivateNote', type: 'string', required: false, description: `Internal memo.` },
+    ],
+  },
+  {
     name: 'quickbooks_purchase_orders_list',
     description: `List purchase orders from QuickBooks Online.`,
     params: [
@@ -1203,6 +1540,74 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Optional WHERE clause.`,
+      },
+    ],
+  },
+  {
+    name: 'quickbooks_purchase_update',
+    description: `Update an existing purchase in QuickBooks Online. Requires SyncToken from purchase_get.`,
+    params: [
+      {
+        name: 'AccountRef',
+        type: 'string',
+        required: true,
+        description: `Bank or credit card account the purchase was paid from, as JSON.`,
+      },
+      {
+        name: 'Id',
+        type: 'string',
+        required: true,
+        description: `The ID of the purchase to update.`,
+      },
+      { name: 'Line', type: 'string', required: true, description: `Line items as JSON array.` },
+      {
+        name: 'PaymentType',
+        type: 'string',
+        required: true,
+        description: `Payment method: Cash, Check, or CreditCard.`,
+      },
+      {
+        name: 'SyncToken',
+        type: 'string',
+        required: true,
+        description: `SyncToken from the purchase_get response (optimistic locking).`,
+      },
+      {
+        name: 'EntityRef',
+        type: 'string',
+        required: false,
+        description: `Payee reference (vendor or employee) as JSON.`,
+      },
+      { name: 'PrivateNote', type: 'string', required: false, description: `Internal memo.` },
+      {
+        name: 'TxnDate',
+        type: 'string',
+        required: false,
+        description: `Transaction date YYYY-MM-DD.`,
+      },
+    ],
+  },
+  {
+    name: 'quickbooks_purchases_list',
+    description: `List purchases from QuickBooks Online with optional filtering and pagination.`,
+    params: [
+      {
+        name: 'max_results',
+        type: 'integer',
+        required: true,
+        description: `Maximum number of records to return.`,
+      },
+      {
+        name: 'start_position',
+        type: 'integer',
+        required: true,
+        description: `Starting position for pagination (1-based).`,
+      },
+      {
+        name: 'where_clause',
+        type: 'string',
+        required: false,
+        description: `Optional WHERE clause, e.g. "TxnDate > '2024-01-01'"`,
       },
     ],
   },
@@ -1234,6 +1639,19 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'quickbooks_refund_receipt_delete',
+    description: `Delete a refund receipt in QuickBooks Online.`,
+    params: [
+      { name: 'Id', type: 'string', required: true, description: `Refund receipt ID.` },
+      {
+        name: 'SyncToken',
+        type: 'string',
+        required: true,
+        description: `SyncToken from refund_receipt_get.`,
+      },
+    ],
+  },
+  {
     name: 'quickbooks_refund_receipt_get',
     description: `Retrieve a single QuickBooks Online refund receipt by ID.`,
     params: [
@@ -1243,6 +1661,45 @@ export const tools: Tool[] = [
         required: true,
         description: `The ID of the refund receipt.`,
       },
+    ],
+  },
+  {
+    name: 'quickbooks_refund_receipt_update',
+    description: `Update an existing refund receipt in QuickBooks Online. Requires SyncToken from refund_receipt_get.`,
+    params: [
+      {
+        name: 'CustomerRef',
+        type: 'string',
+        required: true,
+        description: `Customer reference as JSON.`,
+      },
+      {
+        name: 'DepositToAccountRef',
+        type: 'string',
+        required: true,
+        description: `Account to deposit the refund into as JSON, e.g. {"value":"35"} for Checking.`,
+      },
+      {
+        name: 'Id',
+        type: 'string',
+        required: true,
+        description: `The ID of the refund receipt to update.`,
+      },
+      { name: 'Line', type: 'string', required: true, description: `Line items as JSON array.` },
+      {
+        name: 'SyncToken',
+        type: 'string',
+        required: true,
+        description: `SyncToken from the refund_receipt_get response (optimistic locking).`,
+      },
+      { name: 'DocNumber', type: 'string', required: false, description: `Refund receipt number.` },
+      {
+        name: 'PaymentRefNum',
+        type: 'string',
+        required: false,
+        description: `Payment reference number.`,
+      },
+      { name: 'PrivateNote', type: 'string', required: false, description: `Internal memo.` },
     ],
   },
   {
@@ -1342,6 +1799,30 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'quickbooks_report_customer_balance',
+    description: `Retrieve a Customer Balance report from QuickBooks Online.`,
+    params: [
+      {
+        name: 'accounting_method',
+        type: 'string',
+        required: false,
+        description: `Accounting method: Accrual or Cash.`,
+      },
+      {
+        name: 'end_date',
+        type: 'string',
+        required: false,
+        description: `Report end date in YYYY-MM-DD format.`,
+      },
+      {
+        name: 'start_date',
+        type: 'string',
+        required: false,
+        description: `Report start date in YYYY-MM-DD format.`,
+      },
+    ],
+  },
+  {
     name: 'quickbooks_report_general_ledger',
     description: `Retrieve a General Ledger report from QuickBooks Online.`,
     params: [
@@ -1390,8 +1871,56 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'quickbooks_report_transaction_list',
+    description: `Retrieve a Transaction List report from QuickBooks Online.`,
+    params: [
+      {
+        name: 'accounting_method',
+        type: 'string',
+        required: false,
+        description: `Accounting method: Accrual or Cash.`,
+      },
+      {
+        name: 'end_date',
+        type: 'string',
+        required: false,
+        description: `Report end date in YYYY-MM-DD format.`,
+      },
+      {
+        name: 'start_date',
+        type: 'string',
+        required: false,
+        description: `Report start date in YYYY-MM-DD format.`,
+      },
+    ],
+  },
+  {
     name: 'quickbooks_report_trial_balance',
     description: `Retrieve a Trial Balance report from QuickBooks Online.`,
+    params: [
+      {
+        name: 'accounting_method',
+        type: 'string',
+        required: false,
+        description: `Accounting method: Accrual or Cash.`,
+      },
+      {
+        name: 'end_date',
+        type: 'string',
+        required: false,
+        description: `Report end date in YYYY-MM-DD format.`,
+      },
+      {
+        name: 'start_date',
+        type: 'string',
+        required: false,
+        description: `Report start date in YYYY-MM-DD format.`,
+      },
+    ],
+  },
+  {
+    name: 'quickbooks_report_vendor_balance',
+    description: `Retrieve a Vendor Balance report from QuickBooks Online.`,
     params: [
       {
         name: 'accounting_method',
@@ -1460,6 +1989,39 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'quickbooks_sales_receipt_update',
+    description: `Update an existing sales receipt in QuickBooks Online. Requires SyncToken from sales_receipt_get.`,
+    params: [
+      {
+        name: 'CustomerRef',
+        type: 'string',
+        required: true,
+        description: `Customer reference as JSON.`,
+      },
+      {
+        name: 'Id',
+        type: 'string',
+        required: true,
+        description: `The ID of the sales receipt to update.`,
+      },
+      { name: 'Line', type: 'string', required: true, description: `Line items as JSON array.` },
+      {
+        name: 'SyncToken',
+        type: 'string',
+        required: true,
+        description: `SyncToken from the sales_receipt_get response (optimistic locking).`,
+      },
+      { name: 'DocNumber', type: 'string', required: false, description: `Receipt number.` },
+      {
+        name: 'PaymentRefNum',
+        type: 'string',
+        required: false,
+        description: `Payment reference number.`,
+      },
+      { name: 'PrivateNote', type: 'string', required: false, description: `Internal memo.` },
+    ],
+  },
+  {
     name: 'quickbooks_sales_receipts_list',
     description: `List sales receipts from QuickBooks Online.`,
     params: [
@@ -1510,6 +2072,180 @@ export const tools: Tool[] = [
         type: 'integer',
         required: true,
         description: `Starting position for pagination (1-based).`,
+      },
+    ],
+  },
+  {
+    name: 'quickbooks_tax_rate_get',
+    description: `Retrieve a single tax rate by ID from QuickBooks Online.`,
+    params: [
+      {
+        name: 'tax_rate_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the tax rate.`,
+      },
+    ],
+  },
+  {
+    name: 'quickbooks_tax_rates_list',
+    description: `List tax rates from QuickBooks Online with optional filtering and pagination.`,
+    params: [
+      {
+        name: 'max_results',
+        type: 'integer',
+        required: true,
+        description: `Maximum number of records to return.`,
+      },
+      {
+        name: 'start_position',
+        type: 'integer',
+        required: true,
+        description: `Starting position for pagination (1-based).`,
+      },
+      {
+        name: 'where_clause',
+        type: 'string',
+        required: false,
+        description: `Optional WHERE clause, e.g. "Active = true"`,
+      },
+    ],
+  },
+  {
+    name: 'quickbooks_time_activities_list',
+    description: `List time activities from QuickBooks Online via the SQL-like query endpoint (entity=TimeActivity), matching the existing list-tool pattern used for other entities.`,
+    params: [
+      {
+        name: 'max_results',
+        type: 'integer',
+        required: true,
+        description: `Maximum number of records to return.`,
+      },
+      {
+        name: 'start_position',
+        type: 'integer',
+        required: true,
+        description: `Starting position for pagination (1-based).`,
+      },
+      {
+        name: 'where_clause',
+        type: 'string',
+        required: false,
+        description: `Optional WHERE clause, e.g. "TxnDate > '2024-01-01'"`,
+      },
+    ],
+  },
+  {
+    name: 'quickbooks_time_activity_create',
+    description: `Create a new time activity (billable or non-billable time entry) for an employee or vendor in QuickBooks Online. Set NameOf to 'Employee' and provide EmployeeRef, or set NameOf to 'Vendor' and provide VendorRef. Record duration with either Hours/Minutes or StartTime/EndTime, but not both.`,
+    params: [
+      {
+        name: 'NameOf',
+        type: 'string',
+        required: true,
+        description: `Whether this time activity is for an Employee or a Vendor. Determines whether EmployeeRef or VendorRef is required.`,
+      },
+      {
+        name: 'TxnDate',
+        type: 'string',
+        required: true,
+        description: `The date of the time activity, in YYYY-MM-DD format.`,
+      },
+      {
+        name: 'BillableStatus',
+        type: 'string',
+        required: false,
+        description: `Billing status of this time activity: Billable, NotBillable, or HasBeenBilled.`,
+      },
+      {
+        name: 'ClassRef',
+        type: 'string',
+        required: false,
+        description: `Class reference as JSON, e.g. {"value":"123"}.`,
+      },
+      {
+        name: 'CustomerRef',
+        type: 'string',
+        required: false,
+        description: `Customer reference as JSON, e.g. {"value":"123"}. Set this to make the time billable to a customer.`,
+      },
+      {
+        name: 'DepartmentRef',
+        type: 'string',
+        required: false,
+        description: `Department (location) reference as JSON, e.g. {"value":"123"}.`,
+      },
+      {
+        name: 'Description',
+        type: 'string',
+        required: false,
+        description: `Free-text description of the work performed.`,
+      },
+      {
+        name: 'EmployeeRef',
+        type: 'string',
+        required: false,
+        description: `Employee reference as JSON, e.g. {"value":"123"}. Required when NameOf is 'Employee'.`,
+      },
+      {
+        name: 'EndTime',
+        type: 'string',
+        required: false,
+        description: `Time work ended, e.g. 2024-06-15T17:00:00-07:00. Use together with StartTime instead of Hours/Minutes.`,
+      },
+      {
+        name: 'HourlyRate',
+        type: 'number',
+        required: false,
+        description: `Hourly rate to bill or pay for this time activity.`,
+      },
+      {
+        name: 'Hours',
+        type: 'integer',
+        required: false,
+        description: `Whole hours worked (0-23). Use together with Minutes instead of StartTime/EndTime.`,
+      },
+      {
+        name: 'ItemRef',
+        type: 'string',
+        required: false,
+        description: `Service item reference as JSON, e.g. {"value":"123"}. Used when the time is billable.`,
+      },
+      {
+        name: 'Minutes',
+        type: 'integer',
+        required: false,
+        description: `Minutes worked (0-59), in addition to Hours.`,
+      },
+      {
+        name: 'PayrollItemRef',
+        type: 'string',
+        required: false,
+        description: `Payroll item reference as JSON, e.g. {"value":"123"}. US payroll only.`,
+      },
+      {
+        name: 'StartTime',
+        type: 'string',
+        required: false,
+        description: `Time work started, e.g. 2024-06-15T09:00:00-07:00. Use together with EndTime instead of Hours/Minutes.`,
+      },
+      {
+        name: 'VendorRef',
+        type: 'string',
+        required: false,
+        description: `Vendor reference as JSON, e.g. {"value":"123"}. Required when NameOf is 'Vendor'.`,
+      },
+    ],
+  },
+  {
+    name: 'quickbooks_time_activity_get',
+    description: `Retrieve a single QuickBooks Online time activity by ID.`,
+    params: [
+      {
+        name: 'time_activity_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the time activity.`,
       },
     ],
   },

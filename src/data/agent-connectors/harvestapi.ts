@@ -2,6 +2,42 @@ import type { Tool } from '../../types/agent-connectors'
 
 export const tools: Tool[] = [
   {
+    name: 'harvestapi_bulk_scrape_company_employees',
+    description: `Bulk-list the employees of one or more LinkedIn companies via HarvestAPI's dedicated Apify actor, same pattern as the existing Bulk Scrape LinkedIn Profiles tool. Requires an Apify API token from https://console.apify.com/settings/integrations.`,
+    params: [
+      {
+        name: 'apify_token',
+        type: 'string',
+        required: true,
+        description: `Your Apify API token from https://console.apify.com/settings/integrations.`,
+      },
+      {
+        name: 'companies',
+        type: 'array',
+        required: true,
+        description: `JSON array of LinkedIn company URLs to list employees for.`,
+      },
+      {
+        name: 'job_titles',
+        type: 'array',
+        required: false,
+        description: `JSON array of job titles to filter employees by.`,
+      },
+      {
+        name: 'locations',
+        type: 'array',
+        required: false,
+        description: `JSON array of LinkedIn locations to filter employees by.`,
+      },
+      {
+        name: 'max_items',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of employee profiles to scrape across all companies. 0 or omitted scrapes all available (up to 2500 per company).`,
+      },
+    ],
+  },
+  {
     name: 'harvestapi_bulk_scrape_profiles',
     description: `Batch scrape multiple LinkedIn profiles in a single request using the HarvestAPI Apify scraper. Accepts a JSON array of LinkedIn profile URLs. Pricing: $4 per 1,000 profiles, $10 per 1,000 with email. Requires an Apify API token from https://console.apify.com/settings/integrations.`,
     params: [

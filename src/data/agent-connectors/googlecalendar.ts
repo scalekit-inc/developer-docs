@@ -2,6 +2,48 @@ import type { Tool } from '../../types/agent-connectors'
 
 export const tools: Tool[] = [
   {
+    name: 'googlecalendar_add_calendar_to_list',
+    description: `Subscribe the authenticated user to an existing calendar by adding it to their calendar list. This does not create a new calendar; use Create Calendar for that. Requires a valid Google Calendar OAuth2 connection.`,
+    params: [
+      {
+        name: 'calendar_id',
+        type: 'string',
+        required: true,
+        description: `ID of the existing calendar to subscribe to`,
+      },
+      {
+        name: 'color_id',
+        type: 'string',
+        required: false,
+        description: `Color ID for this calendar in the user's list, from the calendar section of the Colors resource`,
+      },
+      {
+        name: 'hidden',
+        type: 'boolean',
+        required: false,
+        description: `Whether the calendar is hidden from the user's calendar list UI`,
+      },
+      {
+        name: 'selected',
+        type: 'boolean',
+        required: false,
+        description: `Whether the calendar's events are displayed in the UI`,
+      },
+    ],
+  },
+  {
+    name: 'googlecalendar_clear_calendar',
+    description: `Permanently delete all events on the authenticated user's primary Google Calendar. This action cannot be undone and only works on the primary calendar, not secondary ones. Requires a valid Google Calendar OAuth2 connection.`,
+    params: [
+      {
+        name: 'calendar_id',
+        type: 'string',
+        required: true,
+        description: `Calendar ID to clear. Must be the user's primary calendar`,
+      },
+    ],
+  },
+  {
     name: 'googlecalendar_create_calendar',
     description: `Create a new secondary calendar in a connected Google Calendar account. Requires a valid Google Calendar OAuth2 connection.`,
     params: [
@@ -234,6 +276,24 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'googlecalendar_get_acl_rule',
+    description: `Retrieve a single access control rule for a calendar in a connected Google Calendar account by its rule ID. Requires a valid Google Calendar OAuth2 connection.`,
+    params: [
+      {
+        name: 'calendar_id',
+        type: 'string',
+        required: true,
+        description: `Calendar ID the ACL rule belongs to`,
+      },
+      {
+        name: 'rule_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the ACL rule to fetch`,
+      },
+    ],
+  },
+  {
     name: 'googlecalendar_get_calendar',
     description: `Retrieve metadata for a calendar in a connected Google Calendar account, including its summary, description, and timezone. Requires a valid Google Calendar OAuth2 connection.`,
     params: [
@@ -256,6 +316,23 @@ export const tools: Tool[] = [
         description: `Optional tool version to use for execution`,
       },
     ],
+  },
+  {
+    name: 'googlecalendar_get_calendar_list_entry',
+    description: `Retrieve a calendar from the authenticated user's calendar list, including their personal settings for it (color, visibility, notifications, default reminders). Requires a valid Google Calendar OAuth2 connection.`,
+    params: [
+      {
+        name: 'calendar_id',
+        type: 'string',
+        required: true,
+        description: `Calendar ID to fetch from the user's calendar list`,
+      },
+    ],
+  },
+  {
+    name: 'googlecalendar_get_colors',
+    description: `Retrieve the color definitions Google Calendar uses for calendars and events, including each color ID's background and foreground hex values. Requires a valid Google Calendar OAuth2 connection.`,
+    params: [],
   },
   {
     name: 'googlecalendar_get_event_by_id',
@@ -321,6 +398,74 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Filter events updated after this time (RFC3339)`,
+      },
+    ],
+  },
+  {
+    name: 'googlecalendar_get_setting',
+    description: `Retrieve a single user preference setting from a connected Google Calendar account, such as the user's timezone or week start day. Requires a valid Google Calendar OAuth2 connection.`,
+    params: [
+      {
+        name: 'setting',
+        type: 'string',
+        required: true,
+        description: `The ID of the user setting to fetch`,
+      },
+    ],
+  },
+  {
+    name: 'googlecalendar_import_event',
+    description: `Import a private copy of an existing event, identified by its iCalUID, into a calendar in a connected Google Calendar account. Intended for migrating events from another calendaring system without triggering normal attendee invitations. Only events with eventType 'default' are supported. Requires a valid Google Calendar OAuth2 connection.`,
+    params: [
+      {
+        name: 'calendar_id',
+        type: 'string',
+        required: true,
+        description: `Calendar ID to import the event into`,
+      },
+      {
+        name: 'end_datetime',
+        type: 'string',
+        required: true,
+        description: `Event end time in RFC3339 format`,
+      },
+      {
+        name: 'ical_uid',
+        type: 'string',
+        required: true,
+        description: `Event unique identifier as defined in RFC5545, used to identify the source event`,
+      },
+      {
+        name: 'start_datetime',
+        type: 'string',
+        required: true,
+        description: `Event start time in RFC3339 format`,
+      },
+      { name: 'summary', type: 'string', required: true, description: `Event title/summary` },
+      {
+        name: 'attendees_emails',
+        type: 'array',
+        required: false,
+        description: `Attendee email addresses to record on the imported event`,
+      },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `Optional event description`,
+      },
+      { name: 'location', type: 'string', required: false, description: `Location of the event` },
+      {
+        name: 'status',
+        type: 'string',
+        required: false,
+        description: `Status of the imported event`,
+      },
+      {
+        name: 'timezone',
+        type: 'string',
+        required: false,
+        description: `Timezone for the event (IANA time zone identifier)`,
       },
     ],
   },
@@ -573,6 +718,30 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'googlecalendar_list_settings',
+    description: `List all user preference settings for the authenticated user's connected Google Calendar account. Requires a valid Google Calendar OAuth2 connection.`,
+    params: [
+      {
+        name: 'max_results',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of settings to fetch`,
+      },
+      {
+        name: 'page_token',
+        type: 'string',
+        required: false,
+        description: `Token to retrieve the next page of results`,
+      },
+      {
+        name: 'sync_token',
+        type: 'string',
+        required: false,
+        description: `Token to get updates since the last sync`,
+      },
+    ],
+  },
+  {
     name: 'googlecalendar_move_event',
     description: `Move an existing event from one calendar to another in a connected Google Calendar account. Requires a valid Google Calendar OAuth2 connection.`,
     params: [
@@ -693,6 +862,18 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'googlecalendar_remove_calendar_from_list',
+    description: `Unsubscribe the authenticated user from a calendar by removing it from their calendar list. This does not delete the underlying calendar for other users; use Delete Calendar to permanently remove a calendar you own. Requires a valid Google Calendar OAuth2 connection.`,
+    params: [
+      {
+        name: 'calendar_id',
+        type: 'string',
+        required: true,
+        description: `Calendar ID to remove from the user's calendar list`,
+      },
+    ],
+  },
+  {
     name: 'googlecalendar_search_events',
     description: `Search events in a connected Google Calendar account with free-text query and time-range filtering. Requires a valid Google Calendar OAuth2 connection.`,
     params: [
@@ -754,6 +935,54 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'googlecalendar_transfer_calendar_ownership',
+    description: `Transfer ownership of a secondary calendar to another user within a Google Workspace organization. Requires the authenticated user to hold the Manage Calendars administrator privilege, and the calendar must be active (not disabled or deleted). Requires a valid Google Calendar OAuth2 connection.`,
+    params: [
+      {
+        name: 'calendar_id',
+        type: 'string',
+        required: true,
+        description: `ID of the secondary calendar to transfer`,
+      },
+      {
+        name: 'new_data_owner',
+        type: 'string',
+        required: true,
+        description: `Email address of the user who will become the new data owner of the calendar`,
+      },
+    ],
+  },
+  {
+    name: 'googlecalendar_update_acl_rule',
+    description: `Change the access role of an existing access control rule for a calendar in a connected Google Calendar account. Requires a valid Google Calendar OAuth2 connection.`,
+    params: [
+      {
+        name: 'calendar_id',
+        type: 'string',
+        required: true,
+        description: `Calendar ID the ACL rule belongs to`,
+      },
+      {
+        name: 'role',
+        type: 'string',
+        required: true,
+        description: `New access role to assign to this rule`,
+      },
+      {
+        name: 'rule_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the ACL rule to update`,
+      },
+      {
+        name: 'send_notifications',
+        type: 'boolean',
+        required: false,
+        description: `Whether to send notification emails about the sharing change`,
+      },
+    ],
+  },
+  {
     name: 'googlecalendar_update_calendar',
     description: `Update metadata for an existing calendar in a connected Google Calendar account. Only provided fields will be updated. Requires a valid Google Calendar OAuth2 connection.`,
     params: [
@@ -788,6 +1017,42 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Optional tool version to use for execution`,
+      },
+    ],
+  },
+  {
+    name: 'googlecalendar_update_calendar_list_entry',
+    description: `Update the authenticated user's personal display settings for a calendar in their calendar list, such as its color, visibility, or whether it's shown. This does not change the underlying calendar's shared metadata; use Update Calendar for that. Requires a valid Google Calendar OAuth2 connection.`,
+    params: [
+      {
+        name: 'calendar_id',
+        type: 'string',
+        required: true,
+        description: `Calendar ID in the user's calendar list to update`,
+      },
+      {
+        name: 'color_id',
+        type: 'string',
+        required: false,
+        description: `Color ID for this calendar in the user's list, from the calendar section of the Colors resource`,
+      },
+      {
+        name: 'hidden',
+        type: 'boolean',
+        required: false,
+        description: `Whether the calendar is hidden from the user's calendar list UI`,
+      },
+      {
+        name: 'selected',
+        type: 'boolean',
+        required: false,
+        description: `Whether the calendar's events are displayed in the UI`,
+      },
+      {
+        name: 'summary_override',
+        type: 'string',
+        required: false,
+        description: `Custom display name for this calendar, overriding its shared summary, visible only to the authenticated user`,
       },
     ],
   },

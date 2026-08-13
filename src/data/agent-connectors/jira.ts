@@ -320,6 +320,42 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'jira_audit_records_list',
+    description: `Returns a paginated list of audit records, optionally filtered by free-text match against summary/category/event source/object name and by creation date range. Requires the Administer Jira global permission.`,
+    params: [
+      {
+        name: 'filter',
+        type: 'string',
+        required: false,
+        description: `The strings to match with audit field content, space separated.`,
+      },
+      {
+        name: 'from',
+        type: 'string',
+        required: false,
+        description: `The date and time on or after which returned audit records must have been created.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `The maximum number of results to return.`,
+      },
+      {
+        name: 'offset',
+        type: 'integer',
+        required: false,
+        description: `The number of records to skip before returning the first result.`,
+      },
+      {
+        name: 'to',
+        type: 'string',
+        required: false,
+        description: `The date and time on or before which returned audit records must have been created.`,
+      },
+    ],
+  },
+  {
     name: 'jira_backlog_issues_move',
     description: `Move a set of Jira issues to the backlog by removing any future or active sprint assignment from them. At most 50 issues may be moved in a single call. Returns no content on success.`,
     params: [
@@ -1178,6 +1214,18 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'jira_bulk_operation_progress_get',
+    description: `Poll the progress and result of an async bulk issue operation previously submitted via jira_issues_bulk_edit_submit, jira_issues_bulk_delete_submit, jira_issues_bulk_transition_submit, or jira_issues_bulk_move_submit. Returns status (e.g. RUNNING, COMPLETE, FAILED), progressPercent, and per-issue error details once finished.`,
+    params: [
+      {
+        name: 'taskId',
+        type: 'string',
+        required: true,
+        description: `The task ID returned by a bulk/issues/* submit call.`,
+      },
+    ],
+  },
+  {
     name: 'jira_changelogs_bulk_get',
     description: `Bulk fetch changelogs for multiple issues, optionally filtered by field IDs. Returns a paginated list of changelogs for the given issues sorted by changelog date and issue ID, starting from the oldest changelog and smallest issue ID. Accepts up to 1000 issue IDs/keys and up to 10 field IDs to filter by.`,
     params: [
@@ -1347,6 +1395,168 @@ export const tools: Tool[] = [
         type: 'integer',
         required: false,
         description: `The index of the first item to return in a page of results (page offset).`,
+      },
+    ],
+  },
+  {
+    name: 'jira_custom_field_context_create',
+    description: `Create a new configuration context for a custom field, optionally scoped to specific projects and/or issue types. Required before you can add select-list options with jira_custom_field_context_option_create.`,
+    params: [
+      {
+        name: 'fieldId',
+        type: 'string',
+        required: true,
+        description: `The ID of the custom field, e.g. customfield_10000.`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: true,
+        description: `The name of the context. Must be unique for the field.`,
+      },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `A description of the context.`,
+      },
+      {
+        name: 'issueTypeIds',
+        type: 'array',
+        required: false,
+        description: `Issue type IDs this context applies to. Omit or leave empty for all issue types.`,
+      },
+      {
+        name: 'projectIds',
+        type: 'array',
+        required: false,
+        description: `Project IDs this context applies to. Omit or leave empty for a global (all-projects) context.`,
+      },
+    ],
+  },
+  {
+    name: 'jira_custom_field_context_option_create',
+    description: `Create new options for a select-list custom field context (e.g. adding dropdown values). Returns the created options with their assigned IDs.`,
+    params: [
+      {
+        name: 'contextId',
+        type: 'string',
+        required: true,
+        description: `The ID of the custom field context.`,
+      },
+      {
+        name: 'fieldId',
+        type: 'string',
+        required: true,
+        description: `The ID of the custom field, e.g. customfield_10000.`,
+      },
+      {
+        name: 'options',
+        type: 'array',
+        required: true,
+        description: `The options to create (up to 1000 per call). Each item needs 'value' (the option's label) and may set 'disabled' (defaults to false).`,
+      },
+    ],
+  },
+  {
+    name: 'jira_custom_field_context_option_update',
+    description: `Update the value and/or disabled state of existing custom field context options, by option ID.`,
+    params: [
+      {
+        name: 'contextId',
+        type: 'string',
+        required: true,
+        description: `The ID of the custom field context.`,
+      },
+      {
+        name: 'fieldId',
+        type: 'string',
+        required: true,
+        description: `The ID of the custom field, e.g. customfield_10000.`,
+      },
+      {
+        name: 'options',
+        type: 'array',
+        required: true,
+        description: `The options to update (up to 1000 per call). Each item needs 'id' (the existing option's ID) and may set 'value' and/or 'disabled'.`,
+      },
+    ],
+  },
+  {
+    name: 'jira_custom_field_context_options_list',
+    description: `List the selectable options configured for a custom field context (e.g. dropdown/select values), including each option's ID, value, and disabled state.`,
+    params: [
+      {
+        name: 'contextId',
+        type: 'string',
+        required: true,
+        description: `The ID of the custom field context.`,
+      },
+      {
+        name: 'fieldId',
+        type: 'string',
+        required: true,
+        description: `The ID of the custom field, e.g. customfield_10000.`,
+      },
+      {
+        name: 'maxResults',
+        type: 'integer',
+        required: false,
+        description: `The maximum number of options to return per page.`,
+      },
+      {
+        name: 'onlyOptions',
+        type: 'boolean',
+        required: false,
+        description: `Whether to return only options with no cascading child options.`,
+      },
+      {
+        name: 'optionId',
+        type: 'string',
+        required: false,
+        description: `Filter to a single option by its ID.`,
+      },
+      {
+        name: 'startAt',
+        type: 'integer',
+        required: false,
+        description: `The index of the first option to return.`,
+      },
+    ],
+  },
+  {
+    name: 'jira_custom_field_contexts_list',
+    description: `List the configuration contexts defined for a custom field — each context scopes the field to specific projects/issue types. Entire custom-field-context/option sub-API is currently uncovered even though it's core to setting up select/dropdown custom fields.`,
+    params: [
+      {
+        name: 'fieldId',
+        type: 'string',
+        required: true,
+        description: `The ID of the custom field, e.g. customfield_10000.`,
+      },
+      {
+        name: 'isAnyIssueType',
+        type: 'boolean',
+        required: false,
+        description: `Filter to contexts that apply to any issue type.`,
+      },
+      {
+        name: 'isGlobalContext',
+        type: 'boolean',
+        required: false,
+        description: `Filter to contexts that apply to all projects.`,
+      },
+      {
+        name: 'maxResults',
+        type: 'integer',
+        required: false,
+        description: `The maximum number of contexts to return per page.`,
+      },
+      {
+        name: 'startAt',
+        type: 'integer',
+        required: false,
+        description: `The index of the first context to return.`,
       },
     ],
   },
@@ -2088,6 +2298,24 @@ export const tools: Tool[] = [
     params: [],
   },
   {
+    name: 'jira_expression_evaluate',
+    description: `Evaluate a Jira expression against issues/projects/users — a documented, powerful ad-hoc query mechanism with no existing coverage. Useful for computing derived values (e.g. custom aggregations) without writing a Connect/Forge app.`,
+    params: [
+      {
+        name: 'expression',
+        type: 'string',
+        required: true,
+        description: `The Jira expression to evaluate, e.g. '{ key: issue.key, summary: issue.summary }'.`,
+      },
+      {
+        name: 'context',
+        type: 'object',
+        required: false,
+        description: `The context variables available to the expression: 'issue' ({key or id}), 'issues' ({jql: {query, maxResults}}) for a JQL-selected collection, and/or 'project' ({key or id}). Omit for expressions that don't reference issue/project context.`,
+      },
+    ],
+  },
+  {
     name: 'jira_favourite_filters_get',
     description: `Retrieve the visible favorite filters of the authenticated user. A favorite filter is visible if it is owned by the user, shared with a group the user belongs to, shared with a project the user can browse, or shared publicly. Can be called anonymously, though results will be empty without authentication.`,
     params: [
@@ -2482,6 +2710,72 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'jira_group_create',
+    description: `Create a new Jira group.`,
+    params: [
+      {
+        name: 'name',
+        type: 'string',
+        required: true,
+        description: `The name of the group to create. Must be unique.`,
+      },
+    ],
+  },
+  {
+    name: 'jira_group_delete',
+    description: `Delete a Jira group, optionally reassigning its issues/filters/dashboards to a swap group first. This cannot be undone.`,
+    params: [
+      {
+        name: 'groupId',
+        type: 'string',
+        required: false,
+        description: `The account ID of the group to delete. Provide this or groupname.`,
+      },
+      {
+        name: 'groupname',
+        type: 'string',
+        required: false,
+        description: `The name of the group to delete. Provide this or groupId.`,
+      },
+      {
+        name: 'swapGroup',
+        type: 'string',
+        required: false,
+        description: `Name of another group to reassign this group's issues/filters/dashboards to before deletion. Omit to leave them unassigned.`,
+      },
+      {
+        name: 'swapGroupId',
+        type: 'string',
+        required: false,
+        description: `Account ID of another group to reassign this group's data to (alternative to swapGroup).`,
+      },
+    ],
+  },
+  {
+    name: 'jira_group_get',
+    description: `Get a Jira group's details by name or ID. Group tooling currently only covers membership add/remove/list and the name picker — there's no way to fetch, create, or delete the group itself.`,
+    params: [
+      {
+        name: 'expand',
+        type: 'string',
+        required: false,
+        description: `Include additional data, e.g. 'users' to include group members.`,
+      },
+      {
+        name: 'groupId',
+        type: 'string',
+        required: false,
+        description: `The account ID of the group to look up. Provide this or groupname.`,
+      },
+      {
+        name: 'groupname',
+        type: 'string',
+        required: false,
+        description: `The name of the group to look up. Provide this or groupId.`,
+      },
+    ],
+  },
+  {
     name: 'jira_group_member_add',
     description: `Add a user to a Jira group. Requires Administer Jira global permission or the Site Administration role.`,
     params: [
@@ -2730,6 +3024,78 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'jira_issue_comment_property_delete',
+    description: `Deletes a property from the given issue comment. This cannot be undone.`,
+    params: [
+      {
+        name: 'commentId',
+        type: 'string',
+        required: true,
+        description: `Numeric ID of the issue comment`,
+      },
+      {
+        name: 'propertyKey',
+        type: 'string',
+        required: true,
+        description: `The key of the property.`,
+      },
+    ],
+  },
+  {
+    name: 'jira_issue_comment_property_get',
+    description: `Returns the value of a specific property previously set on the given issue comment.`,
+    params: [
+      {
+        name: 'commentId',
+        type: 'string',
+        required: true,
+        description: `Numeric ID of the issue comment`,
+      },
+      {
+        name: 'propertyKey',
+        type: 'string',
+        required: true,
+        description: `The key of the property.`,
+      },
+    ],
+  },
+  {
+    name: 'jira_issue_comment_property_keys_list',
+    description: `Returns the keys of all properties currently set on the given issue comment. Use this to discover what custom metadata has been attached before fetching or deleting a specific property.`,
+    params: [
+      {
+        name: 'commentId',
+        type: 'string',
+        required: true,
+        description: `Numeric ID of the issue comment`,
+      },
+    ],
+  },
+  {
+    name: 'jira_issue_comment_property_set',
+    description: `Creates or updates the value of a property on the given issue comment. Properties store arbitrary JSON metadata and are commonly used by integrations to persist their own data against a Jira entity.`,
+    params: [
+      {
+        name: 'commentId',
+        type: 'string',
+        required: true,
+        description: `Numeric ID of the issue comment`,
+      },
+      {
+        name: 'propertyKey',
+        type: 'string',
+        required: true,
+        description: `The key of the property.`,
+      },
+      {
+        name: 'value',
+        type: 'string',
+        required: true,
+        description: `The JSON value to store for the property, provided as a JSON string. Maximum length 32768 bytes.`,
+      },
+    ],
+  },
+  {
     name: 'jira_issue_comment_update',
     description: `Update the body of an existing comment on a Jira issue. Only the comment author or users with Administer Projects permission can update comments.`,
     params: [
@@ -2907,6 +3273,42 @@ export const tools: Tool[] = [
         type: 'integer',
         required: false,
         description: `Index of the first item to return in a page of results`,
+      },
+    ],
+  },
+  {
+    name: 'jira_issue_custom_field_associations_create',
+    description: `Associates one or more custom fields with one or more projects, so the fields become available on every issue type in those projects. Fields are also associated with any other projects that share the same field configuration as the requested projects.`,
+    params: [
+      {
+        name: 'associationContexts',
+        type: 'array',
+        required: true,
+        description: `Contexts to associate/unassociate the fields with. Each item has a "type" (e.g. PROJECT_ID) and an "identifier".`,
+      },
+      {
+        name: 'fields',
+        type: 'array',
+        required: true,
+        description: `Fields to associate/unassociate with projects. Each item has a "type" (e.g. FIELD_ID) and an "identifier".`,
+      },
+    ],
+  },
+  {
+    name: 'jira_issue_custom_field_associations_delete',
+    description: `Removes the association between one or more custom fields and one or more projects/issue types. The fields are also unassociated from any other projects/issue types that share the same field configuration.`,
+    params: [
+      {
+        name: 'associationContexts',
+        type: 'array',
+        required: true,
+        description: `Contexts to associate/unassociate the fields with. Each item has a "type" (e.g. PROJECT_ID) and an "identifier".`,
+      },
+      {
+        name: 'fields',
+        type: 'array',
+        required: true,
+        description: `Fields to associate/unassociate with projects. Each item has a "type" (e.g. FIELD_ID) and an "identifier".`,
       },
     ],
   },
@@ -3258,6 +3660,102 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'jira_issue_properties_bulk_delete',
+    description: `Deletes a single entity property key from multiple issues at once, optionally filtered to issues matching a specific current value or restricted to an explicit list of issue IDs. Runs asynchronously; the response redirects to a task resource that reports progress.`,
+    params: [
+      {
+        name: 'propertyKey',
+        type: 'string',
+        required: true,
+        description: `The key of the property to delete.`,
+      },
+      {
+        name: 'currentValue',
+        type: 'string',
+        required: false,
+        description: `The value of properties to perform the bulk operation on, as a JSON string.`,
+      },
+      {
+        name: 'entityIds',
+        type: 'array',
+        required: false,
+        description: `List of issues to perform the bulk delete operation on.`,
+      },
+    ],
+  },
+  {
+    name: 'jira_issue_properties_bulk_set',
+    description: `Sets a single entity property key to a fixed value (or a value computed by a Jira expression) across multiple issues, optionally filtered to an explicit list of issue IDs and/or issues where the property currently has (or lacks) a given value. Runs asynchronously; the response redirects to a task resource that reports progress.`,
+    params: [
+      {
+        name: 'propertyKey',
+        type: 'string',
+        required: true,
+        description: `The key of the property to set.`,
+      },
+      {
+        name: 'expression',
+        type: 'string',
+        required: false,
+        description: `EXPERIMENTAL. A Jira expression to calculate the value of the property per issue instead of a fixed value.`,
+      },
+      {
+        name: 'filterCurrentValue',
+        type: 'string',
+        required: false,
+        description: `The value of properties to perform the bulk operation on, as a JSON string.`,
+      },
+      {
+        name: 'filterEntityIds',
+        type: 'array',
+        required: false,
+        description: `List of issues to perform the bulk operation on.`,
+      },
+      {
+        name: 'filterHasProperty',
+        type: 'boolean',
+        required: false,
+        description: `Whether the bulk operation occurs only when the property is present on or absent from an issue.`,
+      },
+      {
+        name: 'value',
+        type: 'string',
+        required: false,
+        description: `The value of the property, as a valid non-empty JSON string. Maximum length 32768 characters.`,
+      },
+    ],
+  },
+  {
+    name: 'jira_issue_properties_bulk_set_by_ids',
+    description: `Sets or updates one or more entity properties on up to 10,000 issues identified by ID, using the same property values for all of them. This runs asynchronously; the response redirects to a task resource that reports progress. See jira_task_get to poll status.`,
+    params: [
+      {
+        name: 'entitiesIds',
+        type: 'array',
+        required: true,
+        description: `A list of issue IDs to set the properties on.`,
+      },
+      {
+        name: 'properties',
+        type: 'string',
+        required: true,
+        description: `A JSON object string of up to 10 entity property keys and their values to set on every listed issue.`,
+      },
+    ],
+  },
+  {
+    name: 'jira_issue_properties_bulk_set_by_issue',
+    description: `Sets or updates entity properties across up to 100 issues in one call, where each issue can have its own distinct set of property key/value pairs (unlike jira_issue_properties_bulk_set_by_ids, which applies the same values to every issue). Runs asynchronously; the response redirects to a task resource that reports progress.`,
+    params: [
+      {
+        name: 'issues',
+        type: 'string',
+        required: true,
+        description: `A JSON array string listing issue IDs and their respective properties to set or update, up to 100 issues.`,
+      },
+    ],
+  },
+  {
     name: 'jira_issue_property_delete',
     description: `Delete a custom property from a Jira issue by its property key.`,
     params: [
@@ -3385,6 +3883,24 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'jira_issue_remote_link_delete_by_global_id',
+    description: `Deletes the remote issue link on an issue that matches the given global ID. Unlike deleting by link ID, this can remove a remote link without knowing its internal Jira link ID -- useful when an integration only tracks the external globalId it originally set.`,
+    params: [
+      {
+        name: 'globalId',
+        type: 'string',
+        required: true,
+        description: `The global ID of a remote issue link.`,
+      },
+      {
+        name: 'issueIdOrKey',
+        type: 'string',
+        required: true,
+        description: `The ID or key of the issue.`,
+      },
+    ],
+  },
+  {
     name: 'jira_issue_remote_link_get',
     description: `Get a specific remote link on a Jira issue by its link ID.`,
     params: [
@@ -3455,6 +3971,35 @@ export const tools: Tool[] = [
         description: `Filter by global ID of the remote link`,
       },
     ],
+  },
+  {
+    name: 'jira_issue_security_scheme_create',
+    description: `Create a new issue security scheme, optionally with initial security levels and their member grants.`,
+    params: [
+      {
+        name: 'name',
+        type: 'string',
+        required: true,
+        description: `The name of the issue security scheme. Must be unique.`,
+      },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `A description of the issue security scheme.`,
+      },
+      {
+        name: 'levels',
+        type: 'array',
+        required: false,
+        description: `Initial security levels to create with the scheme. Each item needs 'name' and may set 'description', 'isDefault', and 'members' (array of {type, parameter}, e.g. {type: 'group', parameter: 'administrators'}).`,
+      },
+    ],
+  },
+  {
+    name: 'jira_issue_security_schemes_list',
+    description: `List issue security schemes. This whole resource area (issue security schemes/levels/members, and per-project security level assignment) has no tools at all today.`,
+    params: [],
   },
   {
     name: 'jira_issue_transition',
@@ -3547,6 +4092,78 @@ export const tools: Tool[] = [
     description: `Retrieve details of a specific Jira issue type by its ID, including name, description, icon URL, and hierarchy level.`,
     params: [
       { name: 'id', type: 'string', required: true, description: `The issue type ID to retrieve` },
+    ],
+  },
+  {
+    name: 'jira_issue_type_property_delete',
+    description: `Deletes a property from the given issue type. This cannot be undone.`,
+    params: [
+      {
+        name: 'issueTypeId',
+        type: 'string',
+        required: true,
+        description: `Numeric ID of the issue type`,
+      },
+      {
+        name: 'propertyKey',
+        type: 'string',
+        required: true,
+        description: `The key of the property.`,
+      },
+    ],
+  },
+  {
+    name: 'jira_issue_type_property_get',
+    description: `Returns the value of a specific property previously set on the given issue type.`,
+    params: [
+      {
+        name: 'issueTypeId',
+        type: 'string',
+        required: true,
+        description: `Numeric ID of the issue type`,
+      },
+      {
+        name: 'propertyKey',
+        type: 'string',
+        required: true,
+        description: `The key of the property.`,
+      },
+    ],
+  },
+  {
+    name: 'jira_issue_type_property_keys_list',
+    description: `Returns the keys of all properties currently set on the given issue type. Use this to discover what custom metadata has been attached before fetching or deleting a specific property.`,
+    params: [
+      {
+        name: 'issueTypeId',
+        type: 'string',
+        required: true,
+        description: `Numeric ID of the issue type`,
+      },
+    ],
+  },
+  {
+    name: 'jira_issue_type_property_set',
+    description: `Creates or updates the value of a property on the given issue type. Properties store arbitrary JSON metadata and are commonly used by integrations to persist their own data against a Jira entity.`,
+    params: [
+      {
+        name: 'issueTypeId',
+        type: 'string',
+        required: true,
+        description: `Numeric ID of the issue type`,
+      },
+      {
+        name: 'propertyKey',
+        type: 'string',
+        required: true,
+        description: `The key of the property.`,
+      },
+      {
+        name: 'value',
+        type: 'string',
+        required: true,
+        description: `The JSON value to store for the property, provided as a JSON string. Maximum length 32768 bytes.`,
+      },
     ],
   },
   {
@@ -3798,6 +4415,82 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'jira_issue_worklog_property_delete',
+    description: `Deletes a property from the given issue worklog. This cannot be undone.`,
+    params: [
+      {
+        name: 'issueIdOrKey',
+        type: 'string',
+        required: true,
+        description: `The Jira issue ID or key`,
+      },
+      {
+        name: 'propertyKey',
+        type: 'string',
+        required: true,
+        description: `The key of the property.`,
+      },
+      { name: 'worklogId', type: 'string', required: true, description: `The ID of the worklog.` },
+    ],
+  },
+  {
+    name: 'jira_issue_worklog_property_get',
+    description: `Returns the value of a specific property previously set on the given issue worklog.`,
+    params: [
+      {
+        name: 'issueIdOrKey',
+        type: 'string',
+        required: true,
+        description: `The Jira issue ID or key`,
+      },
+      {
+        name: 'propertyKey',
+        type: 'string',
+        required: true,
+        description: `The key of the property.`,
+      },
+      { name: 'worklogId', type: 'string', required: true, description: `The ID of the worklog.` },
+    ],
+  },
+  {
+    name: 'jira_issue_worklog_property_keys_list',
+    description: `Returns the keys of all properties currently set on the given issue worklog. Use this to discover what custom metadata has been attached before fetching or deleting a specific property.`,
+    params: [
+      {
+        name: 'issueIdOrKey',
+        type: 'string',
+        required: true,
+        description: `The Jira issue ID or key`,
+      },
+      { name: 'worklogId', type: 'string', required: true, description: `The ID of the worklog.` },
+    ],
+  },
+  {
+    name: 'jira_issue_worklog_property_set',
+    description: `Creates or updates the value of a property on the given issue worklog. Properties store arbitrary JSON metadata and are commonly used by integrations to persist their own data against a Jira entity.`,
+    params: [
+      {
+        name: 'issueIdOrKey',
+        type: 'string',
+        required: true,
+        description: `The Jira issue ID or key`,
+      },
+      {
+        name: 'propertyKey',
+        type: 'string',
+        required: true,
+        description: `The key of the property.`,
+      },
+      {
+        name: 'value',
+        type: 'string',
+        required: true,
+        description: `The JSON value to store for the property, provided as a JSON string. Maximum length 32768 bytes.`,
+      },
+      { name: 'worklogId', type: 'string', required: true, description: `The ID of the worklog.` },
+    ],
+  },
+  {
     name: 'jira_issue_worklog_update',
     description: `Update an existing worklog entry on a Jira issue. Can change the time spent, start time, and comment. Only the worklog author or admins can update worklogs.`,
     params: [
@@ -3969,6 +4662,54 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'jira_issues_bulk_delete_submit',
+    description: `Submit a bulk delete operation across up to 1000 issues at once (the newer async Bulk Operations API). This cannot be undone. Returns a taskId immediately — poll it with jira_bulk_operation_progress_get.`,
+    params: [
+      {
+        name: 'selectedIssueIdsOrKeys',
+        type: 'array',
+        required: true,
+        description: `The issues to delete (up to 1000).`,
+      },
+      {
+        name: 'sendBulkNotification',
+        type: 'boolean',
+        required: false,
+        description: `Whether to notify watchers/assignees about the deletion. Defaults to false.`,
+      },
+    ],
+  },
+  {
+    name: 'jira_issues_bulk_edit_submit',
+    description: `Submit a bulk field-edit operation across up to 1000 issues at once (the newer async Bulk Operations API, distinct from the single-issue update and issue-property-bulk tools). Returns a taskId immediately — poll it with jira_bulk_operation_progress_get.`,
+    params: [
+      {
+        name: 'editedFieldsInput',
+        type: 'object',
+        required: true,
+        description: `The new values for each selected field, keyed by the same field-input key used in selectedActions. The shape of each value is field-type-specific (a plain value for text fields, {option/add/remove} for multi-select, etc.) — see Jira's Bulk Operations API docs for the per-field-type shape. Max 200 fields per request.`,
+      },
+      {
+        name: 'selectedActions',
+        type: 'array',
+        required: true,
+        description: `The field-edit actions to apply, identified by their field-input key (e.g. 'summary', 'priority', 'labels'). Must match the keys used in editedFieldsInput.`,
+      },
+      {
+        name: 'selectedIssueIdsOrKeys',
+        type: 'array',
+        required: true,
+        description: `The issues to edit (up to 1000).`,
+      },
+      {
+        name: 'sendBulkNotification',
+        type: 'boolean',
+        required: false,
+        description: `Whether to notify watchers/assignees about the edit. Defaults to false.`,
+      },
+    ],
+  },
+  {
     name: 'jira_issues_bulk_fetch',
     description: `Fetch details for up to 100 Jira issues in a single request, identified by ID or key. Issues are returned in ascending ID order; unmatched identifiers are reported as errors rather than causing a redirect. Use fields/expand to control response detail.`,
     params: [
@@ -4001,6 +4742,42 @@ export const tools: Tool[] = [
         type: 'array',
         required: false,
         description: `List of issue property keys to include in the results (maximum 5)`,
+      },
+    ],
+  },
+  {
+    name: 'jira_issues_bulk_move_submit',
+    description: `Submit a bulk move of many issues to a different project and/or issue type at once. Returns a taskId immediately — poll it with jira_bulk_operation_progress_get.`,
+    params: [
+      {
+        name: 'targetToSourcesMapping',
+        type: 'object',
+        required: true,
+        description: `Maps each move target to the issues moving there. Keys are target descriptors formatted 'ProjectKey,issueTypeId[,parentIssueKey]'; each value is an object with 'issueIdsOrKeys' (array) plus optional 'inferFieldDefaults', 'inferStatusDefaults', 'inferSubtaskTypeDefault', 'targetMandatoryFields', and 'targetStatus' to resolve fields that differ between source and target.`,
+      },
+      {
+        name: 'sendBulkNotification',
+        type: 'boolean',
+        required: false,
+        description: `Whether to notify watchers/assignees about the move. Defaults to false.`,
+      },
+    ],
+  },
+  {
+    name: 'jira_issues_bulk_transition_submit',
+    description: `Submit a bulk workflow-transition operation across many issues at once (up to 1000), optionally applying different transitions to different groups of issues in the same call. Returns a taskId immediately — poll it with jira_bulk_operation_progress_get.`,
+    params: [
+      {
+        name: 'bulkTransitionInputs',
+        type: 'array',
+        required: true,
+        description: `Groups of issues to transition, each with its own transition. Each item needs 'selectedIssueIdsOrKeys' (array of issue IDs/keys sharing this transition) and 'transitionId' (the workflow transition to apply to that group).`,
+      },
+      {
+        name: 'sendBulkNotification',
+        type: 'boolean',
+        required: false,
+        description: `Whether to notify watchers/assignees about the transition. Defaults to false.`,
       },
     ],
   },
@@ -4154,6 +4931,24 @@ export const tools: Tool[] = [
     params: [],
   },
   {
+    name: 'jira_jql_autocomplete_data_for_projects',
+    description: `Get the JQL search auto-complete data (field names, operators, and value suggestions) scoped to a specific set of projects, so only fields and values relevant to those projects are returned. Use this instead of the unscoped autocomplete-data lookup when building a JQL editor for a specific project context.`,
+    params: [
+      {
+        name: 'includeCollapsedFields',
+        type: 'boolean',
+        required: false,
+        description: `Include collapsed fields for fields that have non-unique names.`,
+      },
+      {
+        name: 'projectIds',
+        type: 'array',
+        required: false,
+        description: `List of project IDs used to filter the visible field details returned.`,
+      },
+    ],
+  },
+  {
     name: 'jira_jql_autocomplete_suggestions',
     description: `Get autocomplete suggestions for a JQL field value. Provide the field name and optionally a partial value to get matching suggestions.`,
     params: [
@@ -4180,6 +4975,18 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Partial predicate value to search for suggestions`,
+      },
+    ],
+  },
+  {
+    name: 'jira_jql_migrate_queries',
+    description: `Converts up to 100 JQL queries that reference users by username or user key into their equivalent queries using account IDs. Use this to migrate saved JQL (filters, board/board quick-filters) that still uses legacy user identifiers.`,
+    params: [
+      {
+        name: 'queryStrings',
+        type: 'array',
+        required: true,
+        description: `A list of queries with user identifiers. Maximum of 100 queries.`,
       },
     ],
   },
@@ -4255,6 +5062,42 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'jira_my_permissions_get',
+    description: `Get which permissions the current user holds, either globally or scoped to a given project/issue — useful for an agent to self-check before attempting an action that might fail with a 403.`,
+    params: [
+      {
+        name: 'issueId',
+        type: 'string',
+        required: false,
+        description: `Check permissions in the context of this issue (by ID).`,
+      },
+      {
+        name: 'issueKey',
+        type: 'string',
+        required: false,
+        description: `Check permissions in the context of this issue (by key).`,
+      },
+      {
+        name: 'permissions',
+        type: 'string',
+        required: false,
+        description: `Comma-separated permission keys to check, e.g. 'CREATE_ISSUES,EDIT_ISSUES'. Omit to return all permissions.`,
+      },
+      {
+        name: 'projectId',
+        type: 'string',
+        required: false,
+        description: `Check permissions in the context of this project (by ID).`,
+      },
+      {
+        name: 'projectKey',
+        type: 'string',
+        required: false,
+        description: `Check permissions in the context of this project (by key).`,
+      },
+    ],
+  },
+  {
     name: 'jira_myself_get',
     description: `Get details of the currently authenticated Jira user. Returns account ID, display name, email address, and avatar URLs. Useful for getting your own account ID.`,
     params: [
@@ -4263,6 +5106,42 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Additional data to include (e.g. groups,applicationRoles)`,
+      },
+    ],
+  },
+  {
+    name: 'jira_notification_scheme_create',
+    description: `Create a notification scheme, optionally with initial event-to-notification mappings. Notification schemes currently only have read tools (get/list) even though create/update/delete are real, documented endpoints.`,
+    params: [
+      {
+        name: 'name',
+        type: 'string',
+        required: true,
+        description: `The name of the notification scheme. Must be unique.`,
+      },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `A description of the notification scheme.`,
+      },
+      {
+        name: 'notificationSchemeEvents',
+        type: 'array',
+        required: false,
+        description: `Initial event-to-notification mappings. Each item needs 'event' ({id: <notification event id>}) and 'notifications' (array of {notificationType, parameter?}, e.g. CurrentAssignee, Group with a group name parameter).`,
+      },
+    ],
+  },
+  {
+    name: 'jira_notification_scheme_delete',
+    description: `Delete a notification scheme. Fails if the scheme is still associated with any project. This cannot be undone.`,
+    params: [
+      {
+        name: 'notificationSchemeId',
+        type: 'string',
+        required: true,
+        description: `The ID of the notification scheme to delete.`,
       },
     ],
   },
@@ -4281,6 +5160,30 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Additional data to include (e.g. all,field,group,notificationSchemeEvents,projectRole,user)`,
+      },
+    ],
+  },
+  {
+    name: 'jira_notification_scheme_update',
+    description: `Update a notification scheme's name and/or description. To add notifications to the scheme itself, use the scheme's notification-add endpoint separately; this call only changes the top-level name/description.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The ID of the notification scheme to update.`,
+      },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `A new description for the notification scheme.`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: false,
+        description: `A new name for the notification scheme.`,
       },
     ],
   },
@@ -4309,6 +5212,42 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'jira_permission_grant_create',
+    description: `Adds a single permission grant to an existing permission scheme, specifying which permission is granted and to whom (a user, group, project role, or special holder like 'assignee' or 'anyone'). Requires the Administer Jira global permission.`,
+    params: [
+      {
+        name: 'holderType',
+        type: 'string',
+        required: true,
+        description: `The type of permission holder, e.g. anyone, applicationRole, assignee, group, groupCustomField, projectLead, projectRole, reporter, sd.customer.portal.only, user, or userCustomField.`,
+      },
+      {
+        name: 'permission',
+        type: 'string',
+        required: true,
+        description: `The permission to grant, e.g. one of the built-in permissions such as ADMINISTER_PROJECTS, BROWSE_PROJECTS, or CREATE_ISSUES.`,
+      },
+      {
+        name: 'schemeId',
+        type: 'string',
+        required: true,
+        description: `The ID of the permission scheme.`,
+      },
+      {
+        name: 'expand',
+        type: 'string',
+        required: false,
+        description: `Use expand to include additional information in the response.`,
+      },
+      {
+        name: 'holderParameter',
+        type: 'string',
+        required: false,
+        description: `The type-dependent identifier for the holder, e.g. a project role ID, group name, or custom field ID. Not required for holder types with no parameter, such as assignee, reporter, or anyone.`,
+      },
+    ],
+  },
+  {
     name: 'jira_permission_grants_list',
     description: `Get all permission grants in a Jira permission scheme. Returns each grant's permission type, holder type (user, group, role, etc.), and holder details.`,
     params: [
@@ -4327,6 +5266,48 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'jira_permission_scheme_create',
+    description: `Creates a new permission scheme, optionally with an initial list of permission grants. Requires the Administer Jira global permission.`,
+    params: [
+      {
+        name: 'name',
+        type: 'string',
+        required: true,
+        description: `The name of the permission scheme. Must be unique.`,
+      },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `A description for the permission scheme.`,
+      },
+      {
+        name: 'expand',
+        type: 'string',
+        required: false,
+        description: `Use expand to include additional information in the response.`,
+      },
+      {
+        name: 'permissions',
+        type: 'array',
+        required: false,
+        description: `The permission grants that make up the scheme. Each item has a "permission" key (e.g. ADMINISTER_PROJECTS) and a "holder" object with "type" (e.g. user, group, projectRole, assignee, reporter, anyone) and a type-dependent "value"/"parameter".`,
+      },
+    ],
+  },
+  {
+    name: 'jira_permission_scheme_delete',
+    description: `Permanently deletes a permission scheme. This cannot be undone; any projects still assigned to it fall back to Jira's default permission scheme. Requires the Administer Jira global permission.`,
+    params: [
+      {
+        name: 'schemeId',
+        type: 'string',
+        required: true,
+        description: `The ID of the permission scheme.`,
+      },
+    ],
+  },
+  {
     name: 'jira_permission_scheme_get',
     description: `Retrieve details of a specific Jira permission scheme by its ID, including all permission grants and who they apply to.`,
     params: [
@@ -4341,6 +5322,84 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Additional data to include (e.g. all,field,group,permissions,projectRole,user)`,
+      },
+    ],
+  },
+  {
+    name: 'jira_permission_scheme_grant_delete',
+    description: `Removes a single permission grant from a permission scheme. This cannot be undone. Requires the Administer Jira global permission.`,
+    params: [
+      {
+        name: 'permissionId',
+        type: 'string',
+        required: true,
+        description: `The ID of the permission grant.`,
+      },
+      {
+        name: 'schemeId',
+        type: 'string',
+        required: true,
+        description: `The ID of the permission scheme.`,
+      },
+    ],
+  },
+  {
+    name: 'jira_permission_scheme_grant_get',
+    description: `Returns the details of a single permission grant within a permission scheme.`,
+    params: [
+      {
+        name: 'permissionId',
+        type: 'string',
+        required: true,
+        description: `The ID of the permission grant.`,
+      },
+      {
+        name: 'schemeId',
+        type: 'string',
+        required: true,
+        description: `The ID of the permission scheme.`,
+      },
+      {
+        name: 'expand',
+        type: 'string',
+        required: false,
+        description: `Use expand to include additional information in the response.`,
+      },
+    ],
+  },
+  {
+    name: 'jira_permission_scheme_update',
+    description: `Updates a permission scheme's name, description, and/or permission grants. This replaces the scheme's top-level fields; existing permission grants are left untouched unless 'permissions' is supplied. Requires the Administer Jira global permission.`,
+    params: [
+      {
+        name: 'name',
+        type: 'string',
+        required: true,
+        description: `The name of the permission scheme. Must be unique.`,
+      },
+      {
+        name: 'schemeId',
+        type: 'string',
+        required: true,
+        description: `The ID of the permission scheme.`,
+      },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `A description for the permission scheme.`,
+      },
+      {
+        name: 'expand',
+        type: 'string',
+        required: false,
+        description: `Use expand to include additional information in the response.`,
+      },
+      {
+        name: 'permissions',
+        type: 'array',
+        required: false,
+        description: `The permission grants that make up the scheme. Each item has a "permission" key (e.g. ADMINISTER_PROJECTS) and a "holder" object with "type" (e.g. user, group, projectRole, assignee, reporter, anyone) and a type-dependent "value"/"parameter".`,
       },
     ],
   },
@@ -4867,6 +5926,114 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'jira_project_permission_scheme_assign',
+    description: `Assign an existing permission scheme to a project, replacing whichever scheme it currently uses.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The ID of the permission scheme to assign to this project.`,
+      },
+      {
+        name: 'projectKeyOrId',
+        type: 'string',
+        required: true,
+        description: `The key or numeric ID of the project.`,
+      },
+    ],
+  },
+  {
+    name: 'jira_project_permission_scheme_get',
+    description: `Get the permission scheme currently assigned to a project. Permission schemes themselves are fully covered by other tools, but this project-level association endpoint is not.`,
+    params: [
+      {
+        name: 'projectKeyOrId',
+        type: 'string',
+        required: true,
+        description: `The key or numeric ID of the project.`,
+      },
+      {
+        name: 'expand',
+        type: 'string',
+        required: false,
+        description: `Include additional data in the response, e.g. 'permissions,user'.`,
+      },
+    ],
+  },
+  {
+    name: 'jira_project_property_delete',
+    description: `Deletes a property from the given project. This cannot be undone.`,
+    params: [
+      {
+        name: 'projectIdOrKey',
+        type: 'string',
+        required: true,
+        description: `The project ID or key`,
+      },
+      {
+        name: 'propertyKey',
+        type: 'string',
+        required: true,
+        description: `The key of the property.`,
+      },
+    ],
+  },
+  {
+    name: 'jira_project_property_get',
+    description: `Returns the value of a specific property previously set on the given project.`,
+    params: [
+      {
+        name: 'projectIdOrKey',
+        type: 'string',
+        required: true,
+        description: `The project ID or key`,
+      },
+      {
+        name: 'propertyKey',
+        type: 'string',
+        required: true,
+        description: `The key of the property.`,
+      },
+    ],
+  },
+  {
+    name: 'jira_project_property_keys_list',
+    description: `Returns the keys of all properties currently set on the given project. Use this to discover what custom metadata has been attached before fetching or deleting a specific property.`,
+    params: [
+      {
+        name: 'projectIdOrKey',
+        type: 'string',
+        required: true,
+        description: `The project ID or key`,
+      },
+    ],
+  },
+  {
+    name: 'jira_project_property_set',
+    description: `Creates or updates the value of a property on the given project. Properties store arbitrary JSON metadata and are commonly used by integrations to persist their own data against a Jira entity.`,
+    params: [
+      {
+        name: 'projectIdOrKey',
+        type: 'string',
+        required: true,
+        description: `The project ID or key`,
+      },
+      {
+        name: 'propertyKey',
+        type: 'string',
+        required: true,
+        description: `The key of the property.`,
+      },
+      {
+        name: 'value',
+        type: 'string',
+        required: true,
+        description: `The JSON value to store for the property, provided as a JSON string. Maximum length 32768 bytes.`,
+      },
+    ],
+  },
+  {
     name: 'jira_project_restore',
     description: `Restore a Jira project that has been archived or placed in the recycle bin. Requires Administer Jira global permission for company-managed projects, or Administer Jira global permission / Administer Projects project permission for team-managed projects.`,
     params: [
@@ -4875,6 +6042,117 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `The project ID or project key (case sensitive) to restore`,
+      },
+    ],
+  },
+  {
+    name: 'jira_project_role_actor_add',
+    description: `Adds one or more users and/or groups as actors (members) of a role within a specific project.`,
+    params: [
+      { name: 'id', type: 'string', required: true, description: `The ID of the project role.` },
+      {
+        name: 'projectIdOrKey',
+        type: 'string',
+        required: true,
+        description: `The project ID or key.`,
+      },
+      {
+        name: 'group',
+        type: 'array',
+        required: false,
+        description: `The names of the groups to add. Cannot be used with 'groupId'.`,
+      },
+      {
+        name: 'groupId',
+        type: 'array',
+        required: false,
+        description: `The IDs of the groups to add. Cannot be used with 'group'.`,
+      },
+      {
+        name: 'user',
+        type: 'array',
+        required: false,
+        description: `The user account IDs of the users to add.`,
+      },
+    ],
+  },
+  {
+    name: 'jira_project_role_actor_delete',
+    description: `Removes a single user or group as an actor (member) of a role within a specific project. Provide exactly one of User Account ID, Group Name, or Group ID.`,
+    params: [
+      { name: 'id', type: 'string', required: true, description: `The ID of the project role.` },
+      {
+        name: 'projectIdOrKey',
+        type: 'string',
+        required: true,
+        description: `The project ID or key.`,
+      },
+      {
+        name: 'group',
+        type: 'string',
+        required: false,
+        description: `The name of the group to remove from the project role. Cannot be used with 'groupId'.`,
+      },
+      {
+        name: 'groupId',
+        type: 'string',
+        required: false,
+        description: `The ID of the group to remove from the project role. Cannot be used with 'group'.`,
+      },
+      {
+        name: 'user',
+        type: 'string',
+        required: false,
+        description: `The user account ID of the user to remove from the project role.`,
+      },
+    ],
+  },
+  {
+    name: 'jira_project_role_actors_set',
+    description: `Replaces all the actors (members) of a project role with the given users and/or groups, keyed by actor category. This overwrites the existing actor list for the role in this project rather than adding to it.`,
+    params: [
+      {
+        name: 'categorisedActors',
+        type: 'string',
+        required: true,
+        description: `The actors to set on the project role, keyed by category: "atlassian-user-role-actor" with account IDs, "atlassian-group-role-actor-id" with group IDs, or "atlassian-group-role-actor" with group names (prefer group IDs since names can change). This replaces the existing actors for the role.`,
+      },
+      { name: 'id', type: 'string', required: true, description: `The ID of the project role.` },
+      {
+        name: 'projectIdOrKey',
+        type: 'string',
+        required: true,
+        description: `The project ID or key.`,
+      },
+    ],
+  },
+  {
+    name: 'jira_project_role_details_list',
+    description: `Returns all project roles for a project along with their actor counts, without the full actor list. Faster than fetching each role individually when you just need role names, IDs, and how many actors each has.`,
+    params: [
+      {
+        name: 'projectIdOrKey',
+        type: 'string',
+        required: true,
+        description: `The project ID or key.`,
+      },
+      {
+        name: 'currentMember',
+        type: 'boolean',
+        required: false,
+        description: `Whether the list of project roles should be filtered to include only those the user is assigned to.`,
+      },
+      {
+        name: 'excludeConnectAddons',
+        type: 'boolean',
+        required: false,
+        description: `Whether Connect app actors are excluded from the response.`,
+      },
+      {
+        name: 'excludeOtherServiceRoles',
+        type: 'boolean',
+        required: false,
+        description: `Whether roles for other Atlassian products (e.g. Jira Service Management) are excluded from the response.`,
       },
     ],
   },
@@ -5318,6 +6596,57 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'jira_role_default_actor_add',
+    description: `Adds users and/or groups as default actors for a project role, so they are automatically assigned this role whenever it is added to a new project. Does not affect roles already assigned to existing projects.`,
+    params: [
+      { name: 'id', type: 'string', required: true, description: `The ID of the project role.` },
+      {
+        name: 'group',
+        type: 'array',
+        required: false,
+        description: `The names of the groups to add as default actors. Cannot be used with 'groupId'.`,
+      },
+      {
+        name: 'groupId',
+        type: 'array',
+        required: false,
+        description: `The IDs of the groups to add as default actors. Cannot be used with 'group'.`,
+      },
+    ],
+  },
+  {
+    name: 'jira_role_default_actor_delete',
+    description: `Removes a single user or group as a default actor of a project role. Provide exactly one of User Account ID, Group Name, or Group ID. Does not affect roles already assigned to existing projects.`,
+    params: [
+      { name: 'id', type: 'string', required: true, description: `The ID of the project role.` },
+      {
+        name: 'group',
+        type: 'string',
+        required: false,
+        description: `The name of the group to remove. Cannot be used with 'groupId'.`,
+      },
+      {
+        name: 'groupId',
+        type: 'string',
+        required: false,
+        description: `The ID of the group to remove. Cannot be used with 'group'.`,
+      },
+      {
+        name: 'user',
+        type: 'string',
+        required: false,
+        description: `The user account ID of the default actor to remove.`,
+      },
+    ],
+  },
+  {
+    name: 'jira_role_default_actors_list',
+    description: `Returns the default actors (users and groups) for a project role -- the actors automatically assigned to this role whenever it is added to a new project.`,
+    params: [
+      { name: 'id', type: 'string', required: true, description: `The ID of the project role.` },
+    ],
+  },
+  {
     name: 'jira_role_delete',
     description: `Delete a global project role from the Jira instance. Optionally swap the role's usage in projects with another role. Requires Administer Jira global permission.`,
     params: [
@@ -5338,8 +6667,93 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'jira_role_update',
+    description: `Replaces the name and description of a project role definition. Both fields are required, unlike jira_role_update_partial. Requires the Administer Jira global permission.`,
+    params: [
+      {
+        name: 'description',
+        type: 'string',
+        required: true,
+        description: `A description of the project role.`,
+      },
+      { name: 'id', type: 'string', required: true, description: `The ID of the project role.` },
+      {
+        name: 'name',
+        type: 'string',
+        required: true,
+        description: `The name of the project role. Must be unique. Cannot begin or end with whitespace. Maximum length 255 characters.`,
+      },
+    ],
+  },
+  {
+    name: 'jira_role_update_partial',
+    description: `Updates the name and/or description of a project role definition without requiring both fields. Only the properties provided are changed. Requires the Administer Jira global permission.`,
+    params: [
+      { name: 'id', type: 'string', required: true, description: `The ID of the project role.` },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `A description of the project role.`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: false,
+        description: `The name of the project role. Must be unique. Cannot begin or end with whitespace. Maximum length 255 characters.`,
+      },
+    ],
+  },
+  {
     name: 'jira_roles_list',
     description: `Get all project roles defined in the Jira instance (global role list, not project-specific). Returns role IDs, names, and descriptions.`,
+    params: [],
+  },
+  {
+    name: 'jira_screen_create',
+    description: `Create a new screen, which can then have fields added via the screen's tab/field endpoints and be attached to a screen scheme.`,
+    params: [
+      {
+        name: 'name',
+        type: 'string',
+        required: true,
+        description: `The name of the screen. Must be unique.`,
+      },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `A description of the screen's purpose.`,
+      },
+    ],
+  },
+  {
+    name: 'jira_screens_list',
+    description: `List Jira screens. The Screens API and Screen Schemes API (which control which fields appear on create/edit/view forms) are entirely uncovered.`,
+    params: [
+      {
+        name: 'maxResults',
+        type: 'integer',
+        required: false,
+        description: `The maximum number of screens to return per page.`,
+      },
+      {
+        name: 'queryString',
+        type: 'string',
+        required: false,
+        description: `Filter screens whose name contains this string.`,
+      },
+      {
+        name: 'startAt',
+        type: 'integer',
+        required: false,
+        description: `The index of the first screen to return.`,
+      },
+    ],
+  },
+  {
+    name: 'jira_server_info_get',
+    description: `Get information about the Jira Cloud instance, including its version, build number, deployment type, base URL, and the current server time. Useful for diagnostics and for checking Jira's build/version before relying on version-specific behavior.`,
     params: [],
   },
   {
@@ -5728,6 +7142,11 @@ export const tools: Tool[] = [
         description: `State of the sprint: future, active, or closed`,
       },
     ],
+  },
+  {
+    name: 'jira_status_categories_list',
+    description: `List the status categories (To Do / In Progress / Done groupings) available in the instance. Every workflow status maps to one of these fixed categories.`,
+    params: [],
   },
   {
     name: 'jira_status_project_issue_type_usages_list',
@@ -6255,6 +7674,78 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'jira_user_property_delete',
+    description: `Deletes a property from the given user's Jira profile. This cannot be undone.`,
+    params: [
+      {
+        name: 'accountId',
+        type: 'string',
+        required: true,
+        description: `The account ID of the user, which uniquely identifies the user across all Atlassian products. For example, 5b10ac8d82e05b22cc7d4ef5.`,
+      },
+      {
+        name: 'propertyKey',
+        type: 'string',
+        required: true,
+        description: `The key of the property.`,
+      },
+    ],
+  },
+  {
+    name: 'jira_user_property_get',
+    description: `Returns the value of a specific property previously set on the given user's Jira profile.`,
+    params: [
+      {
+        name: 'accountId',
+        type: 'string',
+        required: true,
+        description: `The account ID of the user, which uniquely identifies the user across all Atlassian products. For example, 5b10ac8d82e05b22cc7d4ef5.`,
+      },
+      {
+        name: 'propertyKey',
+        type: 'string',
+        required: true,
+        description: `The key of the property.`,
+      },
+    ],
+  },
+  {
+    name: 'jira_user_property_keys_list',
+    description: `Returns the keys of all properties currently set on the given user's Jira profile.`,
+    params: [
+      {
+        name: 'accountId',
+        type: 'string',
+        required: true,
+        description: `The account ID of the user, which uniquely identifies the user across all Atlassian products. For example, 5b10ac8d82e05b22cc7d4ef5.`,
+      },
+    ],
+  },
+  {
+    name: 'jira_user_property_set',
+    description: `Creates or updates the value of a property on the given user's Jira profile. Properties store arbitrary JSON metadata against a user.`,
+    params: [
+      {
+        name: 'accountId',
+        type: 'string',
+        required: true,
+        description: `The account ID of the user, which uniquely identifies the user across all Atlassian products. For example, 5b10ac8d82e05b22cc7d4ef5.`,
+      },
+      {
+        name: 'propertyKey',
+        type: 'string',
+        required: true,
+        description: `The key of the property.`,
+      },
+      {
+        name: 'value',
+        type: 'string',
+        required: true,
+        description: `The JSON value to store for the property, provided as a JSON string. Maximum length 32768 bytes.`,
+      },
+    ],
+  },
+  {
     name: 'jira_users_bulk_get',
     description: `Retrieve a paginated list of Jira users by their account IDs. Provide one or more account IDs to fetch user details (display name, email, active status) in a single call. Useful for resolving account IDs collected from other tools into full user records.`,
     params: [
@@ -6711,6 +8202,132 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `The ID of the version to merge into (the destination version that will replace references to id).`,
+      },
+    ],
+  },
+  {
+    name: 'jira_webhooks_delete',
+    description: `Delete one or more dynamic webhooks previously registered by the calling app, by ID. This cannot be undone.`,
+    params: [
+      {
+        name: 'webhookIds',
+        type: 'array',
+        required: true,
+        description: `The IDs of the dynamic webhooks to delete.`,
+      },
+    ],
+  },
+  {
+    name: 'jira_webhooks_failed_list',
+    description: `Get webhooks that failed to be delivered recently (Jira retries for up to 72 hours before giving up), so an agent can detect broken integrations before the webhook itself expires or gets disabled.`,
+    params: [
+      {
+        name: 'after',
+        type: 'integer',
+        required: false,
+        description: `Pagination watermark: only return failures recorded after this failure ID.`,
+      },
+      {
+        name: 'maxResults',
+        type: 'integer',
+        required: false,
+        description: `The maximum number of failed webhooks to return per page.`,
+      },
+    ],
+  },
+  {
+    name: 'jira_webhooks_list',
+    description: `Get the dynamic webhooks currently registered for the calling OAuth app, including each webhook's JQL filter and expiration date.`,
+    params: [
+      {
+        name: 'maxResults',
+        type: 'integer',
+        required: false,
+        description: `The maximum number of webhooks to return per page.`,
+      },
+      {
+        name: 'startAt',
+        type: 'integer',
+        required: false,
+        description: `The index of the first webhook to return (0-based page offset).`,
+      },
+    ],
+  },
+  {
+    name: 'jira_webhooks_refresh',
+    description: `Extend the life of dynamic webhooks before they expire. Dynamic webhooks lapse after 30 days unless refreshed with this call, which resets the expiration clock for each listed webhook.`,
+    params: [
+      {
+        name: 'webhookIds',
+        type: 'array',
+        required: true,
+        description: `The IDs of the dynamic webhooks whose expiration should be extended.`,
+      },
+    ],
+  },
+  {
+    name: 'jira_webhooks_register',
+    description: `Register one or more dynamic webhooks scoped by JQL for the calling OAuth app, so it receives issue lifecycle events without polling. Requires the 'manage:jira-webhook' scope. Dynamic webhooks expire after 30 days unless extended with jira_webhooks_refresh.`,
+    params: [
+      {
+        name: 'url',
+        type: 'string',
+        required: true,
+        description: `The URL Jira will POST webhook payloads to when a matching event occurs.`,
+      },
+      {
+        name: 'webhooks',
+        type: 'array',
+        required: true,
+        description: `Array of webhook registrations to create in one call. Each item needs 'events' (array of event names, e.g. jira:issue_created, jira:issue_updated, jira:issue_deleted) and 'jqlFilter' (JQL string restricting which issues trigger it). Optional per-item 'fieldIdsFilter' and 'issuePropertyKeysFilter' arrays narrow field/property-change events.`,
+      },
+    ],
+  },
+  {
+    name: 'jira_workflow_scheme_create',
+    description: `Create a new workflow scheme, optionally with a default workflow and per-issue-type workflow mappings.`,
+    params: [
+      {
+        name: 'name',
+        type: 'string',
+        required: true,
+        description: `The name of the workflow scheme. Must be unique.`,
+      },
+      {
+        name: 'defaultWorkflow',
+        type: 'string',
+        required: false,
+        description: `The workflow to use for any issue type not explicitly mapped. Defaults to Jira's default workflow if omitted.`,
+      },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `A description of the workflow scheme.`,
+      },
+      {
+        name: 'issueTypeMappings',
+        type: 'object',
+        required: false,
+        description: `Per-issue-type workflow overrides, keyed by issue type ID mapping to a workflow name.`,
+      },
+    ],
+  },
+  {
+    name: 'jira_workflow_schemes_list',
+    description: `List workflow schemes. The workflow-scheme sub-API (which controls which workflow applies to which issue type/project) has no tools today, even though plain workflow search exists.`,
+    params: [
+      {
+        name: 'maxResults',
+        type: 'integer',
+        required: false,
+        description: `The maximum number of workflow schemes to return per page.`,
+      },
+      {
+        name: 'startAt',
+        type: 'integer',
+        required: false,
+        description: `The index of the first workflow scheme to return.`,
       },
     ],
   },

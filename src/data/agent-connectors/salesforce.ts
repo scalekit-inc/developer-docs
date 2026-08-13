@@ -231,6 +231,144 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'salesforce_bulk_job_get',
+    description: `Get the status and progress of a Bulk API 2.0 ingest job by ID — state (Open, UploadComplete, InProgress, JobComplete, Aborted, Failed), record counts, and object/operation metadata. Works for jobs created by any client (Data Loader, other integrations, or Salesforce Setup), not only ones created through this connector.`,
+    params: [
+      {
+        name: 'job_id',
+        type: 'string',
+        required: true,
+        description: `ID of the Bulk API 2.0 ingest job to check.`,
+      },
+    ],
+  },
+  {
+    name: 'salesforce_case_create',
+    description: `Create a new Case record in Salesforce. Allows setting standard Case fields.`,
+    params: [
+      { name: 'AccountId', type: 'string', required: false, description: `Related Account Id` },
+      { name: 'ContactId', type: 'string', required: false, description: `Related Contact Id` },
+      {
+        name: 'Description',
+        type: 'string',
+        required: false,
+        description: `Detailed description of the case`,
+      },
+      { name: 'Origin', type: 'string', required: false, description: `Case origin` },
+      {
+        name: 'OwnerId',
+        type: 'string',
+        required: false,
+        description: `Record owner (User/Queue Id)`,
+      },
+      { name: 'Priority', type: 'string', required: false, description: `Case priority` },
+      { name: 'Reason', type: 'string', required: false, description: `Case reason` },
+      { name: 'Status', type: 'string', required: false, description: `Case status` },
+      { name: 'Subject', type: 'string', required: false, description: `Subject line of the case` },
+      {
+        name: 'SuppliedCompany',
+        type: 'string',
+        required: false,
+        description: `Company supplied by the customer`,
+      },
+      {
+        name: 'SuppliedEmail',
+        type: 'string',
+        required: false,
+        description: `Email supplied by the customer`,
+      },
+      {
+        name: 'SuppliedName',
+        type: 'string',
+        required: false,
+        description: `Name supplied by the customer`,
+      },
+      {
+        name: 'SuppliedPhone',
+        type: 'string',
+        required: false,
+        description: `Phone supplied by the customer`,
+      },
+      { name: 'Type', type: 'string', required: false, description: `Case type` },
+    ],
+  },
+  {
+    name: 'salesforce_case_delete',
+    description: `Delete an existing Case record from Salesforce by ID. This is a destructive operation that permanently removes the record.`,
+    params: [
+      { name: 'case_id', type: 'string', required: true, description: `ID of the case to delete` },
+    ],
+  },
+  {
+    name: 'salesforce_case_get',
+    description: `Retrieve a Case record from Salesforce by ID. Optionally specify which fields to return.`,
+    params: [
+      {
+        name: 'case_id',
+        type: 'string',
+        required: true,
+        description: `ID of the case to retrieve`,
+      },
+      {
+        name: 'fields',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of fields to include in the response`,
+      },
+    ],
+  },
+  {
+    name: 'salesforce_case_update',
+    description: `Update an existing Case record in Salesforce by ID. Allows updating standard Case fields.`,
+    params: [
+      { name: 'case_id', type: 'string', required: true, description: `ID of the case to update` },
+      { name: 'AccountId', type: 'string', required: false, description: `Related Account Id` },
+      { name: 'ContactId', type: 'string', required: false, description: `Related Contact Id` },
+      {
+        name: 'Description',
+        type: 'string',
+        required: false,
+        description: `Detailed description of the case`,
+      },
+      { name: 'Origin', type: 'string', required: false, description: `Case origin` },
+      {
+        name: 'OwnerId',
+        type: 'string',
+        required: false,
+        description: `Record owner (User/Queue Id)`,
+      },
+      { name: 'Priority', type: 'string', required: false, description: `Case priority` },
+      { name: 'Reason', type: 'string', required: false, description: `Case reason` },
+      { name: 'Status', type: 'string', required: false, description: `Case status` },
+      { name: 'Subject', type: 'string', required: false, description: `Subject line of the case` },
+      {
+        name: 'SuppliedCompany',
+        type: 'string',
+        required: false,
+        description: `Company supplied by the customer`,
+      },
+      {
+        name: 'SuppliedEmail',
+        type: 'string',
+        required: false,
+        description: `Email supplied by the customer`,
+      },
+      {
+        name: 'SuppliedName',
+        type: 'string',
+        required: false,
+        description: `Name supplied by the customer`,
+      },
+      {
+        name: 'SuppliedPhone',
+        type: 'string',
+        required: false,
+        description: `Phone supplied by the customer`,
+      },
+      { name: 'Type', type: 'string', required: false, description: `Case type` },
+    ],
+  },
+  {
     name: 'salesforce_chatter_comment_create',
     description: `Add a comment to a Salesforce Chatter post (feed element).`,
     params: [
@@ -400,6 +538,114 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'salesforce_composite_batch',
+    description: `Execute up to 25 REST API subrequests in a single Composite Batch call. Each subrequest runs independently (no cross-subrequest rollback) and counts against API rate limits individually; results are returned in request order.`,
+    params: [
+      {
+        name: 'batch_requests',
+        type: 'string',
+        required: true,
+        description: `JSON array of subrequests, each with method, url, and optional richInput/referenceId/httpHeaders`,
+      },
+    ],
+  },
+  {
+    name: 'salesforce_composite_sobjects_create',
+    description: `Create multiple Salesforce sObject records (of the same or different types) in a single Collections API request. Do not include an id field — Salesforce assigns one.`,
+    params: [
+      {
+        name: 'records',
+        type: 'string',
+        required: true,
+        description: `JSON array of sObject records, each with an attributes.type and its fields`,
+      },
+      {
+        name: 'all_or_none',
+        type: 'string',
+        required: false,
+        description: `Whether to roll back all records if any single record fails`,
+      },
+    ],
+  },
+  {
+    name: 'salesforce_composite_sobjects_delete',
+    description: `Delete multiple Salesforce records (of the same or different types) in a single Collections API request, by ID. Up to 200 record IDs per request.`,
+    params: [
+      {
+        name: 'record_ids',
+        type: 'string',
+        required: true,
+        description: `Comma-separated list of record IDs to delete`,
+      },
+      {
+        name: 'all_or_none',
+        type: 'string',
+        required: false,
+        description: `Whether to roll back all records if any single record fails`,
+      },
+    ],
+  },
+  {
+    name: 'salesforce_composite_sobjects_get',
+    description: `Retrieve multiple Salesforce records of the same object type by ID in a single Collections API request, returning only the requested fields.`,
+    params: [
+      {
+        name: 'fields',
+        type: 'string',
+        required: true,
+        description: `Comma-separated list of fields to include in the response (required by this endpoint)`,
+      },
+      {
+        name: 'record_ids',
+        type: 'string',
+        required: true,
+        description: `Comma-separated list of record IDs to retrieve (same object type, up to ~800)`,
+      },
+      {
+        name: 'sobject_type',
+        type: 'string',
+        required: true,
+        description: `The Salesforce SObject API name (all IDs must be this type)`,
+      },
+    ],
+  },
+  {
+    name: 'salesforce_composite_sobjects_update',
+    description: `Update multiple Salesforce sObject records (of the same or different types) in a single Collections API request. Each record must include its id alongside attributes.type.`,
+    params: [
+      {
+        name: 'records',
+        type: 'string',
+        required: true,
+        description: `JSON array of sObject records, each with an attributes.type and its fields`,
+      },
+      {
+        name: 'all_or_none',
+        type: 'string',
+        required: false,
+        description: `Whether to roll back all records if any single record fails`,
+      },
+    ],
+  },
+  {
+    name: 'salesforce_composite_tree_create',
+    description: `Create a tree of up to 200 related sObject records (e.g. an Account with nested Contacts) in a single call, with relationships between the new records resolved server-side. Distinct from the flat Collections API (salesforce_composite_sobjects_create), which cannot express parent/child nesting in one request.`,
+    params: [
+      {
+        name: 'records',
+        type: 'string',
+        required: true,
+        description: `JSON array of root sObject tree records. Each record needs attributes.type and attributes.referenceId (a caller-assigned temporary ID unique within the request), plus its fields. Nested child relationships are embedded as '<RelationshipName>': {"records": [...]}, each child record also needing its own attributes.type/referenceId.`,
+      },
+      {
+        name: 'sobject_type',
+        type: 'string',
+        required: true,
+        description: `The root Salesforce SObject API name for the tree (e.g., Account).`,
+      },
+    ],
+  },
+  {
     name: 'salesforce_contact_create',
     description: `Create a new contact in Salesforce. Allows setting contact properties like name, email, phone, account association, and other standard fields.`,
     params: [
@@ -476,6 +722,18 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'salesforce_contact_delete',
+    description: `Delete an existing Contact record from Salesforce by ID. This is a destructive operation that permanently removes the record.`,
+    params: [
+      {
+        name: 'contact_id',
+        type: 'string',
+        required: true,
+        description: `ID of the contact to delete`,
+      },
+    ],
+  },
+  {
     name: 'salesforce_contact_get',
     description: `Retrieve details of a specific contact from Salesforce by contact ID. Returns contact properties and associated data.`,
     params: [
@@ -491,6 +749,88 @@ export const tools: Tool[] = [
         required: false,
         description: `Comma-separated list of fields to include in the response`,
       },
+    ],
+  },
+  {
+    name: 'salesforce_contact_update',
+    description: `Update an existing Contact record in Salesforce by ID. Allows updating standard Contact fields.`,
+    params: [
+      {
+        name: 'contact_id',
+        type: 'string',
+        required: true,
+        description: `ID of the contact to update`,
+      },
+      {
+        name: 'AccountId',
+        type: 'string',
+        required: false,
+        description: `Salesforce Account Id associated with this contact`,
+      },
+      {
+        name: 'Department',
+        type: 'string',
+        required: false,
+        description: `Department of the contact`,
+      },
+      {
+        name: 'Description',
+        type: 'string',
+        required: false,
+        description: `Free-form description`,
+      },
+      {
+        name: 'Email',
+        type: 'string',
+        required: false,
+        description: `Email address of the contact`,
+      },
+      {
+        name: 'FirstName',
+        type: 'string',
+        required: false,
+        description: `First name of the contact`,
+      },
+      {
+        name: 'LastName',
+        type: 'string',
+        required: false,
+        description: `Last name of the contact`,
+      },
+      {
+        name: 'LeadSource',
+        type: 'string',
+        required: false,
+        description: `Lead source for the contact`,
+      },
+      { name: 'MailingCity', type: 'string', required: false, description: `Mailing city` },
+      { name: 'MailingCountry', type: 'string', required: false, description: `Mailing country` },
+      {
+        name: 'MailingPostalCode',
+        type: 'string',
+        required: false,
+        description: `Mailing postal code`,
+      },
+      {
+        name: 'MailingState',
+        type: 'string',
+        required: false,
+        description: `Mailing state/province`,
+      },
+      { name: 'MailingStreet', type: 'string', required: false, description: `Mailing street` },
+      {
+        name: 'MobilePhone',
+        type: 'string',
+        required: false,
+        description: `Mobile phone of the contact`,
+      },
+      {
+        name: 'Phone',
+        type: 'string',
+        required: false,
+        description: `Phone number of the contact`,
+      },
+      { name: 'Title', type: 'string', required: false, description: `Job title of the contact` },
     ],
   },
   {
@@ -588,6 +928,166 @@ export const tools: Tool[] = [
     name: 'salesforce_global_describe',
     description: `Retrieve metadata about all available SObjects in the Salesforce organization. Returns list of all objects with basic information.`,
     params: [],
+  },
+  {
+    name: 'salesforce_lead_create',
+    description: `Create a new Lead record in Salesforce. Allows setting standard Lead fields.`,
+    params: [
+      {
+        name: 'Company',
+        type: 'string',
+        required: true,
+        description: `Company the lead belongs to (required)`,
+      },
+      {
+        name: 'LastName',
+        type: 'string',
+        required: true,
+        description: `Last name of the lead (required)`,
+      },
+      {
+        name: 'AnnualRevenue',
+        type: 'number',
+        required: false,
+        description: `Annual revenue of the lead's company`,
+      },
+      { name: 'City', type: 'string', required: false, description: `City` },
+      { name: 'Country', type: 'string', required: false, description: `Country` },
+      {
+        name: 'Description',
+        type: 'string',
+        required: false,
+        description: `Free-form description`,
+      },
+      { name: 'Email', type: 'string', required: false, description: `Email address of the lead` },
+      { name: 'FirstName', type: 'string', required: false, description: `First name of the lead` },
+      {
+        name: 'Industry',
+        type: 'string',
+        required: false,
+        description: `Industry of the lead's company`,
+      },
+      { name: 'LeadSource', type: 'string', required: false, description: `Lead source` },
+      {
+        name: 'MobilePhone',
+        type: 'string',
+        required: false,
+        description: `Mobile phone of the lead`,
+      },
+      {
+        name: 'NumberOfEmployees',
+        type: 'integer',
+        required: false,
+        description: `Number of employees`,
+      },
+      {
+        name: 'OwnerId',
+        type: 'string',
+        required: false,
+        description: `Record owner (User/Queue Id)`,
+      },
+      { name: 'Phone', type: 'string', required: false, description: `Phone number of the lead` },
+      { name: 'PostalCode', type: 'string', required: false, description: `Postal code` },
+      { name: 'Rating', type: 'string', required: false, description: `Lead rating` },
+      { name: 'State', type: 'string', required: false, description: `State/province` },
+      { name: 'Status', type: 'string', required: false, description: `Lead status` },
+      { name: 'Street', type: 'string', required: false, description: `Street address` },
+      { name: 'Title', type: 'string', required: false, description: `Job title of the lead` },
+      { name: 'Website', type: 'string', required: false, description: `Company website` },
+    ],
+  },
+  {
+    name: 'salesforce_lead_delete',
+    description: `Delete an existing Lead record from Salesforce by ID. This is a destructive operation that permanently removes the record.`,
+    params: [
+      { name: 'lead_id', type: 'string', required: true, description: `ID of the lead to delete` },
+    ],
+  },
+  {
+    name: 'salesforce_lead_get',
+    description: `Retrieve a Lead record from Salesforce by ID. Optionally specify which fields to return.`,
+    params: [
+      {
+        name: 'lead_id',
+        type: 'string',
+        required: true,
+        description: `ID of the lead to retrieve`,
+      },
+      {
+        name: 'fields',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of fields to include in the response`,
+      },
+    ],
+  },
+  {
+    name: 'salesforce_lead_update',
+    description: `Update an existing Lead record in Salesforce by ID. Allows updating standard Lead fields.`,
+    params: [
+      { name: 'lead_id', type: 'string', required: true, description: `ID of the lead to update` },
+      {
+        name: 'AnnualRevenue',
+        type: 'number',
+        required: false,
+        description: `Annual revenue of the lead's company`,
+      },
+      { name: 'City', type: 'string', required: false, description: `City` },
+      {
+        name: 'Company',
+        type: 'string',
+        required: false,
+        description: `Company the lead belongs to (required)`,
+      },
+      { name: 'Country', type: 'string', required: false, description: `Country` },
+      {
+        name: 'Description',
+        type: 'string',
+        required: false,
+        description: `Free-form description`,
+      },
+      { name: 'Email', type: 'string', required: false, description: `Email address of the lead` },
+      { name: 'FirstName', type: 'string', required: false, description: `First name of the lead` },
+      {
+        name: 'Industry',
+        type: 'string',
+        required: false,
+        description: `Industry of the lead's company`,
+      },
+      {
+        name: 'LastName',
+        type: 'string',
+        required: false,
+        description: `Last name of the lead (required)`,
+      },
+      { name: 'LeadSource', type: 'string', required: false, description: `Lead source` },
+      {
+        name: 'MobilePhone',
+        type: 'string',
+        required: false,
+        description: `Mobile phone of the lead`,
+      },
+      {
+        name: 'NumberOfEmployees',
+        type: 'integer',
+        required: false,
+        description: `Number of employees`,
+      },
+      {
+        name: 'OwnerId',
+        type: 'string',
+        required: false,
+        description: `Record owner (User/Queue Id)`,
+      },
+      { name: 'Phone', type: 'string', required: false, description: `Phone number of the lead` },
+      { name: 'PostalCode', type: 'string', required: false, description: `Postal code` },
+      { name: 'Rating', type: 'string', required: false, description: `Lead rating` },
+      { name: 'State', type: 'string', required: false, description: `State/province` },
+      { name: 'Status', type: 'string', required: false, description: `Lead status` },
+      { name: 'Street', type: 'string', required: false, description: `Street address` },
+      { name: 'Title', type: 'string', required: false, description: `Job title of the lead` },
+      { name: 'Website', type: 'string', required: false, description: `Company website` },
+    ],
   },
   {
     name: 'salesforce_limits_get',
@@ -691,6 +1191,18 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'salesforce_opportunity_delete',
+    description: `Delete an existing Opportunity record from Salesforce by ID. This is a destructive operation that permanently removes the record.`,
+    params: [
+      {
+        name: 'opportunity_id',
+        type: 'string',
+        required: true,
+        description: `ID of the opportunity to delete`,
+      },
+    ],
+  },
+  {
     name: 'salesforce_opportunity_get',
     description: `Retrieve details of a specific opportunity from Salesforce by opportunity ID. Returns opportunity properties and associated data.`,
     params: [
@@ -773,6 +1285,18 @@ export const tools: Tool[] = [
       },
       { name: 'StageName', type: 'string', required: false, description: `Current sales stage` },
       { name: 'Type', type: 'string', required: false, description: `Opportunity type` },
+    ],
+  },
+  {
+    name: 'salesforce_query_all',
+    description: `Execute a SOQL query against Salesforce data, including records recently deleted (in the recycle bin) or archived. Same query syntax as salesforce_query_soql, but scans the queryAll resource instead of query.`,
+    params: [
+      {
+        name: 'query',
+        type: 'string',
+        required: true,
+        description: `SOQL query string to execute`,
+      },
     ],
   },
   {
@@ -881,6 +1405,59 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'salesforce_report_execute_with_filters',
+    description: `Run a Salesforce report synchronously while overriding its filters, groupings, or aggregates for this run only (the saved report definition is not modified). Provide reportMetadata as a JSON object string with the fields to override.`,
+    params: [
+      {
+        name: 'report_id',
+        type: 'string',
+        required: true,
+        description: `The unique ID of the Salesforce report`,
+      },
+      {
+        name: 'report_metadata',
+        type: 'string',
+        required: true,
+        description: `JSON object with reportMetadata overrides (filters, groupingsDown, groupingsAcross, etc.)`,
+      },
+    ],
+  },
+  {
+    name: 'salesforce_report_instance_results_get',
+    description: `Fetch the results of a previously queued asynchronous report run, by report ID and instance ID. Results are retained for a rolling 24-hour period after the run completed.`,
+    params: [
+      {
+        name: 'instance_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the asynchronous report run instance`,
+      },
+      {
+        name: 'report_id',
+        type: 'string',
+        required: true,
+        description: `The unique ID of the Salesforce report`,
+      },
+    ],
+  },
+  {
+    name: 'salesforce_report_instances_list',
+    description: `List up to 2000 asynchronous run instances of a Salesforce report, sorted by run request date. Use with salesforce_report_run_async and salesforce_report_instance_results_get.`,
+    params: [
+      {
+        name: 'report_id',
+        type: 'string',
+        required: true,
+        description: `The unique ID of the Salesforce report`,
+      },
+    ],
+  },
+  {
+    name: 'salesforce_report_list',
+    description: `List up to 200 tabular, matrix, or summary reports recently viewed by the current user, via the Salesforce Analytics API.`,
+    params: [],
+  },
+  {
     name: 'salesforce_report_metadata_get',
     description: `Retrieve report, report type, and related metadata for a Salesforce report. Returns information about report structure, fields, groupings, and configuration.`,
     params: [
@@ -889,6 +1466,42 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `The unique ID of the Salesforce report`,
+      },
+    ],
+  },
+  {
+    name: 'salesforce_report_results_get',
+    description: `Run a Salesforce report synchronously using its saved filters and return the results (fact map, groupings, and metadata). Best for reports that finish quickly; use salesforce_report_run_async for long-running reports.`,
+    params: [
+      {
+        name: 'report_id',
+        type: 'string',
+        required: true,
+        description: `The unique ID of the Salesforce report`,
+      },
+      {
+        name: 'include_details',
+        type: 'string',
+        required: false,
+        description: `Whether to include detail rows in addition to summary data`,
+      },
+    ],
+  },
+  {
+    name: 'salesforce_report_run_async',
+    description: `Queue an asynchronous run of a Salesforce report and return an instance ID immediately. Use for long-running reports that risk the API's synchronous timeout; poll salesforce_report_instance_results_get with the returned instance ID to fetch results (retained for 24 hours). Optionally override filters for this run via reportMetadata.`,
+    params: [
+      {
+        name: 'report_id',
+        type: 'string',
+        required: true,
+        description: `The unique ID of the Salesforce report`,
+      },
+      {
+        name: 'report_metadata',
+        type: 'string',
+        required: false,
+        description: `Optional JSON object with reportMetadata overrides for this async run`,
       },
     ],
   },
@@ -1053,8 +1666,56 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'salesforce_sobject_get_deleted',
+    description: `Get a list of individual records of the given SObject type that were deleted within a given time span (soft-deleted, still in the recycle bin). Useful for sync and change-tracking agents.`,
+    params: [
+      {
+        name: 'end',
+        type: 'string',
+        required: true,
+        description: `End of the time span, as an ISO 8601 datetime.`,
+      },
+      {
+        name: 'sobject_type',
+        type: 'string',
+        required: true,
+        description: `The Salesforce SObject API name (e.g., Account, Contact, Lead, CustomObject__c)`,
+      },
+      {
+        name: 'start',
+        type: 'string',
+        required: true,
+        description: `Start of the time span, as an ISO 8601 datetime.`,
+      },
+    ],
+  },
+  {
+    name: 'salesforce_sobject_get_updated',
+    description: `Get a list of individual records of the given SObject type that were updated within a given time span. Useful for sync and change-tracking agents.`,
+    params: [
+      {
+        name: 'end',
+        type: 'string',
+        required: true,
+        description: `End of the time span, as an ISO 8601 datetime.`,
+      },
+      {
+        name: 'sobject_type',
+        type: 'string',
+        required: true,
+        description: `The Salesforce SObject API name (e.g., Account, Contact, Lead, CustomObject__c)`,
+      },
+      {
+        name: 'start',
+        type: 'string',
+        required: true,
+        description: `Start of the time span, as an ISO 8601 datetime.`,
+      },
+    ],
+  },
+  {
     name: 'salesforce_sobject_update',
-    description: `Update an existing record for any Salesforce SObject type by ID. Only the fields provided will be updated.`,
+    description: `Update an existing record for any Salesforce SObject type by ID. Only the fields provided will be updated. Before updating, call salesforce_object_describe on sobject_type to confirm each field in fields exists, is updateable (not a formula, rollup-summary, or system field like CreatedDate), and to get valid picklist values — restricted picklists reject values outside their defined set. Match each field's data type exactly: send numbers as JSON numbers, not quoted strings. Confirm record_id actually belongs to sobject_type; a mismatched ID (for example, a Contact or Lead ID passed with sobject_type set to Account) returns an update error rather than a not-found error. Updating a deleted record also fails. Org-specific validation rules (for example, restrictions on changing OwnerId) can block an update too — read the returned error message rather than retrying with the same payload.`,
     params: [
       {
         name: 'fields',
@@ -1078,7 +1739,7 @@ export const tools: Tool[] = [
   },
   {
     name: 'salesforce_soql_execute',
-    description: `Execute custom SOQL queries against Salesforce data. Supports complex queries with joins, filters, aggregations, and custom field selection.`,
+    description: `Execute custom SOQL queries against Salesforce data. Supports complex queries with joins, filters, aggregations, and custom field selection. Before querying unfamiliar fields, especially on metadata objects like FieldDefinition, call salesforce_object_describe to confirm the field exists. convertCurrency() is a currency-conversion function, not an aggregate — wrap it in SUM()/AVG() or use it with GROUP BY, not on its own. SOQL does not support OR across unrelated conditions or subqueries; use IN or separate queries instead. Field aliases (AS alias) are valid only on aggregate expressions, not on plain field selections.`,
     params: [
       {
         name: 'soql_query',
@@ -1089,8 +1750,20 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'salesforce_tooling_execute_anonymous',
+    description: `Execute a block of anonymous Apex code on demand via the Tooling API, without saving it. Apex can read and write org data (DML), so this is not a read-only operation despite using GET. Distinct from the existing Tooling sObject CRUD/describe/query tools, which operate on saved metadata rather than running arbitrary code. Returns compile/execution success flags and any exception details.`,
+    params: [
+      {
+        name: 'apex_code',
+        type: 'string',
+        required: true,
+        description: `The Apex code to compile and execute anonymously.`,
+      },
+    ],
+  },
+  {
     name: 'salesforce_tooling_query_execute',
-    description: `Execute SOQL queries against Salesforce Tooling API to access metadata objects like ApexClass, ApexTrigger, CustomObject, and development metadata. Use this for querying metadata rather than data objects.`,
+    description: `Execute SOQL queries against Salesforce Tooling API to access metadata objects like ApexClass, ApexTrigger, CustomObject, and development metadata. Use this for querying metadata rather than data objects. Metadata objects expose a different, more limited field set than standard objects — call salesforce_tooling_sobject_describe first to confirm a field exists before filtering or selecting on it (for example, FieldDefinition does not support every field you might expect). SOQL does not support OR across unrelated conditions or subqueries; use IN or separate queries instead. Tooling API only exposes development metadata objects (ApexClass, ApexTrigger, CustomField, CustomObject, Flow, and similar) — permission and org-configuration objects like ObjectPermissions, FieldPermissions, SetupEntityAccess, Organization, and Domain are not queryable here; use salesforce_soql_execute for those instead. When selecting the Metadata or FullName field on a Tooling API object, the query must return at most one row — filter down to a single record (for example, by Id) rather than running a list-style query.`,
     params: [
       {
         name: 'soql_query',

@@ -2,6 +2,25 @@ import type { Tool } from '../../types/agent-connectors'
 
 export const tools: Tool[] = [
   {
+    name: 'supabase_accept_invite_external_jit_access',
+    description: `Accept a pending invitation for just-in-time (JIT) database access on a Supabase project, activating the roles that were granted with Invite External JIT Access. Requires the project ref, the invited email address, and the invite token.`,
+    params: [
+      {
+        name: 'email',
+        type: 'string',
+        required: true,
+        description: `Email address the invite was sent to.`,
+      },
+      {
+        name: 'ref',
+        type: 'string',
+        required: true,
+        description: `The 20-character project reference ID (lowercase letters only). Found in the project's Supabase dashboard URL or Settings > General.`,
+      },
+      { name: 'token', type: 'string', required: true, description: `The invite token to accept.` },
+    ],
+  },
+  {
     name: 'supabase_activate_custom_hostname',
     description: `[Beta] Activate a previously initialized custom hostname for a Supabase project. Call this after the DNS configuration has been verified (see Verify DNS Config) to make the custom hostname live. Requires only the project ref. Returns the current hostname configuration status and Cloudflare-backed detail.`,
     params: [

@@ -146,6 +146,89 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'bigqueryserviceaccount_get_routine_iam_policy',
+    description: `Retrieve the IAM access control policy currently set on a BigQuery routine (stored procedure or UDF).`,
+    params: [
+      {
+        name: 'dataset_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the dataset containing the routine`,
+      },
+      {
+        name: 'routine_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the routine to fetch the IAM policy for`,
+      },
+      {
+        name: 'requested_policy_version',
+        type: 'integer',
+        required: false,
+        description: `The policy format version to be returned`,
+      },
+    ],
+  },
+  {
+    name: 'bigqueryserviceaccount_get_row_access_policy',
+    description: `Retrieve the definition of a single row access policy on a BigQuery table.`,
+    params: [
+      {
+        name: 'dataset_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the dataset containing the table`,
+      },
+      {
+        name: 'row_access_policy_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the row access policy to retrieve`,
+      },
+      {
+        name: 'table_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the table containing the row access policy`,
+      },
+    ],
+  },
+  {
+    name: 'bigqueryserviceaccount_get_row_access_policy_iam_policy',
+    description: `Retrieve the IAM policy for a row access policy on a BigQuery table.`,
+    params: [
+      {
+        name: 'dataset_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the dataset containing the table`,
+      },
+      {
+        name: 'row_access_policy_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the row access policy to get the IAM policy for`,
+      },
+      {
+        name: 'table_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the table containing the row access policy`,
+      },
+      {
+        name: 'requested_policy_version',
+        type: 'integer',
+        required: false,
+        description: `The IAM policy format version to be returned`,
+      },
+    ],
+  },
+  {
+    name: 'bigqueryserviceaccount_get_service_account',
+    description: `Retrieve the email address of the BigQuery-managed service account for the project this connection is scoped to. Used, for example, to grant that service account access to a Cloud Storage bucket for load or export jobs.`,
+    params: [],
+  },
+  {
     name: 'bigqueryserviceaccount_get_table',
     description: `Retrieve metadata and schema for a specific BigQuery table or view, including column names, types, descriptions, and table properties.`,
     params: [
@@ -160,6 +243,30 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `The ID of the table or view to retrieve`,
+      },
+    ],
+  },
+  {
+    name: 'bigqueryserviceaccount_get_table_iam_policy',
+    description: `Retrieve the IAM access control policy currently set on a BigQuery table or view.`,
+    params: [
+      {
+        name: 'dataset_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the dataset containing the table`,
+      },
+      {
+        name: 'table_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the table to fetch the IAM policy for`,
+      },
+      {
+        name: 'requested_policy_version',
+        type: 'integer',
+        required: false,
+        description: `The policy format version to be returned`,
       },
     ],
   },
@@ -309,6 +416,24 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'bigqueryserviceaccount_list_projects',
+    description: `List Google Cloud projects with BigQuery enabled that the connected service account can access. Useful for confirming which project the service account key is scoped to.`,
+    params: [
+      {
+        name: 'max_results',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of projects to return per page`,
+      },
+      {
+        name: 'page_token',
+        type: 'string',
+        required: false,
+        description: `Page token from a previous response to retrieve the next page`,
+      },
+    ],
+  },
+  {
     name: 'bigqueryserviceaccount_list_routines',
     description: `List all stored procedures and user-defined functions (UDFs) in a BigQuery dataset.`,
     params: [
@@ -329,6 +454,30 @@ export const tools: Tool[] = [
         type: 'integer',
         required: false,
         description: `Maximum number of routines to return per page`,
+      },
+      {
+        name: 'page_token',
+        type: 'string',
+        required: false,
+        description: `Page token from a previous response to retrieve the next page`,
+      },
+    ],
+  },
+  {
+    name: 'bigqueryserviceaccount_list_row_access_policies',
+    description: `List the row access policies defined on a BigQuery table. Supports pagination.`,
+    params: [
+      {
+        name: 'dataset_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the dataset containing the table`,
+      },
+      {
+        name: 'table_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the table to list row access policies for`,
       },
       {
         name: 'page_token',
@@ -444,6 +593,84 @@ export const tools: Tool[] = [
         type: 'boolean',
         required: false,
         description: `Use BigQuery legacy SQL syntax instead of standard SQL`,
+      },
+    ],
+  },
+  {
+    name: 'bigqueryserviceaccount_test_routine_iam_permissions',
+    description: `Check which of a given set of IAM permissions the caller has on a BigQuery routine.`,
+    params: [
+      {
+        name: 'dataset_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the dataset containing the routine`,
+      },
+      {
+        name: 'permissions',
+        type: 'array',
+        required: true,
+        description: `The set of IAM permissions to check`,
+      },
+      {
+        name: 'routine_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the routine to test permissions against`,
+      },
+    ],
+  },
+  {
+    name: 'bigqueryserviceaccount_test_row_access_policy_iam_permissions',
+    description: `Check which of a given set of IAM permissions the caller has on a row access policy.`,
+    params: [
+      {
+        name: 'dataset_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the dataset containing the table`,
+      },
+      {
+        name: 'permissions',
+        type: 'array',
+        required: true,
+        description: `The set of IAM permissions to check`,
+      },
+      {
+        name: 'row_access_policy_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the row access policy to test permissions against`,
+      },
+      {
+        name: 'table_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the table containing the row access policy`,
+      },
+    ],
+  },
+  {
+    name: 'bigqueryserviceaccount_test_table_iam_permissions',
+    description: `Check which of a given set of IAM permissions the caller has on a BigQuery table or view. This is a read-only check despite being a POST request — no state is modified.`,
+    params: [
+      {
+        name: 'dataset_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the dataset containing the table`,
+      },
+      {
+        name: 'permissions',
+        type: 'array',
+        required: true,
+        description: `The set of IAM permissions to check`,
+      },
+      {
+        name: 'table_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the table to test permissions against`,
       },
     ],
   },

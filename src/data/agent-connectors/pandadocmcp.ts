@@ -20,7 +20,7 @@ export const tools: Tool[] = [
   },
   {
     name: 'pandadocmcp_documents_content_get',
-    description: `Get the textual content of a document in plaintext or markdown format by document ID.`,
+    description: `Get the content of a document in HTML or PDF format by document ID.`,
     params: [
       {
         name: 'content_format',
@@ -33,11 +33,11 @@ export const tools: Tool[] = [
   },
   {
     name: 'pandadocmcp_documents_create',
-    description: `Create a document from a template, markdown content, or a PDF/DOCX file URL. Pass a single 'request' object whose 'source' selects the creation mode; each source accepts only its own parameters. Creation is asynchronous - poll Get Document Status until the document is Draft or Error.`,
+    description: `Create a document from a template, markdown content, or a PDF/DOCX file URL. Pass a single 'request' object whose 'source' selects the creation mode; each source accepts only its own parameters. Creation is asynchronous - poll Get Document Status until the document is Draft or Error. IMPORTANT for pricing_tables: row/column field names (e.g. 'name', 'price', 'qty') are defined per-template, not fixed globally. Before populating pricing_tables, call templates_details_get on the target template_uuid and read the real column names from its pricing.tables[].items[] / merged_data - do not guess casing or names from examples.`,
     params: [
       {
         name: 'request',
-        type: 'object',
+        type: 'string',
         required: true,
         description: `Document to create. Set \`source\` to \`template\` (create from a PandaDoc template), \`markdown\` (create from markdown content), or \`file\` (create from a PDF/DOCX file URL). Each source accepts only its own parameters.`,
       },
@@ -306,7 +306,7 @@ export const tools: Tool[] = [
   },
   {
     name: 'pandadocmcp_documents_summary_get',
-    description: `Get a summary for a document at one of three granularity levels: detailed, short, or headline.`,
+    description: `Get an AI-generated or standard summary for a document by ID.`,
     params: [
       { name: 'document_id', type: 'string', required: true, description: `Document ID` },
       {

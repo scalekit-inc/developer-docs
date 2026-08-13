@@ -32,6 +32,30 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'attio_append_record_values',
+    description: `Update a record's attributes in Attio, appending to multiselect attributes instead of replacing them. New multiselect values are prepended to the values that already exist. Use attio_update_record instead if you want to overwrite/remove existing multiselect values. Supports people, companies, deals, and custom objects.`,
+    params: [
+      {
+        name: 'object',
+        type: 'string',
+        required: true,
+        description: `The slug or UUID of the object type the record belongs to. Common slugs: "people", "companies", "deals".`,
+      },
+      {
+        name: 'record_id',
+        type: 'string',
+        required: true,
+        description: `The UUID of the record to update.`,
+      },
+      {
+        name: 'values',
+        type: 'object',
+        required: true,
+        description: `Attribute values to update. Keys are attribute API slugs; values are the new data. For multiselect attributes, the supplied array is prepended to any values that already exist.`,
+      },
+    ],
+  },
+  {
     name: 'attio_create_attribute',
     description: `Creates a new attribute on an Attio object or list. Requires api_slug, title, type, description, is_required, is_unique, is_mct, and config. The config object varies by type — for most types pass an empty object {}. For select/multiselect, config can include options. For record-reference, config includes the target object.`,
     params: [
@@ -88,6 +112,30 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `Data type of the attribute. Supported values: text, number, select, multiselect, status, date, timestamp, checkbox, currency, record-reference, actor-reference, location, domain, email-address, phone-number, interaction.`,
+      },
+    ],
+  },
+  {
+    name: 'attio_create_call_recording',
+    description: `Create a call recording for a meeting in Attio. A transcript should always be provided — a recording created without one will be missing summaries and other transcript-derived features. The video is optional; a transcript-only recording is fully supported. This endpoint is in beta and rate limited to 1 request per second.`,
+    params: [
+      {
+        name: 'meeting_id',
+        type: 'string',
+        required: true,
+        description: `The UUID of the meeting this recording belongs to.`,
+      },
+      {
+        name: 'transcript',
+        type: 'array',
+        required: false,
+        description: `JSON array of transcript speech segments. Each item needs speech, start_time, end_time (all in seconds), and a speaker object with a name and optional email_address.`,
+      },
+      {
+        name: 'video_url',
+        type: 'string',
+        required: false,
+        description: `A publicly accessible HTTPS URL to an .mp4 video file of the call recording, up to 1GB. Attio downloads the video from this URL asynchronously. Omit for a transcript-only recording.`,
       },
     ],
   },
@@ -152,6 +200,31 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'attio_create_folder',
+    description: `Creates a native Attio folder entry on an object record, to organize files. This endpoint is in beta.`,
+    params: [
+      { name: 'name', type: 'string', required: true, description: `The folder name.` },
+      {
+        name: 'object',
+        type: 'string',
+        required: true,
+        description: `The slug or UUID of the object type the record belongs to. Common slugs: "people", "companies", "deals".`,
+      },
+      {
+        name: 'record_id',
+        type: 'string',
+        required: true,
+        description: `The UUID of the record to create the folder entry on.`,
+      },
+      {
+        name: 'parent_folder_id',
+        type: 'string',
+        required: false,
+        description: `Optional UUID of the parent folder to nest this folder under. Omit to create a top-level folder.`,
+      },
+    ],
+  },
+  {
     name: 'attio_create_list',
     description: `Creates a new list in Attio. Requires workspace_access (one of: full-access, read-and-write, read-only) and workspace_member_access array. After creation, add attributes using Create Attribute and records using Create Entry.`,
     params: [
@@ -184,6 +257,60 @@ export const tools: Tool[] = [
         type: 'array',
         required: false,
         description: `Optional array of per-member access overrides. Leave empty for uniform access via workspace_access. Each item: {"workspace_member_id": "uuid", "level": "full-access"}.`,
+      },
+    ],
+  },
+  {
+    name: 'attio_create_meeting',
+    description: `Creates a new meeting in Attio. New person records and companies are automatically created based on participant email addresses. This endpoint is in beta.`,
+    params: [
+      {
+        name: 'end_datetime',
+        type: 'string',
+        required: true,
+        description: `ISO 8601 datetime when the meeting ends (exclusive), or an ISO 8601 date if is_all_day is true.`,
+      },
+      {
+        name: 'start_datetime',
+        type: 'string',
+        required: true,
+        description: `ISO 8601 datetime when the meeting starts, or an ISO 8601 date if is_all_day is true.`,
+      },
+      {
+        name: 'title',
+        type: 'string',
+        required: true,
+        description: `The title of the meeting, up to 1,000 characters.`,
+      },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `The description of the meeting, up to 10,000 characters.`,
+      },
+      {
+        name: 'end_timezone',
+        type: 'string',
+        required: false,
+        description: `IANA timezone the meeting ends in, used when end_datetime has no UTC offset. Ignored for all-day meetings.`,
+      },
+      {
+        name: 'is_all_day',
+        type: 'boolean',
+        required: false,
+        description: `Whether the meeting is an all-day event. When true, start/end must be dates (no time). When false, they must be datetimes.`,
+      },
+      {
+        name: 'participants',
+        type: 'array',
+        required: false,
+        description: `JSON array of participant objects. Each item needs an email_address (or a name, if email is omitted) and an optional is_organizer boolean.`,
+      },
+      {
+        name: 'start_timezone',
+        type: 'string',
+        required: false,
+        description: `IANA timezone the meeting starts in, used when start_datetime has no UTC offset. Ignored for all-day meetings.`,
       },
     ],
   },
@@ -434,6 +561,24 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'attio_delete_call_recording',
+    description: `Deletes the specified call recording. This removes the call recording and all associated data, including its transcript. This endpoint is in beta.`,
+    params: [
+      {
+        name: 'meeting_id',
+        type: 'string',
+        required: true,
+        description: `The UUID of the meeting this call recording belongs to.`,
+      },
+      {
+        name: 'recording_id',
+        type: 'string',
+        required: true,
+        description: `The UUID of the call recording to delete.`,
+      },
+    ],
+  },
+  {
     name: 'attio_delete_comment',
     description: `Permanently deletes a comment by its comment_id. If the comment is at the head of a thread, all messages in the thread are also deleted.`,
     params: [
@@ -586,6 +731,18 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `The unique identifier of the workspace record to delete.`,
+      },
+    ],
+  },
+  {
+    name: 'attio_download_file',
+    description: `Downloads a file by redirecting to a signed URL. Use attio_get_file first if you only need file metadata such as name, size, or MIME type. This endpoint is in beta.`,
+    params: [
+      {
+        name: 'file_id',
+        type: 'string',
+        required: true,
+        description: `The UUID of the file to download.`,
       },
     ],
   },
@@ -992,6 +1149,60 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'attio_list_emails',
+    description: `List email metadata (participants, subject line, timestamps) from your workspace's connected mailboxes. Email content is never returned. At least one of linked_object with linked_record_ids, participants, or domain must be supplied — there is no way to list every email. This endpoint is in alpha and enabled per workspace; contact support@attio.com to request access.`,
+    params: [
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `A pagination cursor used to fetch the next page of emails, from a previous response's pagination.next_cursor.`,
+      },
+      {
+        name: 'domain',
+        type: 'string',
+        required: false,
+        description: `A domain to filter emails by. Emails with at least one participant at this domain are returned.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `The maximum number of emails to return. Must be between 1 and 50. Defaults to 25.`,
+      },
+      {
+        name: 'linked_object',
+        type: 'string',
+        required: false,
+        description: `The object to filter emails by — the slug or ID of either the people or companies object. If provided, linked_record_ids must also be provided.`,
+      },
+      {
+        name: 'linked_record_ids',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of up to 10 record IDs to filter emails by. All IDs must belong to the object given in linked_object.`,
+      },
+      {
+        name: 'participants',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of up to 10 email addresses. Emails that include at least one of them as a participant are returned.`,
+      },
+      {
+        name: 'sent_after',
+        type: 'string',
+        required: false,
+        description: `Only return emails sent after this ISO 8601 timestamp (exclusive).`,
+      },
+      {
+        name: 'sent_before',
+        type: 'string',
+        required: false,
+        description: `Only return emails sent before this ISO 8601 timestamp (exclusive).`,
+      },
+    ],
+  },
+  {
     name: 'attio_list_entries',
     description: `Lists entries in a given Attio list with optional filtering and sorting. Returns records that belong to the specified list.`,
     params: [
@@ -1370,6 +1581,66 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'attio_list_views_for_list',
+    description: `Lists saved views (table or board layouts) for a list. Results are ordered by view ID ascending.`,
+    params: [
+      {
+        name: 'list',
+        type: 'string',
+        required: true,
+        description: `A UUID or slug identifying the list.`,
+      },
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `A pagination cursor from a previous response's pagination.next_cursor. Omit for the first page.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `The maximum number of views to return. Must be between 1 and 1000. Defaults to 500.`,
+      },
+      {
+        name: 'show_archived',
+        type: 'boolean',
+        required: false,
+        description: `Set to true to include archived views.`,
+      },
+    ],
+  },
+  {
+    name: 'attio_list_views_for_object',
+    description: `Lists saved views (table or board layouts) for an object. Results are ordered by view ID ascending.`,
+    params: [
+      {
+        name: 'object',
+        type: 'string',
+        required: true,
+        description: `The slug or UUID of the object type to list views for. Common slugs: "people", "companies", "deals".`,
+      },
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `A pagination cursor from a previous response's pagination.next_cursor. Omit for the first page.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `The maximum number of views to return. Must be between 1 and 1000. Defaults to 500.`,
+      },
+      {
+        name: 'show_archived',
+        type: 'boolean',
+        required: false,
+        description: `Set to true to include archived views.`,
+      },
+    ],
+  },
+  {
     name: 'attio_list_webhooks',
     description: `Retrieves all webhooks in the Attio workspace. Returns webhook configurations, subscriptions, and statuses. Supports optional limit and offset pagination parameters.`,
     params: [
@@ -1419,6 +1690,54 @@ export const tools: Tool[] = [
         type: 'array',
         required: false,
         description: `Sorting criteria for the results.`,
+      },
+    ],
+  },
+  {
+    name: 'attio_merge_records',
+    description: `Merges two records of the same object together. Where both records have a value for the same attribute, the primary record's value takes precedence. Merging produces a new record — new_record_id matches neither original — and both original records are marked as merged and can no longer be read or written. This endpoint is not idempotent: repeating the same request returns 404. Rate limited to 5 requests per second. This endpoint is in beta.`,
+    params: [
+      {
+        name: 'object',
+        type: 'string',
+        required: true,
+        description: `The slug or UUID of the object type both records belong to. Common slugs: "people", "companies", "deals".`,
+      },
+      {
+        name: 'primary_record_id',
+        type: 'string',
+        required: true,
+        description: `The UUID of the record to keep values from. Where both records have a value for the same attribute, this record's value takes precedence.`,
+      },
+      {
+        name: 'secondary_record_id',
+        type: 'string',
+        required: true,
+        description: `The UUID of the record to merge into the primary record. Its values are only kept where the primary record has no value for that attribute.`,
+      },
+    ],
+  },
+  {
+    name: 'attio_overwrite_list_entry',
+    description: `Update attribute values on a list entry in Attio, overwriting (replacing/removing) any existing multiselect values. Use attio_update_list_entry instead if you want to append multiselect values without removing existing ones.`,
+    params: [
+      {
+        name: 'entry_id',
+        type: 'string',
+        required: true,
+        description: `The UUID of the list entry to update.`,
+      },
+      {
+        name: 'entry_values',
+        type: 'object',
+        required: true,
+        description: `Attribute values to update on the list entry. Keys are entry-level attribute slugs. For multiselect attributes, the supplied array overwrites/removes any values that already exist.`,
+      },
+      {
+        name: 'list_id',
+        type: 'string',
+        required: true,
+        description: `The slug or UUID of the list containing the entry.`,
       },
     ],
   },

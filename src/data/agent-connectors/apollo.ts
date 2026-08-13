@@ -458,18 +458,6 @@ export const tools: Tool[] = [
     ],
   },
   {
-    name: 'apollo_check_email_send_status',
-    description: `Check the current delivery status of an Apollo email message, typically after calling Send Email Now since emails are sent asynchronously. Returns the message id, current status, and a human-readable message; for completed sends this includes a completed_at timestamp, for failed sends a failure reason, and for in-progress sends a retry_after_seconds value.`,
-    params: [
-      {
-        name: 'emailer_message_id',
-        type: 'string',
-        required: true,
-        description: `The Apollo ID of the email message to check`,
-      },
-    ],
-  },
-  {
     name: 'apollo_complete_task',
     description: `Mark an existing task in your team's Apollo account as completed by task ID. If the task no longer exists (for example, its sequence was paused and the task was removed), Apollo returns a 200 response with deleted: true on the task instead of an error. Use Skip Task instead if you want to mark the task done without completing it. Use Search Tasks to find task IDs.`,
     params: [
@@ -1043,6 +1031,30 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'apollo_get_contact_sequence_activity',
+    description: `Retrieve the most recent sequence enrollment activity for a single Apollo contact, such as enrolled, paused, resumed, failed, completed, removed, or replied events. Optionally scope results to one sequence. Returns only the most recent events up to per_page and does not paginate further back in history. Uses 0 Apollo credits.`,
+    params: [
+      {
+        name: 'contact_id',
+        type: 'string',
+        required: true,
+        description: `The Apollo ID for the contact whose sequence activity you want to retrieve`,
+      },
+      {
+        name: 'per_page',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of most-recent events to return`,
+      },
+      {
+        name: 'sequence_id',
+        type: 'string',
+        required: false,
+        description: `Apollo ID for a single sequence to scope the activity to`,
+      },
+    ],
+  },
+  {
     name: 'apollo_get_conversation',
     description: `Retrieve the full details of a single Apollo Conversation (a recorded prospect video meeting or dialer call) by its ID, including transcript and AI insights when available. Use Search Conversations to find the conversation_id first. Consumes 1 Apollo credit per conversation only if the conversation has AI insights; otherwise it is free.`,
     params: [
@@ -1067,6 +1079,11 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'apollo_get_credit_usage',
+    description: `Retrieve your team's remaining and consumed credit balance for the current billing cycle, broken down per credit type (email reveals, phone enrichment, AI writing, dialer minutes, etc.). Distinct from Get API Usage Stats, which reports request rate limits rather than credit balances. Takes no parameters.`,
+    params: [],
+  },
+  {
     name: 'apollo_get_current_user',
     description: `Retrieve the authenticated user's profile — the person who owns the API key being used. Optionally include the user's and team's Apollo credit usage and remaining balances.`,
     params: [
@@ -1087,6 +1104,24 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `The Apollo ID of the deal to view`,
+      },
+    ],
+  },
+  {
+    name: 'apollo_get_email_content',
+    description: `Retrieve the full content (subject, body, recipients) of up to 10 previously sent Apollo sequence emails by their message IDs. Only successfully sent emails are returned; drafts, scheduled messages, and IDs that don't match one of your team's sent emails are silently excluded from the response. Uses 0 Apollo credits.`,
+    params: [
+      {
+        name: 'ids',
+        type: 'array',
+        required: true,
+        description: `Apollo IDs of sent emails to retrieve`,
+      },
+      {
+        name: 'body_format',
+        type: 'string',
+        required: false,
+        description: `Format to return the email body in`,
       },
     ],
   },
@@ -1135,6 +1170,18 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `The Apollo ID for the task to retrieve`,
+      },
+    ],
+  },
+  {
+    name: 'apollo_get_webhook_result',
+    description: `Retrieve the result of an asynchronous People Enrichment or Bulk People Enrichment request by its request_id, without waiting for Apollo's webhook callback. Use this to check enrichment progress or recover a result if the webhook delivery was missed. Results remain available for 30 days after the original request; after that the request_id expires. Uses 0 Apollo credits.`,
+    params: [
+      {
+        name: 'request_id',
+        type: 'string',
+        required: true,
+        description: `The request_id returned by a People Enrichment or Bulk People Enrichment request that used webhook delivery`,
       },
     ],
   },
@@ -2105,6 +2152,54 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `Apollo ID for the contact stage to assign to the contacts`,
+      },
+    ],
+  },
+  {
+    name: 'apollo_update_custom_field',
+    description: `Update an existing custom field on contacts, accounts, or deals (opportunities) in your Apollo account. Only the provided attributes are changed; omitted attributes remain unchanged. Updates exactly one field per request. The field's modality and type cannot be changed after creation. Requires the field's id in modality.field_id format, e.g. contact.694095a80f1b6000110fc556; use List Fields to find it.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The custom field's identifier, in modality.field_id format`,
+      },
+      {
+        name: 'autorun_downstream_enrichment',
+        type: 'boolean',
+        required: false,
+        description: `Whether to automatically re-run downstream enrichment when this field's dependencies change`,
+      },
+      {
+        name: 'field_group_id',
+        type: 'string',
+        required: false,
+        description: `Apollo ID of the folder/group to move the field into`,
+      },
+      {
+        name: 'label',
+        type: 'string',
+        required: false,
+        description: `New display name for the custom field`,
+      },
+      {
+        name: 'meta_max_length',
+        type: 'integer',
+        required: false,
+        description: `Maximum character length allowed for the field value (string/textarea fields only)`,
+      },
+      {
+        name: 'meta_picklist_value_set_id',
+        type: 'string',
+        required: false,
+        description: `Existing picklist value set ID to attach to this field`,
+      },
+      {
+        name: 'meta_picklist_values',
+        type: 'array',
+        required: false,
+        description: `Complete replacement set of options for a picklist field`,
       },
     ],
   },

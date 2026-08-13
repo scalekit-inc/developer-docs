@@ -197,6 +197,24 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'googledrive_create_shared_drive',
+    description: `Create a new shared drive (Team Drive) in Google Drive with the given name. The caller becomes its first organizer.`,
+    params: [
+      {
+        name: 'name',
+        type: 'string',
+        required: true,
+        description: `The name of the new shared drive.`,
+      },
+      {
+        name: 'request_id',
+        type: 'string',
+        required: true,
+        description: `Required idempotency key: an arbitrary unique string. Retrying this call with the same request_id returns the same shared drive instead of creating a duplicate.`,
+      },
+    ],
+  },
+  {
     name: 'googledrive_delete_comment',
     description: `Permanently delete a comment from a Google Drive file by comment ID. This action cannot be undone. Uses OAuth credentials.`,
     params: [
@@ -287,6 +305,30 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'googledrive_delete_reply',
+    description: `Permanently delete a reply to a comment on a Google Drive file by reply ID. This action cannot be undone. Uses OAuth credentials.`,
+    params: [
+      {
+        name: 'comment_id',
+        type: 'string',
+        required: true,
+        description: `ID of the comment the reply belongs to`,
+      },
+      {
+        name: 'file_id',
+        type: 'string',
+        required: true,
+        description: `ID of the file the comment and reply belong to`,
+      },
+      {
+        name: 'reply_id',
+        type: 'string',
+        required: true,
+        description: `ID of the reply to permanently delete`,
+      },
+    ],
+  },
+  {
     name: 'googledrive_delete_revision',
     description: `Permanently delete a specific revision of a file in Google Drive. This action cannot be undone and the revision cannot be the head (current) revision. Uses OAuth credentials.`,
     params: [
@@ -313,6 +355,36 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Optional tool version to use for execution`,
+      },
+    ],
+  },
+  {
+    name: 'googledrive_delete_shared_drive',
+    description: `Permanently delete a Google Drive shared drive. The shared drive must be empty (no files or folders remaining) before it can be deleted.`,
+    params: [
+      {
+        name: 'drive_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the shared drive to delete. The shared drive must be empty.`,
+      },
+      {
+        name: 'allow_item_deletion',
+        type: 'boolean',
+        required: false,
+        description: `Whether any items inside the shared drive should also be deleted. This option is only supported when the requester is an administrator of the domain that owns the shared drive.`,
+      },
+    ],
+  },
+  {
+    name: 'googledrive_download_file_content',
+    description: `Download the actual binary content of a file stored in Google Drive (PDF, image, video, zip, etc.) via alt=media. Only works for files with real binary content; Google Workspace native docs (Docs/Sheets/Slides) have no binary content and must instead use Export Drive File. Uses OAuth credentials.`,
+    params: [
+      {
+        name: 'file_id',
+        type: 'string',
+        required: true,
+        description: `ID of the file whose content to download`,
       },
     ],
   },
@@ -361,6 +433,36 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Optional tool version to use for execution`,
+      },
+    ],
+  },
+  {
+    name: 'googledrive_get_about',
+    description: `Get information about the authenticated Google Drive user and their storage quota, including total, used, and available storage in bytes, and the user's display name and email.`,
+    params: [
+      {
+        name: 'fields',
+        type: 'string',
+        required: false,
+        description: `Fields to include in the response. Defaults to a partial response unless specified.`,
+      },
+    ],
+  },
+  {
+    name: 'googledrive_get_access_proposal',
+    description: `Retrieve a single pending access proposal (a request from another user to be granted access) on a Google Drive file by proposal ID. List and Resolve already exist for access proposals but there is no single-proposal Get.`,
+    params: [
+      {
+        name: 'file_id',
+        type: 'string',
+        required: true,
+        description: `ID of the file the access proposal is for`,
+      },
+      {
+        name: 'proposal_id',
+        type: 'string',
+        required: true,
+        description: `ID of the access proposal to retrieve`,
       },
     ],
   },
@@ -479,6 +581,42 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'googledrive_get_reply',
+    description: `Retrieve a single reply to a comment on a Google Drive file by reply ID. Create, list, and update already exist for replies but there is no single-reply Get. Uses OAuth credentials.`,
+    params: [
+      {
+        name: 'comment_id',
+        type: 'string',
+        required: true,
+        description: `ID of the comment the reply belongs to`,
+      },
+      {
+        name: 'file_id',
+        type: 'string',
+        required: true,
+        description: `ID of the file the comment and reply belong to`,
+      },
+      {
+        name: 'reply_id',
+        type: 'string',
+        required: true,
+        description: `ID of the reply to retrieve`,
+      },
+      {
+        name: 'fields',
+        type: 'string',
+        required: false,
+        description: `Fields to include in the response. The Drive Comments API requires this parameter on every call.`,
+      },
+      {
+        name: 'include_deleted',
+        type: 'boolean',
+        required: false,
+        description: `Whether to return the reply even if it has been deleted. Deleted replies have their fields limited.`,
+      },
+    ],
+  },
+  {
     name: 'googledrive_get_revision',
     description: `Retrieve metadata for a single revision of a file in Google Drive by its revision ID. Uses OAuth credentials.`,
     params: [
@@ -511,6 +649,126 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Optional tool version to use for execution`,
+      },
+    ],
+  },
+  {
+    name: 'googledrive_get_shared_drive',
+    description: `Get the metadata of a Google Drive shared drive by its ID, including its name, theme, background image, and member restrictions.`,
+    params: [
+      {
+        name: 'drive_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the shared drive to retrieve.`,
+      },
+      {
+        name: 'use_domain_admin_access',
+        type: 'boolean',
+        required: false,
+        description: `Whether to issue the request as a domain administrator, retrieving shared drives the caller does not belong to.`,
+      },
+    ],
+  },
+  {
+    name: 'googledrive_get_start_page_token',
+    description: `Get the starting page token to use with List Changes when beginning a new sync of a Google Drive (or a specific shared drive). Save the returned startPageToken and pass it as the first page_token to list_changes.`,
+    params: [
+      {
+        name: 'drive_id',
+        type: 'string',
+        required: false,
+        description: `The ID of the shared drive to get a start token for. Omit to get a token for the user's My Drive.`,
+      },
+      {
+        name: 'supports_all_drives',
+        type: 'boolean',
+        required: false,
+        description: `Whether the requesting app supports both My Drive and shared drives.`,
+      },
+    ],
+  },
+  {
+    name: 'googledrive_hide_shared_drive',
+    description: `Hide a shared drive from the default view for the current user. The shared drive still exists and other members are unaffected; the caller can restore it with Unhide Shared Drive.`,
+    params: [
+      {
+        name: 'drive_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the shared drive to hide`,
+      },
+    ],
+  },
+  {
+    name: 'googledrive_list_access_proposals',
+    description: `List pending access proposals (requests from other users to be granted access) on a Google Drive file. Use resolve_access_proposal to approve or deny each one.`,
+    params: [
+      {
+        name: 'file_id',
+        type: 'string',
+        required: true,
+        description: `ID of the file to list pending access proposals for.`,
+      },
+      {
+        name: 'page_size',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of access proposals to return per page.`,
+      },
+      {
+        name: 'page_token',
+        type: 'string',
+        required: false,
+        description: `Token for the next page of results, from a previous list_access_proposals response.`,
+      },
+    ],
+  },
+  {
+    name: 'googledrive_list_changes',
+    description: `List changes (files created, modified, moved, deleted, or shared) since a given page token, for efficiently keeping an external system in sync with Google Drive without re-scanning everything. Get an initial token from Get Changes Start Page Token.`,
+    params: [
+      {
+        name: 'page_token',
+        type: 'string',
+        required: true,
+        description: `The token for continuing a previous list request, or the startPageToken from Get Changes Start Page Token for a first call.`,
+      },
+      {
+        name: 'drive_id',
+        type: 'string',
+        required: false,
+        description: `The shared drive to list changes for. Omit to list changes for the user's My Drive.`,
+      },
+      {
+        name: 'include_items_from_all_drives',
+        type: 'boolean',
+        required: false,
+        description: `Whether both My Drive and shared drive items should be included in results.`,
+      },
+      {
+        name: 'include_removed',
+        type: 'boolean',
+        required: false,
+        description: `Whether to include changes indicating items removed from the change list, such as deleted files or those the user lost access to.`,
+      },
+      {
+        name: 'page_size',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of changes to return per page (1-1000, default 100).`,
+      },
+      {
+        name: 'restrict_to_my_drive',
+        type: 'boolean',
+        required: false,
+        description: `Whether to restrict results to changes inside the My Drive hierarchy, excluding shared items.`,
+      },
+      {
+        name: 'supports_all_drives',
+        type: 'boolean',
+        required: false,
+        description: `Whether the requesting app supports both My Drive and shared drives.`,
       },
     ],
   },
@@ -876,6 +1134,42 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'googledrive_resolve_access_proposal',
+    description: `Approve or deny a pending access proposal on a Google Drive file, optionally granting a specific role and notifying the requester by email. Use List Access Proposals to find pending proposal IDs.`,
+    params: [
+      {
+        name: 'action',
+        type: 'string',
+        required: true,
+        description: `Whether to accept or deny the access request.`,
+      },
+      {
+        name: 'file_id',
+        type: 'string',
+        required: true,
+        description: `ID of the file the access proposal is for.`,
+      },
+      {
+        name: 'proposal_id',
+        type: 'string',
+        required: true,
+        description: `ID of the access proposal to resolve.`,
+      },
+      {
+        name: 'role',
+        type: 'array',
+        required: false,
+        description: `The roles to grant if action is ACCEPT, e.g. ["reader"] or ["writer"]. Required when accepting.`,
+      },
+      {
+        name: 'send_notification',
+        type: 'boolean',
+        required: false,
+        description: `Whether to email the requester letting them know the outcome.`,
+      },
+    ],
+  },
+  {
     name: 'googledrive_search_content',
     description: `Search inside the content of files stored in Google Drive using full-text search. Finds files where the body text matches the search term.`,
     params: [
@@ -1064,6 +1358,18 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'googledrive_unhide_shared_drive',
+    description: `Restore a previously hidden shared drive to the default view for the current user.`,
+    params: [
+      {
+        name: 'drive_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the shared drive to unhide`,
+      },
+    ],
+  },
+  {
     name: 'googledrive_untrash_file',
     description: `Restore a file from the trash in Google Drive back to its original location. Uses OAuth credentials.`,
     params: [
@@ -1204,6 +1510,36 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'googledrive_update_reply',
+    description: `Update the content of an existing reply to a comment on a Google Drive file.`,
+    params: [
+      {
+        name: 'comment_id',
+        type: 'string',
+        required: true,
+        description: `ID of the comment the reply belongs to.`,
+      },
+      {
+        name: 'content',
+        type: 'string',
+        required: true,
+        description: `The new plain-text content for the reply.`,
+      },
+      {
+        name: 'file_id',
+        type: 'string',
+        required: true,
+        description: `ID of the file the comment and reply belong to.`,
+      },
+      {
+        name: 'reply_id',
+        type: 'string',
+        required: true,
+        description: `ID of the reply to update.`,
+      },
+    ],
+  },
+  {
     name: 'googledrive_update_revision',
     description: `Update metadata on a specific revision of a file in Google Drive, such as whether it is kept forever or published. Uses OAuth credentials.`,
     params: [
@@ -1242,6 +1578,42 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Optional tool version to use for execution`,
+      },
+    ],
+  },
+  {
+    name: 'googledrive_update_shared_drive',
+    description: `Rename a Google Drive shared drive, or update its restrictions on who can share, copy, print, or download items within it.`,
+    params: [
+      {
+        name: 'drive_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the shared drive to update.`,
+      },
+      {
+        name: 'admin_managed_restrictions',
+        type: 'boolean',
+        required: false,
+        description: `Whether administrative privileges on this shared drive are required to modify its restrictions.`,
+      },
+      {
+        name: 'copy_requires_writer_permission',
+        type: 'boolean',
+        required: false,
+        description: `Whether users with only reader or commenter permission can copy, print, or download files in this shared drive.`,
+      },
+      {
+        name: 'domain_users_only',
+        type: 'boolean',
+        required: false,
+        description: `Whether access to items in this shared drive is restricted to users of the domain that owns it.`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: false,
+        description: `New display name for the shared drive.`,
       },
     ],
   },

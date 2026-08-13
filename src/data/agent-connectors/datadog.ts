@@ -700,6 +700,18 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'datadog_incident_delete',
+    description: `Delete an existing Datadog incident.`,
+    params: [
+      {
+        name: 'incident_id',
+        type: 'string',
+        required: true,
+        description: `ID of the incident to delete.`,
+      },
+    ],
+  },
+  {
     name: 'datadog_incident_get',
     description: `Get a specific Datadog incident by ID.`,
     params: [
@@ -709,6 +721,37 @@ export const tools: Tool[] = [
         required: true,
         description: `ID of the incident to retrieve.`,
       },
+    ],
+  },
+  {
+    name: 'datadog_incident_update',
+    description: `Update an existing Datadog incident. Only the attributes provided are changed.`,
+    params: [
+      {
+        name: 'incident_id',
+        type: 'string',
+        required: true,
+        description: `ID of the incident to update.`,
+      },
+      {
+        name: 'customer_impacted',
+        type: 'string',
+        required: false,
+        description: `Whether customers are impacted (true/false).`,
+      },
+      {
+        name: 'severity',
+        type: 'string',
+        required: false,
+        description: `Severity level: SEV-1, SEV-2, SEV-3, SEV-4, SEV-5, or UNKNOWN.`,
+      },
+      {
+        name: 'state',
+        type: 'string',
+        required: false,
+        description: `State: active, stable, or resolved.`,
+      },
+      { name: 'title', type: 'string', required: false, description: `Title of the incident.` },
     ],
   },
   {
@@ -877,6 +920,84 @@ export const tools: Tool[] = [
         description: `Metric type: gauge, rate, or count.`,
       },
       { name: 'unit', type: 'string', required: false, description: `Unit of the metric.` },
+    ],
+  },
+  {
+    name: 'datadog_metric_tag_configuration_create',
+    description: `Create and define a list of queryable tag keys for a Datadog count/gauge/rate/distribution metric.`,
+    params: [
+      {
+        name: 'metric_name',
+        type: 'string',
+        required: true,
+        description: `Name of the metric to configure tags for.`,
+      },
+      {
+        name: 'metric_type',
+        type: 'string',
+        required: true,
+        description: `The metric's type: gauge, count, rate, or distribution.`,
+      },
+      {
+        name: 'tags',
+        type: 'string',
+        required: true,
+        description: `JSON array of tag keys that will be queryable for the metric.`,
+      },
+      {
+        name: 'exclude_tags_mode',
+        type: 'string',
+        required: false,
+        description: `When true, the configured tags are excluded (deny-list) instead of included (allow-list).`,
+      },
+      {
+        name: 'include_percentiles',
+        type: 'string',
+        required: false,
+        description: `Toggle to include/exclude percentiles for a distribution metric. Only applies when metric_type is distribution.`,
+      },
+    ],
+  },
+  {
+    name: 'datadog_metric_tag_configuration_delete',
+    description: `Delete a Datadog metric's tag configuration. This operation is irreversible.`,
+    params: [
+      {
+        name: 'metric_name',
+        type: 'string',
+        required: true,
+        description: `Name of the metric whose tag configuration should be deleted.`,
+      },
+    ],
+  },
+  {
+    name: 'datadog_metric_tag_configuration_update',
+    description: `Update the tag configuration for a Datadog metric.`,
+    params: [
+      {
+        name: 'metric_name',
+        type: 'string',
+        required: true,
+        description: `Name of the metric whose tag configuration should be updated.`,
+      },
+      {
+        name: 'exclude_tags_mode',
+        type: 'string',
+        required: false,
+        description: `When true, the configured tags are excluded (deny-list) instead of included (allow-list).`,
+      },
+      {
+        name: 'include_percentiles',
+        type: 'string',
+        required: false,
+        description: `Toggle to include/exclude percentiles for a distribution metric.`,
+      },
+      {
+        name: 'tags',
+        type: 'string',
+        required: false,
+        description: `JSON array of tag keys that will be queryable for the metric.`,
+      },
     ],
   },
   {
@@ -1417,6 +1538,125 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'datadog_slo_correction_create',
+    description: `Create a Datadog SLO correction to exclude a time window (e.g. planned maintenance) from an SLO's error budget.`,
+    params: [
+      {
+        name: 'category',
+        type: 'string',
+        required: true,
+        description: `Category the correction belongs to: Scheduled Maintenance, Outside Business Hours, Deployment, or Other.`,
+      },
+      {
+        name: 'start',
+        type: 'integer',
+        required: true,
+        description: `Starting time of the correction in epoch seconds.`,
+      },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `Description of the correction being made.`,
+      },
+      {
+        name: 'end',
+        type: 'integer',
+        required: false,
+        description: `Ending time of the correction in epoch seconds.`,
+      },
+      {
+        name: 'slo_id',
+        type: 'string',
+        required: false,
+        description: `ID of the single SLO that this correction applies to.`,
+      },
+      {
+        name: 'slo_query',
+        type: 'string',
+        required: false,
+        description: `Query that matches the SLOs this correction applies to, using SLO tag search syntax.`,
+      },
+      {
+        name: 'timezone',
+        type: 'string',
+        required: false,
+        description: `The timezone to display in the UI for the correction times (defaults to UTC).`,
+      },
+    ],
+  },
+  {
+    name: 'datadog_slo_correction_delete',
+    description: `Delete a Datadog SLO correction by ID, restoring the previously excluded time window to the SLO's error budget calculation.`,
+    params: [
+      {
+        name: 'slo_correction_id',
+        type: 'string',
+        required: true,
+        description: `ID of the SLO correction to delete.`,
+      },
+    ],
+  },
+  {
+    name: 'datadog_slo_correction_get',
+    description: `Get a single Datadog SLO correction by ID.`,
+    params: [
+      {
+        name: 'slo_correction_id',
+        type: 'string',
+        required: true,
+        description: `ID of the SLO correction to retrieve.`,
+      },
+    ],
+  },
+  {
+    name: 'datadog_slo_correction_list',
+    description: `List all Datadog SLO corrections (maintenance-window exclusions) across the organization.`,
+    params: [],
+  },
+  {
+    name: 'datadog_slo_correction_update',
+    description: `Update an existing Datadog SLO correction, such as extending or shortening the excluded time window, or changing its category or description.`,
+    params: [
+      {
+        name: 'slo_correction_id',
+        type: 'string',
+        required: true,
+        description: `ID of the SLO correction to update.`,
+      },
+      {
+        name: 'category',
+        type: 'string',
+        required: false,
+        description: `Category the correction belongs to: Scheduled Maintenance, Outside Business Hours, Deployment, or Other.`,
+      },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `Description of the correction being made.`,
+      },
+      {
+        name: 'end',
+        type: 'integer',
+        required: false,
+        description: `Ending time of the correction in epoch seconds.`,
+      },
+      {
+        name: 'start',
+        type: 'integer',
+        required: false,
+        description: `Starting time of the correction in epoch seconds.`,
+      },
+      {
+        name: 'timezone',
+        type: 'string',
+        required: false,
+        description: `The timezone to display in the UI for the correction times.`,
+      },
+    ],
+  },
+  {
     name: 'datadog_slo_create',
     description: `Create a new Service Level Objective (SLO) in Datadog.`,
     params: [
@@ -1558,6 +1798,55 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'datadog_synthetics_api_test_create',
+    description: `Create a new Datadog Synthetics API test.`,
+    params: [
+      {
+        name: 'config',
+        type: 'string',
+        required: true,
+        description: `JSON object with the request and assertions configuration for the test.`,
+      },
+      {
+        name: 'locations',
+        type: 'string',
+        required: true,
+        description: `JSON array of locations to run the test from.`,
+      },
+      {
+        name: 'message',
+        type: 'string',
+        required: true,
+        description: `Notification message associated with the test.`,
+      },
+      { name: 'name', type: 'string', required: true, description: `Name of the test.` },
+      {
+        name: 'options',
+        type: 'string',
+        required: true,
+        description: `JSON object with test options such as tick_every, min_failure_duration, and min_location_failed.`,
+      },
+      {
+        name: 'status',
+        type: 'string',
+        required: false,
+        description: `Test status: live or paused.`,
+      },
+      {
+        name: 'subtype',
+        type: 'string',
+        required: false,
+        description: `Test subtype: http, ssl, tcp, dns, icmp, udp, websocket, grpc, or multi.`,
+      },
+      {
+        name: 'tags',
+        type: 'string',
+        required: false,
+        description: `JSON array of tags attached to the test.`,
+      },
+    ],
+  },
+  {
     name: 'datadog_synthetics_api_test_get',
     description: `Get a specific Datadog Synthetics API test by public ID.`,
     params: [
@@ -1590,6 +1879,30 @@ export const tools: Tool[] = [
     name: 'datadog_synthetics_locations_list',
     description: `List all Datadog Synthetics locations (public and private).`,
     params: [],
+  },
+  {
+    name: 'datadog_synthetics_private_location_create',
+    description: `Create a new Datadog Synthetics private location.`,
+    params: [
+      {
+        name: 'description',
+        type: 'string',
+        required: true,
+        description: `Description of the private location.`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: true,
+        description: `Name of the private location.`,
+      },
+      {
+        name: 'tags',
+        type: 'string',
+        required: true,
+        description: `JSON array of tags attached to the private location.`,
+      },
+    ],
   },
   {
     name: 'datadog_synthetics_test_delete',
@@ -1676,6 +1989,196 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'datadog_team_create',
+    description: `Create a new Datadog team.`,
+    params: [
+      { name: 'handle', type: 'string', required: true, description: `The team's identifier.` },
+      { name: 'name', type: 'string', required: true, description: `The name of the team.` },
+      {
+        name: 'avatar',
+        type: 'string',
+        required: false,
+        description: `Unicode emoji representation of the avatar for the team, limited to a single grapheme.`,
+      },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `Free-form markdown description/content for the team's homepage.`,
+      },
+      {
+        name: 'user_ids',
+        type: 'string',
+        required: false,
+        description: `JSON array of user UUIDs to add to the team on creation.`,
+      },
+    ],
+  },
+  {
+    name: 'datadog_team_delete',
+    description: `Remove a Datadog team by ID.`,
+    params: [
+      { name: 'team_id', type: 'string', required: true, description: `ID of the team to remove.` },
+    ],
+  },
+  {
+    name: 'datadog_team_get',
+    description: `Get a specific Datadog team by ID.`,
+    params: [
+      {
+        name: 'team_id',
+        type: 'string',
+        required: true,
+        description: `ID of the team to retrieve.`,
+      },
+    ],
+  },
+  {
+    name: 'datadog_team_membership_add',
+    description: `Add a user to a Datadog team.`,
+    params: [
+      {
+        name: 'team_id',
+        type: 'string',
+        required: true,
+        description: `ID of the team to add the user to.`,
+      },
+      {
+        name: 'user_id',
+        type: 'string',
+        required: true,
+        description: `UUID of the user to add to the team.`,
+      },
+      {
+        name: 'role',
+        type: 'string',
+        required: false,
+        description: `The user's role within the team. Currently only "admin" is supported; omit for a regular member.`,
+      },
+    ],
+  },
+  {
+    name: 'datadog_team_membership_remove',
+    description: `Remove a user from a Datadog team.`,
+    params: [
+      {
+        name: 'team_id',
+        type: 'string',
+        required: true,
+        description: `ID of the team to remove the user from.`,
+      },
+      {
+        name: 'user_id',
+        type: 'string',
+        required: true,
+        description: `UUID of the user to remove from the team.`,
+      },
+    ],
+  },
+  {
+    name: 'datadog_team_memberships_list',
+    description: `Get a paginated list of members for a Datadog team.`,
+    params: [
+      {
+        name: 'team_id',
+        type: 'string',
+        required: true,
+        description: `ID of the team to list memberships for.`,
+      },
+      {
+        name: 'filter_keyword',
+        type: 'string',
+        required: false,
+        description: `Search query, can be user email or name.`,
+      },
+      {
+        name: 'page_number',
+        type: 'integer',
+        required: false,
+        description: `Page number for pagination.`,
+      },
+      {
+        name: 'page_size',
+        type: 'integer',
+        required: false,
+        description: `Number of memberships per page.`,
+      },
+      {
+        name: 'sort',
+        type: 'string',
+        required: false,
+        description: `Sort order for returned memberships: name, -name, handle, -handle, email, -email, manager_name, -manager_name.`,
+      },
+    ],
+  },
+  {
+    name: 'datadog_team_update',
+    description: `Update a Datadog team by ID.`,
+    params: [
+      {
+        name: 'handle',
+        type: 'string',
+        required: true,
+        description: `The team's identifier. Required by the Datadog API even on update.`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: true,
+        description: `The name of the team. Required by the Datadog API even on update.`,
+      },
+      { name: 'team_id', type: 'string', required: true, description: `ID of the team to update.` },
+      {
+        name: 'avatar',
+        type: 'string',
+        required: false,
+        description: `Unicode emoji representation of the avatar for the team, limited to a single grapheme.`,
+      },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `Free-form markdown description/content for the team's homepage.`,
+      },
+    ],
+  },
+  {
+    name: 'datadog_teams_list',
+    description: `List all Datadog teams, with optional keyword search and pagination.`,
+    params: [
+      {
+        name: 'filter_keyword',
+        type: 'string',
+        required: false,
+        description: `Search query. Can be team name, team handle, or email of a team member.`,
+      },
+      {
+        name: 'filter_me',
+        type: 'string',
+        required: false,
+        description: `When true, only returns teams the current user belongs to.`,
+      },
+      {
+        name: 'page_number',
+        type: 'integer',
+        required: false,
+        description: `Page number for pagination.`,
+      },
+      {
+        name: 'page_size',
+        type: 'integer',
+        required: false,
+        description: `Number of teams per page.`,
+      },
+      {
+        name: 'sort',
+        type: 'string',
+        required: false,
+        description: `Sort order for returned teams: name, -name, user_count, or -user_count.`,
+      },
+    ],
+  },
+  {
     name: 'datadog_user_create',
     description: `Create a new Datadog user.`,
     params: [
@@ -1716,6 +2219,18 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `UUID of the user to retrieve.`,
+      },
+    ],
+  },
+  {
+    name: 'datadog_user_invitation_create',
+    description: `Send or resend a Datadog organization invitation email to an existing user.`,
+    params: [
+      {
+        name: 'user_id',
+        type: 'string',
+        required: true,
+        description: `UUID of the user to invite or re-invite.`,
       },
     ],
   },

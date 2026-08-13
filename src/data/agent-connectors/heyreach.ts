@@ -32,9 +32,40 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'heyreach_add_leads_to_list',
+    description: `Add leads directly to a HeyReach lead list, independent of any campaign. Use heyreach_create_list or heyreach_get_all_lists to find a list ID. To enroll leads into an outreach sequence instead, use heyreach_add_leads_to_campaign. Rate limit: 300 requests/minute.`,
+    params: [
+      {
+        name: 'leads',
+        type: 'array',
+        required: true,
+        description: `Array of lead profiles to add to the list (max 100). profileUrl is required per lead; other fields enrich the lead record.`,
+      },
+      {
+        name: 'listId',
+        type: 'integer',
+        required: true,
+        description: `The ID of the HeyReach list to add leads to. Get list IDs from heyreach_get_all_lists.`,
+      },
+    ],
+  },
+  {
     name: 'heyreach_check_api_key',
     description: `Verify that your HeyReach API key is valid and the connection is working. Returns HTTP 200 with empty body on success. Use this to validate a connection before making other API calls.`,
     params: [],
+  },
+  {
+    name: 'heyreach_create_list',
+    description: `Create a new empty lead list in your HeyReach account. Use heyreach_add_leads_to_list afterward to populate it, or reference the returned list ID from campaign setup. Rate limit: 300 requests/minute.`,
+    params: [
+      { name: 'name', type: 'string', required: true, description: `Name for the new lead list.` },
+      {
+        name: 'listType',
+        type: 'string',
+        required: false,
+        description: `Type of list to create. USER_LIST holds LinkedIn profile leads; COMPANY_LIST holds companies.`,
+      },
+    ],
   },
   {
     name: 'heyreach_get_all_campaigns',
@@ -219,6 +250,30 @@ export const tools: Tool[] = [
         type: 'array',
         required: true,
         description: `Array of campaign IDs to retrieve stats for. Get campaign IDs from heyreach_get_all_campaigns.`,
+      },
+    ],
+  },
+  {
+    name: 'heyreach_pause_campaign',
+    description: `Pause an active HeyReach campaign so it stops sending new outreach actions. Leads already in progress keep their current state until the campaign is resumed. Use heyreach_get_all_campaigns to find campaign IDs. Rate limit: 300 requests/minute.`,
+    params: [
+      {
+        name: 'campaignId',
+        type: 'integer',
+        required: true,
+        description: `The ID of the HeyReach campaign to pause. Get campaign IDs from heyreach_get_all_campaigns.`,
+      },
+    ],
+  },
+  {
+    name: 'heyreach_resume_campaign',
+    description: `Resume a paused, finished, or failed HeyReach campaign so it starts sending outreach actions again. Use heyreach_get_all_campaigns to find campaign IDs. Rate limit: 300 requests/minute.`,
+    params: [
+      {
+        name: 'campaignId',
+        type: 'integer',
+        required: true,
+        description: `The ID of the HeyReach campaign to resume. Get campaign IDs from heyreach_get_all_campaigns.`,
       },
     ],
   },

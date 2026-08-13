@@ -2,9 +2,69 @@ import type { Tool } from '../../types/agent-connectors'
 
 export const tools: Tool[] = [
   {
+    name: 'gong_call_get',
+    description: `Retrieve basic data for a single Gong call by its ID: title, timing, direction, parties, and system/media info. For richer data (trackers, topics, CRM associations, interaction stats) with filtering across many calls at once, use Get Calls (Extensive) instead.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `Gong's unique numeric identifier for the call (up to 20 digits).`,
+      },
+    ],
+  },
+  {
     name: 'gong_call_outcomes_list',
     description: `List all call outcome options configured in the Gong account. Returns outcome definitions such as name and ID that can be applied to calls to indicate the result of a conversation.`,
     params: [],
+  },
+  {
+    name: 'gong_call_users_access_add',
+    description: `Grant individual Gong users access to specific calls, beyond whatever access they already have via sharing, permission profiles, or team membership. Accepts a batch of call-to-users mappings in a single request.`,
+    params: [
+      {
+        name: 'call_access_list',
+        type: 'array',
+        required: true,
+        description: `Array of objects, each specifying a call ID and the list of user IDs to grant access to that call. Each item shape: {"call_id": "...", "user_ids": ["..."]}.`,
+      },
+    ],
+  },
+  {
+    name: 'gong_call_users_access_get',
+    description: `Retrieve the users who have been given individual access to specific calls through the Gong API (via Add Call Users Access). Does not report access granted through other means such as sharing, permission profiles, or team membership. Note: Gong implements this as a POST with a filter body even though it is a read-only lookup.`,
+    params: [
+      {
+        name: 'call_ids',
+        type: 'array',
+        required: true,
+        description: `Array of Gong's unique numeric call IDs to look up access for.`,
+      },
+    ],
+  },
+  {
+    name: 'gong_calls_ai_content_get',
+    description: `Retrieve Gong's AI-generated content for one or more calls, such as the call brief, key points, highlights, and outline. This is a separate, more focused endpoint than Get Calls (Extensive) for callers that only need the AI-generated summary content rather than full call metadata, parties, and interaction stats.`,
+    params: [
+      {
+        name: 'call_ids',
+        type: 'array',
+        required: true,
+        description: `Array of Gong call IDs to retrieve AI-generated content for.`,
+      },
+      {
+        name: 'content_selector',
+        type: 'array',
+        required: false,
+        description: `Which AI-generated content types to include. Valid values: brief, outline, highlights, keyPoints, callSummary. Leave empty to return all available types.`,
+      },
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Cursor value from a previous API response for paginating to the next page of results.`,
+      },
+    ],
   },
   {
     name: 'gong_calls_create',
@@ -207,6 +267,77 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Cursor value from a previous response for paginating to the next page of results.`,
+      },
+    ],
+  },
+  {
+    name: 'gong_crm_integrations_list',
+    description: `Retrieve the Generic CRM integration currently registered with Gong (via Register CRM Integration). Gong supports only one active Generic CRM integration at a time; this returns its integrationId and details, or an empty result if none is registered.`,
+    params: [],
+  },
+  {
+    name: 'gong_crm_objects_list',
+    description: `Fetch specific CRM objects (accounts, contacts, deals, or leads) that were uploaded to Gong's Generic CRM integration, by their CRM IDs. Intended for development-phase verification that objects were uploaded and processed correctly in Gong — returns a map keyed by CRM ID, with null for any ID not found. Limited to 100 object IDs per request. Note: this call sends the requested object IDs as a JSON array in the request body even though the HTTP method is GET, matching Gong's documented API contract for this endpoint.`,
+    params: [
+      {
+        name: 'integration_id',
+        type: 'integer',
+        required: true,
+        description: `The integrationId generated when the CRM integration was registered (see List CRM Integrations).`,
+      },
+      {
+        name: 'object_ids',
+        type: 'array',
+        required: true,
+        description: `Array of CRM object IDs to fetch, up to 100 per request.`,
+      },
+      {
+        name: 'object_type',
+        type: 'string',
+        required: true,
+        description: `The type of CRM object to retrieve.`,
+      },
+    ],
+  },
+  {
+    name: 'gong_crm_schema_fields_list',
+    description: `Retrieve the object schema fields (name, label, type, picklist values) configured for a CRM object type in Gong's Generic CRM integration. Use this to see what fields were registered via Upload Object Schema before uploading or reading CRM object data.`,
+    params: [
+      {
+        name: 'integration_id',
+        type: 'integer',
+        required: true,
+        description: `The integrationId generated when the CRM integration was registered (see List CRM Integrations).`,
+      },
+      {
+        name: 'object_type',
+        type: 'string',
+        required: true,
+        description: `The CRM object type to retrieve schema fields for (case-sensitive).`,
+      },
+    ],
+  },
+  {
+    name: 'gong_data_privacy_email_erase',
+    description: `Permanently delete from Gong any calls or email messages that reference the given email address, plus any leads or contacts with that email address. Deletion is asynchronous and may take several hours to complete. Gong protects against deleting an abnormal number of objects — if the deletion fails, contact help@gong.io. Delete the data from your CRM and email system first, or it may be re-imported into Gong. Use Look Up Data for Email Address first to preview what will be removed.`,
+    params: [
+      {
+        name: 'email_address',
+        type: 'string',
+        required: true,
+        description: `The email address whose referencing calls, email messages, leads, and contacts should be permanently deleted.`,
+      },
+    ],
+  },
+  {
+    name: 'gong_data_privacy_email_lookup',
+    description: `Show the elements in the Gong system that reference a given email address: calls and email messages that mention it, and any leads or contacts with that email address. Use this before Erase Data for Email Address to see what would be deleted.`,
+    params: [
+      {
+        name: 'email_address',
+        type: 'string',
+        required: true,
+        description: `The email address to search for across calls, email messages, leads, and contacts.`,
       },
     ],
   },
@@ -606,9 +737,207 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'gong_logs_list',
+    description: `Retrieve Gong audit/activity log entries within a time range, filtered by log type. AccessLog records every endpoint/URL call with the user and IP; UserActivityLog records sensitive operations such as sharing a call, editing user settings, impersonating a user, deleting a call, requesting an API key, or changing permissions; UserCallPlay, ExternallySharedCallAccess, and ExternallySharedCallPlay track call playback and external sharing activity.`,
+    params: [
+      {
+        name: 'from_date_time',
+        type: 'string',
+        required: true,
+        description: `Start of the time range to retrieve logs for, in ISO-8601 format.`,
+      },
+      {
+        name: 'log_type',
+        type: 'string',
+        required: true,
+        description: `The category of logs to retrieve.`,
+      },
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Cursor value from a previous response, used to fetch the next page of log records.`,
+      },
+      {
+        name: 'to_date_time',
+        type: 'string',
+        required: false,
+        description: `End of the time range to retrieve logs for, in ISO-8601 format. If omitted, logs end with the latest recorded entry.`,
+      },
+    ],
+  },
+  {
+    name: 'gong_meeting_create',
+    description: `Schedule a new Gong meeting so Gong can join and record it. Requires a start time, end time, organizer email, and at least one invitee; the Gong consent page shown to invitees follows the organizer's settings.`,
+    params: [
+      {
+        name: 'end_time',
+        type: 'string',
+        required: true,
+        description: `The meeting end time in ISO-8601 format, e.g. 2024-06-15T15:30:00-07:00 or 2024-06-15T22:30:00Z.`,
+      },
+      {
+        name: 'invitees',
+        type: 'array',
+        required: true,
+        description: `List of invitees to the meeting (not including the organizer). Each item shape: {"email": "...", "display_name": "...", "first_name": "...", "last_name": "..."} — only email is commonly needed.`,
+      },
+      {
+        name: 'organizer_email',
+        type: 'string',
+        required: true,
+        description: `Email address of the Gong user creating the meeting. The Gong consent page link shown to invitees follows this user's settings.`,
+      },
+      {
+        name: 'start_time',
+        type: 'string',
+        required: true,
+        description: `The meeting start time in ISO-8601 format, e.g. 2024-06-15T14:00:00-07:00 or 2024-06-15T21:00:00Z.`,
+      },
+      {
+        name: 'external_id',
+        type: 'string',
+        required: false,
+        description: `The ID of this meeting as it is formed on the external system that created it.`,
+      },
+      {
+        name: 'title',
+        type: 'string',
+        required: false,
+        description: `Title of the meeting event.`,
+      },
+    ],
+  },
+  {
+    name: 'gong_meeting_delete',
+    description: `Delete a scheduled Gong meeting by its meeting ID, so Gong no longer joins or records it. This is for meetings created through Gong's Meetings API (Create Meeting) — not for calls already recorded, which use the Calls API instead.`,
+    params: [
+      {
+        name: 'meeting_id',
+        type: 'string',
+        required: true,
+        description: `Gong's unique identifier for the meeting (up to 20 digits), as returned by Create Meeting.`,
+      },
+      {
+        name: 'organizer_email',
+        type: 'string',
+        required: false,
+        description: `Email address of the user who created the meeting.`,
+      },
+    ],
+  },
+  {
+    name: 'gong_meetings_integration_status',
+    description: `Check whether Gong's meeting recording integration is properly set up for a list of users, by email. Useful for diagnosing why Gong isn't joining or recording a given user's meetings.`,
+    params: [
+      {
+        name: 'emails',
+        type: 'array',
+        required: true,
+        description: `Array of user email addresses to check meeting-integration status for. Maximum 100 per request.`,
+      },
+    ],
+  },
+  {
     name: 'gong_scorecards_list',
     description: `List all scorecard settings configured in the Gong account. Returns scorecard definitions including name, questions, and associated criteria used for call review and coaching.`,
     params: [],
+  },
+  {
+    name: 'gong_stats_activity_aggregate',
+    description: `Retrieve aggregated activity statistics (calls, emails, meetings and similar counts) for one or more Gong users over a date range, with one summary record returned per user with any activity in the range.`,
+    params: [
+      {
+        name: 'from_date',
+        type: 'string',
+        required: true,
+        description: `Start date (inclusive) for the activity range, in the company's time zone. Format: YYYY-MM-DD.`,
+      },
+      {
+        name: 'to_date',
+        type: 'string',
+        required: true,
+        description: `End date (exclusive) for the activity range, in the company's time zone. Must not exceed the current day. Format: YYYY-MM-DD.`,
+      },
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Cursor value from a previous response for paginating to the next page of results.`,
+      },
+      {
+        name: 'user_ids',
+        type: 'array',
+        required: false,
+        description: `Gong user IDs to restrict the results to. Leave empty to include all users with activity in the range.`,
+      },
+    ],
+  },
+  {
+    name: 'gong_stats_activity_aggregate_by_period',
+    description: `Retrieve aggregated activity statistics for one or more Gong users, grouped into calendar time periods (e.g. week by week) across a date range, instead of one single total per user. The first day of any week period is Monday.`,
+    params: [
+      {
+        name: 'aggregation_period',
+        type: 'string',
+        required: true,
+        description: `The calendar period each activity total is grouped by. Commonly used values are DAY, WEEK, MONTH, and QUARTER; the first day of any week period is Monday.`,
+      },
+      {
+        name: 'from_date',
+        type: 'string',
+        required: true,
+        description: `Start date (inclusive) for the activity range, in the company's time zone. Format: YYYY-MM-DD.`,
+      },
+      {
+        name: 'to_date',
+        type: 'string',
+        required: true,
+        description: `End date (exclusive) for the activity range, in the company's time zone. Must not exceed the current day. Format: YYYY-MM-DD.`,
+      },
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Cursor value from a previous response for paginating to the next page of results.`,
+      },
+      {
+        name: 'user_ids',
+        type: 'array',
+        required: false,
+        description: `Gong user IDs to restrict the results to. Leave empty to include all users with activity in the range.`,
+      },
+    ],
+  },
+  {
+    name: 'gong_stats_activity_day_by_day',
+    description: `Retrieve day-by-day activity statistics for one or more Gong users across a date range, with one record per user per day that had activity. More granular than Get Aggregated User Activity, which returns a single total per user for the whole range.`,
+    params: [
+      {
+        name: 'from_date',
+        type: 'string',
+        required: true,
+        description: `Start date (inclusive) for the activity range, in the company's time zone. Format: YYYY-MM-DD.`,
+      },
+      {
+        name: 'to_date',
+        type: 'string',
+        required: true,
+        description: `End date (exclusive) for the activity range, in the company's time zone. Must not exceed the current day. Format: YYYY-MM-DD.`,
+      },
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Cursor value from a previous response for paginating to the next page of results.`,
+      },
+      {
+        name: 'user_ids',
+        type: 'array',
+        required: false,
+        description: `Gong user IDs to restrict the results to. Leave empty to include all users with activity in the range.`,
+      },
+    ],
   },
   {
     name: 'gong_stats_interaction',
@@ -674,6 +1003,30 @@ export const tools: Tool[] = [
     name: 'gong_trackers_list',
     description: `List all tracker (keyword tracker) settings configured in the Gong account. Returns tracker definitions including name, tracked phrases, and associated categories used for monitoring conversation topics.`,
     params: [],
+  },
+  {
+    name: 'gong_user_get',
+    description: `Retrieve a single Gong user by their user ID. For filtering many users at once by ID list or creation date range, use Get Users (Extensive) instead.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `Gong's unique numeric identifier for the user (up to 20 digits).`,
+      },
+    ],
+  },
+  {
+    name: 'gong_user_settings_history_get',
+    description: `Retrieve the history of settings changes for a single Gong user, such as changes to their role, team, or permission profile over time. Useful for auditing account administration changes.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `Gong's unique numeric identifier for the user (up to 20 digits).`,
+      },
+    ],
   },
   {
     name: 'gong_users_get',

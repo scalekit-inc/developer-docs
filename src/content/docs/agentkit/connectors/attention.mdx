@@ -19,9 +19,11 @@ head:
       }
 ---
 
+import ToolList from '@/components/ToolList.astro'
+import { tools } from '@/data/agent-connectors/attention'
 import { Steps, Tabs, TabItem } from '@astrojs/starlight/components'
 import { AgentKitCredentials } from '@components/templates'
-import { QuickstartGenericApikeyNotoolsSection } from '@components/templates'
+import { QuickstartGenericApikeySection } from '@components/templates'
 import { SectionAfterSetupAttentionCommonWorkflows } from '@components/templates'
 
 <Steps>
@@ -49,10 +51,27 @@ import { SectionAfterSetupAttentionCommonWorkflows } from '@components/templates
 
 3. ### Make your first call
 
-   <QuickstartGenericApikeyNotoolsSection connector="attention" providerName="Attention" verifyPath="/v1/users/me" verifyMethod="GET" />
+   <QuickstartGenericApikeySection connector="attention" toolName="attention_connection_report_get" providerName="Attention" />
 
 </Steps>
+
+## What you can do
+
+Connect this agent connector to let your agent:
+
+- **List users, teams, team members** — List users in the Attention organization, with optional filters by ID, email, or team
+- **Update user, team, conversation** — Update an existing Attention user's name, password, role, seat type, or team assignments
+- **Delete user** — Permanently remove a user from the Attention organization, revoking their access
+- **Create user, team, snippet** — Create a new user in the Attention organization with an email, role, seat type, and one or more team assignments
+- **Get usage report, team, scorecards summary** — Get API/feature usage statistics (coaching sessions, calls viewed, comments left, snippets created, AI queries, etc.) for specified users or teams over a date range
+- **Import conversation** — Import an externally recorded conversation into Attention by supplying a media URL and the owning user
 
 ## Common workflows
 
 <SectionAfterSetupAttentionCommonWorkflows />
+
+## Tool list
+
+Use the exact tool names from the **Tool list** below when you call `execute_tool`. If you're not sure which name to use, list the tools available for the current user first.
+
+<ToolList tools={tools} />

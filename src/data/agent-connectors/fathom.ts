@@ -56,6 +56,24 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'fathom_get_recording_download_status',
+    description: `Check the status of a previously requested recording download in Fathom, identified by recording_id and the download_id returned by Request Recording Download. Returns processing, completed, failed, or expired. Once completed, the video and/or audio objects contain short-lived signed URLs (expire after about 24 hours) for the generated file.`,
+    params: [
+      {
+        name: 'download_id',
+        type: 'string',
+        required: true,
+        description: `The download identifier returned by Request Recording Download's download_id field.`,
+      },
+      {
+        name: 'recording_id',
+        type: 'integer',
+        required: true,
+        description: `The numeric ID of the recording the download belongs to. Found in the recording_id field of a Meeting object from the List Meetings response.`,
+      },
+    ],
+  },
+  {
     name: 'fathom_get_recording_summary',
     description: `Retrieve the AI-generated summary for a specific Fathom recording by its recording ID. The recording_id is found in the Meeting object returned by List Meetings. If destination_url is provided, the result is posted asynchronously to that URL instead of returned directly.`,
     params: [
@@ -214,6 +232,54 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Pagination cursor returned by a previous List Teams response. Pass this value to retrieve the next page of results.`,
+      },
+    ],
+  },
+  {
+    name: 'fathom_list_users',
+    description: `List users in your Fathom organization along with their settings and meeting-view permissions. Admin only — returns a 403 error unless the API key belongs to a user with account_admin settings access. Optionally filter by team name, account status, or settings access level; the invited status value cannot be combined with the settings_access filter. The permissions object is omitted for users with invited status.`,
+    params: [
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Pagination cursor returned by a previous List Users response. Pass this value to retrieve the next page of results.`,
+      },
+      {
+        name: 'settings_access',
+        type: 'string',
+        required: false,
+        description: `Filter users by settings access level. Valid values: none (no settings access), team_admin (admin of one or more teams), account_admin (admin of the entire account).`,
+      },
+      {
+        name: 'status',
+        type: 'string',
+        required: false,
+        description: `Filter users by account status. Valid values: active, deactivated, invited. The invited value cannot be combined with the settings_access filter.`,
+      },
+      {
+        name: 'team',
+        type: 'string',
+        required: false,
+        description: `Filter users by team name. Must match a team name returned by the List Teams tool.`,
+      },
+    ],
+  },
+  {
+    name: 'fathom_request_recording_download',
+    description: `Request Fathom to generate a downloadable video and/or audio file for a specific recording. Starts asynchronous file generation and returns a download_id — poll Get Recording Download Status with that ID to check progress, or provide destination_url to have Fathom POST the completed payload to your endpoint instead of polling. The response status is one of processing, completed, failed, or expired; once completed, the video and/or audio objects contain short-lived signed URLs (expire after about 24 hours). Returns a 422 error if the recording has no downloadable media.`,
+    params: [
+      {
+        name: 'recording_id',
+        type: 'integer',
+        required: true,
+        description: `The numeric ID of the recording to generate a download for. Found in the recording_id field of a Meeting object from the List Meetings response.`,
+      },
+      {
+        name: 'destination_url',
+        type: 'string',
+        required: false,
+        description: `Optional webhook URL to receive the completed download payload asynchronously. When set, Fathom POSTs the result to this URL instead of requiring you to poll Get Recording Download Status. Must be a valid HTTPS URL. Example: https://yourserver.example.com/webhooks/fathom.`,
       },
     ],
   },

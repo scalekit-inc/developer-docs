@@ -2,6 +2,66 @@ import type { Tool } from '../../types/agent-connectors'
 
 export const tools: Tool[] = [
   {
+    name: 'googlesheets_add_banding',
+    description: `Apply alternating row colors (banding) to a range in a Google Sheet, using explicit hex colors for the two alternating bands and an optional header row color.`,
+    params: [
+      {
+        name: 'end_column_index',
+        type: 'integer',
+        required: true,
+        description: `Zero-based end column index of the range (exclusive).`,
+      },
+      {
+        name: 'end_row_index',
+        type: 'integer',
+        required: true,
+        description: `Zero-based end row index of the range (exclusive).`,
+      },
+      {
+        name: 'first_band_color_hex',
+        type: 'string',
+        required: true,
+        description: `Hex color for odd-numbered rows in the band.`,
+      },
+      {
+        name: 'second_band_color_hex',
+        type: 'string',
+        required: true,
+        description: `Hex color for even-numbered rows in the band.`,
+      },
+      {
+        name: 'sheet_id',
+        type: 'integer',
+        required: true,
+        description: `The ID of the sheet (tab) containing the range to band.`,
+      },
+      {
+        name: 'spreadsheet_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Google Sheet to modify`,
+      },
+      {
+        name: 'start_column_index',
+        type: 'integer',
+        required: true,
+        description: `Zero-based start column index of the range (inclusive).`,
+      },
+      {
+        name: 'start_row_index',
+        type: 'integer',
+        required: true,
+        description: `Zero-based start row index of the range (inclusive).`,
+      },
+      {
+        name: 'header_color_hex',
+        type: 'string',
+        required: false,
+        description: `Optional hex color for the first (header) row of the range, drawn distinct from the alternating bands.`,
+      },
+    ],
+  },
+  {
     name: 'googlesheets_add_chart',
     description: `Add a basic chart (column, bar, line, area, scatter, or combo) to a Google Sheet, built from a labeled range of source data. The chart is placed on a new sheet.`,
     params: [
@@ -140,6 +200,109 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'googlesheets_add_named_range',
+    description: `Create a named range in a Google Sheet, letting formulas and scripts reference a fixed cell range by a friendly name instead of A1 notation.`,
+    params: [
+      {
+        name: 'end_column_index',
+        type: 'integer',
+        required: true,
+        description: `Zero-based end column index of the range (exclusive).`,
+      },
+      {
+        name: 'end_row_index',
+        type: 'integer',
+        required: true,
+        description: `Zero-based end row index of the range (exclusive).`,
+      },
+      { name: 'name', type: 'string', required: true, description: `The name to give this range.` },
+      {
+        name: 'sheet_id',
+        type: 'integer',
+        required: true,
+        description: `The ID of the sheet (tab) containing the range.`,
+      },
+      {
+        name: 'spreadsheet_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Google Sheet to modify`,
+      },
+      {
+        name: 'start_column_index',
+        type: 'integer',
+        required: true,
+        description: `Zero-based start column index of the range (inclusive).`,
+      },
+      {
+        name: 'start_row_index',
+        type: 'integer',
+        required: true,
+        description: `Zero-based start row index of the range (inclusive).`,
+      },
+    ],
+  },
+  {
+    name: 'googlesheets_add_protected_range',
+    description: `Protect a range of cells (or an entire sheet) in a Google Sheet from being edited by anyone other than the specified editors.`,
+    params: [
+      {
+        name: 'sheet_id',
+        type: 'integer',
+        required: true,
+        description: `The ID of the sheet (tab) containing the range to protect.`,
+      },
+      {
+        name: 'spreadsheet_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Google Sheet to modify`,
+      },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `Description of this protected range, shown to users who try to edit it.`,
+      },
+      {
+        name: 'editor_emails',
+        type: 'string',
+        required: false,
+        description: `Email addresses of the only users allowed to edit this range. Leave blank to restrict to the sheet's existing editors.`,
+      },
+      {
+        name: 'end_column_index',
+        type: 'integer',
+        required: false,
+        description: `Zero-based end column index of the protected range (exclusive).`,
+      },
+      {
+        name: 'end_row_index',
+        type: 'integer',
+        required: false,
+        description: `Zero-based end row index of the protected range (exclusive).`,
+      },
+      {
+        name: 'start_column_index',
+        type: 'integer',
+        required: false,
+        description: `Zero-based start column index of the protected range (inclusive).`,
+      },
+      {
+        name: 'start_row_index',
+        type: 'integer',
+        required: false,
+        description: `Zero-based start row index of the protected range (inclusive). Omit along with the other range fields to protect the entire sheet.`,
+      },
+      {
+        name: 'warning_only',
+        type: 'boolean',
+        required: false,
+        description: `If true, edits are allowed but show a warning instead of being blocked.`,
+      },
+    ],
+  },
+  {
     name: 'googlesheets_add_sheet',
     description: `Add a new sheet (tab) to an existing Google Sheets spreadsheet, with an optional position and grid size.`,
     params: [
@@ -249,6 +412,36 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'googlesheets_batch_clear_values_by_data_filter',
+    description: `Clear values from one or more ranges of a Google Sheet, with each range selected by DataFilter (an A1 range, a GridRange, or a developer metadata lookup) instead of a plain A1 string. Formatting is preserved; only cell values are cleared. Use this instead of googlesheets_batch_clear_values when you need to target ranges by developer metadata or a structured GridRange.`,
+    params: [
+      {
+        name: 'data_filters',
+        type: 'array',
+        required: true,
+        description: `List of DataFilter objects selecting which ranges to clear. Each object must set exactly one of 'a1Range' (string), 'gridRange' (object), or 'developerMetadataLookup' (object).`,
+      },
+      {
+        name: 'spreadsheet_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the spreadsheet to clear values in`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution`,
+      },
+    ],
+  },
+  {
     name: 'googlesheets_batch_get_values',
     description: `Return cell values for multiple ranges of a Google Sheet in a single request. More efficient than calling googlesheets_get_values repeatedly when you need several ranges at once.`,
     params: [
@@ -263,6 +456,54 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `The ID of the Google Sheet to read from`,
+      },
+      {
+        name: 'major_dimension',
+        type: 'string',
+        required: false,
+        description: `Whether values are returned by rows or columns`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution`,
+      },
+      {
+        name: 'value_render_option',
+        type: 'string',
+        required: false,
+        description: `How values should be rendered in the response`,
+      },
+    ],
+  },
+  {
+    name: 'googlesheets_batch_get_values_by_data_filter',
+    description: `Return cell values for one or more ranges of a Google Sheet, selected by DataFilter (an A1 range, a GridRange, or a developer metadata lookup) instead of a plain A1 string. Use this instead of googlesheets_batch_get_values when you need to select ranges by developer metadata or a structured GridRange.`,
+    params: [
+      {
+        name: 'data_filters',
+        type: 'array',
+        required: true,
+        description: `List of DataFilter objects selecting which ranges to fetch values for. Each object must set exactly one of 'a1Range' (string), 'gridRange' (object), or 'developerMetadataLookup' (object).`,
+      },
+      {
+        name: 'spreadsheet_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Google Sheet to read from`,
+      },
+      {
+        name: 'date_time_render_option',
+        type: 'string',
+        required: false,
+        description: `How dates, times, and durations should be represented in the response`,
       },
       {
         name: 'major_dimension',
@@ -333,6 +574,78 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'googlesheets_batch_update_values_by_data_filter',
+    description: `Set values in one or more ranges of a Google Sheet, with each range selected by DataFilter (an A1 range, a GridRange, or a developer metadata lookup) instead of a plain A1 string. Use this instead of googlesheets_batch_update_values when you need to target ranges by developer metadata or a structured GridRange.`,
+    params: [
+      {
+        name: 'data',
+        type: 'array',
+        required: true,
+        description: `List of DataFilterValueRange objects to write. Each object must contain a 'dataFilter' (DataFilter object, e.g. {"a1Range": "Sheet1!A1:B2"}) and a 'values' key (2D array of rows). Example: [{"dataFilter": {"a1Range": "Sheet1!A1:B2"}, "values": [["a","b"],["c","d"]]}]`,
+      },
+      {
+        name: 'spreadsheet_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Google Sheet to update`,
+      },
+      {
+        name: 'value_input_option',
+        type: 'string',
+        required: true,
+        description: `How input values should be interpreted`,
+      },
+      {
+        name: 'include_values_in_response',
+        type: 'boolean',
+        required: false,
+        description: `Return the updated cell values in the response`,
+      },
+      {
+        name: 'response_date_time_render_option',
+        type: 'string',
+        required: false,
+        description: `How dates/times should be represented in the response, when include_values_in_response is true`,
+      },
+      {
+        name: 'response_value_render_option',
+        type: 'string',
+        required: false,
+        description: `How values should be rendered in the response, when include_values_in_response is true`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution`,
+      },
+    ],
+  },
+  {
+    name: 'googlesheets_clear_basic_filter',
+    description: `Remove the basic filter from a sheet (tab) in a Google Sheet, hiding the filter dropdown arrows and clearing any active filter criteria.`,
+    params: [
+      {
+        name: 'sheet_id',
+        type: 'integer',
+        required: true,
+        description: `The ID of the sheet (tab) to remove the basic filter from.`,
+      },
+      {
+        name: 'spreadsheet_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Google Sheet to modify`,
+      },
+    ],
+  },
+  {
     name: 'googlesheets_clear_values',
     description: `Clear all values in a specified range of a Google Sheets spreadsheet. Formatting is preserved; only the cell values are cleared.`,
     params: [
@@ -387,6 +700,54 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'googlesheets_create_developer_metadata',
+    description: `Attach a hidden developer metadata key-value entry to a Google Sheet, either at the spreadsheet level, a specific sheet, or a specific row/column. Useful for storing app-specific state alongside spreadsheet data.`,
+    params: [
+      {
+        name: 'metadata_key',
+        type: 'string',
+        required: true,
+        description: `The key for this metadata entry. Multiple entries may share the same key.`,
+      },
+      {
+        name: 'spreadsheet_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Google Sheet to modify`,
+      },
+      {
+        name: 'dimension',
+        type: 'string',
+        required: false,
+        description: `If scoping to a single row or column, whether the index refers to a row or a column. Requires sheet_id and dimension_index.`,
+      },
+      {
+        name: 'dimension_index',
+        type: 'integer',
+        required: false,
+        description: `Zero-based index of the row or column to attach the metadata to. Requires sheet_id and dimension.`,
+      },
+      {
+        name: 'metadata_value',
+        type: 'string',
+        required: false,
+        description: `The value to associate with the metadata key.`,
+      },
+      {
+        name: 'sheet_id',
+        type: 'integer',
+        required: false,
+        description: `If set, scopes the metadata to this sheet (tab) instead of the whole spreadsheet. Cannot be combined with row/column scoping.`,
+      },
+      {
+        name: 'visibility',
+        type: 'string',
+        required: false,
+        description: `DOCUMENT makes the metadata readable by any project with access to the spreadsheet; PROJECT restricts it to the creating project only.`,
+      },
+    ],
+  },
+  {
     name: 'googlesheets_create_spreadsheet',
     description: `Create a new Google Sheets spreadsheet with an optional title and initial sheet configuration. Returns the new spreadsheet ID and metadata.`,
     params: [
@@ -420,6 +781,66 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Optional tool version to use for execution`,
+      },
+    ],
+  },
+  {
+    name: 'googlesheets_delete_banding',
+    description: `Remove a banded (alternating color) range from a Google Sheet by its banded range ID.`,
+    params: [
+      {
+        name: 'banded_range_id',
+        type: 'integer',
+        required: true,
+        description: `The ID of the banded range to remove, as returned when it was created.`,
+      },
+      {
+        name: 'spreadsheet_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Google Sheet to modify`,
+      },
+    ],
+  },
+  {
+    name: 'googlesheets_delete_conditional_format_rule',
+    description: `Delete a conditional formatting rule from a sheet in a Google Sheet, identified by its zero-based position in that sheet's rule list.`,
+    params: [
+      {
+        name: 'index',
+        type: 'integer',
+        required: true,
+        description: `Zero-based index of the conditional format rule to delete, within that sheet's list of rules.`,
+      },
+      {
+        name: 'sheet_id',
+        type: 'integer',
+        required: true,
+        description: `The ID of the sheet (tab) containing the rule to delete.`,
+      },
+      {
+        name: 'spreadsheet_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Google Sheet to modify`,
+      },
+    ],
+  },
+  {
+    name: 'googlesheets_delete_developer_metadata',
+    description: `Delete all developer metadata entries in a Google Sheet matching a given key.`,
+    params: [
+      {
+        name: 'metadata_key',
+        type: 'string',
+        required: true,
+        description: `Delete every developer metadata entry with this exact key.`,
+      },
+      {
+        name: 'spreadsheet_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Google Sheet to modify`,
       },
     ],
   },
@@ -468,6 +889,108 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Optional tool version to use for execution`,
+      },
+    ],
+  },
+  {
+    name: 'googlesheets_delete_embedded_object',
+    description: `Delete a chart or other embedded object from a Google Sheet by its object ID.`,
+    params: [
+      {
+        name: 'object_id',
+        type: 'integer',
+        required: true,
+        description: `The ID of the chart or embedded object to delete, as returned when it was created.`,
+      },
+      {
+        name: 'spreadsheet_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Google Sheet to modify`,
+      },
+    ],
+  },
+  {
+    name: 'googlesheets_delete_named_range',
+    description: `Delete an existing named range from a Google Sheet by its named range ID.`,
+    params: [
+      {
+        name: 'named_range_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the named range to delete, as returned when it was created.`,
+      },
+      {
+        name: 'spreadsheet_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Google Sheet to modify`,
+      },
+    ],
+  },
+  {
+    name: 'googlesheets_delete_protected_range',
+    description: `Remove protection from a previously protected range in a Google Sheet by its protected range ID.`,
+    params: [
+      {
+        name: 'protected_range_id',
+        type: 'integer',
+        required: true,
+        description: `The ID of the protected range to remove, as returned when it was created.`,
+      },
+      {
+        name: 'spreadsheet_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Google Sheet to modify`,
+      },
+    ],
+  },
+  {
+    name: 'googlesheets_delete_range',
+    description: `Delete a range of cells from a Google Sheet, shifting the remaining cells up or left to fill the gap. Unlike deleting a whole row/column, this only affects the given range's rows/columns.`,
+    params: [
+      {
+        name: 'end_column_index',
+        type: 'integer',
+        required: true,
+        description: `Zero-based end column index of the range to delete (exclusive).`,
+      },
+      {
+        name: 'end_row_index',
+        type: 'integer',
+        required: true,
+        description: `Zero-based end row index of the range to delete (exclusive).`,
+      },
+      {
+        name: 'sheet_id',
+        type: 'integer',
+        required: true,
+        description: `The ID of the sheet (tab) to delete cells from.`,
+      },
+      {
+        name: 'shift_dimension',
+        type: 'string',
+        required: true,
+        description: `Direction remaining cells shift to fill the gap left by the deleted range.`,
+      },
+      {
+        name: 'spreadsheet_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Google Sheet to modify`,
+      },
+      {
+        name: 'start_column_index',
+        type: 'integer',
+        required: true,
+        description: `Zero-based start column index of the range to delete (inclusive).`,
+      },
+      {
+        name: 'start_row_index',
+        type: 'integer',
+        required: true,
+        description: `Zero-based start row index of the range to delete (inclusive).`,
       },
     ],
   },
@@ -737,6 +1260,60 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'googlesheets_get_developer_metadata',
+    description: `Retrieve a single developer metadata entry from a Google Sheet by its metadata ID. Developer metadata lets apps attach hidden key-value data to a spreadsheet, sheet, row, or column.`,
+    params: [
+      {
+        name: 'metadata_id',
+        type: 'integer',
+        required: true,
+        description: `The spreadsheet-scoped ID of the developer metadata entry to retrieve.`,
+      },
+      {
+        name: 'spreadsheet_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Google Sheet to read from`,
+      },
+    ],
+  },
+  {
+    name: 'googlesheets_get_spreadsheet_by_data_filter',
+    description: `Return spreadsheet metadata and (optionally) cell data for only the ranges that match one or more DataFilters (an A1 range, a GridRange, or a developer metadata lookup). Use this instead of googlesheets_read_spreadsheet when you need to select ranges by developer metadata or a structured GridRange rather than a plain A1 string.`,
+    params: [
+      {
+        name: 'data_filters',
+        type: 'array',
+        required: true,
+        description: `List of DataFilter objects selecting which parts of the spreadsheet to return. Each object must set exactly one of 'a1Range' (string), 'gridRange' (object), or 'developerMetadataLookup' (object).`,
+      },
+      {
+        name: 'spreadsheet_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Google Sheet to read from`,
+      },
+      {
+        name: 'include_grid_data',
+        type: 'boolean',
+        required: false,
+        description: `Include cell data in the response`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution`,
+      },
+    ],
+  },
+  {
     name: 'googlesheets_get_values',
     description: `Returns only the cell values from a specific range in a Google Sheet — no metadata, no formatting, just the data. For full spreadsheet metadata and formatting, use googlesheets_read_spreadsheet instead.`,
     params: [
@@ -833,6 +1410,54 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'googlesheets_insert_range',
+    description: `Insert empty cells into a Google Sheet at a given range, shifting existing cells down or right to make room. Unlike inserting a whole row/column, this only affects the given range's rows/columns.`,
+    params: [
+      {
+        name: 'end_column_index',
+        type: 'integer',
+        required: true,
+        description: `Zero-based end column index of the range to insert (exclusive).`,
+      },
+      {
+        name: 'end_row_index',
+        type: 'integer',
+        required: true,
+        description: `Zero-based end row index of the range to insert (exclusive).`,
+      },
+      {
+        name: 'sheet_id',
+        type: 'integer',
+        required: true,
+        description: `The ID of the sheet (tab) to insert cells into.`,
+      },
+      {
+        name: 'shift_dimension',
+        type: 'string',
+        required: true,
+        description: `Direction existing cells shift to make room for the inserted range.`,
+      },
+      {
+        name: 'spreadsheet_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Google Sheet to modify`,
+      },
+      {
+        name: 'start_column_index',
+        type: 'integer',
+        required: true,
+        description: `Zero-based start column index of the range to insert (inclusive).`,
+      },
+      {
+        name: 'start_row_index',
+        type: 'integer',
+        required: true,
+        description: `Zero-based start row index of the range to insert (inclusive).`,
+      },
+    ],
+  },
+  {
     name: 'googlesheets_merge_cells',
     description: `Merge a range of cells in a Google Sheet into a single cell, merging all cells, only columns, or only rows within the range.`,
     params: [
@@ -889,6 +1514,48 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Optional tool version to use for execution`,
+      },
+    ],
+  },
+  {
+    name: 'googlesheets_move_dimension',
+    description: `Move a contiguous range of rows or columns to a different position within the same sheet in a Google Sheet.`,
+    params: [
+      {
+        name: 'destination_index',
+        type: 'integer',
+        required: true,
+        description: `Zero-based index of where to move the rows/columns to, measured before the source rows/columns are removed.`,
+      },
+      {
+        name: 'dimension',
+        type: 'string',
+        required: true,
+        description: `Whether to move rows or columns.`,
+      },
+      {
+        name: 'end_index',
+        type: 'integer',
+        required: true,
+        description: `Zero-based end index of the rows/columns to move (exclusive).`,
+      },
+      {
+        name: 'sheet_id',
+        type: 'integer',
+        required: true,
+        description: `The ID of the sheet (tab) containing the rows or columns to move.`,
+      },
+      {
+        name: 'spreadsheet_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Google Sheet to modify`,
+      },
+      {
+        name: 'start_index',
+        type: 'integer',
+        required: true,
+        description: `Zero-based start index of the rows/columns to move (inclusive).`,
       },
     ],
   },
@@ -956,6 +1623,288 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Optional tool version to use for execution`,
+      },
+    ],
+  },
+  {
+    name: 'googlesheets_search_developer_metadata',
+    description: `Search for developer metadata entries in a Google Sheet by key, or by the sheet/row/column they are attached to. Returns all matching entries with their location and value.`,
+    params: [
+      {
+        name: 'metadata_key',
+        type: 'string',
+        required: true,
+        description: `Only return developer metadata entries with this exact key.`,
+      },
+      {
+        name: 'spreadsheet_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Google Sheet to search`,
+      },
+    ],
+  },
+  {
+    name: 'googlesheets_set_basic_filter',
+    description: `Create the standard 'basic filter' on a range in a Google Sheet, enabling the filter dropdown arrows in the header row. Replaces any existing basic filter on the sheet.`,
+    params: [
+      {
+        name: 'end_column_index',
+        type: 'integer',
+        required: true,
+        description: `Zero-based end column index of the filtered range (exclusive).`,
+      },
+      {
+        name: 'end_row_index',
+        type: 'integer',
+        required: true,
+        description: `Zero-based end row index of the filtered range (exclusive).`,
+      },
+      {
+        name: 'sheet_id',
+        type: 'integer',
+        required: true,
+        description: `The ID of the sheet (tab) to apply the filter to.`,
+      },
+      {
+        name: 'spreadsheet_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Google Sheet to modify`,
+      },
+      {
+        name: 'start_column_index',
+        type: 'integer',
+        required: true,
+        description: `Zero-based start column index of the filtered range (inclusive).`,
+      },
+      {
+        name: 'start_row_index',
+        type: 'integer',
+        required: true,
+        description: `Zero-based start row index of the filtered range (inclusive), typically the header row.`,
+      },
+    ],
+  },
+  {
+    name: 'googlesheets_sort_range',
+    description: `Sort the rows within a range in a Google Sheet by a single column, ascending or descending. Only the rows inside the given range are reordered.`,
+    params: [
+      {
+        name: 'end_column_index',
+        type: 'integer',
+        required: true,
+        description: `Zero-based end column index of the data to sort (exclusive).`,
+      },
+      {
+        name: 'end_row_index',
+        type: 'integer',
+        required: true,
+        description: `Zero-based end row index of the data to sort (exclusive).`,
+      },
+      {
+        name: 'sheet_id',
+        type: 'integer',
+        required: true,
+        description: `The ID of the sheet (tab) containing the range to sort.`,
+      },
+      {
+        name: 'sort_column_index',
+        type: 'integer',
+        required: true,
+        description: `Zero-based column index (absolute, within the sheet) to sort by.`,
+      },
+      {
+        name: 'spreadsheet_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Google Sheet to modify`,
+      },
+      {
+        name: 'start_column_index',
+        type: 'integer',
+        required: true,
+        description: `Zero-based start column index of the data to sort (inclusive).`,
+      },
+      {
+        name: 'start_row_index',
+        type: 'integer',
+        required: true,
+        description: `Zero-based start row index of the data to sort (inclusive). Exclude header rows from this range.`,
+      },
+      {
+        name: 'sort_order',
+        type: 'string',
+        required: false,
+        description: `Sort direction for the chosen column.`,
+      },
+    ],
+  },
+  {
+    name: 'googlesheets_text_to_columns',
+    description: `Split the text in a single column of a Google Sheet into multiple columns, using a delimiter such as comma, semicolon, or a custom character.`,
+    params: [
+      {
+        name: 'column_index',
+        type: 'integer',
+        required: true,
+        description: `Zero-based index of the single source column to split.`,
+      },
+      {
+        name: 'end_row_index',
+        type: 'integer',
+        required: true,
+        description: `Zero-based end row index of the source data (exclusive).`,
+      },
+      {
+        name: 'sheet_id',
+        type: 'integer',
+        required: true,
+        description: `The ID of the sheet (tab) containing the column to split.`,
+      },
+      {
+        name: 'spreadsheet_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Google Sheet to modify`,
+      },
+      {
+        name: 'start_row_index',
+        type: 'integer',
+        required: true,
+        description: `Zero-based start row index of the source data (inclusive). The range must span exactly one column.`,
+      },
+      {
+        name: 'custom_delimiter',
+        type: 'string',
+        required: false,
+        description: `The custom delimiter character to split on. Only used when delimiter_type is CUSTOM.`,
+      },
+      {
+        name: 'delimiter_type',
+        type: 'string',
+        required: false,
+        description: `The delimiter category to split on. Use CUSTOM together with custom_delimiter for an arbitrary character, or AUTODETECT to let Sheets pick automatically.`,
+      },
+    ],
+  },
+  {
+    name: 'googlesheets_trim_whitespace',
+    description: `Remove leading and trailing whitespace, and collapse internal whitespace to single spaces, for every cell in a range of a Google Sheet.`,
+    params: [
+      {
+        name: 'end_column_index',
+        type: 'integer',
+        required: true,
+        description: `Zero-based end column index of the range to trim (exclusive).`,
+      },
+      {
+        name: 'end_row_index',
+        type: 'integer',
+        required: true,
+        description: `Zero-based end row index of the range to trim (exclusive).`,
+      },
+      {
+        name: 'sheet_id',
+        type: 'integer',
+        required: true,
+        description: `The ID of the sheet (tab) containing the range to trim.`,
+      },
+      {
+        name: 'spreadsheet_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Google Sheet to modify`,
+      },
+      {
+        name: 'start_column_index',
+        type: 'integer',
+        required: true,
+        description: `Zero-based start column index of the range to trim (inclusive).`,
+      },
+      {
+        name: 'start_row_index',
+        type: 'integer',
+        required: true,
+        description: `Zero-based start row index of the range to trim (inclusive).`,
+      },
+    ],
+  },
+  {
+    name: 'googlesheets_update_dimension_properties',
+    description: `Resize or hide/unhide a range of rows or columns in a Google Sheet.`,
+    params: [
+      {
+        name: 'dimension',
+        type: 'string',
+        required: true,
+        description: `Whether to operate on rows or columns.`,
+      },
+      {
+        name: 'end_index',
+        type: 'integer',
+        required: true,
+        description: `Zero-based end index of the rows/columns to update (exclusive).`,
+      },
+      {
+        name: 'sheet_id',
+        type: 'integer',
+        required: true,
+        description: `The ID of the sheet (tab) containing the rows or columns to update.`,
+      },
+      {
+        name: 'spreadsheet_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Google Sheet to modify`,
+      },
+      {
+        name: 'start_index',
+        type: 'integer',
+        required: true,
+        description: `Zero-based start index of the rows/columns to update (inclusive).`,
+      },
+      {
+        name: 'hidden',
+        type: 'boolean',
+        required: false,
+        description: `Whether the rows/columns should be hidden from view.`,
+      },
+      {
+        name: 'pixel_size',
+        type: 'integer',
+        required: false,
+        description: `New height (for rows) or width (for columns) in pixels.`,
+      },
+    ],
+  },
+  {
+    name: 'googlesheets_update_spreadsheet_properties',
+    description: `Update spreadsheet-level properties of a Google Sheet, such as its title, locale, or time zone. Only the fields you provide are changed.`,
+    params: [
+      {
+        name: 'spreadsheet_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Google Sheet to modify`,
+      },
+      {
+        name: 'locale',
+        type: 'string',
+        required: false,
+        description: `New locale for the spreadsheet, affecting how values and formulas are parsed and displayed.`,
+      },
+      {
+        name: 'time_zone',
+        type: 'string',
+        required: false,
+        description: `New time zone for the spreadsheet, used for date/time functions.`,
+      },
+      {
+        name: 'title',
+        type: 'string',
+        required: false,
+        description: `New title for the spreadsheet. Leave blank to keep the current title.`,
       },
     ],
   },

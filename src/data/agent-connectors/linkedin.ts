@@ -62,6 +62,48 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'linkedin_ad_account_user_add',
+    description: `Assign or update a member's role on a LinkedIn ad account, granting them Campaign Manager access.`,
+    params: [
+      {
+        name: 'account_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the ad account to grant access to.`,
+      },
+      {
+        name: 'role',
+        type: 'string',
+        required: true,
+        description: `The role to grant the member on this ad account.`,
+      },
+      {
+        name: 'user_id',
+        type: 'string',
+        required: true,
+        description: `The LinkedIn member ID (person URN ID) to grant access to.`,
+      },
+    ],
+  },
+  {
+    name: 'linkedin_ad_account_user_remove',
+    description: `Revoke a member's access to a LinkedIn ad account.`,
+    params: [
+      {
+        name: 'account_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the ad account to revoke access from.`,
+      },
+      {
+        name: 'user_id',
+        type: 'string',
+        required: true,
+        description: `The LinkedIn member ID (person URN ID) to remove access from.`,
+      },
+    ],
+  },
+  {
     name: 'linkedin_ad_account_users_list',
     description: `List all users who have access to a LinkedIn ad account.`,
     params: [
@@ -273,6 +315,24 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'linkedin_campaign_group_delete',
+    description: `Delete a DRAFT LinkedIn ad campaign group. Only campaign groups in DRAFT status can be deleted.`,
+    params: [
+      {
+        name: 'account_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the ad account that owns the campaign group.`,
+      },
+      {
+        name: 'group_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the DRAFT campaign group to delete.`,
+      },
+    ],
+  },
+  {
     name: 'linkedin_campaign_group_get',
     description: `Get a specific campaign group by ID within a LinkedIn ad account.`,
     params: [
@@ -463,6 +523,24 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'linkedin_creative_delete',
+    description: `Delete a DRAFT LinkedIn ad creative. Creatives that are ACTIVE or PAUSED cannot be hard-deleted; update their status instead.`,
+    params: [
+      {
+        name: 'account_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the ad account that owns the creative.`,
+      },
+      {
+        name: 'creative_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the DRAFT creative to delete.`,
+      },
+    ],
+  },
+  {
     name: 'linkedin_creative_get',
     description: `Get a specific ad creative by ID within a LinkedIn ad account.`,
     params: [
@@ -550,6 +628,108 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `Your external job ID as submitted to LinkedIn via the Apply Connect API.`,
+      },
+    ],
+  },
+  {
+    name: 'linkedin_lead_form_responses_list',
+    description: `Fetch submitted LinkedIn Lead Gen Form responses (leads) for an ad account or organization owner. Part of LinkedIn's Lead Sync API, a separate partner program that requires its own access approval in addition to standard Marketing API access.`,
+    params: [
+      {
+        name: 'lead_type',
+        type: 'string',
+        required: true,
+        description: `Whether the leads came from a sponsored (paid ad) form or an organic (organization page) form.`,
+      },
+      {
+        name: 'associated_entity_urn',
+        type: 'string',
+        required: false,
+        description: `Only return responses associated with this entity URN (e.g. a sponsored creative or organization URN).`,
+      },
+      {
+        name: 'count',
+        type: 'integer',
+        required: false,
+        description: `Number of results to return per page.`,
+      },
+      {
+        name: 'lead_gen_form_id',
+        type: 'string',
+        required: false,
+        description: `Restrict results to responses for this specific Lead Gen Form ID. Must be provided together with lead_gen_form_version.`,
+      },
+      {
+        name: 'lead_gen_form_version',
+        type: 'integer',
+        required: false,
+        description: `Version number of the Lead Gen Form given in lead_gen_form_id. Required together with lead_gen_form_id.`,
+      },
+      {
+        name: 'limited_to_test_leads',
+        type: 'boolean',
+        required: false,
+        description: `If true, only return test leads. Defaults to false.`,
+      },
+      {
+        name: 'organization_id',
+        type: 'string',
+        required: false,
+        description: `Numeric LinkedIn organization ID that owns the form. Provide this or sponsored_account_id, not both.`,
+      },
+      {
+        name: 'sponsored_account_id',
+        type: 'string',
+        required: false,
+        description: `Numeric LinkedIn sponsored (ad) account ID that owns the form. Provide this or organization_id, not both.`,
+      },
+      {
+        name: 'start',
+        type: 'integer',
+        required: false,
+        description: `Index of the response to begin the result page at. Indexes start at 0.`,
+      },
+      {
+        name: 'submitted_after',
+        type: 'integer',
+        required: false,
+        description: `Only return responses submitted at or after this Unix epoch timestamp in milliseconds.`,
+      },
+      {
+        name: 'submitted_before',
+        type: 'integer',
+        required: false,
+        description: `Only return responses submitted strictly before this Unix epoch timestamp in milliseconds.`,
+      },
+    ],
+  },
+  {
+    name: 'linkedin_lead_forms_list',
+    description: `Find Lead Gen Forms belonging to an ad account (sponsored account) or an organization owner. Part of LinkedIn's Lead Sync API, a separate partner program that requires its own access approval in addition to standard Marketing API access.`,
+    params: [
+      {
+        name: 'count',
+        type: 'integer',
+        required: false,
+        description: `Number of results to return per page.`,
+      },
+      {
+        name: 'organization_id',
+        type: 'string',
+        required: false,
+        description: `Numeric LinkedIn organization ID that owns the forms. Provide this or sponsored_account_id, not both.`,
+      },
+      {
+        name: 'sponsored_account_id',
+        type: 'string',
+        required: false,
+        description: `Numeric LinkedIn sponsored (ad) account ID that owns the forms. Provide this or organization_id, not both.`,
+      },
+      {
+        name: 'start',
+        type: 'integer',
+        required: false,
+        description: `Index of the form to begin the result page at. Indexes start at 0.`,
       },
     ],
   },
@@ -650,6 +830,18 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'linkedin_organization_follower_statistics_get',
+    description: `Get follower count breakdowns (by seniority, industry, function, company size, region, and follower gains/losses over time) for a LinkedIn organization page.`,
+    params: [
+      {
+        name: 'organization_id',
+        type: 'string',
+        required: true,
+        description: `Numeric LinkedIn organization ID.`,
+      },
+    ],
+  },
+  {
     name: 'linkedin_organization_followers_count',
     description: `Get the follower count for a LinkedIn organization using its URL-encoded URN.`,
     params: [
@@ -670,6 +862,42 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `The numeric ID of the LinkedIn organization.`,
+      },
+    ],
+  },
+  {
+    name: 'linkedin_organization_notifications_list',
+    description: `Pull notifications (likes, comments, shares, and mentions) on an organization's posts from the last 60 days, to monitor engagement on a LinkedIn Company Page. The authenticated member must be an administrator of the organization.`,
+    params: [
+      {
+        name: 'actions',
+        type: 'array',
+        required: true,
+        description: `Action types to include. If source_post_urn is also provided, only one action may be listed.`,
+      },
+      {
+        name: 'organization_id',
+        type: 'string',
+        required: true,
+        description: `Numeric LinkedIn organization ID to query notifications for.`,
+      },
+      {
+        name: 'source_post_urn',
+        type: 'string',
+        required: false,
+        description: `Restrict results to notifications about this specific activity URN. When set, 'actions' must contain exactly one value.`,
+      },
+      {
+        name: 'time_range_end',
+        type: 'integer',
+        required: false,
+        description: `Exclusive end of the time range (Unix epoch milliseconds).`,
+      },
+      {
+        name: 'time_range_start',
+        type: 'integer',
+        required: false,
+        description: `Inclusive start of the time range (Unix epoch milliseconds).`,
       },
     ],
   },
@@ -714,6 +942,30 @@ export const tools: Tool[] = [
         description: `Number of results to return.`,
       },
       { name: 'start', type: 'integer', required: false, description: `Offset for pagination.` },
+    ],
+  },
+  {
+    name: 'linkedin_organization_share_statistics_get',
+    description: `Get aggregate engagement statistics (impressions, clicks, likes, comments, shares) across all posts shared by a LinkedIn organization page, optionally scoped to a time range.`,
+    params: [
+      {
+        name: 'organization_id',
+        type: 'string',
+        required: true,
+        description: `Numeric LinkedIn organization ID.`,
+      },
+      {
+        name: 'end_time',
+        type: 'integer',
+        required: false,
+        description: `End of the time range in Unix milliseconds, to filter statistics by date.`,
+      },
+      {
+        name: 'start_time',
+        type: 'integer',
+        required: false,
+        description: `Start of the time range in Unix milliseconds, to filter statistics by date.`,
+      },
     ],
   },
   {
@@ -839,6 +1091,36 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `Raw (unencoded) URN of the post to like, e.g. urn:li:ugcPost:7123456789.`,
+      },
+    ],
+  },
+  {
+    name: 'linkedin_post_update',
+    description: `Partially update the commentary, visibility, or call-to-action of an existing LinkedIn post.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The URL-encoded URN of the post to update.`,
+      },
+      {
+        name: 'call_to_action_label',
+        type: 'string',
+        required: false,
+        description: `New call-to-action label shown on the post, if the post has one configured.`,
+      },
+      {
+        name: 'text',
+        type: 'string',
+        required: false,
+        description: `New text content (commentary) for the post.`,
+      },
+      {
+        name: 'visibility',
+        type: 'string',
+        required: false,
+        description: `New visibility for the post.`,
       },
     ],
   },

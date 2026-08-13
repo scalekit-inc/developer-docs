@@ -10,6 +10,84 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'hubspot_all_files_list',
+    description: `List files stored in the HubSpot file manager, with pagination and date-range filtering. Requires the 'files' scope.`,
+    params: [
+      {
+        name: 'after',
+        type: 'string',
+        required: false,
+        description: `Pagination cursor for the next page of results.`,
+      },
+      {
+        name: 'archived',
+        type: 'boolean',
+        required: false,
+        description: `If true, return only archived (soft-deleted) records.`,
+      },
+      {
+        name: 'created_after',
+        type: 'string',
+        required: false,
+        description: `Return records created on or after this ISO 8601 datetime.`,
+      },
+      {
+        name: 'created_before',
+        type: 'string',
+        required: false,
+        description: `Return records created on or before this ISO 8601 datetime.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of results to return per page (max 100).`,
+      },
+      {
+        name: 'parent_folder_id',
+        type: 'string',
+        required: false,
+        description: `Restrict results to files inside a specific folder.`,
+      },
+      {
+        name: 'properties',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of additional file properties to include in the response.`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution.`,
+      },
+      {
+        name: 'sort',
+        type: 'string',
+        required: false,
+        description: `Property to sort results by; prefix with '-' for descending order.`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution.`,
+      },
+      {
+        name: 'updated_after',
+        type: 'string',
+        required: false,
+        description: `Return records updated on or after this ISO 8601 datetime.`,
+      },
+      {
+        name: 'updated_before',
+        type: 'string',
+        required: false,
+        description: `Return records updated on or before this ISO 8601 datetime.`,
+      },
+    ],
+  },
+  {
     name: 'hubspot_association_create',
     description: `Create a default association between two HubSpot CRM objects. For example, associate a contact with a deal, or a company with a ticket.`,
     params: [
@@ -36,6 +114,36 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `Type of the target object (e.g. contacts, companies, deals, tickets)`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_association_delete',
+    description: `Remove all associations between two specific HubSpot CRM records.`,
+    params: [
+      {
+        name: 'object_id',
+        type: 'string',
+        required: true,
+        description: `The HubSpot ID of the source record.`,
+      },
+      {
+        name: 'object_type',
+        type: 'string',
+        required: true,
+        description: `The CRM object type of the source record.`,
+      },
+      {
+        name: 'to_object_id',
+        type: 'string',
+        required: true,
+        description: `The HubSpot ID of the target record.`,
+      },
+      {
+        name: 'to_object_type',
+        type: 'string',
+        required: true,
+        description: `The CRM object type of the target record.`,
       },
     ],
   },
@@ -102,6 +210,30 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'hubspot_association_labels_batch_archive',
+    description: `Remove specific association labels between many pairs of CRM records in a single batch call, without removing the underlying association.`,
+    params: [
+      {
+        name: 'from_object_type',
+        type: 'string',
+        required: true,
+        description: `The CRM object type of the source records.`,
+      },
+      {
+        name: 'inputs',
+        type: 'string',
+        required: true,
+        description: `JSON array of {from, to, types} objects identifying which labeled associations to remove. Pass as a JSON array via the SDK, not as a string.`,
+      },
+      {
+        name: 'to_object_type',
+        type: 'string',
+        required: true,
+        description: `The CRM object type of the target records.`,
+      },
+    ],
+  },
+  {
     name: 'hubspot_association_labels_list',
     description: `List all association label definitions between two CRM object types.`,
     params: [
@@ -115,6 +247,101 @@ export const tools: Tool[] = [
       { name: 'schema_version', type: 'string', required: false, description: `Schema version` },
       { name: 'tool_version', type: 'string', required: false, description: `Tool version` },
     ],
+  },
+  {
+    name: 'hubspot_association_limits_batch_create',
+    description: `Configure a maximum number of associations allowed between two CRM object types.`,
+    params: [
+      {
+        name: 'from_object_type',
+        type: 'string',
+        required: true,
+        description: `The source CRM object type.`,
+      },
+      {
+        name: 'inputs',
+        type: 'string',
+        required: true,
+        description: `JSON array of limit configurations, each with associationTypeId, maxToObjectIds, and categoryId. Pass as a JSON array via the SDK, not as a string.`,
+      },
+      {
+        name: 'to_object_type',
+        type: 'string',
+        required: true,
+        description: `The target CRM object type.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_association_limits_batch_purge',
+    description: `Remove previously configured association limits between two CRM object types.`,
+    params: [
+      {
+        name: 'from_object_type',
+        type: 'string',
+        required: true,
+        description: `The source CRM object type.`,
+      },
+      {
+        name: 'inputs',
+        type: 'string',
+        required: true,
+        description: `JSON array of {associationTypeId, categoryId} objects identifying which limits to remove. Pass as a JSON array via the SDK, not as a string.`,
+      },
+      {
+        name: 'to_object_type',
+        type: 'string',
+        required: true,
+        description: `The target CRM object type.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_association_limits_batch_update',
+    description: `Update previously configured association limits between two CRM object types.`,
+    params: [
+      {
+        name: 'from_object_type',
+        type: 'string',
+        required: true,
+        description: `The source CRM object type.`,
+      },
+      {
+        name: 'inputs',
+        type: 'string',
+        required: true,
+        description: `JSON array of updated limit configurations, each with associationTypeId, maxToObjectIds, and categoryId. Pass as a JSON array via the SDK, not as a string.`,
+      },
+      {
+        name: 'to_object_type',
+        type: 'string',
+        required: true,
+        description: `The target CRM object type.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_association_limits_get',
+    description: `Retrieve the configured association limits between two specific CRM object types.`,
+    params: [
+      {
+        name: 'from_object_type',
+        type: 'string',
+        required: true,
+        description: `The source CRM object type.`,
+      },
+      {
+        name: 'to_object_type',
+        type: 'string',
+        required: true,
+        description: `The target CRM object type.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_association_limits_list',
+    description: `Retrieve all configured association limits across every object type pair in the account.`,
+    params: [],
   },
   {
     name: 'hubspot_association_set',
@@ -189,6 +416,54 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'hubspot_associations_batch_create_default',
+    description: `Create default (unlabeled) associations between many pairs of CRM records in a single batch call.`,
+    params: [
+      {
+        name: 'from_object_type',
+        type: 'string',
+        required: true,
+        description: `The CRM object type of the source records.`,
+      },
+      {
+        name: 'inputs',
+        type: 'string',
+        required: true,
+        description: `JSON array of {"from":{"id":"<id>"},"to":{"id":"<id>"}} pairs to associate. Pass as a JSON array via the SDK, not as a string.`,
+      },
+      {
+        name: 'to_object_type',
+        type: 'string',
+        required: true,
+        description: `The CRM object type of the target records.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_associations_batch_read',
+    description: `Retrieve associations (including labels) for many CRM records at once in a single batch call, given their IDs.`,
+    params: [
+      {
+        name: 'from_object_type',
+        type: 'string',
+        required: true,
+        description: `The CRM object type of the source records.`,
+      },
+      {
+        name: 'inputs',
+        type: 'string',
+        required: true,
+        description: `JSON array of {"id": "<record_id>"} objects to fetch associations for. Pass as a JSON array via the SDK, not as a string.`,
+      },
+      {
+        name: 'to_object_type',
+        type: 'string',
+        required: true,
+        description: `The CRM object type to fetch associations for.`,
+      },
+    ],
+  },
+  {
     name: 'hubspot_audit_logs_get',
     description: `Retrieve account audit logs filtered by user, event type, object type, or date range.`,
     params: [
@@ -226,6 +501,1536 @@ export const tools: Tool[] = [
       { name: 'schema_version', type: 'string', required: false, description: `Schema version` },
       { name: 'sort', type: 'string', required: false, description: `Sort parameters.` },
       { name: 'tool_version', type: 'string', required: false, description: `Tool version` },
+    ],
+  },
+  {
+    name: 'hubspot_blog_author_create',
+    description: `Create a new blog author in HubSpot CMS. Requires the 'content' scope.`,
+    params: [
+      {
+        name: 'full_name',
+        type: 'string',
+        required: true,
+        description: `Display name of the blog author.`,
+      },
+      {
+        name: 'avatar',
+        type: 'string',
+        required: false,
+        description: `URL of the author's avatar image.`,
+      },
+      {
+        name: 'bio',
+        type: 'string',
+        required: false,
+        description: `Short biography of the blog author.`,
+      },
+      {
+        name: 'display_name',
+        type: 'string',
+        required: false,
+        description: `The full name of the blog author as displayed publicly (may differ from the internal full_name).`,
+      },
+      {
+        name: 'email',
+        type: 'string',
+        required: false,
+        description: `Email address of the blog author.`,
+      },
+      {
+        name: 'facebook',
+        type: 'string',
+        required: false,
+        description: `Facebook profile URL for the author.`,
+      },
+      {
+        name: 'language',
+        type: 'string',
+        required: false,
+        description: `ISO 639 language code for this author record.`,
+      },
+      {
+        name: 'linkedin',
+        type: 'string',
+        required: false,
+        description: `LinkedIn profile URL for the author.`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution.`,
+      },
+      {
+        name: 'slug',
+        type: 'string',
+        required: false,
+        description: `URL path segment for the author's profile page.`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution.`,
+      },
+      {
+        name: 'twitter',
+        type: 'string',
+        required: false,
+        description: `Twitter/X handle or profile URL for the author.`,
+      },
+      {
+        name: 'website',
+        type: 'string',
+        required: false,
+        description: `Personal or company website URL for the author.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_blog_author_delete',
+    description: `Permanently delete a blog author from HubSpot CMS by author ID. Requires the 'content' scope.`,
+    params: [
+      {
+        name: 'author_id',
+        type: 'string',
+        required: true,
+        description: `ID of the blog author to delete.`,
+      },
+      {
+        name: 'archived',
+        type: 'boolean',
+        required: false,
+        description: `If true, request a permanent hard-delete of an already-archived author instead of a soft-delete. HubSpot currently rejects hard deletes for this resource family ('Hard deletes of objects are not supported'), so leave this false/unset for a normal delete.`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution.`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_blog_author_get',
+    description: `Retrieve a single blog author from HubSpot CMS by author ID. Requires the 'content' scope.`,
+    params: [
+      {
+        name: 'author_id',
+        type: 'string',
+        required: true,
+        description: `ID of the blog author to retrieve.`,
+      },
+      {
+        name: 'property',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of blog author properties to include in the response.`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution.`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_blog_author_update',
+    description: `Update an existing blog author in HubSpot CMS by author ID. Only provided fields are changed. Requires the 'content' scope.`,
+    params: [
+      {
+        name: 'author_id',
+        type: 'string',
+        required: true,
+        description: `ID of the blog author to update.`,
+      },
+      {
+        name: 'avatar',
+        type: 'string',
+        required: false,
+        description: `URL of the author's avatar image.`,
+      },
+      {
+        name: 'bio',
+        type: 'string',
+        required: false,
+        description: `Short biography of the blog author.`,
+      },
+      {
+        name: 'display_name',
+        type: 'string',
+        required: false,
+        description: `The full name of the blog author as displayed publicly (may differ from the internal full_name).`,
+      },
+      {
+        name: 'email',
+        type: 'string',
+        required: false,
+        description: `Email address of the blog author.`,
+      },
+      {
+        name: 'facebook',
+        type: 'string',
+        required: false,
+        description: `Facebook profile URL for the author.`,
+      },
+      {
+        name: 'full_name',
+        type: 'string',
+        required: false,
+        description: `Display name of the blog author.`,
+      },
+      {
+        name: 'language',
+        type: 'string',
+        required: false,
+        description: `ISO 639 language code for this author record.`,
+      },
+      {
+        name: 'linkedin',
+        type: 'string',
+        required: false,
+        description: `LinkedIn profile URL for the author.`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution.`,
+      },
+      {
+        name: 'slug',
+        type: 'string',
+        required: false,
+        description: `URL path segment for the author's profile page.`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution.`,
+      },
+      {
+        name: 'twitter',
+        type: 'string',
+        required: false,
+        description: `Twitter/X handle or profile URL for the author.`,
+      },
+      {
+        name: 'website',
+        type: 'string',
+        required: false,
+        description: `Personal or company website URL for the author.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_blog_authors_batch_archive',
+    description: `Archive multiple blog authors in a single request (up to 100). Requires the 'content' scope.`,
+    params: [
+      {
+        name: 'inputs',
+        type: 'string',
+        required: true,
+        description: `JSON array of author IDs (strings) to archive, e.g. ["<author_id>", ...].`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution.`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_blog_authors_batch_create',
+    description: `Create multiple blog authors in a single request (up to 100). Requires the 'content' scope.`,
+    params: [
+      {
+        name: 'inputs',
+        type: 'string',
+        required: true,
+        description: `JSON array for the batch request. Each item is a full blog author object, e.g. {"fullName": "...", "email": "..."}.`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution.`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_blog_authors_batch_read',
+    description: `Retrieve multiple blog authors by ID in a single request (up to 100). Requires the 'content' scope.`,
+    params: [
+      {
+        name: 'inputs',
+        type: 'string',
+        required: true,
+        description: `JSON array of author IDs (strings) to fetch, e.g. ["<author_id>", ...].`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution.`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_blog_authors_batch_update',
+    description: `Update multiple blog authors in a single request (up to 100). Requires the 'content' scope.`,
+    params: [
+      {
+        name: 'inputs',
+        type: 'string',
+        required: true,
+        description: `JSON array for the batch request. Each item: {"id": "<author_id>", ...fields to update}.`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution.`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_blog_authors_list',
+    description: `List blog authors configured in HubSpot CMS. Supports pagination and sorting. Requires the 'content' scope.`,
+    params: [
+      {
+        name: 'after',
+        type: 'string',
+        required: false,
+        description: `Pagination cursor for the next page of results.`,
+      },
+      {
+        name: 'archived',
+        type: 'boolean',
+        required: false,
+        description: `If true, include archived (soft-deleted) records alongside active ones (confirmed live: this does not exclude active records).`,
+      },
+      {
+        name: 'created_after',
+        type: 'string',
+        required: false,
+        description: `Return records created on or after this ISO 8601 datetime.`,
+      },
+      {
+        name: 'created_at',
+        type: 'string',
+        required: false,
+        description: `Return records created at exactly this ISO 8601 datetime.`,
+      },
+      {
+        name: 'created_before',
+        type: 'string',
+        required: false,
+        description: `Return records created on or before this ISO 8601 datetime.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of results to return per page (max 100).`,
+      },
+      {
+        name: 'property',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of blog author properties to include in the response.`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution.`,
+      },
+      {
+        name: 'sort',
+        type: 'array',
+        required: false,
+        description: `Fields to sort results by; prefix a field with '-' for descending order. Multiple fields are applied in order.`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution.`,
+      },
+      {
+        name: 'updated_after',
+        type: 'string',
+        required: false,
+        description: `Return records updated on or after this ISO 8601 datetime.`,
+      },
+      {
+        name: 'updated_at',
+        type: 'string',
+        required: false,
+        description: `Return records updated at exactly this ISO 8601 datetime.`,
+      },
+      {
+        name: 'updated_before',
+        type: 'string',
+        required: false,
+        description: `Return records updated on or before this ISO 8601 datetime.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_blog_post_archive',
+    description: `Archive (soft-delete) a blog post in HubSpot CMS by post ID. Requires the 'content' scope.`,
+    params: [
+      {
+        name: 'post_id',
+        type: 'string',
+        required: true,
+        description: `ID of the blog post to archive.`,
+      },
+      {
+        name: 'archived',
+        type: 'boolean',
+        required: false,
+        description: `If true, request a permanent hard-delete of an already-archived post instead of a soft-delete/archive. HubSpot currently rejects hard deletes for this resource family ('Hard deletes of objects are not supported'), so leave this false/unset for a normal archive.`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution.`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_blog_post_create',
+    description: `Create a new blog post in HubSpot CMS. Requires the 'content' scope.`,
+    params: [
+      {
+        name: 'content_group_id',
+        type: 'string',
+        required: true,
+        description: `ID of the parent blog (content group) this post is published under.`,
+      },
+      { name: 'name', type: 'string', required: true, description: `Title of the blog post.` },
+      {
+        name: 'additional_properties',
+        type: 'object',
+        required: false,
+        description: `Additional raw HubSpot blog post fields to merge into the request (e.g. widgets, layoutSections, archivedAt).`,
+      },
+      {
+        name: 'blog_author_id',
+        type: 'string',
+        required: false,
+        description: `ID of the blog author to attribute this post to.`,
+      },
+      {
+        name: 'campaign',
+        type: 'string',
+        required: false,
+        description: `HubSpot marketing campaign GUID to associate with this post.`,
+      },
+      {
+        name: 'featured_image',
+        type: 'string',
+        required: false,
+        description: `URL of the featured image.`,
+      },
+      {
+        name: 'featured_image_alt_text',
+        type: 'string',
+        required: false,
+        description: `Alt text for the featured image.`,
+      },
+      {
+        name: 'html_title',
+        type: 'string',
+        required: false,
+        description: `Browser tab / SEO title for the post.`,
+      },
+      {
+        name: 'language',
+        type: 'string',
+        required: false,
+        description: `ISO 639 language code for this post (used for multi-language variants).`,
+      },
+      {
+        name: 'link_rel_canonical_url',
+        type: 'string',
+        required: false,
+        description: `Canonical URL to use for this post's <link rel="canonical"> tag, overriding the default.`,
+      },
+      {
+        name: 'meta_description',
+        type: 'string',
+        required: false,
+        description: `SEO meta description for the post.`,
+      },
+      {
+        name: 'password',
+        type: 'string',
+        required: false,
+        description: `Password to protect the post with. Leave unset for no password protection.`,
+      },
+      {
+        name: 'post_body',
+        type: 'string',
+        required: false,
+        description: `HTML content of the blog post body.`,
+      },
+      {
+        name: 'post_summary',
+        type: 'string',
+        required: false,
+        description: `Short summary shown on blog listing pages.`,
+      },
+      {
+        name: 'publish_date',
+        type: 'string',
+        required: false,
+        description: `ISO 8601 datetime to schedule publishing.`,
+      },
+      {
+        name: 'publish_immediately',
+        type: 'boolean',
+        required: false,
+        description: `Whether to publish the post immediately rather than leaving it as a draft/scheduled.`,
+      },
+      {
+        name: 'rss_body',
+        type: 'string',
+        required: false,
+        description: `HTML content to use in the RSS feed for this post, if different from postBody.`,
+      },
+      {
+        name: 'rss_summary',
+        type: 'string',
+        required: false,
+        description: `Summary text to use in the RSS feed for this post, if different from postSummary.`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution.`,
+      },
+      {
+        name: 'slug',
+        type: 'string',
+        required: false,
+        description: `URL path segment for the post.`,
+      },
+      {
+        name: 'state',
+        type: 'string',
+        required: false,
+        description: `Current state of the post (e.g. DRAFT, PUBLISHED, SCHEDULED).`,
+      },
+      {
+        name: 'tag_ids',
+        type: 'array',
+        required: false,
+        description: `IDs of blog tags to associate with this post.`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution.`,
+      },
+      {
+        name: 'use_featured_image',
+        type: 'boolean',
+        required: false,
+        description: `Whether to show a featured image on the post.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_blog_post_get',
+    description: `Retrieve a single blog post from HubSpot CMS by its post ID. Requires the 'content' scope.`,
+    params: [
+      {
+        name: 'post_id',
+        type: 'string',
+        required: true,
+        description: `ID of the blog post to retrieve.`,
+      },
+      {
+        name: 'archived',
+        type: 'boolean',
+        required: false,
+        description: `If true, return only archived (soft-deleted) records.`,
+      },
+      {
+        name: 'property',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of blog post properties to include in the response.`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution.`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_blog_post_revision_get',
+    description: `Retrieve a specific historical revision of a blog post by revision ID. Requires the 'content' scope.`,
+    params: [
+      { name: 'post_id', type: 'string', required: true, description: `ID of the blog post.` },
+      {
+        name: 'revision_id',
+        type: 'string',
+        required: true,
+        description: `ID of the specific revision to retrieve.`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution.`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_blog_post_revision_restore',
+    description: `Restore a blog post to a previous revision. Requires the 'content' scope.`,
+    params: [
+      { name: 'post_id', type: 'string', required: true, description: `ID of the blog post.` },
+      {
+        name: 'revision_id',
+        type: 'string',
+        required: true,
+        description: `ID of the revision to restore.`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution.`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_blog_post_revisions_list',
+    description: `List the revision history of a blog post in HubSpot CMS. Requires the 'content' scope.`,
+    params: [
+      {
+        name: 'post_id',
+        type: 'string',
+        required: true,
+        description: `ID of the blog post whose revisions to list.`,
+      },
+      {
+        name: 'after',
+        type: 'string',
+        required: false,
+        description: `Pagination cursor for the next page of results.`,
+      },
+      {
+        name: 'before',
+        type: 'string',
+        required: false,
+        description: `Pagination cursor for the previous page of results.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of results to return per page (max 100).`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution.`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_blog_post_update',
+    description: `Update an existing blog post in HubSpot CMS by post ID. Only provided fields are changed. Requires the 'content' scope.`,
+    params: [
+      {
+        name: 'post_id',
+        type: 'string',
+        required: true,
+        description: `ID of the blog post to update.`,
+      },
+      {
+        name: 'additional_properties',
+        type: 'object',
+        required: false,
+        description: `Additional raw HubSpot blog post fields to merge into the request (e.g. widgets, layoutSections, archivedAt).`,
+      },
+      {
+        name: 'blog_author_id',
+        type: 'string',
+        required: false,
+        description: `ID of the blog author to attribute this post to.`,
+      },
+      {
+        name: 'campaign',
+        type: 'string',
+        required: false,
+        description: `HubSpot marketing campaign GUID to associate with this post.`,
+      },
+      {
+        name: 'content_group_id',
+        type: 'string',
+        required: false,
+        description: `ID of the parent blog (content group) this post is published under.`,
+      },
+      {
+        name: 'featured_image',
+        type: 'string',
+        required: false,
+        description: `URL of the featured image.`,
+      },
+      {
+        name: 'featured_image_alt_text',
+        type: 'string',
+        required: false,
+        description: `Alt text for the featured image.`,
+      },
+      {
+        name: 'html_title',
+        type: 'string',
+        required: false,
+        description: `Browser tab / SEO title for the post.`,
+      },
+      {
+        name: 'language',
+        type: 'string',
+        required: false,
+        description: `ISO 639 language code for this post (used for multi-language variants).`,
+      },
+      {
+        name: 'link_rel_canonical_url',
+        type: 'string',
+        required: false,
+        description: `Canonical URL to use for this post's <link rel="canonical"> tag, overriding the default.`,
+      },
+      {
+        name: 'meta_description',
+        type: 'string',
+        required: false,
+        description: `SEO meta description for the post.`,
+      },
+      { name: 'name', type: 'string', required: false, description: `Title of the blog post.` },
+      {
+        name: 'password',
+        type: 'string',
+        required: false,
+        description: `Password to protect the post with. Leave unset for no password protection.`,
+      },
+      {
+        name: 'post_body',
+        type: 'string',
+        required: false,
+        description: `HTML content of the blog post body.`,
+      },
+      {
+        name: 'post_summary',
+        type: 'string',
+        required: false,
+        description: `Short summary shown on blog listing pages.`,
+      },
+      {
+        name: 'publish_date',
+        type: 'string',
+        required: false,
+        description: `ISO 8601 datetime to schedule publishing.`,
+      },
+      {
+        name: 'publish_immediately',
+        type: 'boolean',
+        required: false,
+        description: `Whether to publish the post immediately rather than leaving it as a draft/scheduled.`,
+      },
+      {
+        name: 'rss_body',
+        type: 'string',
+        required: false,
+        description: `HTML content to use in the RSS feed for this post, if different from postBody.`,
+      },
+      {
+        name: 'rss_summary',
+        type: 'string',
+        required: false,
+        description: `Summary text to use in the RSS feed for this post, if different from postSummary.`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution.`,
+      },
+      {
+        name: 'slug',
+        type: 'string',
+        required: false,
+        description: `URL path segment for the post.`,
+      },
+      {
+        name: 'state',
+        type: 'string',
+        required: false,
+        description: `Current state of the post (e.g. DRAFT, PUBLISHED, SCHEDULED).`,
+      },
+      {
+        name: 'tag_ids',
+        type: 'array',
+        required: false,
+        description: `IDs of blog tags to associate with this post.`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution.`,
+      },
+      {
+        name: 'use_featured_image',
+        type: 'boolean',
+        required: false,
+        description: `Whether to show a featured image on the post.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_blog_posts_batch_archive',
+    description: `Archive multiple blog posts in a single request (up to 100). Requires the 'content' scope.`,
+    params: [
+      {
+        name: 'inputs',
+        type: 'string',
+        required: true,
+        description: `JSON array of post IDs (strings) to archive, e.g. ["<post_id>", ...].`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution.`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_blog_posts_batch_create',
+    description: `Create multiple blog posts in a single request (up to 100). Requires the 'content' scope.`,
+    params: [
+      {
+        name: 'inputs',
+        type: 'string',
+        required: true,
+        description: `JSON array for the batch request. Each item is a full blog post object, e.g. {"name": "...", "contentGroupId": "...", "slug": "..."}.`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution.`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_blog_posts_batch_read',
+    description: `Retrieve multiple blog posts by ID in a single request (up to 100). Requires the 'content' scope.`,
+    params: [
+      {
+        name: 'inputs',
+        type: 'string',
+        required: true,
+        description: `JSON array of post IDs (strings) to fetch, e.g. ["<post_id>", ...].`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution.`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_blog_posts_batch_update',
+    description: `Update multiple blog posts in a single request (up to 100). Requires the 'content' scope.`,
+    params: [
+      {
+        name: 'inputs',
+        type: 'string',
+        required: true,
+        description: `JSON array for the batch request. Each item: {"id": "<post_id>", ...fields to update}.`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution.`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_blog_posts_list',
+    description: `List blog posts in HubSpot CMS. Supports pagination, sorting, and archived/date-range filtering. Requires the 'content' scope.`,
+    params: [
+      {
+        name: 'after',
+        type: 'string',
+        required: false,
+        description: `Pagination cursor for the next page of results.`,
+      },
+      {
+        name: 'archived',
+        type: 'boolean',
+        required: false,
+        description: `If true, include archived (soft-deleted) records alongside active ones (matches confirmed behavior on the sibling authors-list endpoint; this is not an exclusive filter).`,
+      },
+      {
+        name: 'content_group_id',
+        type: 'string',
+        required: false,
+        description: `Filter to posts belonging to a specific blog.`,
+      },
+      {
+        name: 'created_after',
+        type: 'string',
+        required: false,
+        description: `Return records created on or after this ISO 8601 datetime.`,
+      },
+      {
+        name: 'created_at',
+        type: 'string',
+        required: false,
+        description: `Return records created at exactly this ISO 8601 datetime.`,
+      },
+      {
+        name: 'created_before',
+        type: 'string',
+        required: false,
+        description: `Return records created on or before this ISO 8601 datetime.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of results to return per page (max 100).`,
+      },
+      {
+        name: 'property',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of blog post properties to include in the response.`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution.`,
+      },
+      {
+        name: 'sort',
+        type: 'array',
+        required: false,
+        description: `Fields to sort results by; prefix a field with '-' for descending order. Multiple fields are applied in order.`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution.`,
+      },
+      {
+        name: 'updated_after',
+        type: 'string',
+        required: false,
+        description: `Return records updated on or after this ISO 8601 datetime.`,
+      },
+      {
+        name: 'updated_at',
+        type: 'string',
+        required: false,
+        description: `Return records updated at exactly this ISO 8601 datetime.`,
+      },
+      {
+        name: 'updated_before',
+        type: 'string',
+        required: false,
+        description: `Return records updated on or before this ISO 8601 datetime.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_blog_settings_get',
+    description: `List blogs configured in the HubSpot account along with their settings (name, slug, language, description, access rules). Supports pagination, sorting, and archived/date-range filtering. Requires the 'content' scope.`,
+    params: [
+      {
+        name: 'after',
+        type: 'string',
+        required: false,
+        description: `Pagination cursor for the next page of results.`,
+      },
+      {
+        name: 'archived',
+        type: 'boolean',
+        required: false,
+        description: `If true, include archived blogs alongside active ones (matches confirmed behavior on the sibling authors-list endpoint; this is not an exclusive filter).`,
+      },
+      {
+        name: 'created_after',
+        type: 'string',
+        required: false,
+        description: `Return blogs created on or after this ISO 8601 datetime.`,
+      },
+      {
+        name: 'created_at',
+        type: 'string',
+        required: false,
+        description: `Return blogs created at exactly this ISO 8601 datetime.`,
+      },
+      {
+        name: 'created_before',
+        type: 'string',
+        required: false,
+        description: `Return blogs created on or before this ISO 8601 datetime.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of results to return per page (default 100).`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution.`,
+      },
+      {
+        name: 'sort',
+        type: 'array',
+        required: false,
+        description: `Fields to sort results by; prefix a field with '-' for descending order.`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution.`,
+      },
+      {
+        name: 'updated_after',
+        type: 'string',
+        required: false,
+        description: `Return blogs updated on or after this ISO 8601 datetime.`,
+      },
+      {
+        name: 'updated_at',
+        type: 'string',
+        required: false,
+        description: `Return blogs updated at exactly this ISO 8601 datetime.`,
+      },
+      {
+        name: 'updated_before',
+        type: 'string',
+        required: false,
+        description: `Return blogs updated on or before this ISO 8601 datetime.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_blog_tag_create',
+    description: `Create a new blog tag in HubSpot CMS. Requires the 'content' scope.`,
+    params: [
+      { name: 'name', type: 'string', required: true, description: `Name of the blog tag.` },
+      {
+        name: 'language',
+        type: 'string',
+        required: false,
+        description: `ISO 639 language code for this tag. Omit to make the tag available for all languages.`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution.`,
+      },
+      {
+        name: 'slug',
+        type: 'string',
+        required: false,
+        description: `URL-friendly identifier for the tag.`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution.`,
+      },
+      {
+        name: 'translated_from_id',
+        type: 'integer',
+        required: false,
+        description: `ID of the primary tag this tag was translated from, for multi-language tag groups.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_blog_tag_delete',
+    description: `Permanently delete a blog tag from HubSpot CMS by tag ID. Requires the 'content' scope.`,
+    params: [
+      {
+        name: 'tag_id',
+        type: 'string',
+        required: true,
+        description: `ID of the blog tag to delete.`,
+      },
+      {
+        name: 'archived',
+        type: 'boolean',
+        required: false,
+        description: `If true, request a permanent hard-delete of an already-archived tag instead of a soft-delete. HubSpot currently rejects hard deletes for this resource family ('Hard deletes of objects are not supported'), so leave this false/unset for a normal delete.`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution.`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_blog_tag_get',
+    description: `Retrieve a single blog tag from HubSpot CMS by tag ID. Requires the 'content' scope.`,
+    params: [
+      {
+        name: 'tag_id',
+        type: 'string',
+        required: true,
+        description: `ID of the blog tag to retrieve.`,
+      },
+      {
+        name: 'property',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of blog tag properties to include in the response.`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution.`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_blog_tag_update',
+    description: `Update an existing blog tag in HubSpot CMS by tag ID. Requires the 'content' scope.`,
+    params: [
+      {
+        name: 'tag_id',
+        type: 'string',
+        required: true,
+        description: `ID of the blog tag to update.`,
+      },
+      {
+        name: 'language',
+        type: 'string',
+        required: false,
+        description: `ISO 639 language code for this tag. Omit to make the tag available for all languages.`,
+      },
+      { name: 'name', type: 'string', required: false, description: `Name of the blog tag.` },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution.`,
+      },
+      {
+        name: 'slug',
+        type: 'string',
+        required: false,
+        description: `URL-friendly identifier for the tag.`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution.`,
+      },
+      {
+        name: 'translated_from_id',
+        type: 'integer',
+        required: false,
+        description: `ID of the primary tag this tag was translated from, for multi-language tag groups.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_blog_tags_batch_archive',
+    description: `Archive multiple blog tags in a single request (up to 100). Requires the 'content' scope.`,
+    params: [
+      {
+        name: 'inputs',
+        type: 'string',
+        required: true,
+        description: `JSON array of tag IDs (strings) to archive, e.g. ["<tag_id>", ...].`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution.`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_blog_tags_batch_create',
+    description: `Create multiple blog tags in a single request (up to 100). Requires the 'content' scope.`,
+    params: [
+      {
+        name: 'inputs',
+        type: 'string',
+        required: true,
+        description: `JSON array for the batch request. Each item is a full blog tag object, e.g. {"name": "..."}.`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution.`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_blog_tags_batch_read',
+    description: `Retrieve multiple blog tags by ID in a single request (up to 100). Requires the 'content' scope.`,
+    params: [
+      {
+        name: 'inputs',
+        type: 'string',
+        required: true,
+        description: `JSON array of tag IDs (strings) to fetch, e.g. ["<tag_id>", ...].`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution.`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_blog_tags_batch_update',
+    description: `Update multiple blog tags in a single request (up to 100). Requires the 'content' scope.`,
+    params: [
+      {
+        name: 'inputs',
+        type: 'string',
+        required: true,
+        description: `JSON array for the batch request. Each item: {"id": "<tag_id>", ...fields to update}.`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution.`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_blog_tags_list',
+    description: `List blog tags configured in HubSpot CMS. Supports pagination and sorting. For search-by-name/slug/id and active/blog-ID filtering not available here, see hubspot_blog_topics_search (HubSpot's legacy name for tags). Requires the 'content' scope.`,
+    params: [
+      {
+        name: 'after',
+        type: 'string',
+        required: false,
+        description: `Pagination cursor for the next page of results.`,
+      },
+      {
+        name: 'archived',
+        type: 'boolean',
+        required: false,
+        description: `If true, include archived (soft-deleted) records alongside active ones (matches confirmed behavior on the sibling authors-list endpoint; this is not an exclusive filter).`,
+      },
+      {
+        name: 'created_after',
+        type: 'string',
+        required: false,
+        description: `Return records created on or after this ISO 8601 datetime.`,
+      },
+      {
+        name: 'created_at',
+        type: 'string',
+        required: false,
+        description: `Return records created at exactly this ISO 8601 datetime.`,
+      },
+      {
+        name: 'created_before',
+        type: 'string',
+        required: false,
+        description: `Return records created on or before this ISO 8601 datetime.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of results to return per page (max 100).`,
+      },
+      {
+        name: 'property',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of blog tag properties to include in the response.`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution.`,
+      },
+      {
+        name: 'sort',
+        type: 'array',
+        required: false,
+        description: `Fields to sort results by; prefix a field with '-' for descending order. Multiple fields are applied in order.`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution.`,
+      },
+      {
+        name: 'updated_after',
+        type: 'string',
+        required: false,
+        description: `Return records updated on or after this ISO 8601 datetime.`,
+      },
+      {
+        name: 'updated_at',
+        type: 'string',
+        required: false,
+        description: `Return records updated at exactly this ISO 8601 datetime.`,
+      },
+      {
+        name: 'updated_before',
+        type: 'string',
+        required: false,
+        description: `Return records updated on or before this ISO 8601 datetime.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_blog_topics_search',
+    description: `Search blog topics using HubSpot's legacy Blog Topics API. 'Topics' is the legacy name for what the newer CMS v3 API calls blog tags (see hubspot_blog_tags_list / hubspot_blog_tag_get for the modern equivalent); this endpoint offers search-by-name/slug/id and active/blog-ID filtering not available on the v3 tags endpoints. Requires the 'content' scope.`,
+    params: [
+      {
+        name: 'active',
+        type: 'boolean',
+        required: false,
+        description: `Restrict results to topics that are (or are not) associated with any published blog posts.`,
+      },
+      {
+        name: 'blog',
+        type: 'integer',
+        required: false,
+        description: `Restrict results to topics used on a specific blog.`,
+      },
+      {
+        name: 'casing',
+        type: 'string',
+        required: false,
+        description: `Set to 'snake' to have the response returned with snake_case field names instead of camelCase.`,
+      },
+      {
+        name: 'created',
+        type: 'integer',
+        required: false,
+        description: `Filter results by creation date, in milliseconds since the Unix epoch.`,
+      },
+      {
+        name: 'id',
+        type: 'string',
+        required: false,
+        description: `Search for topics by ID. Supports exact value matching.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of results to return per page.`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: false,
+        description: `Search for topics by name. Supports exact value matching.`,
+      },
+      {
+        name: 'offset',
+        type: 'integer',
+        required: false,
+        description: `Number of results to skip, for pagination.`,
+      },
+      {
+        name: 'q',
+        type: 'string',
+        required: false,
+        description: `Search for topics whose name or URL slug contains this string.`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution.`,
+      },
+      {
+        name: 'slug',
+        type: 'string',
+        required: false,
+        description: `Search for topics by URL-friendly slug.`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution.`,
+      },
     ],
   },
   {
@@ -306,6 +2111,18 @@ export const tools: Tool[] = [
       { name: 'export_id', type: 'string', required: true, description: `Export job ID.` },
       { name: 'schema_version', type: 'string', required: false, description: `Schema version` },
       { name: 'tool_version', type: 'string', required: false, description: `Tool version` },
+    ],
+  },
+  {
+    name: 'hubspot_call_delete',
+    description: `Archive (soft delete) a single call by ID. Archived records can typically be restored within 90 days.`,
+    params: [
+      {
+        name: 'call_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the call to delete.`,
+      },
     ],
   },
   {
@@ -455,6 +2272,36 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `ID of the HubSpot owner associated with the call`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_calls_list',
+    description: `Retrieve a plain paginated list of calls from HubSpot, without search filters.`,
+    params: [
+      {
+        name: 'after',
+        type: 'string',
+        required: false,
+        description: `Pagination cursor from the previous response's paging.next.after field.`,
+      },
+      {
+        name: 'archived',
+        type: 'boolean',
+        required: false,
+        description: `Whether to include archived records in the results.`,
+      },
+      {
+        name: 'limit',
+        type: 'number',
+        required: false,
+        description: `Number of results to return per page (max 100).`,
+      },
+      {
+        name: 'properties',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of properties to include in the response.`,
       },
     ],
   },
@@ -771,6 +2618,223 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'hubspot_comment_create',
+    description: `Create a new comment on a blog post or other content in HubSpot CMS. Requires the 'content' scope.`,
+    params: [
+      {
+        name: 'collection_id',
+        type: 'integer',
+        required: true,
+        description: `ID of the blog containing the post being commented on.`,
+      },
+      {
+        name: 'comment',
+        type: 'string',
+        required: true,
+        description: `Text content of the comment.`,
+      },
+      {
+        name: 'content_author_email',
+        type: 'string',
+        required: true,
+        description: `Email address of the blog post's author.`,
+      },
+      {
+        name: 'content_author_name',
+        type: 'string',
+        required: true,
+        description: `Name of the blog post's author.`,
+      },
+      {
+        name: 'content_id',
+        type: 'integer',
+        required: true,
+        description: `ID of the blog post or content being commented on.`,
+      },
+      {
+        name: 'content_permalink',
+        type: 'string',
+        required: true,
+        description: `Public URL of the blog post or content being commented on.`,
+      },
+      {
+        name: 'content_title',
+        type: 'string',
+        required: true,
+        description: `Title of the blog post or content being commented on.`,
+      },
+      {
+        name: 'user_email',
+        type: 'string',
+        required: true,
+        description: `Email address of the person leaving the comment.`,
+      },
+      {
+        name: 'user_name',
+        type: 'string',
+        required: true,
+        description: `Name of the person leaving the comment.`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution.`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution.`,
+      },
+      {
+        name: 'user_url',
+        type: 'string',
+        required: false,
+        description: `Optional homepage URL for the person leaving the comment.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_comment_delete',
+    description: `Permanently delete a comment from HubSpot CMS by comment ID. Requires the 'content' scope.`,
+    params: [
+      {
+        name: 'comment_id',
+        type: 'string',
+        required: true,
+        description: `ID of the comment to delete.`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution.`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_comment_get',
+    description: `Retrieve a single comment from HubSpot CMS by comment ID. Requires the 'content' scope.`,
+    params: [
+      {
+        name: 'comment_id',
+        type: 'string',
+        required: true,
+        description: `ID of the comment to retrieve.`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution.`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_comment_update',
+    description: `Update a comment's moderation state or text in HubSpot CMS. Requires the 'content' scope.`,
+    params: [
+      {
+        name: 'comment_id',
+        type: 'string',
+        required: true,
+        description: `ID of the comment to update.`,
+      },
+      { name: 'comment', type: 'string', required: false, description: `Updated comment text.` },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution.`,
+      },
+      {
+        name: 'state',
+        type: 'string',
+        required: false,
+        description: `New moderation state for the comment.`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_comments_list',
+    description: `List blog/page comments in HubSpot CMS, optionally filtered by content ID, moderation state, or free-text query. Requires the 'content' scope.`,
+    params: [
+      {
+        name: 'content_id',
+        type: 'integer',
+        required: false,
+        description: `Restrict results to comments on a specific blog post or page.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Number of comments to return.`,
+      },
+      {
+        name: 'offset',
+        type: 'integer',
+        required: false,
+        description: `Row offset to start returning results from.`,
+      },
+      {
+        name: 'portal_id',
+        type: 'integer',
+        required: false,
+        description: `The Hub ID (portal ID) of the HubSpot account the comments belong to.`,
+      },
+      {
+        name: 'query',
+        type: 'string',
+        required: false,
+        description: `Free-text search matched against comment content.`,
+      },
+      {
+        name: 'reverse',
+        type: 'boolean',
+        required: false,
+        description: `If true, return comments oldest to newest instead of newest to oldest.`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution.`,
+      },
+      {
+        name: 'state',
+        type: 'string',
+        required: false,
+        description: `Restrict results to comments in this moderation state.`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution.`,
+      },
+    ],
+  },
+  {
     name: 'hubspot_companies_batch_archive',
     description: `Archive (soft delete) a company in HubSpot CRM using the batch archive API. Archived records are hidden from the UI but can be restored.`,
     params: [
@@ -833,6 +2897,36 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `JSON array of objects to upsert in HubSpot batch format.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_companies_list',
+    description: `Retrieve a plain paginated list of companies from HubSpot, without search filters.`,
+    params: [
+      {
+        name: 'after',
+        type: 'string',
+        required: false,
+        description: `Pagination cursor from the previous response's paging.next.after field.`,
+      },
+      {
+        name: 'archived',
+        type: 'boolean',
+        required: false,
+        description: `Whether to include archived records in the results.`,
+      },
+      {
+        name: 'limit',
+        type: 'number',
+        required: false,
+        description: `Number of results to return per page (max 100).`,
+      },
+      {
+        name: 'properties',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of properties to include in the response.`,
       },
     ],
   },
@@ -931,6 +3025,18 @@ export const tools: Tool[] = [
       },
       { name: 'phone', type: 'string', required: false, description: `Company phone number` },
       { name: 'state', type: 'string', required: false, description: `Company state or region` },
+    ],
+  },
+  {
+    name: 'hubspot_company_delete',
+    description: `Archive (soft delete) a single company by ID. Archived records can typically be restored within 90 days.`,
+    params: [
+      {
+        name: 'company_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the company to delete.`,
+      },
     ],
   },
   {
@@ -1070,6 +3176,18 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'hubspot_contact_delete',
+    description: `Archive (soft delete) a single contact by ID. Archived records can typically be restored within 90 days.`,
+    params: [
+      {
+        name: 'contact_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the contact to delete.`,
+      },
+    ],
+  },
+  {
     name: 'hubspot_contact_email_events_get',
     description: `Retrieve marketing email events for a specific contact by their email address. Returns open, click, bounce, and unsubscribe events.`,
     params: [
@@ -1090,6 +3208,24 @@ export const tools: Tool[] = [
         type: 'number',
         required: false,
         description: `Number of events to return per page`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_contact_gdpr_delete',
+    description: `Permanently delete a contact and its associated content to comply with GDPR erasure requests. Unlike hubspot_contact_delete (which archives), this cannot be undone.`,
+    params: [
+      {
+        name: 'object_id',
+        type: 'string',
+        required: true,
+        description: `The contact's ID, or the value of id_property if set.`,
+      },
+      {
+        name: 'id_property',
+        type: 'string',
+        required: false,
+        description: `The property to use to look up the contact. Defaults to the record ID.`,
       },
     ],
   },
@@ -1354,6 +3490,67 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'hubspot_content_audit_logs_get',
+    description: `Retrieve the content audit log in HubSpot CMS, recording who changed what content and when (pages, posts, HubDB tables, redirects, domains, and more). Requires the 'content' scope.`,
+    params: [
+      {
+        name: 'after',
+        type: 'string',
+        required: false,
+        description: `Pagination cursor for the next page of results.`,
+      },
+      {
+        name: 'before',
+        type: 'string',
+        required: false,
+        description: `Pagination cursor for the previous page of results.`,
+      },
+      {
+        name: 'event_types',
+        type: 'array',
+        required: false,
+        description: `Restrict results to one or more event (action) types.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of results to return per page.`,
+      },
+      {
+        name: 'object_ids',
+        type: 'array',
+        required: false,
+        description: `Restrict results to one or more specific content object IDs.`,
+      },
+      {
+        name: 'object_types',
+        type: 'array',
+        required: false,
+        description: `Restrict results to one or more content object types.`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution.`,
+      },
+      { name: 'sort', type: 'array', required: false, description: `Fields to sort results by.` },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution.`,
+      },
+      {
+        name: 'user_ids',
+        type: 'array',
+        required: false,
+        description: `Restrict results to changes made by one or more specific user IDs.`,
+      },
+    ],
+  },
+  {
     name: 'hubspot_custom_object_record_create',
     description: `Create a new record for a HubSpot custom object type.`,
     params: [
@@ -1368,6 +3565,24 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `JSON object containing the properties for the new record`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_custom_object_record_delete',
+    description: `Archive (soft delete) a single custom object record by ID.`,
+    params: [
+      {
+        name: 'object_type_id',
+        type: 'string',
+        required: true,
+        description: `The object type ID or fully qualified name of the custom object.`,
+      },
+      {
+        name: 'record_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the record to delete.`,
       },
     ],
   },
@@ -1416,6 +3631,126 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `ID of the record to update`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_custom_object_records_batch_archive',
+    description: `Archive (soft delete) a batch of custom object records by ID.`,
+    params: [
+      {
+        name: 'inputs',
+        type: 'string',
+        required: true,
+        description: `JSON array of record IDs to archive. Each item: {"id": "<record_id>"}. Up to 100 records.`,
+      },
+      {
+        name: 'object_type_id',
+        type: 'string',
+        required: true,
+        description: `The object type ID or fully qualified name of the custom object.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_custom_object_records_batch_create',
+    description: `Create a batch of custom object records in a single call. Up to 100 per request.`,
+    params: [
+      {
+        name: 'inputs',
+        type: 'string',
+        required: true,
+        description: `JSON array of records to create. Each item: {"properties": {...}}. Up to 100 records.`,
+      },
+      {
+        name: 'object_type_id',
+        type: 'string',
+        required: true,
+        description: `The object type ID or fully qualified name of the custom object.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_custom_object_records_batch_read',
+    description: `Retrieve a batch of custom object records by internal ID or unique property value.`,
+    params: [
+      {
+        name: 'inputs',
+        type: 'string',
+        required: true,
+        description: `JSON array of record IDs to read. Each item: {"id": "<record_id>"}. Up to 100 records.`,
+      },
+      {
+        name: 'object_type_id',
+        type: 'string',
+        required: true,
+        description: `The object type ID or fully qualified name of the custom object.`,
+      },
+      {
+        name: 'properties',
+        type: 'string',
+        required: false,
+        description: `JSON array of property names to return. Leave empty for defaults.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_custom_object_records_batch_update',
+    description: `Update a batch of custom object records by internal ID or unique property value.`,
+    params: [
+      {
+        name: 'inputs',
+        type: 'string',
+        required: true,
+        description: `JSON array of updates. Each item: {"id": "<record_id>", "properties": {...}}. Up to 100 records.`,
+      },
+      {
+        name: 'object_type_id',
+        type: 'string',
+        required: true,
+        description: `The object type ID or fully qualified name of the custom object.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_custom_object_records_batch_upsert',
+    description: `Create or update a batch of custom object records by unique property value. Up to 100 per request.`,
+    params: [
+      {
+        name: 'inputs',
+        type: 'string',
+        required: true,
+        description: `JSON array of records to upsert. Each item: {"idProperty": "<unique property name>", "id": "<value>", "properties": {...}}. Up to 100 records.`,
+      },
+      {
+        name: 'object_type_id',
+        type: 'string',
+        required: true,
+        description: `The object type ID or fully qualified name of the custom object.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_custom_object_records_merge',
+    description: `Merge two custom object records of the same type into one.`,
+    params: [
+      {
+        name: 'object_id_to_merge',
+        type: 'string',
+        required: true,
+        description: `The ID of the record to merge into the primary (this record will be removed).`,
+      },
+      {
+        name: 'object_type_id',
+        type: 'string',
+        required: true,
+        description: `The object type ID or fully qualified name of the custom object.`,
+      },
+      {
+        name: 'primary_object_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the record to keep as primary after the merge.`,
       },
     ],
   },
@@ -1493,6 +3828,18 @@ export const tools: Tool[] = [
         description: `Deal priority (high, medium, low)`,
       },
       { name: 'pipeline', type: 'string', required: false, description: `Deal pipeline` },
+    ],
+  },
+  {
+    name: 'hubspot_deal_delete',
+    description: `Archive (soft delete) a single deal by ID. Archived records can typically be restored within 90 days.`,
+    params: [
+      {
+        name: 'deal_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the deal to delete.`,
+      },
     ],
   },
   {
@@ -1673,6 +4020,36 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'hubspot_deals_list',
+    description: `Retrieve a plain paginated list of deals from HubSpot, without search filters.`,
+    params: [
+      {
+        name: 'after',
+        type: 'string',
+        required: false,
+        description: `Pagination cursor from the previous response's paging.next.after field.`,
+      },
+      {
+        name: 'archived',
+        type: 'boolean',
+        required: false,
+        description: `Whether to include archived records in the results.`,
+      },
+      {
+        name: 'limit',
+        type: 'number',
+        required: false,
+        description: `Number of results to return per page (max 100).`,
+      },
+      {
+        name: 'properties',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of properties to include in the response.`,
+      },
+    ],
+  },
+  {
     name: 'hubspot_deals_merge',
     description: `Merge two deal records of the same type into one, keeping the primary deal.`,
     params: [
@@ -1729,6 +4106,66 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'hubspot_domain_get',
+    description: `Retrieve details for a single domain connected to the HubSpot account by domain ID. Requires the 'cms.domains.read' scope.`,
+    params: [
+      {
+        name: 'domain_id',
+        type: 'string',
+        required: true,
+        description: `ID of the domain to retrieve.`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution.`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_domains_list',
+    description: `List domains connected to the HubSpot account (used for hosting pages, blogs, and email). Requires the 'cms.domains.read' scope.`,
+    params: [
+      {
+        name: 'after',
+        type: 'string',
+        required: false,
+        description: `Pagination cursor for the next page of results.`,
+      },
+      {
+        name: 'archived',
+        type: 'boolean',
+        required: false,
+        description: `If true, return only archived (soft-deleted) records.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of results to return per page (max 100).`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution.`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution.`,
+      },
+    ],
+  },
+  {
     name: 'hubspot_email_create',
     description: `Create an email engagement in HubSpot CRM to log an email interaction on a record's timeline. Use this to record sent, received, or forwarded emails against contacts, companies, or deals.`,
     params: [
@@ -1779,6 +4216,18 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `ID of the HubSpot owner associated with the email`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_email_delete',
+    description: `Archive (soft delete) a single email by ID. Archived records can typically be restored within 90 days.`,
+    params: [
+      {
+        name: 'email_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the email to delete.`,
       },
     ],
   },
@@ -1938,6 +4387,36 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'hubspot_emails_list',
+    description: `Retrieve a plain paginated list of emails from HubSpot, without search filters.`,
+    params: [
+      {
+        name: 'after',
+        type: 'string',
+        required: false,
+        description: `Pagination cursor from the previous response's paging.next.after field.`,
+      },
+      {
+        name: 'archived',
+        type: 'boolean',
+        required: false,
+        description: `Whether to include archived records in the results.`,
+      },
+      {
+        name: 'limit',
+        type: 'number',
+        required: false,
+        description: `Number of results to return per page (max 100).`,
+      },
+      {
+        name: 'properties',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of properties to include in the response.`,
+      },
+    ],
+  },
+  {
     name: 'hubspot_emails_search',
     description: `Search HubSpot email engagements (logged emails) using filters and full-text search. Returns logged email records with their properties.`,
     params: [
@@ -1995,6 +4474,252 @@ export const tools: Tool[] = [
         required: false,
         description: `Number of results to return (max 100)`,
       },
+    ],
+  },
+  {
+    name: 'hubspot_event_definition_create',
+    description: `Define a new custom behavioral event type (schema) in HubSpot. Once created, occurrences can be sent to it with hubspot_event_send or hubspot_events_send_batch. The CRM object association cannot be changed after creation.`,
+    params: [
+      {
+        name: 'label',
+        type: 'string',
+        required: true,
+        description: `Human-readable label for the event, shown in the HubSpot UI. Max 100 characters.`,
+      },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `Description of what this event represents.`,
+      },
+      {
+        name: 'include_default_properties',
+        type: 'boolean',
+        required: false,
+        description: `Whether to include HubSpot's default event properties (e.g. source, URL). Defaults to true.`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: false,
+        description: `Internal name for the event. Max 50 characters. Auto-generated from the label if omitted.`,
+      },
+      {
+        name: 'primary_object',
+        type: 'string',
+        required: false,
+        description: `The CRM object type this event is associated with: CONTACT, COMPANY, DEAL, TICKET, or a custom object name. Defaults to CONTACT if omitted. Cannot be changed after creation.`,
+      },
+      {
+        name: 'property_definitions',
+        type: 'array',
+        required: false,
+        description: `Up to 50 custom property definitions to capture on each occurrence of this event. Pass as a JSON array of objects, each with at least a name, label, and type.`,
+      },
+      { name: 'schema_version', type: 'string', required: false, description: `Schema version` },
+      { name: 'tool_version', type: 'string', required: false, description: `Tool version` },
+    ],
+  },
+  {
+    name: 'hubspot_event_definition_delete',
+    description: `Permanently delete a custom behavioral event definition, along with all of its recorded occurrences. This cannot be undone.`,
+    params: [
+      {
+        name: 'event_name',
+        type: 'string',
+        required: true,
+        description: `The internal name of the custom event definition to delete.`,
+      },
+      { name: 'schema_version', type: 'string', required: false, description: `Schema version` },
+      { name: 'tool_version', type: 'string', required: false, description: `Tool version` },
+    ],
+  },
+  {
+    name: 'hubspot_event_definition_get',
+    description: `Retrieve a single custom behavioral event definition by its internal event name.`,
+    params: [
+      {
+        name: 'event_name',
+        type: 'string',
+        required: true,
+        description: `The internal name of the custom event definition to retrieve.`,
+      },
+      { name: 'schema_version', type: 'string', required: false, description: `Schema version` },
+      { name: 'tool_version', type: 'string', required: false, description: `Tool version` },
+    ],
+  },
+  {
+    name: 'hubspot_event_definition_update',
+    description: `Update the label and/or description of an existing custom behavioral event definition. These are the only two fields that can be modified after creation — the CRM object association and properties cannot be changed via this endpoint.`,
+    params: [
+      {
+        name: 'event_name',
+        type: 'string',
+        required: true,
+        description: `The internal name of the custom event definition to update.`,
+      },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `New description of what this event represents.`,
+      },
+      {
+        name: 'label',
+        type: 'string',
+        required: false,
+        description: `New human-readable label for the event.`,
+      },
+      { name: 'schema_version', type: 'string', required: false, description: `Schema version` },
+      { name: 'tool_version', type: 'string', required: false, description: `Tool version` },
+    ],
+  },
+  {
+    name: 'hubspot_event_definitions_list',
+    description: `Retrieve custom behavioral event definitions (schemas) configured in this HubSpot account, optionally filtered by a search string. Only returns custom event definitions — use hubspot_event_types_list for the full inventory including standard analytics events.`,
+    params: [
+      {
+        name: 'after',
+        type: 'string',
+        required: false,
+        description: `Pagination cursor from a previous response.`,
+      },
+      {
+        name: 'include_properties',
+        type: 'boolean',
+        required: false,
+        description: `Whether to include each definition's property details in the response.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of definitions to return.`,
+      },
+      { name: 'schema_version', type: 'string', required: false, description: `Schema version` },
+      {
+        name: 'search_string',
+        type: 'string',
+        required: false,
+        description: `Filter definitions whose name matches this search string.`,
+      },
+      { name: 'tool_version', type: 'string', required: false, description: `Tool version` },
+    ],
+  },
+  {
+    name: 'hubspot_event_send',
+    description: `Send a single custom behavioral event occurrence to HubSpot for an existing custom event definition. The event must already be defined (see hubspot_event_definition_create) before occurrences can be sent. Identify the target CRM record via object_id, email, or utk.`,
+    params: [
+      {
+        name: 'event_name',
+        type: 'string',
+        required: true,
+        description: `The fully qualified or internal name of the custom event to send, as returned by hubspot_event_definition_create or hubspot_event_definitions_list.`,
+      },
+      {
+        name: 'email',
+        type: 'string',
+        required: false,
+        description: `Email address identifying the contact, used instead of object_id for contact-associated events.`,
+      },
+      {
+        name: 'object_id',
+        type: 'string',
+        required: false,
+        description: `The CRM object ID (contact, company, deal, ticket, or custom object record) this occurrence should be associated with.`,
+      },
+      {
+        name: 'occurred_at',
+        type: 'string',
+        required: false,
+        description: `When the event occurred, as an ISO 8601 datetime. Only used to backdate occurrences; omit to use the current time.`,
+      },
+      {
+        name: 'properties',
+        type: 'object',
+        required: false,
+        description: `Key-value pairs of custom property values for this event occurrence, matching the properties defined on the event definition.`,
+      },
+      { name: 'schema_version', type: 'string', required: false, description: `Schema version` },
+      { name: 'tool_version', type: 'string', required: false, description: `Tool version` },
+      {
+        name: 'utk',
+        type: 'string',
+        required: false,
+        description: `The HubSpot user token (hubspotutk cookie value) identifying the contact, used instead of object_id or email.`,
+      },
+      {
+        name: 'uuid',
+        type: 'string',
+        required: false,
+        description: `A unique identifier for this event occurrence, used to prevent duplicate processing. Auto-generated by HubSpot if omitted.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_event_types_list',
+    description: `Retrieve an account-wide inventory of all event types that have occurrence data available, including standard analytics events (e.g. page views, sequence email opens) as well as custom events and app events. Distinct from hubspot_event_definitions_list, which only returns custom event definitions.`,
+    params: [
+      { name: 'schema_version', type: 'string', required: false, description: `Schema version` },
+      { name: 'tool_version', type: 'string', required: false, description: `Tool version` },
+    ],
+  },
+  {
+    name: 'hubspot_events_list',
+    description: `Retrieve behavioral event occurrences that have already happened (analytics events and custom events), optionally filtered by event type, CRM object, or time range. This queries recorded occurrences — use hubspot_event_definitions_list or hubspot_event_types_list to see what event types exist.`,
+    params: [
+      {
+        name: 'event_type',
+        type: 'string',
+        required: false,
+        description: `Filter to occurrences of a specific event, by its fully qualified name.`,
+      },
+      {
+        name: 'id',
+        type: 'string',
+        required: false,
+        description: `Retrieve a single occurrence by its unique event ID, instead of filtering a list.`,
+      },
+      {
+        name: 'object_id',
+        type: 'string',
+        required: false,
+        description: `Filter to occurrences associated with a specific record ID. Requires object_type to also be set.`,
+      },
+      {
+        name: 'object_type',
+        type: 'string',
+        required: false,
+        description: `Filter to occurrences associated with a specific CRM object type (e.g. contact, company, deal). Required when object_id is provided.`,
+      },
+      {
+        name: 'occurred_after',
+        type: 'string',
+        required: false,
+        description: `Only return occurrences that happened after this timestamp (ISO 8601 or Unix millis).`,
+      },
+      {
+        name: 'occurred_before',
+        type: 'string',
+        required: false,
+        description: `Only return occurrences that happened before this timestamp (ISO 8601 or Unix millis).`,
+      },
+      { name: 'schema_version', type: 'string', required: false, description: `Schema version` },
+      { name: 'tool_version', type: 'string', required: false, description: `Tool version` },
+    ],
+  },
+  {
+    name: 'hubspot_events_send_batch',
+    description: `Send up to 500 custom behavioral event occurrences to HubSpot in a single batch request. Each event must reference an already-defined custom event (see hubspot_event_definition_create) and identify its target CRM record via objectId, email, or utk.`,
+    params: [
+      {
+        name: 'events',
+        type: 'array',
+        required: true,
+        description: `Array of event occurrence objects (up to 500). Each object supports the same fields as hubspot_event_send: eventName (required), and one of objectId/email/utk, plus optional properties, occurredAt, and uuid. Pass as a JSON array via the SDK, or as a JSON-encoded string.`,
+      },
+      { name: 'schema_version', type: 'string', required: false, description: `Schema version` },
+      { name: 'tool_version', type: 'string', required: false, description: `Tool version` },
     ],
   },
   {
@@ -2100,6 +4825,37 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'hubspot_file_delete',
+    description: `Permanently delete a file from the HubSpot file manager by file ID. Requires the 'files' scope.`,
+    params: [
+      { name: 'file_id', type: 'string', required: true, description: `ID of the file to delete.` },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution.`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_file_gdpr_delete',
+    description: `Permanently delete a file for GDPR compliance. This cannot be undone, unlike hubspot_file_delete which only archives the file.`,
+    params: [
+      {
+        name: 'file_id',
+        type: 'string',
+        required: true,
+        description: `The unique ID of the file to permanently delete.`,
+      },
+    ],
+  },
+  {
     name: 'hubspot_file_get',
     description: `Retrieve metadata for a file stored in HubSpot by its file ID.`,
     params: [
@@ -2107,6 +4863,108 @@ export const tools: Tool[] = [
       { name: 'properties', type: 'string', required: false, description: `Properties to return.` },
       { name: 'schema_version', type: 'string', required: false, description: `Schema version` },
       { name: 'tool_version', type: 'string', required: false, description: `Tool version` },
+    ],
+  },
+  {
+    name: 'hubspot_file_import_from_url',
+    description: `Create a new file in the HubSpot file manager by importing it from a publicly reachable URL (asynchronous, no multipart upload required). Returns a task ID; poll hubspot_file_import_from_url_status_get to check completion and get the new file's ID. Requires the 'files' scope.`,
+    params: [
+      {
+        name: 'access',
+        type: 'string',
+        required: true,
+        description: `Privacy/indexing level for the new file.`,
+      },
+      {
+        name: 'url',
+        type: 'string',
+        required: true,
+        description: `Publicly reachable URL to download the new file from.`,
+      },
+      {
+        name: 'duplicate_validation_scope',
+        type: 'string',
+        required: false,
+        description: `Where to look for a duplicate file before importing.`,
+      },
+      {
+        name: 'duplicate_validation_strategy',
+        type: 'string',
+        required: false,
+        description: `What to do if a duplicate file is found.`,
+      },
+      {
+        name: 'expires_at',
+        type: 'string',
+        required: false,
+        description: `ISO 8601 datetime when the imported file should expire.`,
+      },
+      {
+        name: 'folder_id',
+        type: 'string',
+        required: false,
+        description: `Destination folder ID. One of folder_id or folder_path is required by HubSpot but neither is enforced here; omitting both imports to the root.`,
+      },
+      {
+        name: 'folder_path',
+        type: 'string',
+        required: false,
+        description: `Destination folder path. Created automatically if it doesn't already exist.`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: false,
+        description: `Name to give the file in the file manager.`,
+      },
+      {
+        name: 'overwrite',
+        type: 'boolean',
+        required: false,
+        description: `If true, overwrite an existing file with the same name/extension in the destination folder.`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution.`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution.`,
+      },
+      {
+        name: 'ttl',
+        type: 'string',
+        required: false,
+        description: `Time-to-live after which the file is automatically deleted.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_file_import_from_url_status_get',
+    description: `Check the status of an asynchronous file import task started by hubspot_file_import_from_url. Once status is COMPLETE, the response includes the new file's details. Requires the 'files' scope.`,
+    params: [
+      {
+        name: 'task_id',
+        type: 'string',
+        required: true,
+        description: `ID of the import task to check, returned by hubspot_file_import_from_url.`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution.`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution.`,
+      },
     ],
   },
   {
@@ -2132,8 +4990,64 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'hubspot_file_update',
+    description: `Update metadata for an existing file in the HubSpot file manager (name, folder, or access level). Requires the 'files' scope.`,
+    params: [
+      { name: 'file_id', type: 'string', required: true, description: `ID of the file to update.` },
+      {
+        name: 'access',
+        type: 'string',
+        required: false,
+        description: `New privacy/indexing level for the file.`,
+      },
+      {
+        name: 'clear_expires',
+        type: 'boolean',
+        required: false,
+        description: `Remove the file's existing expiration date, if any.`,
+      },
+      {
+        name: 'expires_at',
+        type: 'string',
+        required: false,
+        description: `New expiration date/time for the file, in ISO 8601 format.`,
+      },
+      {
+        name: 'folder_id',
+        type: 'string',
+        required: false,
+        description: `Move the file into this folder ID. Do not set together with folder_path.`,
+      },
+      {
+        name: 'folder_path',
+        type: 'string',
+        required: false,
+        description: `Move the file into this folder path. Do not set together with folder_id.`,
+      },
+      {
+        name: 'is_usable_in_content',
+        type: 'boolean',
+        required: false,
+        description: `Whether this file can be used in content (e.g. inserted into pages, emails).`,
+      },
+      { name: 'name', type: 'string', required: false, description: `New name for the file.` },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution.`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution.`,
+      },
+    ],
+  },
+  {
     name: 'hubspot_files_search',
-    description: `Search files in HubSpot file manager by name, type, extension, date range, or size.`,
+    description: `Search files in the HubSpot file manager by name, type, extension, path, dimensions, size, hash, dates, or ID ranges.`,
     params: [
       { name: 'after', type: 'string', required: false, description: `Pagination cursor.` },
       {
@@ -2143,9 +5057,26 @@ export const tools: Tool[] = [
         description: `Public files only.`,
       },
       { name: 'before', type: 'string', required: false, description: `Before timestamp.` },
+      { name: 'created_at', type: 'string', required: false, description: `Exact creation time.` },
       { name: 'created_at_gte', type: 'string', required: false, description: `Created after.` },
       { name: 'created_at_lte', type: 'string', required: false, description: `Created before.` },
+      { name: 'encoding', type: 'string', required: false, description: `File encoding.` },
+      { name: 'expires_at', type: 'string', required: false, description: `Exact expiry time.` },
+      { name: 'expires_at_gte', type: 'string', required: false, description: `Expiring after.` },
+      { name: 'expires_at_lte', type: 'string', required: false, description: `Expiring before.` },
       { name: 'extension', type: 'string', required: false, description: `File extension.` },
+      { name: 'file_md5', type: 'string', required: false, description: `MD5 hash.` },
+      {
+        name: 'height',
+        type: 'integer',
+        required: false,
+        description: `Exact image/video height.`,
+      },
+      { name: 'height_gte', type: 'integer', required: false, description: `Minimum height.` },
+      { name: 'height_lte', type: 'integer', required: false, description: `Maximum height.` },
+      { name: 'id_gte', type: 'integer', required: false, description: `Minimum file ID.` },
+      { name: 'id_lte', type: 'integer', required: false, description: `Maximum file ID.` },
+      { name: 'ids', type: 'array', required: false, description: `Specific file IDs to match.` },
       {
         name: 'is_usable_in_content',
         type: 'boolean',
@@ -2154,16 +5085,166 @@ export const tools: Tool[] = [
       },
       { name: 'limit', type: 'integer', required: false, description: `Page size.` },
       { name: 'name', type: 'string', required: false, description: `File name search.` },
+      {
+        name: 'parent_folder_ids',
+        type: 'array',
+        required: false,
+        description: `Restrict to specific parent folders.`,
+      },
       { name: 'path', type: 'string', required: false, description: `File path.` },
-      { name: 'properties', type: 'string', required: false, description: `Properties to return.` },
-      { name: 'schema_version', type: 'string', required: false, description: `Schema version` },
+      { name: 'properties', type: 'array', required: false, description: `Properties to return.` },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution.`,
+      },
+      { name: 'size', type: 'integer', required: false, description: `Exact file size.` },
       { name: 'size_gte', type: 'integer', required: false, description: `Min file size.` },
       { name: 'size_lte', type: 'integer', required: false, description: `Max file size.` },
-      { name: 'sort', type: 'string', required: false, description: `Sort field.` },
-      { name: 'tool_version', type: 'string', required: false, description: `Tool version` },
+      { name: 'sort', type: 'array', required: false, description: `Sort field.` },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution.`,
+      },
       { name: 'type', type: 'string', required: false, description: `File type.` },
+      { name: 'updated_at', type: 'string', required: false, description: `Exact update time.` },
       { name: 'updated_at_gte', type: 'string', required: false, description: `Updated after.` },
       { name: 'updated_at_lte', type: 'string', required: false, description: `Updated before.` },
+      { name: 'url', type: 'string', required: false, description: `Exact URL search.` },
+      { name: 'width', type: 'integer', required: false, description: `Exact image/video width.` },
+      { name: 'width_gte', type: 'integer', required: false, description: `Minimum width.` },
+      { name: 'width_lte', type: 'integer', required: false, description: `Maximum width.` },
+    ],
+  },
+  {
+    name: 'hubspot_folder_create',
+    description: `Create a new folder in the HubSpot file manager. Requires the 'files' scope.`,
+    params: [
+      { name: 'name', type: 'string', required: true, description: `Name of the new folder.` },
+      {
+        name: 'parent_folder_id',
+        type: 'string',
+        required: false,
+        description: `ID of the parent folder to nest this folder under. Do not set together with parent_path.`,
+      },
+      {
+        name: 'parent_path',
+        type: 'string',
+        required: false,
+        description: `Path of the parent folder to nest this folder under. Do not set together with parent_folder_id.`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution.`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_folder_delete',
+    description: `Delete a file manager folder by ID.`,
+    params: [
+      {
+        name: 'folder_id',
+        type: 'string',
+        required: true,
+        description: `The unique ID of the folder to delete.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_folder_get',
+    description: `Retrieve a single file manager folder by ID.`,
+    params: [
+      {
+        name: 'folder_id',
+        type: 'string',
+        required: true,
+        description: `The unique ID of the folder to retrieve.`,
+      },
+      {
+        name: 'properties',
+        type: 'string',
+        required: false,
+        description: `JSON array of property names to include in the response.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_folder_update',
+    description: `Update a file manager folder's name or parent folder by folder ID.`,
+    params: [
+      {
+        name: 'folder_id',
+        type: 'string',
+        required: true,
+        description: `The unique ID of the folder to update.`,
+      },
+      { name: 'name', type: 'string', required: false, description: `New name for the folder.` },
+      {
+        name: 'parent_folder_id',
+        type: 'string',
+        required: false,
+        description: `New parent folder ID to move this folder under.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_folders_list',
+    description: `List folders in the HubSpot file manager, with pagination and optional parent-folder filtering. Requires the 'files' scope.`,
+    params: [
+      {
+        name: 'after',
+        type: 'string',
+        required: false,
+        description: `Pagination cursor for the next page of results.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of results to return per page (max 100).`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: false,
+        description: `Filter folders by exact name.`,
+      },
+      {
+        name: 'parent_folder_id',
+        type: 'string',
+        required: false,
+        description: `Restrict results to sub-folders of a specific folder.`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution.`,
+      },
+      {
+        name: 'sort',
+        type: 'string',
+        required: false,
+        description: `Property to sort results by; prefix with '-' for descending order.`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution.`,
+      },
     ],
   },
   {
@@ -2309,6 +5390,72 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Optional tool version`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_form_get',
+    description: `Retrieve a single HubSpot form definition by ID.`,
+    params: [
+      {
+        name: 'formId',
+        type: 'string',
+        required: true,
+        description: `Form ID from the URL or hubspot_forms_list.`,
+      },
+      {
+        name: 'archived',
+        type: 'boolean',
+        required: false,
+        description: `Set to true to retrieve the form even if it has been archived.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_form_partial_update',
+    description: `Partially update a HubSpot form definition — only the fields provided are changed, unlike hubspot_form_update which requires a full replacement.`,
+    params: [
+      {
+        name: 'formId',
+        type: 'string',
+        required: true,
+        description: `The unique ID of the form to update.`,
+      },
+      {
+        name: 'archived',
+        type: 'boolean',
+        required: false,
+        description: `Set to true to archive the form.`,
+      },
+      {
+        name: 'configuration',
+        type: 'string',
+        required: false,
+        description: `Partial form configuration to merge in. Pass as a JSON object via the SDK, not as a string.`,
+      },
+      {
+        name: 'displayOptions',
+        type: 'string',
+        required: false,
+        description: `Partial display options to merge in. Pass as a JSON object via the SDK, not as a string.`,
+      },
+      {
+        name: 'fieldGroups',
+        type: 'string',
+        required: false,
+        description: `Replacement array of field groups defining the form layout and fields. Pass as a JSON array via the SDK, not as a string.`,
+      },
+      {
+        name: 'legalConsentOptions',
+        type: 'string',
+        required: false,
+        description: `Legal consent configuration. Pass as a JSON object via the SDK, not as a string.`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: false,
+        description: `New display name for the form.`,
       },
     ],
   },
@@ -2626,6 +5773,1001 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'hubspot_hubdb_draft_tables_list',
+    description: `List the draft (unpublished) versions of HubDB tables in the HubSpot account. Requires the 'hubdb' scope.`,
+    params: [
+      {
+        name: 'after',
+        type: 'string',
+        required: false,
+        description: `Pagination cursor for the next page of results.`,
+      },
+      {
+        name: 'archived',
+        type: 'boolean',
+        required: false,
+        description: `If true, return only archived (soft-deleted) records.`,
+      },
+      {
+        name: 'content_type',
+        type: 'string',
+        required: false,
+        description: `Restrict results to tables with a specific content type.`,
+      },
+      {
+        name: 'created_after',
+        type: 'string',
+        required: false,
+        description: `Return records created on or after this ISO 8601 datetime.`,
+      },
+      {
+        name: 'created_at',
+        type: 'string',
+        required: false,
+        description: `Return records created at exactly this ISO 8601 datetime.`,
+      },
+      {
+        name: 'created_before',
+        type: 'string',
+        required: false,
+        description: `Return records created on or before this ISO 8601 datetime.`,
+      },
+      {
+        name: 'is_get_localized_schema',
+        type: 'boolean',
+        required: false,
+        description: `Whether to return the table schema localized for the current account language.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of results to return per page (max 100).`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution.`,
+      },
+      {
+        name: 'sort',
+        type: 'array',
+        required: false,
+        description: `Fields to sort results by; prefix a field with '-' for descending order.`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution.`,
+      },
+      {
+        name: 'updated_after',
+        type: 'string',
+        required: false,
+        description: `Return records updated on or after this ISO 8601 datetime.`,
+      },
+      {
+        name: 'updated_at',
+        type: 'string',
+        required: false,
+        description: `Return records updated at exactly this ISO 8601 datetime.`,
+      },
+      {
+        name: 'updated_before',
+        type: 'string',
+        required: false,
+        description: `Return records updated on or before this ISO 8601 datetime.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_hubdb_row_clone',
+    description: `Clone a single existing row within the draft version of a HubDB table, creating a duplicate row. For cloning many rows at once, use hubspot_hubdb_rows_batch_clone instead. Requires the 'hubdb' scope.`,
+    params: [
+      { name: 'row_id', type: 'string', required: true, description: `ID of the row to clone.` },
+      {
+        name: 'table_id_or_name',
+        type: 'string',
+        required: true,
+        description: `ID or internal name of the HubDB table.`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: false,
+        description: `Optional name for the cloned row.`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution.`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_hubdb_row_create',
+    description: `Create a new row in a HubDB table. The new row is added to the draft version; call hubspot_hubdb_table_publish afterward to make it live. Requires the 'hubdb' scope.`,
+    params: [
+      {
+        name: 'table_id_or_name',
+        type: 'string',
+        required: true,
+        description: `ID or internal name of the HubDB table.`,
+      },
+      {
+        name: 'values',
+        type: 'string',
+        required: true,
+        description: `JSON object mapping column names to values for this row.`,
+      },
+      {
+        name: 'child_table_id',
+        type: 'string',
+        required: false,
+        description: `ID of a child table to associate with this row, for multi-level dynamic pages.`,
+      },
+      {
+        name: 'display_index',
+        type: 'integer',
+        required: false,
+        description: `Position index controlling where this row is displayed within the table's row order.`,
+      },
+      {
+        name: 'path',
+        type: 'string',
+        required: false,
+        description: `URL path suffix for the row's dynamic page (only used if the table drives dynamic pages).`,
+      },
+      {
+        name: 'row_name',
+        type: 'string',
+        required: false,
+        description: `HTML title for the row's dynamic page (only used if the table drives dynamic pages).`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution.`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_hubdb_row_delete',
+    description: `Permanently delete a row from a HubDB table's draft version by row ID. Call hubspot_hubdb_table_publish afterward to make the deletion live. Requires the 'hubdb' scope.`,
+    params: [
+      { name: 'row_id', type: 'string', required: true, description: `ID of the row to delete.` },
+      {
+        name: 'table_id_or_name',
+        type: 'string',
+        required: true,
+        description: `ID or internal name of the HubDB table.`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution.`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_hubdb_row_draft_get',
+    description: `Retrieve a single row from the draft (unpublished) version of a HubDB table by row ID. For the published copy of the row, use hubspot_hubdb_row_get instead. Requires the 'hubdb' scope.`,
+    params: [
+      { name: 'row_id', type: 'string', required: true, description: `ID of the row to retrieve.` },
+      {
+        name: 'table_id_or_name',
+        type: 'string',
+        required: true,
+        description: `ID or internal name of the HubDB table.`,
+      },
+      {
+        name: 'archived',
+        type: 'boolean',
+        required: false,
+        description: `If true, return the row only if it has been archived (soft-deleted).`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution.`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_hubdb_row_get',
+    description: `Retrieve a single row from the published version of a HubDB table by row ID. For the unpublished draft copy of the row, use hubspot_hubdb_row_draft_get instead. Requires the 'hubdb' scope.`,
+    params: [
+      { name: 'row_id', type: 'string', required: true, description: `ID of the row to retrieve.` },
+      {
+        name: 'table_id_or_name',
+        type: 'string',
+        required: true,
+        description: `ID or internal name of the HubDB table.`,
+      },
+      {
+        name: 'archived',
+        type: 'boolean',
+        required: false,
+        description: `If true, return the row only if it has been archived (soft-deleted).`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution.`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_hubdb_row_update',
+    description: `Update an existing row in a HubDB table by row ID. This updates the table's draft version; call hubspot_hubdb_table_publish afterward to make the change live. Only provided fields are changed. Requires the 'hubdb' scope.`,
+    params: [
+      { name: 'row_id', type: 'string', required: true, description: `ID of the row to update.` },
+      {
+        name: 'table_id_or_name',
+        type: 'string',
+        required: true,
+        description: `ID or internal name of the HubDB table.`,
+      },
+      {
+        name: 'display_index',
+        type: 'integer',
+        required: false,
+        description: `Position index controlling where this row is displayed within the table's row order.`,
+      },
+      {
+        name: 'path',
+        type: 'string',
+        required: false,
+        description: `URL path suffix for the row's dynamic page.`,
+      },
+      {
+        name: 'row_name',
+        type: 'string',
+        required: false,
+        description: `HTML title for the row's dynamic page.`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution.`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution.`,
+      },
+      {
+        name: 'values',
+        type: 'string',
+        required: false,
+        description: `JSON object mapping column names to values for this row.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_hubdb_rows_batch_clone',
+    description: `Clone multiple existing rows within a HubDB table's draft version in a single request. Requires the 'hubdb' scope.`,
+    params: [
+      {
+        name: 'inputs',
+        type: 'string',
+        required: true,
+        description: `JSON array for the batch request. Each item clones one row: {"id": "<row_id>", "name": "<optional new name>"}.`,
+      },
+      {
+        name: 'table_id_or_name',
+        type: 'string',
+        required: true,
+        description: `ID or internal name of the HubDB table.`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution.`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_hubdb_rows_batch_create',
+    description: `Create multiple rows in a HubDB table in a single request. New rows are added to the draft version; call hubspot_hubdb_table_publish afterward to make them live. Requires the 'hubdb' scope.`,
+    params: [
+      {
+        name: 'inputs',
+        type: 'string',
+        required: true,
+        description: `JSON array for the batch request. Each item is a row object, e.g. {"values": {"col": "value"}, "path": "...", "name": "..."}.`,
+      },
+      {
+        name: 'table_id_or_name',
+        type: 'string',
+        required: true,
+        description: `ID or internal name of the HubDB table.`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution.`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_hubdb_rows_batch_purge',
+    description: `Permanently delete multiple rows from a HubDB table's draft version by row ID in a single request. Requires the 'hubdb' scope.`,
+    params: [
+      {
+        name: 'inputs',
+        type: 'string',
+        required: true,
+        description: `JSON array for the batch request. A JSON array of row IDs (strings) to permanently delete.`,
+      },
+      {
+        name: 'table_id_or_name',
+        type: 'string',
+        required: true,
+        description: `ID or internal name of the HubDB table.`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution.`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_hubdb_rows_batch_read',
+    description: `Retrieve multiple rows from a HubDB table's draft version by row ID in a single request. Requires the 'hubdb' scope.`,
+    params: [
+      {
+        name: 'inputs',
+        type: 'string',
+        required: true,
+        description: `JSON array of row IDs (strings) to fetch, e.g. ["<row_id>", ...].`,
+      },
+      {
+        name: 'table_id_or_name',
+        type: 'string',
+        required: true,
+        description: `ID or internal name of the HubDB table.`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution.`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_hubdb_rows_batch_replace',
+    description: `Replace multiple rows in a HubDB table's draft version wholesale in a single request (up to 100). Unlike batch update, unspecified columns in 'values' are cleared rather than left unchanged. Call hubspot_hubdb_table_publish afterward to make the changes live. Requires the 'hubdb' scope.`,
+    params: [
+      {
+        name: 'inputs',
+        type: 'string',
+        required: true,
+        description: `JSON array for the batch request. Each item wholesale-replaces one row: {"id": "<row_id>", "values": {...all column values}}.`,
+      },
+      {
+        name: 'table_id_or_name',
+        type: 'string',
+        required: true,
+        description: `ID or internal name of the HubDB table.`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution.`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_hubdb_rows_batch_update',
+    description: `Update multiple rows in a HubDB table's draft version in a single request. Call hubspot_hubdb_table_publish afterward to make the changes live. Requires the 'hubdb' scope.`,
+    params: [
+      {
+        name: 'inputs',
+        type: 'string',
+        required: true,
+        description: `JSON array for the batch request. Each item: {"id": "<row_id>", "values": {...fields to update}}.`,
+      },
+      {
+        name: 'table_id_or_name',
+        type: 'string',
+        required: true,
+        description: `ID or internal name of the HubDB table.`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution.`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_hubdb_rows_draft_get',
+    description: `List rows from the draft (unpublished) version of a HubDB table, with pagination and sorting. Requires the 'hubdb' scope.`,
+    params: [
+      {
+        name: 'table_id_or_name',
+        type: 'string',
+        required: true,
+        description: `ID or internal name of the HubDB table.`,
+      },
+      {
+        name: 'after',
+        type: 'string',
+        required: false,
+        description: `Pagination cursor for the next page of results.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of results to return per page (max 100).`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution.`,
+      },
+      {
+        name: 'sort',
+        type: 'string',
+        required: false,
+        description: `Property to sort results by; prefix with '-' for descending order.`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_hubdb_rows_get',
+    description: `List rows from the published version of a HubDB table, with pagination and sorting. Requires the 'hubdb' scope.`,
+    params: [
+      {
+        name: 'table_id_or_name',
+        type: 'string',
+        required: true,
+        description: `ID or internal name of the HubDB table.`,
+      },
+      {
+        name: 'after',
+        type: 'string',
+        required: false,
+        description: `Pagination cursor for the next page of results.`,
+      },
+      {
+        name: 'archived',
+        type: 'boolean',
+        required: false,
+        description: `If true, return only archived (soft-deleted) rows.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of results to return per page (max 100).`,
+      },
+      {
+        name: 'offset',
+        type: 'integer',
+        required: false,
+        description: `Row offset to start returning results from.`,
+      },
+      {
+        name: 'properties',
+        type: 'array',
+        required: false,
+        description: `Restrict which row properties are included in the response.`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution.`,
+      },
+      {
+        name: 'sort',
+        type: 'array',
+        required: false,
+        description: `Fields to sort results by; prefix a field with '-' for descending order.`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_hubdb_table_archive',
+    description: `Permanently delete (archive) a HubDB table by table ID or name. Requires the 'hubdb' scope.`,
+    params: [
+      {
+        name: 'table_id_or_name',
+        type: 'string',
+        required: true,
+        description: `ID or internal name of the HubDB table.`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution.`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_hubdb_table_create',
+    description: `Create a new HubDB table in the HubSpot account. Requires the 'hubdb' scope.`,
+    params: [
+      {
+        name: 'hubdb_name',
+        type: 'string',
+        required: true,
+        description: `Internal name of the table (lowercase letters, digits, underscores only; cannot start with a digit).`,
+      },
+      {
+        name: 'label',
+        type: 'string',
+        required: true,
+        description: `User-facing display label for the table.`,
+      },
+      {
+        name: 'additional_properties',
+        type: 'object',
+        required: false,
+        description: `Additional raw HubDB table fields to merge into the request (e.g. dynamicMetaTags).`,
+      },
+      {
+        name: 'allow_child_tables',
+        type: 'boolean',
+        required: false,
+        description: `Whether this table can have child tables for multi-level dynamic pages.`,
+      },
+      {
+        name: 'allow_public_api_access',
+        type: 'boolean',
+        required: false,
+        description: `Whether this table's published data is readable without authentication.`,
+      },
+      {
+        name: 'columns',
+        type: 'string',
+        required: false,
+        description: `JSON array of column definitions for the table.`,
+      },
+      {
+        name: 'enable_child_table_pages',
+        type: 'boolean',
+        required: false,
+        description: `Whether child table rows can power their own dynamic pages.`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution.`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution.`,
+      },
+      {
+        name: 'use_for_pages',
+        type: 'boolean',
+        required: false,
+        description: `Whether rows in this table can drive dynamic pages.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_hubdb_table_draft_get',
+    description: `Retrieve metadata for the draft (unpublished) version of a HubDB table by table ID or name. Requires the 'hubdb' scope.`,
+    params: [
+      {
+        name: 'table_id_or_name',
+        type: 'string',
+        required: true,
+        description: `ID or internal name of the HubDB table.`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution.`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_hubdb_table_draft_reset',
+    description: `Discard unpublished draft changes on a HubDB table, reverting the draft to match the published version. Requires the 'hubdb' scope.`,
+    params: [
+      {
+        name: 'table_id_or_name',
+        type: 'string',
+        required: true,
+        description: `ID or internal name of the HubDB table.`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution.`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_hubdb_table_draft_update',
+    description: `Update the draft version of a HubDB table's metadata (label, settings, columns). Only provided fields are changed. Requires the 'hubdb' scope.`,
+    params: [
+      {
+        name: 'table_id_or_name',
+        type: 'string',
+        required: true,
+        description: `ID or internal name of the HubDB table.`,
+      },
+      {
+        name: 'additional_properties',
+        type: 'object',
+        required: false,
+        description: `Additional raw HubDB table fields to merge into the request (e.g. dynamicMetaTags).`,
+      },
+      {
+        name: 'allow_child_tables',
+        type: 'boolean',
+        required: false,
+        description: `Whether this table can have child tables for multi-level dynamic pages.`,
+      },
+      {
+        name: 'allow_public_api_access',
+        type: 'boolean',
+        required: false,
+        description: `Whether this table's published data is readable without authentication.`,
+      },
+      {
+        name: 'archived',
+        type: 'boolean',
+        required: false,
+        description: `Set to false to restore an archived table via this draft update, or true to archive it.`,
+      },
+      {
+        name: 'columns',
+        type: 'string',
+        required: false,
+        description: `JSON array of column definitions for the table.`,
+      },
+      {
+        name: 'enable_child_table_pages',
+        type: 'boolean',
+        required: false,
+        description: `Whether child table rows can power their own dynamic pages.`,
+      },
+      {
+        name: 'label',
+        type: 'string',
+        required: false,
+        description: `User-facing display label for the table.`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution.`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution.`,
+      },
+      {
+        name: 'use_for_pages',
+        type: 'boolean',
+        required: false,
+        description: `Whether rows in this table can drive dynamic pages.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_hubdb_table_get',
+    description: `Retrieve metadata for the published version of a HubDB table by table ID or name. Requires the 'hubdb' scope.`,
+    params: [
+      {
+        name: 'table_id_or_name',
+        type: 'string',
+        required: true,
+        description: `ID or internal name of the HubDB table.`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution.`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_hubdb_table_publish',
+    description: `Publish (push live) the draft version of a HubDB table, making draft row/column changes visible in the published table. Requires the 'hubdb' scope.`,
+    params: [
+      {
+        name: 'table_id_or_name',
+        type: 'string',
+        required: true,
+        description: `ID or internal name of the HubDB table.`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution.`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_hubdb_table_unpublish',
+    description: `Unpublish a HubDB table so that website pages using its data stop rendering that data, without deleting the table or its rows. The table and its data remain intact and can be republished later. Requires the 'hubdb' scope.`,
+    params: [
+      {
+        name: 'table_id_or_name',
+        type: 'string',
+        required: true,
+        description: `ID or internal name of the HubDB table.`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution.`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_hubdb_table_version_delete',
+    description: `Permanently delete a specific historical version (snapshot) of a HubDB table, without affecting the current table or its other versions. Requires the 'hubdb' scope.`,
+    params: [
+      {
+        name: 'table_id_or_name',
+        type: 'string',
+        required: true,
+        description: `ID or internal name of the HubDB table.`,
+      },
+      {
+        name: 'version_id',
+        type: 'integer',
+        required: true,
+        description: `ID of the specific table version (snapshot) to delete.`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution.`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_hubdb_tables_list',
+    description: `List HubDB tables in the HubSpot account. Requires the 'hubdb' scope.`,
+    params: [
+      {
+        name: 'after',
+        type: 'string',
+        required: false,
+        description: `Pagination cursor for the next page of results.`,
+      },
+      {
+        name: 'archived',
+        type: 'boolean',
+        required: false,
+        description: `If true, return only archived (soft-deleted) records.`,
+      },
+      {
+        name: 'content_type',
+        type: 'string',
+        required: false,
+        description: `Restrict results to tables with a specific content type.`,
+      },
+      {
+        name: 'created_after',
+        type: 'string',
+        required: false,
+        description: `Return records created on or after this ISO 8601 datetime.`,
+      },
+      {
+        name: 'created_at',
+        type: 'string',
+        required: false,
+        description: `Return records created at exactly this ISO 8601 datetime.`,
+      },
+      {
+        name: 'created_before',
+        type: 'string',
+        required: false,
+        description: `Return records created on or before this ISO 8601 datetime.`,
+      },
+      {
+        name: 'is_get_localized_schema',
+        type: 'boolean',
+        required: false,
+        description: `Whether to return the table schema localized for the current account language.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of results to return per page (max 100).`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution.`,
+      },
+      {
+        name: 'sort',
+        type: 'array',
+        required: false,
+        description: `Fields to sort results by; prefix a field with '-' for descending order.`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution.`,
+      },
+      {
+        name: 'updated_after',
+        type: 'string',
+        required: false,
+        description: `Return records updated on or after this ISO 8601 datetime.`,
+      },
+      {
+        name: 'updated_at',
+        type: 'string',
+        required: false,
+        description: `Return records updated at exactly this ISO 8601 datetime.`,
+      },
+      {
+        name: 'updated_before',
+        type: 'string',
+        required: false,
+        description: `Return records updated on or before this ISO 8601 datetime.`,
+      },
+    ],
+  },
+  {
     name: 'hubspot_import_cancel',
     description: `Cancel an active import job.`,
     params: [
@@ -2691,6 +6833,556 @@ export const tools: Tool[] = [
       { name: 'schema_version', type: 'string', required: false, description: `Schema version` },
       { name: 'sort', type: 'string', required: false, description: `Sort parameters.` },
       { name: 'tool_version', type: 'string', required: false, description: `Tool version` },
+    ],
+  },
+  {
+    name: 'hubspot_landing_page_archive',
+    description: `Archive (soft-delete) a landing page in HubSpot CMS by page ID. Requires the 'content' scope.`,
+    params: [
+      {
+        name: 'page_id',
+        type: 'string',
+        required: true,
+        description: `ID of the landing page to archive.`,
+      },
+      {
+        name: 'archived',
+        type: 'boolean',
+        required: false,
+        description: `If true, request a permanent hard-delete of an already-archived page instead of a soft-delete/archive. HubSpot currently rejects hard deletes for pages ('Hard deletes of objects are not supported'), so leave this false/unset for a normal archive.`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution.`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_landing_page_create',
+    description: `Create a new landing page in HubSpot CMS. Requires the 'content' scope.`,
+    params: [
+      { name: 'name', type: 'string', required: true, description: `Title of the page.` },
+      {
+        name: 'template_path',
+        type: 'string',
+        required: true,
+        description: `Path to the template used to render the page (without a leading slash).`,
+      },
+      {
+        name: 'additional_properties',
+        type: 'object',
+        required: false,
+        description: `Additional raw HubSpot page fields to merge into the request (e.g. layoutSections, widgets, translations, archivedAt).`,
+      },
+      {
+        name: 'author_name',
+        type: 'string',
+        required: false,
+        description: `Name of the content author to display.`,
+      },
+      {
+        name: 'campaign',
+        type: 'string',
+        required: false,
+        description: `HubSpot marketing campaign GUID to associate with this page.`,
+      },
+      {
+        name: 'domain',
+        type: 'string',
+        required: false,
+        description: `Custom domain to publish the page on. Leave blank to use the primary domain.`,
+      },
+      {
+        name: 'featured_image',
+        type: 'string',
+        required: false,
+        description: `URL of the featured image.`,
+      },
+      {
+        name: 'featured_image_alt_text',
+        type: 'string',
+        required: false,
+        description: `Alt text for the featured image.`,
+      },
+      {
+        name: 'html_title',
+        type: 'string',
+        required: false,
+        description: `Browser tab / SEO title for the page.`,
+      },
+      {
+        name: 'language',
+        type: 'string',
+        required: false,
+        description: `ISO 639 language code for this page (used for multi-language variants).`,
+      },
+      {
+        name: 'meta_description',
+        type: 'string',
+        required: false,
+        description: `SEO meta description for the page.`,
+      },
+      {
+        name: 'publish_date',
+        type: 'string',
+        required: false,
+        description: `ISO 8601 datetime to schedule publishing.`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution.`,
+      },
+      {
+        name: 'slug',
+        type: 'string',
+        required: false,
+        description: `URL path segment for the page.`,
+      },
+      {
+        name: 'state',
+        type: 'string',
+        required: false,
+        description: `Current state of the page (e.g. DRAFT, PUBLISHED, SCHEDULED).`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution.`,
+      },
+      {
+        name: 'use_featured_image',
+        type: 'boolean',
+        required: false,
+        description: `Whether to show a featured image on the page.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_landing_page_get',
+    description: `Retrieve a single landing page from HubSpot CMS by its page ID. Requires the 'content' scope.`,
+    params: [
+      {
+        name: 'page_id',
+        type: 'string',
+        required: true,
+        description: `ID of the landing page to retrieve.`,
+      },
+      {
+        name: 'archived',
+        type: 'boolean',
+        required: false,
+        description: `If true, return only archived (soft-deleted) records.`,
+      },
+      {
+        name: 'property',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of landing page properties to include in the response.`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution.`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_landing_page_revision_get',
+    description: `Retrieve a specific historical revision of a landing page by revision ID. Requires the 'content' scope.`,
+    params: [
+      { name: 'page_id', type: 'string', required: true, description: `ID of the landing page.` },
+      {
+        name: 'revision_id',
+        type: 'string',
+        required: true,
+        description: `ID of the specific revision to retrieve.`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution.`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_landing_page_revision_restore',
+    description: `Restore a landing page to a previous revision. Requires the 'content' scope.`,
+    params: [
+      { name: 'page_id', type: 'string', required: true, description: `ID of the landing page.` },
+      {
+        name: 'revision_id',
+        type: 'string',
+        required: true,
+        description: `ID of the revision to restore.`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution.`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_landing_page_revisions_list',
+    description: `List the revision history of a landing page in HubSpot CMS. Requires the 'content' scope.`,
+    params: [
+      {
+        name: 'page_id',
+        type: 'string',
+        required: true,
+        description: `ID of the landing page whose revisions to list.`,
+      },
+      {
+        name: 'after',
+        type: 'string',
+        required: false,
+        description: `Pagination cursor for the next page of results.`,
+      },
+      {
+        name: 'before',
+        type: 'string',
+        required: false,
+        description: `Pagination cursor for the previous page of results.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of results to return per page (max 100).`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution.`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_landing_page_update',
+    description: `Update an existing landing page in HubSpot CMS by page ID. Only provided fields are changed. Requires the 'content' scope.`,
+    params: [
+      {
+        name: 'page_id',
+        type: 'string',
+        required: true,
+        description: `ID of the landing page to update.`,
+      },
+      {
+        name: 'additional_properties',
+        type: 'object',
+        required: false,
+        description: `Additional raw HubSpot page fields to merge into the request (e.g. layoutSections, widgets, translations, archivedAt).`,
+      },
+      {
+        name: 'author_name',
+        type: 'string',
+        required: false,
+        description: `Name of the content author to display.`,
+      },
+      {
+        name: 'campaign',
+        type: 'string',
+        required: false,
+        description: `HubSpot marketing campaign GUID to associate with this page.`,
+      },
+      {
+        name: 'domain',
+        type: 'string',
+        required: false,
+        description: `Custom domain to publish the page on. Leave blank to use the primary domain.`,
+      },
+      {
+        name: 'featured_image',
+        type: 'string',
+        required: false,
+        description: `URL of the featured image.`,
+      },
+      {
+        name: 'featured_image_alt_text',
+        type: 'string',
+        required: false,
+        description: `Alt text for the featured image.`,
+      },
+      {
+        name: 'html_title',
+        type: 'string',
+        required: false,
+        description: `Browser tab / SEO title for the page.`,
+      },
+      {
+        name: 'language',
+        type: 'string',
+        required: false,
+        description: `ISO 639 language code for this page (used for multi-language variants).`,
+      },
+      {
+        name: 'meta_description',
+        type: 'string',
+        required: false,
+        description: `SEO meta description for the page.`,
+      },
+      { name: 'name', type: 'string', required: false, description: `Title of the page.` },
+      {
+        name: 'publish_date',
+        type: 'string',
+        required: false,
+        description: `ISO 8601 datetime to schedule publishing.`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution.`,
+      },
+      {
+        name: 'slug',
+        type: 'string',
+        required: false,
+        description: `URL path segment for the page.`,
+      },
+      {
+        name: 'state',
+        type: 'string',
+        required: false,
+        description: `Current state of the page (e.g. DRAFT, PUBLISHED, SCHEDULED).`,
+      },
+      {
+        name: 'template_path',
+        type: 'string',
+        required: false,
+        description: `Path to the template used to render the page (without a leading slash).`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution.`,
+      },
+      {
+        name: 'use_featured_image',
+        type: 'boolean',
+        required: false,
+        description: `Whether to show a featured image on the page.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_landing_pages_batch_archive',
+    description: `Archive multiple landing pages in a single request (up to 100). Requires the 'content' scope.`,
+    params: [
+      {
+        name: 'inputs',
+        type: 'string',
+        required: true,
+        description: `JSON array of page IDs (strings) to archive, e.g. ["<page_id>", ...].`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution.`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_landing_pages_batch_create',
+    description: `Create multiple landing pages in a single request (up to 100). Requires the 'content' scope.`,
+    params: [
+      {
+        name: 'inputs',
+        type: 'string',
+        required: true,
+        description: `JSON array for the batch request. Each item is a full landing page object, e.g. {"name": "...", "templatePath": "...", "slug": "..."}.`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution.`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_landing_pages_batch_read',
+    description: `Retrieve multiple landing pages by ID in a single request (up to 100). Requires the 'content' scope.`,
+    params: [
+      {
+        name: 'inputs',
+        type: 'string',
+        required: true,
+        description: `JSON array of page IDs (strings) to fetch, e.g. ["<page_id>", ...].`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution.`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_landing_pages_batch_update',
+    description: `Update multiple landing pages in a single request (up to 100). Requires the 'content' scope.`,
+    params: [
+      {
+        name: 'inputs',
+        type: 'string',
+        required: true,
+        description: `JSON array for the batch request. Each item: {"id": "<page_id>", ...fields to update}.`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution.`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_landing_pages_list',
+    description: `List landing pages in HubSpot CMS. Supports pagination, sorting, and archived/date-range filtering. Requires the 'content' scope.`,
+    params: [
+      {
+        name: 'after',
+        type: 'string',
+        required: false,
+        description: `Pagination cursor for the next page of results.`,
+      },
+      {
+        name: 'archived',
+        type: 'boolean',
+        required: false,
+        description: `If true, return only archived (soft-deleted) records.`,
+      },
+      {
+        name: 'created_after',
+        type: 'string',
+        required: false,
+        description: `Return records created on or after this ISO 8601 datetime.`,
+      },
+      {
+        name: 'created_at',
+        type: 'string',
+        required: false,
+        description: `Return records created at exactly this ISO 8601 datetime.`,
+      },
+      {
+        name: 'created_before',
+        type: 'string',
+        required: false,
+        description: `Return records created on or before this ISO 8601 datetime.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of results to return per page (max 100).`,
+      },
+      {
+        name: 'property',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of landing page properties to include in the response.`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution.`,
+      },
+      {
+        name: 'sort',
+        type: 'array',
+        required: false,
+        description: `Fields to sort results by; prefix a field with '-' for descending order. Multiple fields are applied in order.`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution.`,
+      },
+      {
+        name: 'updated_after',
+        type: 'string',
+        required: false,
+        description: `Return records updated on or after this ISO 8601 datetime.`,
+      },
+      {
+        name: 'updated_at',
+        type: 'string',
+        required: false,
+        description: `Return records updated at exactly this ISO 8601 datetime.`,
+      },
+      {
+        name: 'updated_before',
+        type: 'string',
+        required: false,
+        description: `Return records updated on or before this ISO 8601 datetime.`,
+      },
     ],
   },
   {
@@ -2872,6 +7564,54 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'hubspot_line_item_delete',
+    description: `Archive (soft delete) a single line item by ID. Archived records can typically be restored within 90 days.`,
+    params: [
+      {
+        name: 'line_item_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the line item to delete.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_line_item_get',
+    description: `Retrieve a single line item by ID.`,
+    params: [
+      {
+        name: 'line_item_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the line item to retrieve.`,
+      },
+      {
+        name: 'properties',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of properties to include in the response.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_line_item_update',
+    description: `Update properties of an existing line item.`,
+    params: [
+      {
+        name: 'line_item_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the line item to update.`,
+      },
+      {
+        name: 'properties',
+        type: 'string',
+        required: true,
+        description: `JSON object of property name/value pairs to update. Pass as a JSON object via the SDK, not as a string.`,
+      },
+    ],
+  },
+  {
     name: 'hubspot_line_items_batch_archive',
     description: `Archive (soft delete) a line item in HubSpot CRM using the batch archive API. Archived records are hidden from the UI but can be restored.`,
     params: [
@@ -2922,6 +7662,36 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `JSON array of objects to update in HubSpot batch format.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_line_items_list',
+    description: `Retrieve a plain paginated list of line items from HubSpot, without search filters.`,
+    params: [
+      {
+        name: 'after',
+        type: 'string',
+        required: false,
+        description: `Pagination cursor from the previous response's paging.next.after field.`,
+      },
+      {
+        name: 'archived',
+        type: 'boolean',
+        required: false,
+        description: `Whether to include archived records in the results.`,
+      },
+      {
+        name: 'limit',
+        type: 'number',
+        required: false,
+        description: `Number of results to return per page (max 100).`,
+      },
+      {
+        name: 'properties',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of properties to include in the response.`,
       },
     ],
   },
@@ -3024,6 +7794,79 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'hubspot_list_folder_create',
+    description: `Create a new folder for organizing HubSpot lists.`,
+    params: [
+      {
+        name: 'name',
+        type: 'string',
+        required: true,
+        description: `The name of the folder to create.`,
+      },
+      {
+        name: 'parentFolderId',
+        type: 'string',
+        required: false,
+        description: `The folder this should be created in. Defaults to the root folder (0) if omitted.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_list_folder_delete',
+    description: `Delete a HubSpot list folder by ID.`,
+    params: [
+      {
+        name: 'folderId',
+        type: 'string',
+        required: true,
+        description: `The ID of the list folder to delete.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_list_folder_move',
+    description: `Move a HubSpot list folder under a different parent folder.`,
+    params: [
+      {
+        name: 'folderId',
+        type: 'string',
+        required: true,
+        description: `The ID of the folder to move.`,
+      },
+      {
+        name: 'newParentFolderId',
+        type: 'string',
+        required: true,
+        description: `The ID of the new parent folder. Use 0 for the root folder.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_list_folder_rename',
+    description: `Rename a HubSpot list folder.`,
+    params: [
+      {
+        name: 'folderId',
+        type: 'string',
+        required: true,
+        description: `The ID of the list folder to rename.`,
+      },
+      { name: 'name', type: 'string', required: true, description: `The new name for the folder.` },
+    ],
+  },
+  {
+    name: 'hubspot_list_folders_get',
+    description: `Retrieve the list folders nested directly under a given parent folder (root folder by default).`,
+    params: [
+      {
+        name: 'folderId',
+        type: 'string',
+        required: false,
+        description: `The parent folder ID to list child folders for. Defaults to the root folder (0).`,
+      },
+    ],
+  },
+  {
     name: 'hubspot_list_get',
     description: `Retrieve a specific CRM list by its list ID.`,
     params: [
@@ -3036,6 +7879,30 @@ export const tools: Tool[] = [
       },
       { name: 'schema_version', type: 'string', required: false, description: `Schema version` },
       { name: 'tool_version', type: 'string', required: false, description: `Tool version` },
+    ],
+  },
+  {
+    name: 'hubspot_list_get_by_name',
+    description: `Retrieve a HubSpot list by its name instead of its numeric ID.`,
+    params: [
+      {
+        name: 'listName',
+        type: 'string',
+        required: true,
+        description: `The exact name of the list to find.`,
+      },
+      {
+        name: 'objectTypeId',
+        type: 'string',
+        required: true,
+        description: `The object type ID the list contains records of, e.g. 0-1 for contacts.`,
+      },
+      {
+        name: 'includeFilters',
+        type: 'boolean',
+        required: false,
+        description: `Whether to include the list's filter definition in the response.`,
+      },
     ],
   },
   {
@@ -3053,6 +7920,72 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `JSON array of contact record IDs to add to the list.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_list_memberships_add_and_remove',
+    description: `Add and/or remove specific records from a HubSpot list in a single atomic call.`,
+    params: [
+      {
+        name: 'listId',
+        type: 'string',
+        required: true,
+        description: `The numeric ID of the list.`,
+      },
+      {
+        name: 'recordIdsToAdd',
+        type: 'string',
+        required: true,
+        description: `JSON array of record IDs to add to the list. Pass as a JSON array via the SDK, not as a string.`,
+      },
+      {
+        name: 'recordIdsToRemove',
+        type: 'string',
+        required: true,
+        description: `JSON array of record IDs to remove from the list. Pass as a JSON array via the SDK, not as a string.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_list_memberships_add_from_list',
+    description: `Copy every record from a source list into a destination list.`,
+    params: [
+      {
+        name: 'listId',
+        type: 'string',
+        required: true,
+        description: `The numeric ID of the list.`,
+      },
+      {
+        name: 'sourceListId',
+        type: 'string',
+        required: true,
+        description: `The ID of the list whose records should be copied in.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_list_memberships_batch_read',
+    description: `Check list membership for multiple records at once, across any of their lists, in a single batch call.`,
+    params: [
+      {
+        name: 'inputs',
+        type: 'string',
+        required: true,
+        description: `JSON array of {"recordId": "<id>", "objectTypeId": "<type>"} objects to check. Pass as a JSON array via the SDK, not as a string.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_list_memberships_delete_all',
+    description: `Remove every record from a HubSpot list, emptying it without deleting the list itself.`,
+    params: [
+      {
+        name: 'listId',
+        type: 'string',
+        required: true,
+        description: `The numeric ID of the list.`,
       },
     ],
   },
@@ -3094,6 +8027,36 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'hubspot_list_memberships_join_order_get',
+    description: `Retrieve a list's memberships ordered by when each record was added, oldest first.`,
+    params: [
+      {
+        name: 'listId',
+        type: 'string',
+        required: true,
+        description: `The numeric ID of the list.`,
+      },
+      {
+        name: 'after',
+        type: 'string',
+        required: false,
+        description: `Pagination cursor from the previous response.`,
+      },
+      {
+        name: 'before',
+        type: 'string',
+        required: false,
+        description: `Pagination cursor to page backwards.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of memberships to return per page.`,
+      },
+    ],
+  },
+  {
     name: 'hubspot_list_memberships_remove',
     description: `Remove one or more records from a MANUAL HubSpot list by their record IDs.`,
     params: [
@@ -3108,6 +8071,24 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `JSON array of contact record IDs to remove from the list.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_list_move_to_folder',
+    description: `Move a HubSpot list into a folder.`,
+    params: [
+      {
+        name: 'folderId',
+        type: 'string',
+        required: true,
+        description: `The ID of the destination folder. Use 0 for the root folder.`,
+      },
+      {
+        name: 'listId',
+        type: 'string',
+        required: true,
+        description: `The numeric ID of the list.`,
       },
     ],
   },
@@ -3142,6 +8123,78 @@ export const tools: Tool[] = [
       { name: 'list_id', type: 'string', required: true, description: `List ID.` },
       { name: 'schema_version', type: 'string', required: false, description: `Schema version` },
       { name: 'tool_version', type: 'string', required: false, description: `Tool version` },
+    ],
+  },
+  {
+    name: 'hubspot_list_schedule_conversion_cancel',
+    description: `Cancel a previously scheduled conversion of a dynamic list to static.`,
+    params: [
+      {
+        name: 'listId',
+        type: 'string',
+        required: true,
+        description: `The numeric ID of the list.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_list_schedule_conversion_get',
+    description: `Retrieve the scheduled conversion details for a dynamic list being converted to static.`,
+    params: [
+      {
+        name: 'listId',
+        type: 'string',
+        required: true,
+        description: `The numeric ID of the list.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_list_schedule_conversion_set',
+    description: `Schedule (or update the schedule of) a dynamic list's conversion to a static list, either on a fixed date or after a period of inactivity.`,
+    params: [
+      {
+        name: 'conversion_type',
+        type: 'string',
+        required: true,
+        description: `The type of scheduled conversion.`,
+      },
+      {
+        name: 'listId',
+        type: 'string',
+        required: true,
+        description: `The numeric ID of the list.`,
+      },
+      {
+        name: 'day',
+        type: 'integer',
+        required: false,
+        description: `Day component of the conversion date. Required when conversion_type is CONVERSION_DATE.`,
+      },
+      {
+        name: 'month',
+        type: 'integer',
+        required: false,
+        description: `Month component (1-12) of the conversion date. Required when conversion_type is CONVERSION_DATE.`,
+      },
+      {
+        name: 'offset',
+        type: 'integer',
+        required: false,
+        description: `Number of time_unit periods of inactivity before conversion. Required when conversion_type is INACTIVITY.`,
+      },
+      {
+        name: 'time_unit',
+        type: 'string',
+        required: false,
+        description: `Unit of the inactivity period. Required when conversion_type is INACTIVITY.`,
+      },
+      {
+        name: 'year',
+        type: 'integer',
+        required: false,
+        description: `Year component of the conversion date. Required when conversion_type is CONVERSION_DATE.`,
+      },
     ],
   },
   {
@@ -3188,6 +8241,60 @@ export const tools: Tool[] = [
       { name: 'schema_version', type: 'string', required: false, description: `Schema version` },
       { name: 'sort', type: 'string', required: false, description: `Sort.` },
       { name: 'tool_version', type: 'string', required: false, description: `Tool version` },
+    ],
+  },
+  {
+    name: 'hubspot_marketing_email_ab_test_create_variation',
+    description: `Create an A/B test variation of an existing marketing email.`,
+    params: [
+      {
+        name: 'contentId',
+        type: 'string',
+        required: true,
+        description: `The ID of the marketing email to A/B test.`,
+      },
+      {
+        name: 'variationName',
+        type: 'string',
+        required: true,
+        description: `Name of the variation to create.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_marketing_email_ab_test_variation_get',
+    description: `Retrieve the A/B test variation details for a marketing email.`,
+    params: [
+      {
+        name: 'emailId',
+        type: 'string',
+        required: true,
+        description: `The ID of the marketing email. Get it from hubspot_marketing_emails_list.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_marketing_email_clone',
+    description: `Clone an existing marketing email into a new draft.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The ID of the marketing email to clone.`,
+      },
+      {
+        name: 'cloneName',
+        type: 'string',
+        required: false,
+        description: `The name to assign to the cloned email.`,
+      },
+      {
+        name: 'language',
+        type: 'string',
+        required: false,
+        description: `The language code for the cloned email.`,
+      },
     ],
   },
   {
@@ -3355,6 +8462,62 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'hubspot_marketing_email_draft_get',
+    description: `Retrieve the draft (unpublished) version of a marketing email.`,
+    params: [
+      {
+        name: 'emailId',
+        type: 'string',
+        required: true,
+        description: `The ID of the marketing email. Get it from hubspot_marketing_emails_list.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_marketing_email_draft_reset',
+    description: `Discard the draft version of a marketing email, resetting it back to match the currently published version.`,
+    params: [
+      {
+        name: 'emailId',
+        type: 'string',
+        required: true,
+        description: `The ID of the marketing email. Get it from hubspot_marketing_emails_list.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_marketing_email_draft_update',
+    description: `Create or update the draft version of a marketing email, such as its subject, content, or name, without affecting the currently published version.`,
+    params: [
+      {
+        name: 'emailId',
+        type: 'string',
+        required: true,
+        description: `The ID of the marketing email. Get it from hubspot_marketing_emails_list.`,
+      },
+      {
+        name: 'archived',
+        type: 'boolean',
+        required: false,
+        description: `Whether the email is archived.`,
+      },
+      {
+        name: 'campaign',
+        type: 'string',
+        required: false,
+        description: `The ID of the campaign this email is associated to.`,
+      },
+      {
+        name: 'content',
+        type: 'string',
+        required: false,
+        description: `Email content object (widgets, HTML title, etc.). Pass as a JSON object via the SDK, not as a string.`,
+      },
+      { name: 'name', type: 'string', required: false, description: `Internal name of the email.` },
+      { name: 'subject', type: 'string', required: false, description: `Email subject line.` },
+    ],
+  },
+  {
     name: 'hubspot_marketing_email_get',
     description: `Retrieve a single marketing email by its ID, including subject, body, send configuration, and metadata.`,
     params: [
@@ -3399,6 +8562,90 @@ export const tools: Tool[] = [
         type: 'boolean',
         required: false,
         description: `Whether to include the names of workflows in which this email is used`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_marketing_email_publish',
+    description: `Publish (or send) a marketing email, making its current draft content live.`,
+    params: [
+      {
+        name: 'emailId',
+        type: 'string',
+        required: true,
+        description: `The ID of the marketing email. Get it from hubspot_marketing_emails_list.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_marketing_email_revision_get',
+    description: `Retrieve a single revision of a marketing email.`,
+    params: [
+      {
+        name: 'emailId',
+        type: 'string',
+        required: true,
+        description: `The ID of the marketing email. Get it from hubspot_marketing_emails_list.`,
+      },
+      {
+        name: 'revisionId',
+        type: 'string',
+        required: true,
+        description: `The ID of the revision to retrieve.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_marketing_email_revision_restore',
+    description: `Restore a marketing email to a previous revision, making it the current published version.`,
+    params: [
+      {
+        name: 'emailId',
+        type: 'string',
+        required: true,
+        description: `The ID of the marketing email. Get it from hubspot_marketing_emails_list.`,
+      },
+      {
+        name: 'revisionId',
+        type: 'string',
+        required: true,
+        description: `The ID of the revision to restore.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_marketing_email_revisions_list',
+    description: `Retrieve the revision history of a marketing email.`,
+    params: [
+      {
+        name: 'emailId',
+        type: 'string',
+        required: true,
+        description: `The ID of the marketing email. Get it from hubspot_marketing_emails_list.`,
+      },
+      {
+        name: 'after',
+        type: 'string',
+        required: false,
+        description: `Pagination cursor from the previous response.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of revisions to return per page.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_marketing_email_unpublish',
+    description: `Unpublish a marketing email, or cancel a scheduled send.`,
+    params: [
+      {
+        name: 'emailId',
+        type: 'string',
+        required: true,
+        description: `The ID of the marketing email. Get it from hubspot_marketing_emails_list.`,
       },
     ],
   },
@@ -3553,6 +8800,78 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'hubspot_marketing_emails_list',
+    description: `List marketing emails in the account with optional filtering and pagination. Use this to find email IDs before getting, updating, publishing, or deleting one.`,
+    params: [
+      {
+        name: 'after',
+        type: 'string',
+        required: false,
+        description: `Pagination cursor from the previous response's paging.next.after field.`,
+      },
+      {
+        name: 'archived',
+        type: 'boolean',
+        required: false,
+        description: `Whether to return only archived marketing emails.`,
+      },
+      {
+        name: 'campaign',
+        type: 'string',
+        required: false,
+        description: `Filter to emails associated with a specific campaign GUID.`,
+      },
+      {
+        name: 'createdAfter',
+        type: 'string',
+        required: false,
+        description: `Only return emails created after this ISO 8601 timestamp.`,
+      },
+      {
+        name: 'createdBefore',
+        type: 'string',
+        required: false,
+        description: `Only return emails created before this ISO 8601 timestamp.`,
+      },
+      {
+        name: 'includeStats',
+        type: 'boolean',
+        required: false,
+        description: `Whether to include send/open/click statistics in the response.`,
+      },
+      {
+        name: 'isPublished',
+        type: 'boolean',
+        required: false,
+        description: `Filter to only published (true) or only unpublished/draft (false) emails.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of results to return per page.`,
+      },
+      {
+        name: 'type',
+        type: 'string',
+        required: false,
+        description: `Filter by marketing email type, e.g. AUTOMATED_EMAIL, BATCH_EMAIL, RSS_EMAIL.`,
+      },
+      {
+        name: 'updatedAfter',
+        type: 'string',
+        required: false,
+        description: `Only return emails updated after this ISO 8601 timestamp.`,
+      },
+      {
+        name: 'updatedBefore',
+        type: 'string',
+        required: false,
+        description: `Only return emails updated before this ISO 8601 timestamp.`,
+      },
+    ],
+  },
+  {
     name: 'hubspot_marketing_event_attendance_record',
     description: `Record attendance for contacts at a marketing event.`,
     params: [
@@ -3585,6 +8904,54 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'hubspot_marketing_event_attendance_record_by_email',
+    description: `Record attendance for contacts at a marketing event, identified by email address instead of internal contact ID.`,
+    params: [
+      {
+        name: 'external_event_id',
+        type: 'string',
+        required: true,
+        description: `Your unique identifier for this event in your system.`,
+      },
+      {
+        name: 'inputs',
+        type: 'string',
+        required: true,
+        description: `Array of contact objects. Each needs email, interactionDateTime (ms timestamp), contactProperties (can be {}), and properties (can be {}). Pass as a JSON array via the SDK, not as a string.`,
+      },
+      {
+        name: 'subscriber_state',
+        type: 'string',
+        required: true,
+        description: `The attendance state. Accepted values: register, attend, cancel.`,
+      },
+      {
+        name: 'external_account_id',
+        type: 'string',
+        required: false,
+        description: `Your account ID in the external event system.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_marketing_event_cancel',
+    description: `Mark a marketing event as cancelled, identified by your external event and account IDs.`,
+    params: [
+      {
+        name: 'external_account_id',
+        type: 'string',
+        required: true,
+        description: `Your account ID in the external event system.`,
+      },
+      {
+        name: 'external_event_id',
+        type: 'string',
+        required: true,
+        description: `Your unique identifier for this event in your system.`,
+      },
+    ],
+  },
+  {
     name: 'hubspot_marketing_event_complete',
     description: `Mark a marketing event as completed.`,
     params: [
@@ -3614,6 +8981,36 @@ export const tools: Tool[] = [
       },
       { name: 'schema_version', type: 'string', required: false, description: `Schema version` },
       { name: 'tool_version', type: 'string', required: false, description: `Tool version` },
+    ],
+  },
+  {
+    name: 'hubspot_marketing_event_contact_participation_breakdown_get',
+    description: `Retrieve a paginated breakdown of every marketing event a single contact has participated in.`,
+    params: [
+      {
+        name: 'contact_identifier',
+        type: 'string',
+        required: true,
+        description: `The contact's HubSpot ID or email address.`,
+      },
+      {
+        name: 'after',
+        type: 'string',
+        required: false,
+        description: `Pagination cursor from the previous response.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of results to return per page.`,
+      },
+      {
+        name: 'state',
+        type: 'string',
+        required: false,
+        description: `Filter to a single participation state.`,
+      },
     ],
   },
   {
@@ -3672,6 +9069,24 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'hubspot_marketing_event_delete',
+    description: `Permanently delete a marketing event, identified by your external event and account IDs.`,
+    params: [
+      {
+        name: 'external_account_id',
+        type: 'string',
+        required: true,
+        description: `Your account ID in the external event system.`,
+      },
+      {
+        name: 'external_event_id',
+        type: 'string',
+        required: true,
+        description: `Your unique identifier for this event in your system.`,
+      },
+    ],
+  },
+  {
     name: 'hubspot_marketing_event_get',
     description: `Retrieve a single HubSpot marketing event by its external event ID and account ID.`,
     params: [
@@ -3690,6 +9105,198 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'hubspot_marketing_event_list_associate',
+    description: `Associate a contact list with a marketing event for audience targeting, identified by your external event and account IDs.`,
+    params: [
+      {
+        name: 'external_account_id',
+        type: 'string',
+        required: true,
+        description: `Your account ID in the external event system.`,
+      },
+      {
+        name: 'external_event_id',
+        type: 'string',
+        required: true,
+        description: `Your unique identifier for this event in your system.`,
+      },
+      {
+        name: 'list_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the contact list to associate with the event.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_marketing_event_list_disassociate',
+    description: `Remove the association between a contact list and a marketing event, identified by your external event and account IDs.`,
+    params: [
+      {
+        name: 'external_account_id',
+        type: 'string',
+        required: true,
+        description: `Your account ID in the external event system.`,
+      },
+      {
+        name: 'external_event_id',
+        type: 'string',
+        required: true,
+        description: `Your unique identifier for this event in your system.`,
+      },
+      {
+        name: 'list_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the contact list to disassociate from the event.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_marketing_event_lists_get',
+    description: `Retrieve the contact lists associated with a marketing event, identified by your external event and account IDs.`,
+    params: [
+      {
+        name: 'external_account_id',
+        type: 'string',
+        required: true,
+        description: `Your account ID in the external event system.`,
+      },
+      {
+        name: 'external_event_id',
+        type: 'string',
+        required: true,
+        description: `Your unique identifier for this event in your system.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_marketing_event_participations_breakdown_get',
+    description: `Retrieve a paginated, per-contact breakdown of participation state for a marketing event.`,
+    params: [
+      {
+        name: 'external_account_id',
+        type: 'string',
+        required: true,
+        description: `Your account ID in the external event system.`,
+      },
+      {
+        name: 'external_event_id',
+        type: 'string',
+        required: true,
+        description: `Your unique identifier for this event in your system.`,
+      },
+      {
+        name: 'after',
+        type: 'string',
+        required: false,
+        description: `Pagination cursor from the previous response.`,
+      },
+      {
+        name: 'contact_identifier',
+        type: 'string',
+        required: false,
+        description: `Filter to a single contact by ID or email.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of results to return per page.`,
+      },
+      {
+        name: 'state',
+        type: 'string',
+        required: false,
+        description: `Filter to a single participation state.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_marketing_event_participations_get',
+    description: `Retrieve attendance/participation counters (registered, attended, cancelled) for a marketing event.`,
+    params: [
+      {
+        name: 'external_account_id',
+        type: 'string',
+        required: true,
+        description: `Your account ID in the external event system.`,
+      },
+      {
+        name: 'external_event_id',
+        type: 'string',
+        required: true,
+        description: `Your unique identifier for this event in your system.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_marketing_event_update',
+    description: `Partially update a marketing event's details, identified by your external event and account IDs.`,
+    params: [
+      {
+        name: 'external_account_id',
+        type: 'string',
+        required: true,
+        description: `Your account ID in the external event system.`,
+      },
+      {
+        name: 'external_event_id',
+        type: 'string',
+        required: true,
+        description: `Your unique identifier for this event in your system.`,
+      },
+      {
+        name: 'custom_properties',
+        type: 'string',
+        required: false,
+        description: `Array of custom property objects (can be empty []). Pass as a JSON array via the SDK, not as a string.`,
+      },
+      {
+        name: 'end_date_time',
+        type: 'string',
+        required: false,
+        description: `ISO 8601 end date and time of the event.`,
+      },
+      {
+        name: 'event_cancelled',
+        type: 'boolean',
+        required: false,
+        description: `Whether the event has been cancelled.`,
+      },
+      {
+        name: 'event_completed',
+        type: 'boolean',
+        required: false,
+        description: `Whether the event has been completed.`,
+      },
+      {
+        name: 'event_description',
+        type: 'string',
+        required: false,
+        description: `Description of the marketing event.`,
+      },
+      {
+        name: 'event_name',
+        type: 'string',
+        required: false,
+        description: `The name of the marketing event.`,
+      },
+      {
+        name: 'event_organizer',
+        type: 'string',
+        required: false,
+        description: `The name of the organizer of the marketing event.`,
+      },
+      {
+        name: 'start_date_time',
+        type: 'string',
+        required: false,
+        description: `ISO 8601 start date and time of the event.`,
+      },
+    ],
+  },
+  {
     name: 'hubspot_marketing_event_upsert',
     description: `Create or update multiple marketing events in a single batch request.`,
     params: [
@@ -3701,6 +9308,18 @@ export const tools: Tool[] = [
       },
       { name: 'schema_version', type: 'string', required: false, description: `Schema version` },
       { name: 'tool_version', type: 'string', required: false, description: `Tool version` },
+    ],
+  },
+  {
+    name: 'hubspot_marketing_events_batch_delete',
+    description: `Permanently delete multiple marketing events at once, identified by their external event, account, and app IDs.`,
+    params: [
+      {
+        name: 'inputs',
+        type: 'string',
+        required: true,
+        description: `JSON array of {appId, externalAccountId, externalEventId} objects identifying events to delete. Pass as a JSON array via the SDK, not as a string.`,
+      },
     ],
   },
   {
@@ -3736,6 +9355,18 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Search query to filter events by name.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_meeting_delete',
+    description: `Archive (soft delete) a single meeting by ID. Archived records can typically be restored within 90 days.`,
+    params: [
+      {
+        name: 'meeting_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the meeting to delete.`,
       },
     ],
   },
@@ -3913,6 +9544,36 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'hubspot_meetings_list',
+    description: `Retrieve a plain paginated list of meetings from HubSpot, without search filters.`,
+    params: [
+      {
+        name: 'after',
+        type: 'string',
+        required: false,
+        description: `Pagination cursor from the previous response's paging.next.after field.`,
+      },
+      {
+        name: 'archived',
+        type: 'boolean',
+        required: false,
+        description: `Whether to include archived records in the results.`,
+      },
+      {
+        name: 'limit',
+        type: 'number',
+        required: false,
+        description: `Number of results to return per page (max 100).`,
+      },
+      {
+        name: 'properties',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of properties to include in the response.`,
+      },
+    ],
+  },
+  {
     name: 'hubspot_meetings_search',
     description: `Search HubSpot meeting engagements using filters and full-text search. Returns logged meetings with their properties.`,
     params: [
@@ -3957,6 +9618,18 @@ export const tools: Tool[] = [
         type: 'object',
         required: true,
         description: `Note properties. hs_note_body (required) is the note content. hs_timestamp (required) is Unix ms timestamp e.g. 1700000000000.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_note_delete',
+    description: `Archive (soft delete) a single note by ID. Archived records can typically be restored within 90 days.`,
+    params: [
+      {
+        name: 'note_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the note to delete.`,
       },
     ],
   },
@@ -4028,6 +9701,36 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'hubspot_notes_list',
+    description: `Retrieve a plain paginated list of notes from HubSpot, without search filters.`,
+    params: [
+      {
+        name: 'after',
+        type: 'string',
+        required: false,
+        description: `Pagination cursor from the previous response's paging.next.after field.`,
+      },
+      {
+        name: 'archived',
+        type: 'boolean',
+        required: false,
+        description: `Whether to include archived records in the results.`,
+      },
+      {
+        name: 'limit',
+        type: 'number',
+        required: false,
+        description: `Number of results to return per page (max 100).`,
+      },
+      {
+        name: 'properties',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of properties to include in the response.`,
+      },
+    ],
+  },
+  {
     name: 'hubspot_notes_search',
     description: `Search HubSpot note engagements using filters and full-text search. Returns logged notes with their content and timestamps.`,
     params: [
@@ -4078,6 +9781,24 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Include archived properties in the response`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_owner_get',
+    description: `Retrieve a single HubSpot owner (user) by owner ID.`,
+    params: [
+      {
+        name: 'owner_id',
+        type: 'string',
+        required: true,
+        description: `The unique ID of the owner. Get it from hubspot_owners_list.`,
+      },
+      {
+        name: 'archived',
+        type: 'boolean',
+        required: false,
+        description: `Set to true to retrieve the owner even if it has been deactivated.`,
       },
     ],
   },
@@ -4150,6 +9871,48 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'hubspot_pipeline_get',
+    description: `Retrieve a single pipeline by ID for a given CRM object type.`,
+    params: [
+      {
+        name: 'object_type',
+        type: 'string',
+        required: true,
+        description: `The CRM object type the pipeline belongs to.`,
+      },
+      {
+        name: 'pipeline_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the pipeline to retrieve.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_pipeline_stage_audit_log_get',
+    description: `Retrieve the audit log of changes made to a single pipeline stage.`,
+    params: [
+      {
+        name: 'object_type',
+        type: 'string',
+        required: true,
+        description: `The CRM object type the pipeline belongs to.`,
+      },
+      {
+        name: 'pipeline_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the pipeline the stage belongs to.`,
+      },
+      {
+        name: 'stage_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the stage to retrieve the audit log for.`,
+      },
+    ],
+  },
+  {
     name: 'hubspot_pipeline_stage_create',
     description: `Create a new stage within an existing pipeline.`,
     params: [
@@ -4180,6 +9943,30 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'hubspot_pipeline_stage_get',
+    description: `Retrieve a single pipeline stage by ID.`,
+    params: [
+      {
+        name: 'object_type',
+        type: 'string',
+        required: true,
+        description: `The CRM object type the pipeline belongs to.`,
+      },
+      {
+        name: 'pipeline_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the pipeline the stage belongs to.`,
+      },
+      {
+        name: 'stage_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the stage to retrieve.`,
+      },
+    ],
+  },
+  {
     name: 'hubspot_pipeline_stage_update',
     description: `Update an existing stage within a pipeline.`,
     params: [
@@ -4191,6 +9978,24 @@ export const tools: Tool[] = [
       { name: 'stage_id', type: 'string', required: true, description: `Stage ID.` },
       { name: 'schema_version', type: 'string', required: false, description: `Schema version` },
       { name: 'tool_version', type: 'string', required: false, description: `Tool version` },
+    ],
+  },
+  {
+    name: 'hubspot_pipeline_stages_list',
+    description: `Retrieve all stages of a single pipeline.`,
+    params: [
+      {
+        name: 'object_type',
+        type: 'string',
+        required: true,
+        description: `The CRM object type the pipeline belongs to.`,
+      },
+      {
+        name: 'pipeline_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the pipeline to list stages for.`,
+      },
     ],
   },
   {
@@ -4219,6 +10024,18 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'hubspot_pipelines_list',
+    description: `Retrieve all pipelines defined for a given CRM object type (e.g. deals, tickets, or a custom object).`,
+    params: [
+      {
+        name: 'object_type',
+        type: 'string',
+        required: true,
+        description: `The CRM object type to list pipelines for.`,
+      },
+    ],
+  },
+  {
     name: 'hubspot_product_create',
     description: `Create a new product in the HubSpot product library.`,
     params: [
@@ -4236,6 +10053,18 @@ export const tools: Tool[] = [
         description: `Stock keeping unit (SKU) identifier for the product`,
       },
       { name: 'price', type: 'string', required: false, description: `Price of the product` },
+    ],
+  },
+  {
+    name: 'hubspot_product_delete',
+    description: `Archive (soft delete) a single product by ID. Archived records can typically be restored within 90 days.`,
+    params: [
+      {
+        name: 'product_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the product to delete.`,
+      },
     ],
   },
   {
@@ -4754,6 +10583,18 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'hubspot_quote_delete',
+    description: `Archive (soft delete) a single quote by ID. Archived records can typically be restored within 90 days.`,
+    params: [
+      {
+        name: 'quote_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the quote to delete.`,
+      },
+    ],
+  },
+  {
     name: 'hubspot_quote_get',
     description: `Retrieve a specific HubSpot quote by its ID.`,
     params: [
@@ -4949,6 +10790,24 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'hubspot_schema_association_delete',
+    description: `Delete an existing association definition between a custom object schema and another object type.`,
+    params: [
+      {
+        name: 'association_identifier',
+        type: 'string',
+        required: true,
+        description: `The ID of the association definition to delete. Get it from hubspot_schema_get.`,
+      },
+      {
+        name: 'object_type_id',
+        type: 'string',
+        required: true,
+        description: `The fully qualified name or ID of the custom object type that owns the association.`,
+      },
+    ],
+  },
+  {
     name: 'hubspot_schema_create',
     description: `Create a new custom CRM object schema (type definition) in HubSpot.`,
     params: [
@@ -5001,6 +10860,36 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'hubspot_schema_get',
+    description: `Retrieve the full schema definition (properties, associations, labels) for a single custom object type.`,
+    params: [
+      {
+        name: 'object_type',
+        type: 'string',
+        required: true,
+        description: `Fully qualified name or object type ID of the schema to retrieve.`,
+      },
+      {
+        name: 'include_association_definitions',
+        type: 'boolean',
+        required: false,
+        description: `Whether to include association definitions in the response. Defaults to true.`,
+      },
+      {
+        name: 'include_audit_metadata',
+        type: 'boolean',
+        required: false,
+        description: `Whether to include audit metadata (created/updated by) in the response. Defaults to true.`,
+      },
+      {
+        name: 'include_property_definitions',
+        type: 'boolean',
+        required: false,
+        description: `Whether to include property definitions in the response. Defaults to true.`,
+      },
+    ],
+  },
+  {
     name: 'hubspot_schema_update',
     description: `Update an existing custom CRM object schema definition.`,
     params: [
@@ -5046,6 +10935,36 @@ export const tools: Tool[] = [
         description: `Secondary display properties.`,
       },
       { name: 'tool_version', type: 'string', required: false, description: `Tool version` },
+    ],
+  },
+  {
+    name: 'hubspot_schemas_batch_read',
+    description: `Retrieve multiple custom object schemas at once by object type, in a single batch request.`,
+    params: [
+      {
+        name: 'inputs',
+        type: 'string',
+        required: true,
+        description: `JSON array of object type names or IDs to fetch schemas for. Pass as a JSON array via the SDK, not as a string.`,
+      },
+      {
+        name: 'include_association_definitions',
+        type: 'boolean',
+        required: false,
+        description: `Whether to include association definitions in the response.`,
+      },
+      {
+        name: 'include_audit_metadata',
+        type: 'boolean',
+        required: false,
+        description: `Whether to include audit metadata in the response.`,
+      },
+      {
+        name: 'include_property_definitions',
+        type: 'boolean',
+        required: false,
+        description: `Whether to include property definitions in the response.`,
+      },
     ],
   },
   {
@@ -5140,6 +11059,970 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'hubspot_site_page_archive',
+    description: `Archive (soft-delete) a website (site) page in HubSpot CMS by page ID. Requires the 'content' scope.`,
+    params: [
+      {
+        name: 'page_id',
+        type: 'string',
+        required: true,
+        description: `ID of the site page to archive.`,
+      },
+      {
+        name: 'archived',
+        type: 'boolean',
+        required: false,
+        description: `If true, request a permanent hard-delete of an already-archived page instead of a soft-delete/archive. HubSpot currently rejects hard deletes for pages ('Hard deletes of objects are not supported'), so leave this false/unset for a normal archive.`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution.`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_site_page_create',
+    description: `Create a new website (site) page in HubSpot CMS. Requires the 'content' scope.`,
+    params: [
+      { name: 'name', type: 'string', required: true, description: `Title of the page.` },
+      {
+        name: 'template_path',
+        type: 'string',
+        required: true,
+        description: `Path to the template used to render the page (without a leading slash).`,
+      },
+      {
+        name: 'additional_properties',
+        type: 'object',
+        required: false,
+        description: `Additional raw HubSpot page fields to merge into the request (e.g. layoutSections, widgets, translations, archivedAt).`,
+      },
+      {
+        name: 'author_name',
+        type: 'string',
+        required: false,
+        description: `Name of the content author to display.`,
+      },
+      {
+        name: 'campaign',
+        type: 'string',
+        required: false,
+        description: `HubSpot marketing campaign GUID to associate with this page.`,
+      },
+      {
+        name: 'domain',
+        type: 'string',
+        required: false,
+        description: `Custom domain to publish the page on. Leave blank to use the primary domain.`,
+      },
+      {
+        name: 'featured_image',
+        type: 'string',
+        required: false,
+        description: `URL of the featured image.`,
+      },
+      {
+        name: 'featured_image_alt_text',
+        type: 'string',
+        required: false,
+        description: `Alt text for the featured image.`,
+      },
+      {
+        name: 'html_title',
+        type: 'string',
+        required: false,
+        description: `Browser tab / SEO title for the page.`,
+      },
+      {
+        name: 'language',
+        type: 'string',
+        required: false,
+        description: `ISO 639 language code for this page (used for multi-language variants).`,
+      },
+      {
+        name: 'meta_description',
+        type: 'string',
+        required: false,
+        description: `SEO meta description for the page.`,
+      },
+      {
+        name: 'publish_date',
+        type: 'string',
+        required: false,
+        description: `ISO 8601 datetime to schedule publishing.`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution.`,
+      },
+      {
+        name: 'slug',
+        type: 'string',
+        required: false,
+        description: `URL path segment for the page.`,
+      },
+      {
+        name: 'state',
+        type: 'string',
+        required: false,
+        description: `Current state of the page (e.g. DRAFT, PUBLISHED, SCHEDULED).`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution.`,
+      },
+      {
+        name: 'use_featured_image',
+        type: 'boolean',
+        required: false,
+        description: `Whether to show a featured image on the page.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_site_page_get',
+    description: `Retrieve a single website (site) page from HubSpot CMS by its page ID. Requires the 'content' scope.`,
+    params: [
+      {
+        name: 'page_id',
+        type: 'string',
+        required: true,
+        description: `ID of the site page to retrieve.`,
+      },
+      {
+        name: 'archived',
+        type: 'boolean',
+        required: false,
+        description: `If true, return only archived (soft-deleted) records.`,
+      },
+      {
+        name: 'property',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of page properties to include in the response.`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution.`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_site_page_revision_get',
+    description: `Retrieve a specific historical revision of a website (site) page by revision ID. Requires the 'content' scope.`,
+    params: [
+      { name: 'page_id', type: 'string', required: true, description: `ID of the site page.` },
+      {
+        name: 'revision_id',
+        type: 'string',
+        required: true,
+        description: `ID of the specific revision to retrieve.`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution.`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_site_page_revision_restore',
+    description: `Restore a website (site) page to a previous revision. Requires the 'content' scope.`,
+    params: [
+      { name: 'page_id', type: 'string', required: true, description: `ID of the site page.` },
+      {
+        name: 'revision_id',
+        type: 'string',
+        required: true,
+        description: `ID of the revision to restore.`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution.`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_site_page_revisions_list',
+    description: `List the revision history of a website (site) page in HubSpot CMS. Requires the 'content' scope.`,
+    params: [
+      {
+        name: 'page_id',
+        type: 'string',
+        required: true,
+        description: `ID of the site page whose revisions to list.`,
+      },
+      {
+        name: 'after',
+        type: 'string',
+        required: false,
+        description: `Pagination cursor for the next page of results.`,
+      },
+      {
+        name: 'before',
+        type: 'string',
+        required: false,
+        description: `Pagination cursor for the previous page of results.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of results to return per page (max 100).`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution.`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_site_page_update',
+    description: `Update an existing website (site) page in HubSpot CMS by page ID. Only provided fields are changed. Requires the 'content' scope.`,
+    params: [
+      {
+        name: 'page_id',
+        type: 'string',
+        required: true,
+        description: `ID of the site page to update.`,
+      },
+      {
+        name: 'additional_properties',
+        type: 'object',
+        required: false,
+        description: `Additional raw HubSpot page fields to merge into the request (e.g. layoutSections, widgets, translations, archivedAt).`,
+      },
+      {
+        name: 'author_name',
+        type: 'string',
+        required: false,
+        description: `Name of the content author to display.`,
+      },
+      {
+        name: 'campaign',
+        type: 'string',
+        required: false,
+        description: `HubSpot marketing campaign GUID to associate with this page.`,
+      },
+      {
+        name: 'domain',
+        type: 'string',
+        required: false,
+        description: `Custom domain to publish the page on. Leave blank to use the primary domain.`,
+      },
+      {
+        name: 'featured_image',
+        type: 'string',
+        required: false,
+        description: `URL of the featured image.`,
+      },
+      {
+        name: 'featured_image_alt_text',
+        type: 'string',
+        required: false,
+        description: `Alt text for the featured image.`,
+      },
+      {
+        name: 'html_title',
+        type: 'string',
+        required: false,
+        description: `Browser tab / SEO title for the page.`,
+      },
+      {
+        name: 'language',
+        type: 'string',
+        required: false,
+        description: `ISO 639 language code for this page (used for multi-language variants).`,
+      },
+      {
+        name: 'meta_description',
+        type: 'string',
+        required: false,
+        description: `SEO meta description for the page.`,
+      },
+      { name: 'name', type: 'string', required: false, description: `Title of the page.` },
+      {
+        name: 'publish_date',
+        type: 'string',
+        required: false,
+        description: `ISO 8601 datetime to schedule publishing.`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution.`,
+      },
+      {
+        name: 'slug',
+        type: 'string',
+        required: false,
+        description: `URL path segment for the page.`,
+      },
+      {
+        name: 'state',
+        type: 'string',
+        required: false,
+        description: `Current state of the page (e.g. DRAFT, PUBLISHED, SCHEDULED).`,
+      },
+      {
+        name: 'template_path',
+        type: 'string',
+        required: false,
+        description: `Path to the template used to render the page (without a leading slash).`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution.`,
+      },
+      {
+        name: 'use_featured_image',
+        type: 'boolean',
+        required: false,
+        description: `Whether to show a featured image on the page.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_site_pages_batch_archive',
+    description: `Archive multiple website (site) pages in a single request (up to 100). Requires the 'content' scope.`,
+    params: [
+      {
+        name: 'inputs',
+        type: 'string',
+        required: true,
+        description: `JSON array of page IDs (strings) to archive, e.g. ["<page_id>", ...].`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution.`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_site_pages_batch_create',
+    description: `Create multiple website (site) pages in a single request (up to 100). Requires the 'content' scope.`,
+    params: [
+      {
+        name: 'inputs',
+        type: 'string',
+        required: true,
+        description: `JSON array for the batch request. Each item is a full page object, e.g. {"name": "...", "templatePath": "...", "slug": "..."}.`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution.`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_site_pages_batch_read',
+    description: `Retrieve multiple website (site) pages by ID in a single request (up to 100). Requires the 'content' scope.`,
+    params: [
+      {
+        name: 'inputs',
+        type: 'string',
+        required: true,
+        description: `JSON array of page IDs (strings) to fetch, e.g. ["<page_id>", ...].`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution.`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_site_pages_batch_update',
+    description: `Update multiple website (site) pages in a single request (up to 100). Requires the 'content' scope.`,
+    params: [
+      {
+        name: 'inputs',
+        type: 'string',
+        required: true,
+        description: `JSON array for the batch request. Each item: {"id": "<page_id>", ...fields to update}.`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution.`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_site_pages_list',
+    description: `List website (site) pages in HubSpot CMS. Supports pagination, sorting, and archived/date-range filtering. Requires the 'content' scope.`,
+    params: [
+      {
+        name: 'after',
+        type: 'string',
+        required: false,
+        description: `Pagination cursor for the next page of results.`,
+      },
+      {
+        name: 'archived',
+        type: 'boolean',
+        required: false,
+        description: `If true, return only archived (soft-deleted) records.`,
+      },
+      {
+        name: 'created_after',
+        type: 'string',
+        required: false,
+        description: `Return records created on or after this ISO 8601 datetime.`,
+      },
+      {
+        name: 'created_at',
+        type: 'string',
+        required: false,
+        description: `Return records created at exactly this ISO 8601 datetime.`,
+      },
+      {
+        name: 'created_before',
+        type: 'string',
+        required: false,
+        description: `Return records created on or before this ISO 8601 datetime.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of results to return per page (max 100).`,
+      },
+      {
+        name: 'property',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of page properties to include in the response.`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution.`,
+      },
+      {
+        name: 'sort',
+        type: 'array',
+        required: false,
+        description: `Fields to sort results by; prefix a field with '-' for descending order. Multiple fields are applied in order.`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution.`,
+      },
+      {
+        name: 'updated_after',
+        type: 'string',
+        required: false,
+        description: `Return records updated on or after this ISO 8601 datetime.`,
+      },
+      {
+        name: 'updated_at',
+        type: 'string',
+        required: false,
+        description: `Return records updated at exactly this ISO 8601 datetime.`,
+      },
+      {
+        name: 'updated_before',
+        type: 'string',
+        required: false,
+        description: `Return records updated on or before this ISO 8601 datetime.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_site_search',
+    description: `Run a full-text search across a HubSpot-hosted website's public pages, blog posts, and knowledge base articles using the legacy Content Search v2 API (the same index that powers the on-site search widget). Requires the portal's Hub ID (use hubspot_account_details_get to look it up) and the 'content' scope. For the newer, richer v3 endpoint see hubspot_site_search_v3.`,
+    params: [
+      {
+        name: 'portal_id',
+        type: 'string',
+        required: true,
+        description: `The Hub ID (portal ID) of the HubSpot account to search against.`,
+      },
+      {
+        name: 'term',
+        type: 'string',
+        required: true,
+        description: `Search term to run against the site's indexed content.`,
+      },
+      {
+        name: 'analytics',
+        type: 'boolean',
+        required: false,
+        description: `Whether to enable tracking links in results for site search analytics.`,
+      },
+      {
+        name: 'autocomplete',
+        type: 'boolean',
+        required: false,
+        description: `Whether to run the query in autocomplete mode (matches partial terms as-you-type).`,
+      },
+      {
+        name: 'boost_recent',
+        type: 'string',
+        required: false,
+        description: `Time window used to boost recently published/updated content in the ranking.`,
+      },
+      {
+        name: 'content_types',
+        type: 'array',
+        required: false,
+        description: `Restrict results to one or more content types.`,
+      },
+      {
+        name: 'domain',
+        type: 'array',
+        required: false,
+        description: `Restrict results to one or more domains, for accounts with multiple sites.`,
+      },
+      {
+        name: 'group_id',
+        type: 'array',
+        required: false,
+        description: `Restrict results to one or more content group (blog) IDs.`,
+      },
+      {
+        name: 'hubdb_query',
+        type: 'string',
+        required: false,
+        description: `Additional HubDB-specific query used to filter results when searching a table via table_id.`,
+      },
+      {
+        name: 'language',
+        type: 'string',
+        required: false,
+        description: `Restrict results to a specific document language.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of results to return per page (max 100).`,
+      },
+      {
+        name: 'match_prefix',
+        type: 'boolean',
+        required: false,
+        description: `Inverts the path_prefix filter's default matching behavior.`,
+      },
+      {
+        name: 'max_boost',
+        type: 'number',
+        required: false,
+        description: `Maximum multiplier applied by the popularity boost.`,
+      },
+      {
+        name: 'offset',
+        type: 'integer',
+        required: false,
+        description: `Number of results to skip, for pagination.`,
+      },
+      {
+        name: 'path_prefix',
+        type: 'array',
+        required: false,
+        description: `Restrict results to URLs starting with one or more path prefixes (max 30 characters each).`,
+      },
+      {
+        name: 'popularity_boost',
+        type: 'number',
+        required: false,
+        description: `Weight applied to boost more popular (higher-traffic) content in the ranking.`,
+      },
+      {
+        name: 'properties',
+        type: 'array',
+        required: false,
+        description: `Restrict full-text matching to specific content properties instead of all indexed fields.`,
+      },
+      {
+        name: 'result_length',
+        type: 'string',
+        required: false,
+        description: `Controls how much of the result description/snippet is returned.`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution.`,
+      },
+      {
+        name: 'table_id',
+        type: 'string',
+        required: false,
+        description: `HubDB table ID to scope the search to, for searching dynamic pages backed by that table.`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_site_search_indexed_data_get',
+    description: `Retrieve the indexed search data HubSpot has stored for a specific content asset by ID. Useful for debugging why a particular page, post, or article is not being returned from a site search query. Requires the 'content' scope.`,
+    params: [
+      {
+        name: 'content_id',
+        type: 'string',
+        required: true,
+        description: `ID of the content asset (page, post, or article) to fetch indexed search data for.`,
+      },
+      {
+        name: 'content_type',
+        type: 'string',
+        required: false,
+        description: `Restrict the lookup to a specific content type.`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution.`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_site_search_v3',
+    description: `Run a full-text search across a HubSpot-hosted website's public pages, blog posts, and knowledge base articles using the v3 site search API. Richer than hubspot_site_search (v2): supports content-type filtering, path prefix, language, popularity/recency boosting, and HubDB dynamic page queries. Requires the 'site-search-read' scope (not 'content').`,
+    params: [
+      {
+        name: 'analytics',
+        type: 'boolean',
+        required: false,
+        description: `Whether to record this request in HubSpot's site search analytics.`,
+      },
+      {
+        name: 'autocomplete',
+        type: 'boolean',
+        required: false,
+        description: `Whether to run the query in autocomplete mode (matches partial terms as-you-type).`,
+      },
+      {
+        name: 'boost_limit',
+        type: 'number',
+        required: false,
+        description: `Maximum number of top results eligible for recency/popularity boosting.`,
+      },
+      {
+        name: 'boost_recent',
+        type: 'string',
+        required: false,
+        description: `Weight search results by recency.`,
+      },
+      {
+        name: 'content_type',
+        type: 'array',
+        required: false,
+        description: `Restrict results to a single content type (legacy alias; prefer content_types for the validated enum).`,
+      },
+      {
+        name: 'content_types',
+        type: 'array',
+        required: false,
+        description: `Restrict results to one or more content types.`,
+      },
+      {
+        name: 'domain',
+        type: 'array',
+        required: false,
+        description: `Restrict results to one or more domains, for accounts with multiple sites.`,
+      },
+      {
+        name: 'group_id',
+        type: 'array',
+        required: false,
+        description: `Restrict results to one or more content group (blog) IDs.`,
+      },
+      {
+        name: 'hubdb_query',
+        type: 'string',
+        required: false,
+        description: `Additional HubDB-specific query string, for searching dynamic pages backed by a HubDB table.`,
+      },
+      {
+        name: 'language',
+        type: 'string',
+        required: false,
+        description: `Restrict results to a specific document language.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of results to return per page.`,
+      },
+      {
+        name: 'match_prefix',
+        type: 'boolean',
+        required: false,
+        description: `Whether to match the search term as a prefix rather than a whole-word/phrase match.`,
+      },
+      {
+        name: 'offset',
+        type: 'integer',
+        required: false,
+        description: `Number of results to skip, for pagination.`,
+      },
+      {
+        name: 'path_prefix',
+        type: 'array',
+        required: false,
+        description: `Restrict results to URLs starting with one or more path prefixes.`,
+      },
+      {
+        name: 'popularity_boost',
+        type: 'number',
+        required: false,
+        description: `Weight search results by page popularity/traffic.`,
+      },
+      {
+        name: 'properties',
+        type: 'array',
+        required: false,
+        description: `Restrict full-text matching to specific content properties instead of all indexed fields.`,
+      },
+      {
+        name: 'q',
+        type: 'string',
+        required: false,
+        description: `Search term to run against the site's indexed content.`,
+      },
+      {
+        name: 'result_length',
+        type: 'string',
+        required: false,
+        description: `Controls how much of the result description/snippet is returned.`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution.`,
+      },
+      {
+        name: 'table_id',
+        type: 'integer',
+        required: false,
+        description: `HubDB table ID to scope the search to, for searching dynamic pages backed by that table.`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_source_code_content_get',
+    description: `Download the raw content of a file in the HubSpot CMS Developer File System (themes, templates, modules, CSS/JS). Returns the file's raw bytes/text, not a JSON object. Requires the 'content' scope.`,
+    params: [
+      {
+        name: 'environment',
+        type: 'string',
+        required: true,
+        description: `Whether to download the file from the draft (unpublished) or published (live) file system.`,
+      },
+      {
+        name: 'path',
+        type: 'string',
+        required: true,
+        description: `Path to the file in the Developer File System, without a leading slash.`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution.`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_source_code_delete',
+    description: `Permanently delete a file from the HubSpot CMS Developer File System (themes, templates, modules, CSS/JS). Requires the 'content' scope.`,
+    params: [
+      {
+        name: 'environment',
+        type: 'string',
+        required: true,
+        description: `Whether to delete the file from the draft (unpublished) or published (live) file system.`,
+      },
+      {
+        name: 'path',
+        type: 'string',
+        required: true,
+        description: `Path to the file to delete in the Developer File System, without a leading slash.`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution.`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_source_code_extract',
+    description: `Asynchronously extract a zip package already uploaded to the HubSpot CMS Developer File System, unpacking its contents in place into the containing folder. Requires the 'content' scope.`,
+    params: [
+      {
+        name: 'path',
+        type: 'string',
+        required: true,
+        description: `Path to the zip file to extract in the Developer File System, without a leading slash.`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution.`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_source_code_metadata_get',
+    description: `Fetch metadata (timestamps, size, folder structure) for a file or folder in the HubSpot CMS Developer File System (themes, templates, modules, CSS/JS). Requires the 'content' scope.`,
+    params: [
+      {
+        name: 'environment',
+        type: 'string',
+        required: true,
+        description: `Whether to look up the file in the draft (unpublished) or published (live) file system.`,
+      },
+      {
+        name: 'path',
+        type: 'string',
+        required: true,
+        description: `Path to the file or folder in the Developer File System, without a leading slash.`,
+      },
+      {
+        name: 'properties',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of additional metadata properties to retrieve.`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution.`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution.`,
+      },
+    ],
+  },
+  {
     name: 'hubspot_subscription_definitions_list',
     description: `Retrieve all email subscription type definitions for the portal.`,
     params: [
@@ -5218,6 +12101,18 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'hubspot_task_delete',
+    description: `Archive (soft delete) a single task by ID. Archived records can typically be restored within 90 days.`,
+    params: [
+      {
+        name: 'task_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the task to delete.`,
+      },
+    ],
+  },
+  {
     name: 'hubspot_task_get',
     description: `Retrieve a single task by its ID.`,
     params: [
@@ -5265,6 +12160,36 @@ export const tools: Tool[] = [
       },
       { name: 'schema_version', type: 'string', required: false, description: `Schema version` },
       { name: 'tool_version', type: 'string', required: false, description: `Tool version` },
+    ],
+  },
+  {
+    name: 'hubspot_tasks_list',
+    description: `Retrieve a plain paginated list of tasks from HubSpot, without search filters.`,
+    params: [
+      {
+        name: 'after',
+        type: 'string',
+        required: false,
+        description: `Pagination cursor from the previous response's paging.next.after field.`,
+      },
+      {
+        name: 'archived',
+        type: 'boolean',
+        required: false,
+        description: `Whether to include archived records in the results.`,
+      },
+      {
+        name: 'limit',
+        type: 'number',
+        required: false,
+        description: `Number of results to return per page (max 100).`,
+      },
+      {
+        name: 'properties',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of properties to include in the response.`,
+      },
     ],
   },
   {
@@ -5477,6 +12402,18 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'hubspot_ticket_delete',
+    description: `Archive (soft delete) a single ticket by ID. Archived records can typically be restored within 90 days.`,
+    params: [
+      {
+        name: 'ticket_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the ticket to delete.`,
+      },
+    ],
+  },
+  {
     name: 'hubspot_ticket_get',
     description: `Retrieve details of a specific HubSpot support ticket by ticket ID.`,
     params: [
@@ -5603,6 +12540,54 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'hubspot_tickets_list',
+    description: `Retrieve a plain paginated list of tickets from HubSpot, without search filters.`,
+    params: [
+      {
+        name: 'after',
+        type: 'string',
+        required: false,
+        description: `Pagination cursor from the previous response's paging.next.after field.`,
+      },
+      {
+        name: 'archived',
+        type: 'boolean',
+        required: false,
+        description: `Whether to include archived records in the results.`,
+      },
+      {
+        name: 'limit',
+        type: 'number',
+        required: false,
+        description: `Number of results to return per page (max 100).`,
+      },
+      {
+        name: 'properties',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of properties to include in the response.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_tickets_merge',
+    description: `Merge two support tickets into one, keeping the primary ticket.`,
+    params: [
+      {
+        name: 'object_id_to_merge',
+        type: 'string',
+        required: true,
+        description: `The ID of the ticket to merge into the primary (this ticket will be removed).`,
+      },
+      {
+        name: 'primary_object_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the ticket to keep as primary after the merge.`,
+      },
+    ],
+  },
+  {
     name: 'hubspot_tickets_search',
     description: `Search HubSpot support tickets using filters and full-text search. Returns matching tickets with their properties.`,
     params: [
@@ -5639,6 +12624,298 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'hubspot_timeline_event_create',
+    description: `Send a single custom timeline event onto a CRM record's timeline, using a previously created event template.`,
+    params: [
+      {
+        name: 'event_template_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the event template this event is an instance of. Get it from hubspot_timeline_event_templates_list.`,
+      },
+      {
+        name: 'tokens',
+        type: 'string',
+        required: true,
+        description: `Key-value pairs matching the tokens defined on the event template. Pass as a JSON object via the SDK, not as a string.`,
+      },
+      {
+        name: 'email',
+        type: 'string',
+        required: false,
+        description: `Email address to identify the contact, if the event is for a contact and object_id is not known.`,
+      },
+      {
+        name: 'extra_data',
+        type: 'string',
+        required: false,
+        description: `Additional event-specific data available to the template's markdown, as a JSON object.`,
+      },
+      {
+        name: 'id',
+        type: 'string',
+        required: false,
+        description: `Optional unique identifier for this event. Leave empty to let HubSpot generate one. \`{{uuid}}\` anywhere in the value generates a unique string.`,
+      },
+      {
+        name: 'object_id',
+        type: 'string',
+        required: false,
+        description: `The CRM object ID the event should appear on. Required for every object type except contacts.`,
+      },
+      {
+        name: 'utk',
+        type: 'string',
+        required: false,
+        description: `The HubSpot user token (hubspotutk cookie value) to identify the contact instead of object_id or email.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_timeline_event_get',
+    description: `Retrieve a single timeline event instance by its template ID and event ID.`,
+    params: [
+      {
+        name: 'event_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the event instance to retrieve.`,
+      },
+      {
+        name: 'event_template_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the event template the event was created from.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_timeline_event_template_create',
+    description: `Create a new timeline event template for an app, defining how future events of this type render on a CRM record's timeline.`,
+    params: [
+      {
+        name: 'app_id',
+        type: 'integer',
+        required: true,
+        description: `The ID of the HubSpot developer app that will own this template.`,
+      },
+      { name: 'name', type: 'string', required: true, description: `The template name.` },
+      {
+        name: 'object_type',
+        type: 'string',
+        required: true,
+        description: `The type of CRM object this template is for. Contacts, companies, tickets, and deals are supported.`,
+      },
+      {
+        name: 'tokens',
+        type: 'string',
+        required: true,
+        description: `JSON array of token definitions usable in the template markdown. Each needs name, label, and type (string, number, date, enumeration). Pass as a JSON array via the SDK, not as a string.`,
+      },
+      {
+        name: 'detail_template',
+        type: 'string',
+        required: false,
+        description: `Markdown with Handlebars tokens rendered when the timeline entry is expanded.`,
+      },
+      {
+        name: 'header_template',
+        type: 'string',
+        required: false,
+        description: `Markdown with Handlebars tokens rendered as the timeline entry header.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_timeline_event_template_delete',
+    description: `Delete a timeline event template. Existing events created from it are not removed.`,
+    params: [
+      {
+        name: 'app_id',
+        type: 'integer',
+        required: true,
+        description: `The ID of the HubSpot developer app that owns the template.`,
+      },
+      {
+        name: 'event_template_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the event template to delete.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_timeline_event_template_get',
+    description: `Retrieve a single timeline event template by ID.`,
+    params: [
+      {
+        name: 'app_id',
+        type: 'integer',
+        required: true,
+        description: `The ID of the HubSpot developer app that owns the template.`,
+      },
+      {
+        name: 'event_template_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the event template to retrieve.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_timeline_event_template_token_create',
+    description: `Add a new token (custom property placeholder) to an existing timeline event template.`,
+    params: [
+      {
+        name: 'app_id',
+        type: 'integer',
+        required: true,
+        description: `The ID of the HubSpot developer app that owns the template.`,
+      },
+      {
+        name: 'event_template_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the event template to add the token to.`,
+      },
+      {
+        name: 'label',
+        type: 'string',
+        required: true,
+        description: `Label used for list segmentation and reporting.`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: true,
+        description: `Unique token name referenced in the templates. Alphanumeric, periods, dashes, or underscores only.`,
+      },
+      { name: 'type', type: 'string', required: true, description: `The data type of the token.` },
+      {
+        name: 'object_property_name',
+        type: 'string',
+        required: false,
+        description: `The name of the CRM object property this token should populate, if any.`,
+      },
+      {
+        name: 'options',
+        type: 'string',
+        required: false,
+        description: `If type is enumeration, the list of {label, value} options to choose from. Pass as a JSON array via the SDK, not as a string.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_timeline_event_template_token_delete',
+    description: `Delete a token from a timeline event template.`,
+    params: [
+      {
+        name: 'app_id',
+        type: 'integer',
+        required: true,
+        description: `The ID of the HubSpot developer app that owns the template.`,
+      },
+      {
+        name: 'event_template_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the event template the token belongs to.`,
+      },
+      {
+        name: 'token_name',
+        type: 'string',
+        required: true,
+        description: `The name of the token to delete.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_timeline_event_template_token_update',
+    description: `Update an existing token on a timeline event template.`,
+    params: [
+      {
+        name: 'app_id',
+        type: 'integer',
+        required: true,
+        description: `The ID of the HubSpot developer app that owns the template.`,
+      },
+      {
+        name: 'event_template_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the event template the token belongs to.`,
+      },
+      {
+        name: 'token_name',
+        type: 'string',
+        required: true,
+        description: `The name of the token to update.`,
+      },
+      { name: 'label', type: 'string', required: false, description: `New label for the token.` },
+      {
+        name: 'options',
+        type: 'string',
+        required: false,
+        description: `New list of {label, value} options if type is enumeration. Pass as a JSON array via the SDK, not as a string.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_timeline_event_template_update',
+    description: `Update an existing timeline event template's name or rendering templates.`,
+    params: [
+      {
+        name: 'app_id',
+        type: 'integer',
+        required: true,
+        description: `The ID of the HubSpot developer app that owns the template.`,
+      },
+      {
+        name: 'event_template_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the event template to update.`,
+      },
+      {
+        name: 'detail_template',
+        type: 'string',
+        required: false,
+        description: `New detail markdown template.`,
+      },
+      {
+        name: 'header_template',
+        type: 'string',
+        required: false,
+        description: `New header markdown template.`,
+      },
+      { name: 'name', type: 'string', required: false, description: `New template name.` },
+    ],
+  },
+  {
+    name: 'hubspot_timeline_event_templates_list',
+    description: `Retrieve all timeline event templates defined for an app.`,
+    params: [
+      {
+        name: 'app_id',
+        type: 'integer',
+        required: true,
+        description: `The ID of the HubSpot developer app that owns the event templates.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_timeline_events_batch_create',
+    description: `Send multiple custom timeline events in a single batch call.`,
+    params: [
+      {
+        name: 'inputs',
+        type: 'string',
+        required: true,
+        description: `JSON array of timeline event objects to create. Each needs eventTemplateId, tokens, and one of objectId/email/utk. Pass as a JSON array via the SDK, not as a string.`,
+      },
+    ],
+  },
+  {
     name: 'hubspot_transactional_email_send',
     description: `Send a transactional (single) email using a HubSpot email template.`,
     params: [
@@ -5661,6 +12938,400 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'hubspot_url_redirect_create',
+    description: `Create a new URL redirect rule in HubSpot CMS. Requires the 'content' scope.`,
+    params: [
+      {
+        name: 'destination',
+        type: 'string',
+        required: true,
+        description: `The URL the visitor is redirected to when routePrefix matches.`,
+      },
+      {
+        name: 'route_prefix',
+        type: 'string',
+        required: true,
+        description: `The incoming URL, path, or pattern to match for redirection.`,
+      },
+      {
+        name: 'content_group_id',
+        type: 'string',
+        required: false,
+        description: `ID of a blog (content group) this redirect is scoped to, if it should only apply within that blog.`,
+      },
+      {
+        name: 'is_match_full_url',
+        type: 'boolean',
+        required: false,
+        description: `If true, routePrefix must match the entire URL, not just the path.`,
+      },
+      {
+        name: 'is_match_query_string',
+        type: 'boolean',
+        required: false,
+        description: `If true, the query string must also match.`,
+      },
+      {
+        name: 'is_only_after_not_found',
+        type: 'boolean',
+        required: false,
+        description: `If true, this redirect only applies when no matching page/post is found.`,
+      },
+      {
+        name: 'is_pattern',
+        type: 'boolean',
+        required: false,
+        description: `If true, routePrefix is treated as a wildcard pattern rather than an exact path.`,
+      },
+      {
+        name: 'is_protocol_agnostic',
+        type: 'boolean',
+        required: false,
+        description: `If true, the redirect matches regardless of http/https.`,
+      },
+      {
+        name: 'is_regex',
+        type: 'boolean',
+        required: false,
+        description: `If true, route_prefix is interpreted as a regular expression rather than a literal path/pattern.`,
+      },
+      {
+        name: 'is_trailing_slash_optional',
+        type: 'boolean',
+        required: false,
+        description: `If true, a trailing slash on the incoming URL is optional.`,
+      },
+      {
+        name: 'label',
+        type: 'string',
+        required: false,
+        description: `Internal label to help identify this redirect rule in the HubSpot UI.`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: false,
+        description: `Internal name for this redirect rule (distinct from the label shown in the UI).`,
+      },
+      {
+        name: 'note',
+        type: 'string',
+        required: false,
+        description: `Free-text internal note about why this redirect exists.`,
+      },
+      {
+        name: 'precedence',
+        type: 'integer',
+        required: false,
+        description: `Order in which this redirect is evaluated relative to others (lower runs first).`,
+      },
+      {
+        name: 'redirect_style',
+        type: 'integer',
+        required: false,
+        description: `HTTP redirect type: 301 (permanent), 302 (temporary), or 305 (proxy).`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution.`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_url_redirect_delete',
+    description: `Permanently delete a URL redirect rule from HubSpot CMS by its ID. Requires the 'content' scope.`,
+    params: [
+      {
+        name: 'url_redirect_id',
+        type: 'string',
+        required: true,
+        description: `ID of the URL redirect rule to delete.`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution.`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_url_redirect_get',
+    description: `Retrieve a single URL redirect rule from HubSpot CMS by its ID. Requires the 'content' scope.`,
+    params: [
+      {
+        name: 'url_redirect_id',
+        type: 'string',
+        required: true,
+        description: `ID of the URL redirect rule to retrieve.`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution.`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_url_redirect_update',
+    description: `Update an existing URL redirect rule in HubSpot CMS by its ID. Only provided fields are changed. Requires the 'content' scope.`,
+    params: [
+      {
+        name: 'url_redirect_id',
+        type: 'string',
+        required: true,
+        description: `ID of the URL redirect rule to update.`,
+      },
+      {
+        name: 'content_group_id',
+        type: 'string',
+        required: false,
+        description: `ID of a blog (content group) this redirect is scoped to, if it should only apply within that blog.`,
+      },
+      {
+        name: 'destination',
+        type: 'string',
+        required: false,
+        description: `The URL the visitor is redirected to when routePrefix matches.`,
+      },
+      {
+        name: 'is_match_full_url',
+        type: 'boolean',
+        required: false,
+        description: `If true, routePrefix must match the entire URL, not just the path.`,
+      },
+      {
+        name: 'is_match_query_string',
+        type: 'boolean',
+        required: false,
+        description: `If true, the query string must also match.`,
+      },
+      {
+        name: 'is_only_after_not_found',
+        type: 'boolean',
+        required: false,
+        description: `If true, this redirect only applies when no matching page/post is found.`,
+      },
+      {
+        name: 'is_pattern',
+        type: 'boolean',
+        required: false,
+        description: `If true, routePrefix is treated as a wildcard pattern rather than an exact path.`,
+      },
+      {
+        name: 'is_protocol_agnostic',
+        type: 'boolean',
+        required: false,
+        description: `If true, the redirect matches regardless of http/https.`,
+      },
+      {
+        name: 'is_regex',
+        type: 'boolean',
+        required: false,
+        description: `If true, route_prefix is interpreted as a regular expression rather than a literal path/pattern.`,
+      },
+      {
+        name: 'is_trailing_slash_optional',
+        type: 'boolean',
+        required: false,
+        description: `If true, a trailing slash on the incoming URL is optional.`,
+      },
+      {
+        name: 'label',
+        type: 'string',
+        required: false,
+        description: `Internal label to help identify this redirect rule in the HubSpot UI.`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: false,
+        description: `Internal name for this redirect rule (distinct from the label shown in the UI).`,
+      },
+      {
+        name: 'note',
+        type: 'string',
+        required: false,
+        description: `Free-text internal note about why this redirect exists.`,
+      },
+      {
+        name: 'precedence',
+        type: 'integer',
+        required: false,
+        description: `Order in which this redirect is evaluated relative to others (lower runs first).`,
+      },
+      {
+        name: 'redirect_style',
+        type: 'integer',
+        required: false,
+        description: `HTTP redirect type: 301 (permanent), 302 (temporary), or 305 (proxy).`,
+      },
+      {
+        name: 'route_prefix',
+        type: 'string',
+        required: false,
+        description: `The incoming URL, path, or pattern to match for redirection.`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution.`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_url_redirects_list',
+    description: `List URL redirect rules configured in HubSpot CMS. Requires the 'content' scope.`,
+    params: [
+      {
+        name: 'after',
+        type: 'string',
+        required: false,
+        description: `Pagination cursor for the next page of results.`,
+      },
+      {
+        name: 'archived',
+        type: 'boolean',
+        required: false,
+        description: `If true, return only archived (soft-deleted) records.`,
+      },
+      {
+        name: 'created_after',
+        type: 'string',
+        required: false,
+        description: `Return records created on or after this ISO 8601 datetime.`,
+      },
+      {
+        name: 'created_before',
+        type: 'string',
+        required: false,
+        description: `Return records created on or before this ISO 8601 datetime.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of results to return per page (max 100).`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution.`,
+      },
+      {
+        name: 'sort',
+        type: 'string',
+        required: false,
+        description: `Property to sort results by; prefix with '-' for descending order.`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution.`,
+      },
+      {
+        name: 'updated_after',
+        type: 'string',
+        required: false,
+        description: `Return records updated on or after this ISO 8601 datetime.`,
+      },
+      {
+        name: 'updated_before',
+        type: 'string',
+        required: false,
+        description: `Return records updated on or before this ISO 8601 datetime.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_user_create',
+    description: `Provision a new user in the HubSpot account via the Settings User Provisioning API. Requires an email address; optionally assigns a permission set (role), primary/secondary teams, and controls whether a welcome email is sent.`,
+    params: [
+      {
+        name: 'email',
+        type: 'string',
+        required: true,
+        description: `Email address of the user to create.`,
+      },
+      {
+        name: 'primary_team_id',
+        type: 'string',
+        required: false,
+        description: `ID of the team to set as the user's primary team.`,
+      },
+      {
+        name: 'role_id',
+        type: 'string',
+        required: false,
+        description: `ID of the permission set (role) to assign to the user.`,
+      },
+      { name: 'schema_version', type: 'string', required: false, description: `Schema version` },
+      {
+        name: 'secondary_team_ids',
+        type: 'array',
+        required: false,
+        description: `IDs of additional teams the user should belong to.`,
+      },
+      {
+        name: 'send_welcome_email',
+        type: 'boolean',
+        required: false,
+        description: `Whether to send the user a welcome email prompting them to set a password and log in. Defaults to true.`,
+      },
+      { name: 'tool_version', type: 'string', required: false, description: `Tool version` },
+    ],
+  },
+  {
+    name: 'hubspot_user_delete',
+    description: `Permanently remove (deprovision) a user from the HubSpot account via the Settings User Provisioning API. This does not deactivate a paid seat — it removes the user's access entirely.`,
+    params: [
+      {
+        name: 'user_id',
+        type: 'string',
+        required: true,
+        description: `User ID (or email, if id_property is EMAIL) of the user to remove.`,
+      },
+      {
+        name: 'id_property',
+        type: 'string',
+        required: false,
+        description: `How to interpret user_id — as a user ID or email address.`,
+      },
+      { name: 'schema_version', type: 'string', required: false, description: `Schema version` },
+      { name: 'tool_version', type: 'string', required: false, description: `Tool version` },
+    ],
+  },
+  {
     name: 'hubspot_user_get',
     description: `Retrieve details of a specific user by their user ID.`,
     params: [
@@ -5676,6 +13347,50 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'hubspot_user_update',
+    description: `Modify an existing HubSpot user's role/permission set, primary team, secondary teams, or super admin status via the Settings User Provisioning API.`,
+    params: [
+      {
+        name: 'user_id',
+        type: 'string',
+        required: true,
+        description: `User ID (or email, if id_property is EMAIL) of the user to update.`,
+      },
+      {
+        name: 'id_property',
+        type: 'string',
+        required: false,
+        description: `How to interpret user_id — as a user ID or email address.`,
+      },
+      {
+        name: 'primary_team_id',
+        type: 'string',
+        required: false,
+        description: `ID of the team to set as the user's primary team.`,
+      },
+      {
+        name: 'role_id',
+        type: 'string',
+        required: false,
+        description: `ID of the permission set (role) to assign to the user.`,
+      },
+      { name: 'schema_version', type: 'string', required: false, description: `Schema version` },
+      {
+        name: 'secondary_team_ids',
+        type: 'array',
+        required: false,
+        description: `IDs of additional teams the user should belong to. Replaces the existing set.`,
+      },
+      {
+        name: 'super_admin',
+        type: 'boolean',
+        required: false,
+        description: `Whether the user should be granted super admin status.`,
+      },
+      { name: 'tool_version', type: 'string', required: false, description: `Tool version` },
+    ],
+  },
+  {
     name: 'hubspot_users_list',
     description: `Retrieve a list of all users in the HubSpot account.`,
     params: [
@@ -5683,6 +13398,180 @@ export const tools: Tool[] = [
       { name: 'limit', type: 'integer', required: false, description: `Page size.` },
       { name: 'schema_version', type: 'string', required: false, description: `Schema version` },
       { name: 'tool_version', type: 'string', required: false, description: `Tool version` },
+    ],
+  },
+  {
+    name: 'hubspot_webhook_settings_delete',
+    description: `Delete an app's webhook settings, stopping all webhook delivery for that app.`,
+    params: [
+      {
+        name: 'app_id',
+        type: 'integer',
+        required: true,
+        description: `The ID of the HubSpot developer app whose webhook settings should be removed.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_webhook_settings_get',
+    description: `Retrieve the current webhook target URL and throttling settings for an app.`,
+    params: [
+      {
+        name: 'app_id',
+        type: 'integer',
+        required: true,
+        description: `The ID of the HubSpot developer app to look up webhook settings for.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_webhook_settings_update',
+    description: `Create or update the webhook target URL and throttling settings for an app. HubSpot delivers all subscribed events to this URL.`,
+    params: [
+      {
+        name: 'app_id',
+        type: 'integer',
+        required: true,
+        description: `The ID of the HubSpot developer app to configure webhook settings for.`,
+      },
+      {
+        name: 'max_concurrent_requests',
+        type: 'integer',
+        required: true,
+        description: `Maximum number of concurrent webhook requests HubSpot should send.`,
+      },
+      {
+        name: 'period',
+        type: 'string',
+        required: true,
+        description: `The throttling time window. Accepted values: SECONDLY, ROLLING_MINUTE.`,
+      },
+      {
+        name: 'target_url',
+        type: 'string',
+        required: true,
+        description: `A publicly reachable URL where HubSpot will POST event payloads.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_webhook_subscription_create',
+    description: `Create a new webhook event subscription for an app, so HubSpot delivers matching events to the app's configured target URL.`,
+    params: [
+      {
+        name: 'app_id',
+        type: 'integer',
+        required: true,
+        description: `The ID of the HubSpot developer app to add the subscription to.`,
+      },
+      {
+        name: 'event_type',
+        type: 'string',
+        required: true,
+        description: `Type of CRM event to listen for, e.g. contact.creation, contact.propertyChange, deal.creation, deal.propertyChange, company.merge, deal.deletion.`,
+      },
+      {
+        name: 'active',
+        type: 'boolean',
+        required: false,
+        description: `Whether the subscription is active immediately. Defaults to false (paused) if omitted.`,
+      },
+      {
+        name: 'property_name',
+        type: 'string',
+        required: false,
+        description: `Required when event_type is a propertyChange event: the property to watch for changes.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_webhook_subscription_delete',
+    description: `Delete a webhook event subscription.`,
+    params: [
+      {
+        name: 'app_id',
+        type: 'integer',
+        required: true,
+        description: `The ID of the HubSpot developer app that owns the subscription.`,
+      },
+      {
+        name: 'subscription_id',
+        type: 'integer',
+        required: true,
+        description: `The ID of the webhook subscription to delete.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_webhook_subscription_get',
+    description: `Retrieve a single webhook event subscription by ID.`,
+    params: [
+      {
+        name: 'app_id',
+        type: 'integer',
+        required: true,
+        description: `The ID of the HubSpot developer app that owns the subscription.`,
+      },
+      {
+        name: 'subscription_id',
+        type: 'integer',
+        required: true,
+        description: `The ID of the webhook subscription to retrieve.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_webhook_subscription_update',
+    description: `Activate or pause a single webhook event subscription.`,
+    params: [
+      {
+        name: 'active',
+        type: 'boolean',
+        required: true,
+        description: `Set to true to activate the subscription, false to pause it.`,
+      },
+      {
+        name: 'app_id',
+        type: 'integer',
+        required: true,
+        description: `The ID of the HubSpot developer app that owns the subscription.`,
+      },
+      {
+        name: 'subscription_id',
+        type: 'integer',
+        required: true,
+        description: `The ID of the webhook subscription to update.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_webhook_subscriptions_batch_update',
+    description: `Update multiple webhook subscriptions (e.g. activate or pause) for an app in a single batch call.`,
+    params: [
+      {
+        name: 'app_id',
+        type: 'integer',
+        required: true,
+        description: `The ID of the HubSpot developer app that owns the subscriptions.`,
+      },
+      {
+        name: 'inputs',
+        type: 'string',
+        required: true,
+        description: `JSON array of {"id": "<subscription_id>", "active": <bool>} objects. Pass as a JSON array via the SDK, not as a string.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_webhook_subscriptions_list',
+    description: `Retrieve all webhook event subscriptions configured for an app.`,
+    params: [
+      {
+        name: 'app_id',
+        type: 'integer',
+        required: true,
+        description: `The ID of the HubSpot developer app to list subscriptions for.`,
+      },
     ],
   },
   {
@@ -5914,6 +13803,36 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'hubspot_workflow_performance_get',
+    description: `Retrieve performance metrics (enrollment and completion counts over time) for a single automation workflow.`,
+    params: [
+      {
+        name: 'flow_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the workflow to retrieve performance metrics for.`,
+      },
+      {
+        name: 'bucket_type',
+        type: 'string',
+        required: false,
+        description: `How to bucket the performance data. Accepted values: DAY, WEEK, MONTH.`,
+      },
+      {
+        name: 'end',
+        type: 'integer',
+        required: false,
+        description: `End of the reporting window, as epoch milliseconds.`,
+      },
+      {
+        name: 'start',
+        type: 'integer',
+        required: false,
+        description: `Start of the reporting window, as epoch milliseconds.`,
+      },
+    ],
+  },
+  {
     name: 'hubspot_workflow_unenroll',
     description: `Remove a contact from a HubSpot workflow by workflow ID and the contact's email address.`,
     params: [
@@ -6048,6 +13967,18 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Optional stable identifier for the workflow, useful for tracking across revisions.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspot_workflows_batch_read',
+    description: `Retrieve multiple automation workflows (flows) at once by ID, in a single batch request.`,
+    params: [
+      {
+        name: 'flow_ids',
+        type: 'string',
+        required: true,
+        description: `JSON array of workflow (flow) IDs to fetch. Pass as a JSON array via the SDK, not as a string.`,
       },
     ],
   },

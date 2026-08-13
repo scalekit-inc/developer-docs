@@ -2,6 +2,75 @@ import type { Tool } from '../../types/agent-connectors'
 
 export const tools: Tool[] = [
   {
+    name: 'githubpat_artifact_delete',
+    description: `Delete a workflow run artifact.`,
+    params: [
+      {
+        name: 'artifact_id',
+        type: 'number',
+        required: true,
+        description: `The unique identifier of the artifact`,
+      },
+      {
+        name: 'owner',
+        type: 'string',
+        required: true,
+        description: `The account owner of the repository`,
+      },
+      { name: 'repo', type: 'string', required: true, description: `The name of the repository` },
+    ],
+  },
+  {
+    name: 'githubpat_artifact_get',
+    description: `Get a single workflow run artifact's metadata by its ID.`,
+    params: [
+      {
+        name: 'artifact_id',
+        type: 'number',
+        required: true,
+        description: `The unique identifier of the artifact`,
+      },
+      {
+        name: 'owner',
+        type: 'string',
+        required: true,
+        description: `The account owner of the repository`,
+      },
+      { name: 'repo', type: 'string', required: true, description: `The name of the repository` },
+    ],
+  },
+  {
+    name: 'githubpat_artifacts_list',
+    description: `List artifacts produced by workflow runs in a repository.`,
+    params: [
+      {
+        name: 'owner',
+        type: 'string',
+        required: true,
+        description: `The account owner of the repository`,
+      },
+      { name: 'repo', type: 'string', required: true, description: `The name of the repository` },
+      {
+        name: 'name',
+        type: 'string',
+        required: false,
+        description: `Filter artifacts by exact match on their name`,
+      },
+      {
+        name: 'page',
+        type: 'number',
+        required: false,
+        description: `Page number of the results to fetch`,
+      },
+      {
+        name: 'per_page',
+        type: 'number',
+        required: false,
+        description: `The number of results per page (max 100)`,
+      },
+    ],
+  },
+  {
     name: 'githubpat_branch_create',
     description: `Create a new branch in a GitHub repository. Requires the SHA of the commit to branch from (typically the HEAD of main).`,
     params: [
@@ -35,6 +104,184 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `The name of the branch to retrieve`,
+      },
+      {
+        name: 'owner',
+        type: 'string',
+        required: true,
+        description: `The account owner of the repository`,
+      },
+      { name: 'repo', type: 'string', required: true, description: `The name of the repository` },
+    ],
+  },
+  {
+    name: 'githubpat_branch_merge',
+    description: `Merge a branch (or commit) into another branch, creating a merge commit. Returns 204 when the base branch is already up to date and no merge was necessary.`,
+    params: [
+      {
+        name: 'base',
+        type: 'string',
+        required: true,
+        description: `The name of the base branch that the head will be merged into`,
+      },
+      {
+        name: 'head',
+        type: 'string',
+        required: true,
+        description: `The head to merge. This can be a branch name or a commit SHA1`,
+      },
+      {
+        name: 'owner',
+        type: 'string',
+        required: true,
+        description: `The account owner of the repository`,
+      },
+      { name: 'repo', type: 'string', required: true, description: `The name of the repository` },
+      {
+        name: 'commit_message',
+        type: 'string',
+        required: false,
+        description: `Commit message to use for the merge commit. If omitted, a default message is used`,
+      },
+    ],
+  },
+  {
+    name: 'githubpat_branch_merge_upstream',
+    description: `Sync a branch of a forked repository to keep it up-to-date with the upstream repository.`,
+    params: [
+      {
+        name: 'branch',
+        type: 'string',
+        required: true,
+        description: `The name of the branch which should be updated to match upstream`,
+      },
+      {
+        name: 'owner',
+        type: 'string',
+        required: true,
+        description: `The account owner of the repository`,
+      },
+      { name: 'repo', type: 'string', required: true, description: `The name of the repository` },
+    ],
+  },
+  {
+    name: 'githubpat_branch_protection_delete',
+    description: `Remove all branch protection settings from a branch.`,
+    params: [
+      { name: 'branch', type: 'string', required: true, description: `The name of the branch` },
+      {
+        name: 'owner',
+        type: 'string',
+        required: true,
+        description: `The account owner of the repository`,
+      },
+      { name: 'repo', type: 'string', required: true, description: `The name of the repository` },
+    ],
+  },
+  {
+    name: 'githubpat_branch_protection_get',
+    description: `Get the branch protection settings currently configured for a branch.`,
+    params: [
+      { name: 'branch', type: 'string', required: true, description: `The name of the branch` },
+      {
+        name: 'owner',
+        type: 'string',
+        required: true,
+        description: `The account owner of the repository`,
+      },
+      { name: 'repo', type: 'string', required: true, description: `The name of the repository` },
+    ],
+  },
+  {
+    name: 'githubpat_branch_protection_update',
+    description: `Protect a branch, or update an existing branch's protection settings. Protecting a branch requires admin or owner permissions.`,
+    params: [
+      { name: 'branch', type: 'string', required: true, description: `The name of the branch` },
+      {
+        name: 'enforce_admins',
+        type: 'boolean',
+        required: true,
+        description: `Enforce all configured restrictions for administrators. Set to null to disable`,
+      },
+      {
+        name: 'owner',
+        type: 'string',
+        required: true,
+        description: `The account owner of the repository`,
+      },
+      { name: 'repo', type: 'string', required: true, description: `The name of the repository` },
+      {
+        name: 'required_pull_request_reviews',
+        type: 'object',
+        required: true,
+        description: `Require at least one approving review before merging. Set to null to disable. Pass the object as null to disable that protection. Provide the object as an opaque JSON value; see GitHub's branch protection documentation for the full nested schema.`,
+      },
+      {
+        name: 'required_status_checks',
+        type: 'object',
+        required: true,
+        description: `Require status checks to pass before merging. Set to null to disable. Pass the object as null to disable that protection. Provide the object as an opaque JSON value; see GitHub's branch protection documentation for the full nested schema.`,
+      },
+      {
+        name: 'restrictions',
+        type: 'object',
+        required: true,
+        description: `Restrict who can push to the protected branch. Set to null to disable. Pass the object as null to disable that protection. Provide the object as an opaque JSON value; see GitHub's branch protection documentation for the full nested schema.`,
+      },
+      {
+        name: 'allow_deletions',
+        type: 'boolean',
+        required: false,
+        description: `Allow users with push access to delete the branch`,
+      },
+      {
+        name: 'allow_force_pushes',
+        type: 'boolean',
+        required: false,
+        description: `Permit force pushes for all users with push access`,
+      },
+      {
+        name: 'allow_fork_syncing',
+        type: 'boolean',
+        required: false,
+        description: `Whether users can pull changes from upstream when the branch is locked`,
+      },
+      {
+        name: 'block_creations',
+        type: 'boolean',
+        required: false,
+        description: `Restrict pushes that create matching branches`,
+      },
+      {
+        name: 'lock_branch',
+        type: 'boolean',
+        required: false,
+        description: `Whether to set the branch as read-only, preventing any pushes to it`,
+      },
+      {
+        name: 'required_conversation_resolution',
+        type: 'boolean',
+        required: false,
+        description: `Require all conversations on code to be resolved before a pull request can be merged`,
+      },
+      {
+        name: 'required_linear_history',
+        type: 'boolean',
+        required: false,
+        description: `Enforce a linear commit history and prevent merge commits from being pushed`,
+      },
+    ],
+  },
+  {
+    name: 'githubpat_branch_rename',
+    description: `Rename a branch in a repository. Tags and releases are not updated by this operation.`,
+    params: [
+      { name: 'branch', type: 'string', required: true, description: `The name of the branch` },
+      {
+        name: 'new_name',
+        type: 'string',
+        required: true,
+        description: `The new name of the branch`,
       },
       {
         name: 'owner',
@@ -183,6 +430,97 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'githubpat_code_scanning_alerts_list',
+    description: `List code scanning alerts for a repository. To use this endpoint, you must have read access to the repository, and for private/internal repositories your token needs the security_events scope (public_repo is sufficient for public repositories).`,
+    params: [
+      {
+        name: 'owner',
+        type: 'string',
+        required: true,
+        description: `The account owner of the repository`,
+      },
+      { name: 'repo', type: 'string', required: true, description: `The name of the repository` },
+      {
+        name: 'after',
+        type: 'string',
+        required: false,
+        description: `A cursor, as given in the Link response header. Only search for results after this cursor.`,
+      },
+      {
+        name: 'assignees',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of user handles to filter by, or '*' for alerts with at least one assignee, or 'none' for unassigned alerts`,
+      },
+      {
+        name: 'before',
+        type: 'string',
+        required: false,
+        description: `A cursor, as given in the Link response header. Only search for results before this cursor.`,
+      },
+      {
+        name: 'direction',
+        type: 'string',
+        required: false,
+        description: `The direction to sort the results by`,
+      },
+      {
+        name: 'page',
+        type: 'number',
+        required: false,
+        description: `Page number of results to fetch`,
+      },
+      {
+        name: 'per_page',
+        type: 'number',
+        required: false,
+        description: `Number of results per page (max 100)`,
+      },
+      {
+        name: 'pr',
+        type: 'number',
+        required: false,
+        description: `Only list alerts for this pull request number`,
+      },
+      {
+        name: 'ref',
+        type: 'string',
+        required: false,
+        description: `The Git reference for the results, e.g. refs/heads/main or simply main. Use refs/pull/<number>/merge for a pull request.`,
+      },
+      {
+        name: 'severity',
+        type: 'string',
+        required: false,
+        description: `Only list alerts with this severity`,
+      },
+      {
+        name: 'sort',
+        type: 'string',
+        required: false,
+        description: `The property by which to sort the results`,
+      },
+      {
+        name: 'state',
+        type: 'string',
+        required: false,
+        description: `Only list alerts with this state`,
+      },
+      {
+        name: 'tool_guid',
+        type: 'string',
+        required: false,
+        description: `Only list alerts from the code scanning tool with this GUID. Cannot be used together with tool_name.`,
+      },
+      {
+        name: 'tool_name',
+        type: 'string',
+        required: false,
+        description: `Only list alerts from this code scanning tool. Cannot be used together with tool_guid.`,
+      },
+    ],
+  },
+  {
     name: 'githubpat_collaborator_add',
     description: `Add a user as a collaborator to a repository with a specified permission level. On organization-owned repositories this may create an invitation.`,
     params: [
@@ -204,6 +542,25 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `The permission to grant the collaborator (only valid on organization-owned repositories)`,
+      },
+    ],
+  },
+  {
+    name: 'githubpat_collaborator_check',
+    description: `Check if a user is a collaborator on a repository. Returns a 404 if the user is not a collaborator.`,
+    params: [
+      {
+        name: 'owner',
+        type: 'string',
+        required: true,
+        description: `The account owner of the repository`,
+      },
+      { name: 'repo', type: 'string', required: true, description: `The name of the repository` },
+      {
+        name: 'username',
+        type: 'string',
+        required: true,
+        description: `The handle for the GitHub user account`,
       },
     ],
   },
@@ -333,6 +690,64 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'githubpat_commit_comment_delete',
+    description: `Delete a commit comment.`,
+    params: [
+      {
+        name: 'comment_id',
+        type: 'number',
+        required: true,
+        description: `The unique identifier of the comment`,
+      },
+      {
+        name: 'owner',
+        type: 'string',
+        required: true,
+        description: `The account owner of the repository`,
+      },
+      { name: 'repo', type: 'string', required: true, description: `The name of the repository` },
+    ],
+  },
+  {
+    name: 'githubpat_commit_comment_get',
+    description: `Get a single commit comment by its ID.`,
+    params: [
+      {
+        name: 'comment_id',
+        type: 'number',
+        required: true,
+        description: `The unique identifier of the comment`,
+      },
+      {
+        name: 'owner',
+        type: 'string',
+        required: true,
+        description: `The account owner of the repository`,
+      },
+      { name: 'repo', type: 'string', required: true, description: `The name of the repository` },
+    ],
+  },
+  {
+    name: 'githubpat_commit_comment_update',
+    description: `Update the text of an existing commit comment.`,
+    params: [
+      { name: 'body', type: 'string', required: true, description: `The contents of the comment` },
+      {
+        name: 'comment_id',
+        type: 'number',
+        required: true,
+        description: `The unique identifier of the comment`,
+      },
+      {
+        name: 'owner',
+        type: 'string',
+        required: true,
+        description: `The account owner of the repository`,
+      },
+      { name: 'repo', type: 'string', required: true, description: `The name of the repository` },
+    ],
+  },
+  {
     name: 'githubpat_commit_comments_list',
     description: `Lists the comments for a specified commit.`,
     params: [
@@ -386,6 +801,32 @@ export const tools: Tool[] = [
         type: 'number',
         required: false,
         description: `Number of results per page (max 100)`,
+      },
+    ],
+  },
+  {
+    name: 'githubpat_commit_pull_requests_list',
+    description: `List the merged pull request that introduced a commit to a repository, plus unmerged pull requests that reference the commit.`,
+    params: [
+      { name: 'commit_sha', type: 'string', required: true, description: `The SHA of the commit` },
+      {
+        name: 'owner',
+        type: 'string',
+        required: true,
+        description: `The account owner of the repository`,
+      },
+      { name: 'repo', type: 'string', required: true, description: `The name of the repository` },
+      {
+        name: 'page',
+        type: 'number',
+        required: false,
+        description: `Page number of the results to fetch`,
+      },
+      {
+        name: 'per_page',
+        type: 'number',
+        required: false,
+        description: `The number of results per page (max 100)`,
       },
     ],
   },
@@ -545,6 +986,387 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'githubpat_dependabot_alerts_list',
+    description: `List Dependabot alerts for a repository. To use this endpoint, you must have read access to the repository, and for private repositories your token needs the security_events scope (public_repo is sufficient for public repositories).`,
+    params: [
+      {
+        name: 'owner',
+        type: 'string',
+        required: true,
+        description: `The account owner of the repository`,
+      },
+      { name: 'repo', type: 'string', required: true, description: `The name of the repository` },
+      {
+        name: 'after',
+        type: 'string',
+        required: false,
+        description: `A cursor, as given in the Link response header. Only search for results after this cursor.`,
+      },
+      {
+        name: 'assignee',
+        type: 'string',
+        required: false,
+        description: `Filter by assignee username, '*' for any assignee, or 'none' for unassigned`,
+      },
+      {
+        name: 'before',
+        type: 'string',
+        required: false,
+        description: `A cursor, as given in the Link response header. Only search for results before this cursor.`,
+      },
+      {
+        name: 'classification',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of vulnerability classifications to filter by`,
+      },
+      {
+        name: 'direction',
+        type: 'string',
+        required: false,
+        description: `The direction to sort the results by`,
+      },
+      {
+        name: 'ecosystem',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of package ecosystems to filter by`,
+      },
+      {
+        name: 'epss_percentage',
+        type: 'string',
+        required: false,
+        description: `Filter by EPSS percentage: an exact number, a comparator expression (>n, <n, >=n, <=n), or a range (n..n), where n is between 0.0 and 1.0`,
+      },
+      {
+        name: 'has',
+        type: 'string',
+        required: false,
+        description: `Filter alerts that have the given attribute. Currently only 'patch' is supported (alerts for which a patch is available).`,
+      },
+      {
+        name: 'manifest',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of full manifest file paths to filter by`,
+      },
+      {
+        name: 'package',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of package names to filter by`,
+      },
+      {
+        name: 'per_page',
+        type: 'number',
+        required: false,
+        description: `Number of results per page (max 100)`,
+      },
+      {
+        name: 'relationship',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of relationships of the vulnerable dependency to your project (e.g. direct, transitive) to filter by`,
+      },
+      {
+        name: 'scope',
+        type: 'string',
+        required: false,
+        description: `The scope of the vulnerable dependency to filter by`,
+      },
+      {
+        name: 'severity',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of severities to filter by`,
+      },
+      {
+        name: 'sort',
+        type: 'string',
+        required: false,
+        description: `The property by which to sort the results`,
+      },
+      {
+        name: 'state',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of states to filter by`,
+      },
+    ],
+  },
+  {
+    name: 'githubpat_deployment_create',
+    description: `Create a deployment for a ref (branch, tag, or SHA). Deployments offer a way to track the status of code as it is deployed to different environments.`,
+    params: [
+      {
+        name: 'owner',
+        type: 'string',
+        required: true,
+        description: `The account owner of the repository`,
+      },
+      {
+        name: 'ref',
+        type: 'string',
+        required: true,
+        description: `The ref to deploy. This can be a branch, tag, or SHA`,
+      },
+      { name: 'repo', type: 'string', required: true, description: `The name of the repository` },
+      {
+        name: 'auto_merge',
+        type: 'boolean',
+        required: false,
+        description: `Attempts to automatically merge the default branch into the requested ref, if it is behind the default branch`,
+      },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `Short description of the deployment`,
+      },
+      {
+        name: 'environment',
+        type: 'string',
+        required: false,
+        description: `Name for the target deployment environment (e.g., production, staging, qa)`,
+      },
+      {
+        name: 'payload',
+        type: 'object',
+        required: false,
+        description: `JSON payload with extra information about the deployment`,
+      },
+      {
+        name: 'production_environment',
+        type: 'boolean',
+        required: false,
+        description: `Specifies if the given environment is one that end-users directly interact with`,
+      },
+      {
+        name: 'required_contexts',
+        type: 'array',
+        required: false,
+        description: `Status contexts to verify against commit status checks. Pass an empty array to bypass checking entirely. Defaults to all unique contexts`,
+      },
+      {
+        name: 'task',
+        type: 'string',
+        required: false,
+        description: `Specifies a task to execute (e.g., deploy or deploy:migrations)`,
+      },
+      {
+        name: 'transient_environment',
+        type: 'boolean',
+        required: false,
+        description: `Specifies if the given environment is specific to this deployment and will no longer exist at some point in the future`,
+      },
+    ],
+  },
+  {
+    name: 'githubpat_deployment_delete',
+    description: `Delete a deployment. Only inactive deployments can be deleted; transition the deployment to inactive first.`,
+    params: [
+      {
+        name: 'deployment_id',
+        type: 'number',
+        required: true,
+        description: `The unique identifier of the deployment`,
+      },
+      {
+        name: 'owner',
+        type: 'string',
+        required: true,
+        description: `The account owner of the repository`,
+      },
+      { name: 'repo', type: 'string', required: true, description: `The name of the repository` },
+    ],
+  },
+  {
+    name: 'githubpat_deployment_get',
+    description: `Get a single deployment by its ID.`,
+    params: [
+      {
+        name: 'deployment_id',
+        type: 'number',
+        required: true,
+        description: `The unique identifier of the deployment`,
+      },
+      {
+        name: 'owner',
+        type: 'string',
+        required: true,
+        description: `The account owner of the repository`,
+      },
+      { name: 'repo', type: 'string', required: true, description: `The name of the repository` },
+    ],
+  },
+  {
+    name: 'githubpat_deployment_status_create',
+    description: `Create a new status for a deployment, used to track the deployment's progress through states like in_progress, success, or failure.`,
+    params: [
+      {
+        name: 'deployment_id',
+        type: 'number',
+        required: true,
+        description: `The unique identifier of the deployment`,
+      },
+      {
+        name: 'owner',
+        type: 'string',
+        required: true,
+        description: `The account owner of the repository`,
+      },
+      { name: 'repo', type: 'string', required: true, description: `The name of the repository` },
+      { name: 'state', type: 'string', required: true, description: `The state of the status` },
+      {
+        name: 'auto_inactive',
+        type: 'boolean',
+        required: false,
+        description: `Adds an inactive status to all prior non-transient, non-production deployments with the same repository and environment name`,
+      },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `A short description of the status. Maximum 140 characters`,
+      },
+      {
+        name: 'environment',
+        type: 'string',
+        required: false,
+        description: `Name for the target deployment environment, which can be changed when setting a deploy status`,
+      },
+      {
+        name: 'environment_url',
+        type: 'string',
+        required: false,
+        description: `Sets the URL for accessing your environment`,
+      },
+      {
+        name: 'log_url',
+        type: 'string',
+        required: false,
+        description: `The full URL of the deployment's output, shown while the task runs or as historical information afterward`,
+      },
+    ],
+  },
+  {
+    name: 'githubpat_deployments_list',
+    description: `List deployments for a repository, optionally filtered by ref, task, or environment.`,
+    params: [
+      {
+        name: 'owner',
+        type: 'string',
+        required: true,
+        description: `The account owner of the repository`,
+      },
+      { name: 'repo', type: 'string', required: true, description: `The name of the repository` },
+      {
+        name: 'environment',
+        type: 'string',
+        required: false,
+        description: `The name of the environment that was deployed to (e.g., staging or production)`,
+      },
+      {
+        name: 'page',
+        type: 'number',
+        required: false,
+        description: `Page number of the results to fetch`,
+      },
+      {
+        name: 'per_page',
+        type: 'number',
+        required: false,
+        description: `The number of results per page (max 100)`,
+      },
+      {
+        name: 'ref',
+        type: 'string',
+        required: false,
+        description: `The name of the ref, branch, or tag`,
+      },
+      {
+        name: 'sha',
+        type: 'string',
+        required: false,
+        description: `The SHA recorded at creation time`,
+      },
+      {
+        name: 'task',
+        type: 'string',
+        required: false,
+        description: `The name of the task for the deployment (e.g., deploy or deploy:migrations)`,
+      },
+    ],
+  },
+  {
+    name: 'githubpat_environment_create_update',
+    description: `Create a new deployment environment on a repository, or update an existing one's protection rules (wait timer, required reviewers, deployment branch policy). Environment creation requires admin access to the repository.`,
+    params: [
+      {
+        name: 'environment_name',
+        type: 'string',
+        required: true,
+        description: `The name of the environment to create or update`,
+      },
+      {
+        name: 'owner',
+        type: 'string',
+        required: true,
+        description: `The account owner of the repository`,
+      },
+      { name: 'repo', type: 'string', required: true, description: `The name of the repository` },
+      {
+        name: 'deployment_branch_policy',
+        type: 'object',
+        required: false,
+        description: `Restricts which branches/tags can deploy to this environment. Set to null to allow all branches to deploy. Shape: {"protected_branches": bool, "custom_branch_policies": bool} — exactly one of the two booleans may be true.`,
+      },
+      {
+        name: 'prevent_self_review',
+        type: 'boolean',
+        required: false,
+        description: `Whether or not a user who created the job is prevented from approving their own job`,
+      },
+      {
+        name: 'reviewers',
+        type: 'array',
+        required: false,
+        description: `Up to 6 users or teams that must approve deployments to this environment. Each item is an object like {"type": "User", "id": 123} or {"type": "Team", "id": 456}, where id is the numeric user or team id.`,
+      },
+      {
+        name: 'wait_timer',
+        type: 'number',
+        required: false,
+        description: `The amount of time (in minutes, 0-43200) to delay a job after the job is initially triggered`,
+      },
+    ],
+  },
+  {
+    name: 'githubpat_environments_list',
+    description: `List the deployment environments configured for a repository (e.g. staging, production), including their protection rules.`,
+    params: [
+      {
+        name: 'owner',
+        type: 'string',
+        required: true,
+        description: `The account owner of the repository`,
+      },
+      { name: 'repo', type: 'string', required: true, description: `The name of the repository` },
+      {
+        name: 'page',
+        type: 'number',
+        required: false,
+        description: `Page number of results to fetch`,
+      },
+      {
+        name: 'per_page',
+        type: 'number',
+        required: false,
+        description: `Number of results per page (max 100)`,
+      },
+    ],
+  },
+  {
     name: 'githubpat_file_contents_get',
     description: `Get the contents of a file or directory from a GitHub repository. Returns Base64 encoded content for files.`,
     params: [
@@ -652,6 +1474,80 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'githubpat_gist_comment_create',
+    description: `Create a comment on a gist.`,
+    params: [
+      { name: 'body', type: 'string', required: true, description: `The comment text` },
+      {
+        name: 'gist_id',
+        type: 'string',
+        required: true,
+        description: `The unique identifier of the gist`,
+      },
+    ],
+  },
+  {
+    name: 'githubpat_gist_comment_delete',
+    description: `Delete a gist comment.`,
+    params: [
+      {
+        name: 'comment_id',
+        type: 'number',
+        required: true,
+        description: `The unique identifier of the comment`,
+      },
+      {
+        name: 'gist_id',
+        type: 'string',
+        required: true,
+        description: `The unique identifier of the gist`,
+      },
+    ],
+  },
+  {
+    name: 'githubpat_gist_comment_update',
+    description: `Update the text of an existing gist comment.`,
+    params: [
+      { name: 'body', type: 'string', required: true, description: `The comment text` },
+      {
+        name: 'comment_id',
+        type: 'number',
+        required: true,
+        description: `The unique identifier of the comment`,
+      },
+      {
+        name: 'gist_id',
+        type: 'string',
+        required: true,
+        description: `The unique identifier of the gist`,
+      },
+    ],
+  },
+  {
+    name: 'githubpat_gist_comments_list',
+    description: `List comments left on a gist.`,
+    params: [
+      {
+        name: 'gist_id',
+        type: 'string',
+        required: true,
+        description: `The unique identifier of the gist`,
+      },
+      {
+        name: 'page',
+        type: 'number',
+        required: false,
+        description: `Page number of the results to fetch`,
+      },
+      {
+        name: 'per_page',
+        type: 'number',
+        required: false,
+        description: `The number of results per page (max 100)`,
+      },
+    ],
+  },
+  {
     name: 'githubpat_gist_create',
     description: `Create a new gist with one or more files. Files are provided as a map of filename to an object containing the file's content.`,
     params: [
@@ -690,6 +1586,30 @@ export const tools: Tool[] = [
   {
     name: 'githubpat_gist_get',
     description: `Get a specified gist by its ID.`,
+    params: [
+      {
+        name: 'gist_id',
+        type: 'string',
+        required: true,
+        description: `The unique identifier of the gist`,
+      },
+    ],
+  },
+  {
+    name: 'githubpat_gist_star',
+    description: `Star a gist for the authenticated user.`,
+    params: [
+      {
+        name: 'gist_id',
+        type: 'string',
+        required: true,
+        description: `The unique identifier of the gist`,
+      },
+    ],
+  },
+  {
+    name: 'githubpat_gist_unstar',
+    description: `Unstar a gist for the authenticated user.`,
     params: [
       {
         name: 'gist_id',
@@ -869,6 +1789,75 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'githubpat_git_tag_create',
+    description: `Create a Git tag object in the repository's low-level Git database (an annotated tag). Note this only creates the tag object itself — to make it a real ref you can list/checkout, also create a matching reference at refs/tags/<tag> pointing at this tag object's SHA.`,
+    params: [
+      { name: 'message', type: 'string', required: true, description: `The tag message` },
+      {
+        name: 'object',
+        type: 'string',
+        required: true,
+        description: `The SHA of the git object this is tagging`,
+      },
+      {
+        name: 'owner',
+        type: 'string',
+        required: true,
+        description: `The account owner of the repository`,
+      },
+      { name: 'repo', type: 'string', required: true, description: `The name of the repository` },
+      {
+        name: 'tag',
+        type: 'string',
+        required: true,
+        description: `The tag's name, typically a version such as 'v0.0.1'`,
+      },
+      {
+        name: 'type',
+        type: 'string',
+        required: true,
+        description: `The type of the object being tagged`,
+      },
+      {
+        name: 'tagger_date',
+        type: 'string',
+        required: false,
+        description: `When this tag was created, in ISO 8601 format: YYYY-MM-DDTHH:MM:SSZ`,
+      },
+      {
+        name: 'tagger_email',
+        type: 'string',
+        required: false,
+        description: `Email of the person creating the tag. Required if any tagger field is provided.`,
+      },
+      {
+        name: 'tagger_name',
+        type: 'string',
+        required: false,
+        description: `Name of the person creating the tag. Required if any tagger field is provided.`,
+      },
+    ],
+  },
+  {
+    name: 'githubpat_git_tag_get',
+    description: `Get a single Git tag object from the repository's low-level Git database by its SHA. Note this returns the annotated tag object, not the tag ref itself.`,
+    params: [
+      {
+        name: 'owner',
+        type: 'string',
+        required: true,
+        description: `The account owner of the repository`,
+      },
+      { name: 'repo', type: 'string', required: true, description: `The name of the repository` },
+      {
+        name: 'tag_sha',
+        type: 'string',
+        required: true,
+        description: `The SHA of the tag object to retrieve`,
+      },
+    ],
+  },
+  {
     name: 'githubpat_git_tree_create',
     description: `Creates a Git tree object, accepting nested entries. If both a tree and a nested path modifying that tree are specified, this overwrites the contents of the tree and creates a new tree structure. Returns an error if trying to delete a file that does not exist.`,
     params: [
@@ -936,6 +1925,56 @@ export const tools: Tool[] = [
     params: [],
   },
   {
+    name: 'githubpat_issue_assignees_add',
+    description: `Add up to 10 assignees to an issue. Users already assigned remain assigned; only users with push access are actually added.`,
+    params: [
+      {
+        name: 'issue_number',
+        type: 'number',
+        required: true,
+        description: `The number that identifies the issue`,
+      },
+      {
+        name: 'owner',
+        type: 'string',
+        required: true,
+        description: `The account owner of the repository`,
+      },
+      { name: 'repo', type: 'string', required: true, description: `The name of the repository` },
+      {
+        name: 'assignees',
+        type: 'array',
+        required: false,
+        description: `Usernames of people to assign to this issue`,
+      },
+    ],
+  },
+  {
+    name: 'githubpat_issue_assignees_remove',
+    description: `Remove one or more assignees from an issue.`,
+    params: [
+      {
+        name: 'issue_number',
+        type: 'number',
+        required: true,
+        description: `The number that identifies the issue`,
+      },
+      {
+        name: 'owner',
+        type: 'string',
+        required: true,
+        description: `The account owner of the repository`,
+      },
+      { name: 'repo', type: 'string', required: true, description: `The name of the repository` },
+      {
+        name: 'assignees',
+        type: 'array',
+        required: false,
+        description: `Usernames of assignees to remove from the issue`,
+      },
+    ],
+  },
+  {
     name: 'githubpat_issue_comment_create',
     description: `Create a comment on an issue or pull request. Every pull request is an issue, but not every issue is a pull request.`,
     params: [
@@ -958,6 +1997,25 @@ export const tools: Tool[] = [
   {
     name: 'githubpat_issue_comment_delete',
     description: `Delete a comment on an issue or pull request. Every pull request is an issue, but not every issue is a pull request.`,
+    params: [
+      {
+        name: 'comment_id',
+        type: 'number',
+        required: true,
+        description: `The unique identifier of the comment`,
+      },
+      {
+        name: 'owner',
+        type: 'string',
+        required: true,
+        description: `The account owner of the repository`,
+      },
+      { name: 'repo', type: 'string', required: true, description: `The name of the repository` },
+    ],
+  },
+  {
+    name: 'githubpat_issue_comment_get',
+    description: `Get a single issue comment by its ID.`,
     params: [
       {
         name: 'comment_id',
@@ -1066,6 +2124,37 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'githubpat_issue_events_list',
+    description: `List events for an issue, such as labeling, assignment, and milestone changes.`,
+    params: [
+      {
+        name: 'issue_number',
+        type: 'number',
+        required: true,
+        description: `The number that identifies the issue`,
+      },
+      {
+        name: 'owner',
+        type: 'string',
+        required: true,
+        description: `The account owner of the repository`,
+      },
+      { name: 'repo', type: 'string', required: true, description: `The name of the repository` },
+      {
+        name: 'page',
+        type: 'number',
+        required: false,
+        description: `Page number of the results to fetch`,
+      },
+      {
+        name: 'per_page',
+        type: 'number',
+        required: false,
+        description: `The number of results per page (max 100)`,
+      },
+    ],
+  },
+  {
     name: 'githubpat_issue_get',
     description: `Get a single issue in a repository by its number. Both issues and pull requests are returned as issues in the GitHub API.`,
     params: [
@@ -1075,6 +2164,26 @@ export const tools: Tool[] = [
         required: true,
         description: `The number that identifies the issue`,
       },
+      {
+        name: 'owner',
+        type: 'string',
+        required: true,
+        description: `The account owner of the repository`,
+      },
+      { name: 'repo', type: 'string', required: true, description: `The name of the repository` },
+    ],
+  },
+  {
+    name: 'githubpat_issue_label_remove',
+    description: `Remove a single label from an issue.`,
+    params: [
+      {
+        name: 'issue_number',
+        type: 'number',
+        required: true,
+        description: `The number that identifies the issue`,
+      },
+      { name: 'label_name', type: 'string', required: true, description: `The name of the label` },
       {
         name: 'owner',
         type: 'string',
@@ -1099,6 +2208,25 @@ export const tools: Tool[] = [
         type: 'array',
         required: true,
         description: `The names of the labels to add to the issue's existing labels`,
+      },
+      {
+        name: 'owner',
+        type: 'string',
+        required: true,
+        description: `The account owner of the repository`,
+      },
+      { name: 'repo', type: 'string', required: true, description: `The name of the repository` },
+    ],
+  },
+  {
+    name: 'githubpat_issue_labels_remove_all',
+    description: `Remove all labels from an issue.`,
+    params: [
+      {
+        name: 'issue_number',
+        type: 'number',
+        required: true,
+        description: `The number that identifies the issue`,
       },
       {
         name: 'owner',
@@ -1157,6 +2285,118 @@ export const tools: Tool[] = [
         required: false,
         description: `The reason for locking the issue or pull request conversation`,
       },
+    ],
+  },
+  {
+    name: 'githubpat_issue_reaction_create',
+    description: `Create a reaction (emoji) to an issue. If you create a reaction that already exists on this issue, GitHub responds with a 200 OK and returns the existing reaction instead of creating a duplicate.`,
+    params: [
+      {
+        name: 'content',
+        type: 'string',
+        required: true,
+        description: `The reaction type to add to the issue`,
+      },
+      {
+        name: 'issue_number',
+        type: 'number',
+        required: true,
+        description: `The number that identifies the issue`,
+      },
+      {
+        name: 'owner',
+        type: 'string',
+        required: true,
+        description: `The account owner of the repository`,
+      },
+      { name: 'repo', type: 'string', required: true, description: `The name of the repository` },
+    ],
+  },
+  {
+    name: 'githubpat_issue_reaction_list',
+    description: `List the reactions (emoji) left on an issue. Optionally filter to a single reaction type.`,
+    params: [
+      {
+        name: 'issue_number',
+        type: 'number',
+        required: true,
+        description: `The number that identifies the issue`,
+      },
+      {
+        name: 'owner',
+        type: 'string',
+        required: true,
+        description: `The account owner of the repository`,
+      },
+      { name: 'repo', type: 'string', required: true, description: `The name of the repository` },
+      {
+        name: 'content',
+        type: 'string',
+        required: false,
+        description: `Filter results to only include reactions of this type`,
+      },
+      {
+        name: 'page',
+        type: 'number',
+        required: false,
+        description: `Page number of results to fetch`,
+      },
+      {
+        name: 'per_page',
+        type: 'number',
+        required: false,
+        description: `Number of results per page (max 100)`,
+      },
+    ],
+  },
+  {
+    name: 'githubpat_issue_timeline_list',
+    description: `List timeline events for an issue, including comments, cross-references, and state changes, in chronological order.`,
+    params: [
+      {
+        name: 'issue_number',
+        type: 'number',
+        required: true,
+        description: `The number that identifies the issue`,
+      },
+      {
+        name: 'owner',
+        type: 'string',
+        required: true,
+        description: `The account owner of the repository`,
+      },
+      { name: 'repo', type: 'string', required: true, description: `The name of the repository` },
+      {
+        name: 'page',
+        type: 'number',
+        required: false,
+        description: `Page number of the results to fetch`,
+      },
+      {
+        name: 'per_page',
+        type: 'number',
+        required: false,
+        description: `The number of results per page (max 100)`,
+      },
+    ],
+  },
+  {
+    name: 'githubpat_issue_unlock',
+    description: `Unlock an issue, allowing new comments from users who are not collaborators.`,
+    params: [
+      {
+        name: 'issue_number',
+        type: 'number',
+        required: true,
+        description: `The number that identifies the issue`,
+      },
+      {
+        name: 'owner',
+        type: 'string',
+        required: true,
+        description: `The account owner of the repository`,
+      },
+      { name: 'repo', type: 'string', required: true, description: `The name of the repository` },
     ],
   },
   {
@@ -1304,6 +2544,20 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'githubpat_label_get',
+    description: `Get a single label by name.`,
+    params: [
+      { name: 'label_name', type: 'string', required: true, description: `The name of the label` },
+      {
+        name: 'owner',
+        type: 'string',
+        required: true,
+        description: `The account owner of the repository`,
+      },
+      { name: 'repo', type: 'string', required: true, description: `The name of the repository` },
+    ],
+  },
+  {
     name: 'githubpat_label_update',
     description: `Update a label in a repository using its current name.`,
     params: [
@@ -1429,6 +2683,25 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'githubpat_milestone_get',
+    description: `Get a single milestone by its number.`,
+    params: [
+      {
+        name: 'milestone_number',
+        type: 'number',
+        required: true,
+        description: `The number that identifies the milestone`,
+      },
+      {
+        name: 'owner',
+        type: 'string',
+        required: true,
+        description: `The account owner of the repository`,
+      },
+      { name: 'repo', type: 'string', required: true, description: `The name of the repository` },
+    ],
+  },
+  {
     name: 'githubpat_milestone_update',
     description: `Update a milestone in a repository using the given milestone number. All fields are optional.`,
     params: [
@@ -1510,6 +2783,48 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'githubpat_notifications_list',
+    description: `List notifications for the authenticated user across all repositories they have access to. By default only unread notifications are returned.`,
+    params: [
+      {
+        name: 'all',
+        type: 'boolean',
+        required: false,
+        description: `If true, show notifications marked as read`,
+      },
+      {
+        name: 'before',
+        type: 'string',
+        required: false,
+        description: `Only show notifications updated before this time, in ISO 8601 format: YYYY-MM-DDTHH:MM:SSZ`,
+      },
+      {
+        name: 'page',
+        type: 'number',
+        required: false,
+        description: `Page number of results to fetch`,
+      },
+      {
+        name: 'participating',
+        type: 'boolean',
+        required: false,
+        description: `If true, only show notifications in which the user is directly participating or mentioned`,
+      },
+      {
+        name: 'per_page',
+        type: 'number',
+        required: false,
+        description: `Number of results per page (max 50)`,
+      },
+      {
+        name: 'since',
+        type: 'string',
+        required: false,
+        description: `Only show results updated after this time, in ISO 8601 format: YYYY-MM-DDTHH:MM:SSZ`,
+      },
+    ],
+  },
+  {
     name: 'githubpat_org_get',
     description: `Get information about an organization, including its profile details, billing settings visibility, and security settings.`,
     params: [
@@ -1518,6 +2833,91 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `The organization name (case-insensitive)`,
+      },
+    ],
+  },
+  {
+    name: 'githubpat_org_issue_types_list',
+    description: `List the issue types (e.g. Bug, Feature, Task) configured for an organization. Issue types can be assigned to issues to categorize them.`,
+    params: [
+      {
+        name: 'org',
+        type: 'string',
+        required: true,
+        description: `The organization name (case-insensitive)`,
+      },
+    ],
+  },
+  {
+    name: 'githubpat_org_issues_list',
+    description: `List issues in an organization assigned to the authenticated user, across all visible repositories.`,
+    params: [
+      {
+        name: 'org',
+        type: 'string',
+        required: true,
+        description: `The organization name (case-insensitive)`,
+      },
+      {
+        name: 'direction',
+        type: 'string',
+        required: false,
+        description: `The direction to sort the results by`,
+      },
+      {
+        name: 'filter',
+        type: 'string',
+        required: false,
+        description: `Indicates which sorts of issues to return`,
+      },
+      {
+        name: 'labels',
+        type: 'string',
+        required: false,
+        description: `A list of comma separated label names`,
+      },
+      {
+        name: 'page',
+        type: 'number',
+        required: false,
+        description: `Page number of the results to fetch`,
+      },
+      {
+        name: 'per_page',
+        type: 'number',
+        required: false,
+        description: `The number of results per page (max 100)`,
+      },
+      {
+        name: 'since',
+        type: 'string',
+        required: false,
+        description: `Only show results updated after this time (ISO 8601 format)`,
+      },
+      { name: 'sort', type: 'string', required: false, description: `What to sort results by` },
+      {
+        name: 'state',
+        type: 'string',
+        required: false,
+        description: `Indicates the state of the issues to return`,
+      },
+    ],
+  },
+  {
+    name: 'githubpat_org_member_remove',
+    description: `Remove a member from an organization. Removing them will also remove them from all teams and revoke access to organization repositories.`,
+    params: [
+      {
+        name: 'org',
+        type: 'string',
+        required: true,
+        description: `The organization name (case-insensitive)`,
+      },
+      {
+        name: 'username',
+        type: 'string',
+        required: true,
+        description: `The handle for the GitHub user account`,
       },
     ],
   },
@@ -1576,6 +2976,92 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'githubpat_org_membership_set',
+    description: `Add or update a user's membership in an organization, optionally inviting them if they are not already a member.`,
+    params: [
+      {
+        name: 'org',
+        type: 'string',
+        required: true,
+        description: `The organization name (case-insensitive)`,
+      },
+      {
+        name: 'username',
+        type: 'string',
+        required: true,
+        description: `The handle for the GitHub user account`,
+      },
+      {
+        name: 'role',
+        type: 'string',
+        required: false,
+        description: `The role to give the user in the organization`,
+      },
+    ],
+  },
+  {
+    name: 'githubpat_org_update',
+    description: `Update the profile and settings of an organization. Requires admin access.`,
+    params: [
+      {
+        name: 'org',
+        type: 'string',
+        required: true,
+        description: `The organization name (case-insensitive)`,
+      },
+      {
+        name: 'billing_email',
+        type: 'string',
+        required: false,
+        description: `Billing email address; not publicized`,
+      },
+      { name: 'company', type: 'string', required: false, description: `The company name` },
+      {
+        name: 'default_repository_permission',
+        type: 'string',
+        required: false,
+        description: `Default permission level members have for organization repositories`,
+      },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `The description of the company. Maximum 160 characters`,
+      },
+      {
+        name: 'email',
+        type: 'string',
+        required: false,
+        description: `The publicly visible email address`,
+      },
+      {
+        name: 'has_organization_projects',
+        type: 'boolean',
+        required: false,
+        description: `Whether an organization can use organization projects`,
+      },
+      {
+        name: 'has_repository_projects',
+        type: 'boolean',
+        required: false,
+        description: `Whether repositories that belong to the organization can use repository projects`,
+      },
+      { name: 'location', type: 'string', required: false, description: `The location` },
+      {
+        name: 'members_can_create_repositories',
+        type: 'boolean',
+        required: false,
+        description: `Whether non-admin organization members can create repositories`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: false,
+        description: `The shorthand name of the company`,
+      },
+    ],
+  },
+  {
     name: 'githubpat_public_repos_list',
     description: `List public repositories for a specified user. Does not require authentication.`,
     params: [
@@ -1605,6 +3091,31 @@ export const tools: Tool[] = [
         description: `Property to sort repositories by`,
       },
       { name: 'type', type: 'string', required: false, description: `Filter repositories by type` },
+    ],
+  },
+  {
+    name: 'githubpat_pull_request_branch_update',
+    description: `Update a pull request branch with the latest upstream changes by merging the base branch into the head branch, asynchronously.`,
+    params: [
+      {
+        name: 'owner',
+        type: 'string',
+        required: true,
+        description: `The account owner of the repository`,
+      },
+      {
+        name: 'pull_number',
+        type: 'number',
+        required: true,
+        description: `The number that identifies the pull request`,
+      },
+      { name: 'repo', type: 'string', required: true, description: `The name of the repository` },
+      {
+        name: 'expected_head_sha',
+        type: 'string',
+        required: false,
+        description: `The expected SHA of the pull request's HEAD ref. Default: the SHA of the pull request's current HEAD ref`,
+      },
     ],
   },
   {
@@ -1671,6 +3182,37 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Required when using multi-line comments unless using in_reply_to. The starting side of the diff the comment applies to`,
+      },
+    ],
+  },
+  {
+    name: 'githubpat_pull_request_commits_list',
+    description: `List the commits on a pull request. Results may not include all commits on very large pull requests.`,
+    params: [
+      {
+        name: 'owner',
+        type: 'string',
+        required: true,
+        description: `The account owner of the repository`,
+      },
+      {
+        name: 'pull_number',
+        type: 'number',
+        required: true,
+        description: `The number that identifies the pull request`,
+      },
+      { name: 'repo', type: 'string', required: true, description: `The name of the repository` },
+      {
+        name: 'page',
+        type: 'number',
+        required: false,
+        description: `Page number of the results to fetch`,
+      },
+      {
+        name: 'per_page',
+        type: 'number',
+        required: false,
+        description: `The number of results per page (max 100)`,
       },
     ],
   },
@@ -1836,6 +3378,137 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'githubpat_pull_request_requested_reviewers_list',
+    description: `Get the users and teams whose review has been requested but not yet given for a pull request.`,
+    params: [
+      {
+        name: 'owner',
+        type: 'string',
+        required: true,
+        description: `The account owner of the repository`,
+      },
+      {
+        name: 'pull_number',
+        type: 'number',
+        required: true,
+        description: `The number that identifies the pull request`,
+      },
+      { name: 'repo', type: 'string', required: true, description: `The name of the repository` },
+    ],
+  },
+  {
+    name: 'githubpat_pull_request_review_comment_delete',
+    description: `Delete a pull request review comment.`,
+    params: [
+      {
+        name: 'comment_id',
+        type: 'number',
+        required: true,
+        description: `The unique identifier of the comment`,
+      },
+      {
+        name: 'owner',
+        type: 'string',
+        required: true,
+        description: `The account owner of the repository`,
+      },
+      { name: 'repo', type: 'string', required: true, description: `The name of the repository` },
+    ],
+  },
+  {
+    name: 'githubpat_pull_request_review_comment_get',
+    description: `Get a single review comment on a pull request by its ID.`,
+    params: [
+      {
+        name: 'comment_id',
+        type: 'number',
+        required: true,
+        description: `The unique identifier of the comment`,
+      },
+      {
+        name: 'owner',
+        type: 'string',
+        required: true,
+        description: `The account owner of the repository`,
+      },
+      { name: 'repo', type: 'string', required: true, description: `The name of the repository` },
+    ],
+  },
+  {
+    name: 'githubpat_pull_request_review_comment_update',
+    description: `Update the text of a pull request review comment.`,
+    params: [
+      {
+        name: 'body',
+        type: 'string',
+        required: true,
+        description: `The text of the reply to the review comment`,
+      },
+      {
+        name: 'comment_id',
+        type: 'number',
+        required: true,
+        description: `The unique identifier of the comment`,
+      },
+      {
+        name: 'owner',
+        type: 'string',
+        required: true,
+        description: `The account owner of the repository`,
+      },
+      { name: 'repo', type: 'string', required: true, description: `The name of the repository` },
+    ],
+  },
+  {
+    name: 'githubpat_pull_request_review_comments_list',
+    description: `List review comments left on a pull request's diff.`,
+    params: [
+      {
+        name: 'owner',
+        type: 'string',
+        required: true,
+        description: `The account owner of the repository`,
+      },
+      {
+        name: 'pull_number',
+        type: 'number',
+        required: true,
+        description: `The number that identifies the pull request`,
+      },
+      { name: 'repo', type: 'string', required: true, description: `The name of the repository` },
+      {
+        name: 'direction',
+        type: 'string',
+        required: false,
+        description: `The direction to sort results by`,
+      },
+      {
+        name: 'page',
+        type: 'number',
+        required: false,
+        description: `Page number of the results to fetch`,
+      },
+      {
+        name: 'per_page',
+        type: 'number',
+        required: false,
+        description: `The number of results per page (max 100)`,
+      },
+      {
+        name: 'since',
+        type: 'string',
+        required: false,
+        description: `Only show results updated after this time (ISO 8601 format)`,
+      },
+      {
+        name: 'sort',
+        type: 'string',
+        required: false,
+        description: `The property to sort results by`,
+      },
+    ],
+  },
+  {
     name: 'githubpat_pull_request_review_create',
     description: `Create a review on a pull request. Leave event blank to create a PENDING review that must later be submitted, or set event to APPROVE, REQUEST_CHANGES, or COMMENT to submit it immediately.`,
     params: [
@@ -1879,6 +3552,88 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'githubpat_pull_request_review_delete',
+    description: `Delete a pull request review that is still pending (has not been submitted).`,
+    params: [
+      {
+        name: 'owner',
+        type: 'string',
+        required: true,
+        description: `The account owner of the repository`,
+      },
+      {
+        name: 'pull_number',
+        type: 'number',
+        required: true,
+        description: `The number that identifies the pull request`,
+      },
+      { name: 'repo', type: 'string', required: true, description: `The name of the repository` },
+      {
+        name: 'review_id',
+        type: 'number',
+        required: true,
+        description: `The unique identifier of the review`,
+      },
+    ],
+  },
+  {
+    name: 'githubpat_pull_request_review_dismiss',
+    description: `Dismiss a review on a pull request. Dismissed reviews no longer count toward required review approvals.`,
+    params: [
+      {
+        name: 'message',
+        type: 'string',
+        required: true,
+        description: `The message for the pull request review dismissal`,
+      },
+      {
+        name: 'owner',
+        type: 'string',
+        required: true,
+        description: `The account owner of the repository`,
+      },
+      {
+        name: 'pull_number',
+        type: 'number',
+        required: true,
+        description: `The number that identifies the pull request`,
+      },
+      { name: 'repo', type: 'string', required: true, description: `The name of the repository` },
+      {
+        name: 'review_id',
+        type: 'number',
+        required: true,
+        description: `The unique identifier of the review`,
+      },
+      { name: 'event', type: 'string', required: false, description: `The dismissal event` },
+    ],
+  },
+  {
+    name: 'githubpat_pull_request_review_get',
+    description: `Get a single review left on a pull request by its ID.`,
+    params: [
+      {
+        name: 'owner',
+        type: 'string',
+        required: true,
+        description: `The account owner of the repository`,
+      },
+      {
+        name: 'pull_number',
+        type: 'number',
+        required: true,
+        description: `The number that identifies the pull request`,
+      },
+      { name: 'repo', type: 'string', required: true, description: `The name of the repository` },
+      {
+        name: 'review_id',
+        type: 'number',
+        required: true,
+        description: `The unique identifier of the review`,
+      },
+    ],
+  },
+  {
     name: 'githubpat_pull_request_review_submit',
     description: `Submit a pending review for a pull request that was previously created without an event (PENDING state).`,
     params: [
@@ -1912,6 +3667,68 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `The body text of the pull request review`,
+      },
+    ],
+  },
+  {
+    name: 'githubpat_pull_request_review_update',
+    description: `Update the body text of an existing pull request review.`,
+    params: [
+      {
+        name: 'body',
+        type: 'string',
+        required: true,
+        description: `The body text of the pull request review`,
+      },
+      {
+        name: 'owner',
+        type: 'string',
+        required: true,
+        description: `The account owner of the repository`,
+      },
+      {
+        name: 'pull_number',
+        type: 'number',
+        required: true,
+        description: `The number that identifies the pull request`,
+      },
+      { name: 'repo', type: 'string', required: true, description: `The name of the repository` },
+      {
+        name: 'review_id',
+        type: 'number',
+        required: true,
+        description: `The unique identifier of the review`,
+      },
+    ],
+  },
+  {
+    name: 'githubpat_pull_request_reviewers_remove',
+    description: `Remove requested reviewers, users and/or teams, from a pull request.`,
+    params: [
+      {
+        name: 'owner',
+        type: 'string',
+        required: true,
+        description: `The account owner of the repository`,
+      },
+      {
+        name: 'pull_number',
+        type: 'number',
+        required: true,
+        description: `The number that identifies the pull request`,
+      },
+      { name: 'repo', type: 'string', required: true, description: `The name of the repository` },
+      {
+        name: 'reviewers',
+        type: 'array',
+        required: true,
+        description: `An array of user logins whose review requests will be removed`,
+      },
+      {
+        name: 'team_reviewers',
+        type: 'array',
+        required: false,
+        description: `An array of team slugs whose review requests will be removed`,
       },
     ],
   },
@@ -2104,6 +3921,25 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'githubpat_release_asset_get',
+    description: `Get a single release asset's metadata by its ID.`,
+    params: [
+      {
+        name: 'asset_id',
+        type: 'number',
+        required: true,
+        description: `The unique identifier of the release asset`,
+      },
+      {
+        name: 'owner',
+        type: 'string',
+        required: true,
+        description: `The account owner of the repository`,
+      },
+      { name: 'repo', type: 'string', required: true, description: `The name of the repository` },
+    ],
+  },
+  {
     name: 'githubpat_release_assets_list',
     description: `List the assets (binary files) attached to a release in a repository.`,
     params: [
@@ -2218,6 +4054,20 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'githubpat_release_get_by_tag',
+    description: `Get a published release with the specified tag.`,
+    params: [
+      {
+        name: 'owner',
+        type: 'string',
+        required: true,
+        description: `The account owner of the repository`,
+      },
+      { name: 'repo', type: 'string', required: true, description: `The name of the repository` },
+      { name: 'tag', type: 'string', required: true, description: `The name of the tag` },
+    ],
+  },
+  {
     name: 'githubpat_release_get_latest',
     description: `View the latest published full release for the repository. The latest release is the most recent non-prerelease, non-draft release, sorted by created_at.`,
     params: [
@@ -2307,6 +4157,37 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'githubpat_repo_contributors_list',
+    description: `List contributors to a repository, sorted by number of commits, and including anonymous contributors when requested.`,
+    params: [
+      {
+        name: 'owner',
+        type: 'string',
+        required: true,
+        description: `The account owner of the repository`,
+      },
+      { name: 'repo', type: 'string', required: true, description: `The name of the repository` },
+      {
+        name: 'anon',
+        type: 'string',
+        required: false,
+        description: `Set to '1' or 'true' to include anonymous contributors in the results`,
+      },
+      {
+        name: 'page',
+        type: 'number',
+        required: false,
+        description: `Page number of the results to fetch`,
+      },
+      {
+        name: 'per_page',
+        type: 'number',
+        required: false,
+        description: `The number of results per page (max 100)`,
+      },
+    ],
+  },
+  {
     name: 'githubpat_repo_create_for_user',
     description: `Create a new repository for the authenticated user.`,
     params: [
@@ -2370,6 +4251,54 @@ export const tools: Tool[] = [
         type: 'boolean',
         required: false,
         description: `Whether the repository is private`,
+      },
+    ],
+  },
+  {
+    name: 'githubpat_repo_create_from_template',
+    description: `Create a new repository using a repository template. The authenticated user must own or be a member of an organization that owns the template.`,
+    params: [
+      {
+        name: 'name',
+        type: 'string',
+        required: true,
+        description: `The name of the new repository`,
+      },
+      {
+        name: 'template_owner',
+        type: 'string',
+        required: true,
+        description: `The account owner of the template repository`,
+      },
+      {
+        name: 'template_repo',
+        type: 'string',
+        required: true,
+        description: `The name of the template repository`,
+      },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `A short description of the new repository`,
+      },
+      {
+        name: 'include_all_branches',
+        type: 'boolean',
+        required: false,
+        description: `Set to true to include the directory structure and files from all branches in the template, not just the default branch`,
+      },
+      {
+        name: 'owner',
+        type: 'string',
+        required: false,
+        description: `The organization or person who will own the new repository`,
+      },
+      {
+        name: 'private',
+        type: 'boolean',
+        required: false,
+        description: `Either true to create a new private repository or false to create a new public one`,
       },
     ],
   },
@@ -2455,6 +4384,31 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'githubpat_repo_dispatch_event_create',
+    description: `Trigger a repository_dispatch webhook event that workflows listening for the repository_dispatch event can use to run a workflow.`,
+    params: [
+      {
+        name: 'event_type',
+        type: 'string',
+        required: true,
+        description: `A custom webhook event name. Must be 100 characters or fewer`,
+      },
+      {
+        name: 'owner',
+        type: 'string',
+        required: true,
+        description: `The account owner of the repository`,
+      },
+      { name: 'repo', type: 'string', required: true, description: `The name of the repository` },
+      {
+        name: 'client_payload',
+        type: 'object',
+        required: false,
+        description: `JSON payload with extra information about the event. Maximum 10 top-level properties and 64KB total size`,
+      },
+    ],
+  },
+  {
     name: 'githubpat_repo_fork_create',
     description: `Create a fork of a repository for the authenticated user. Forking happens asynchronously; git objects may not be immediately accessible.`,
     params: [
@@ -2486,6 +4440,37 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'githubpat_repo_forks_list',
+    description: `List forks of a repository.`,
+    params: [
+      {
+        name: 'owner',
+        type: 'string',
+        required: true,
+        description: `The account owner of the repository`,
+      },
+      { name: 'repo', type: 'string', required: true, description: `The name of the repository` },
+      {
+        name: 'page',
+        type: 'number',
+        required: false,
+        description: `Page number of the results to fetch`,
+      },
+      {
+        name: 'per_page',
+        type: 'number',
+        required: false,
+        description: `The number of results per page (max 100)`,
+      },
+      {
+        name: 'sort',
+        type: 'string',
+        required: false,
+        description: `The sort order for the results`,
+      },
+    ],
+  },
+  {
     name: 'githubpat_repo_get',
     description: `Get detailed information about a GitHub repository including metadata, settings, and statistics.`,
     params: [
@@ -2501,6 +4486,88 @@ export const tools: Tool[] = [
         required: true,
         description: `The name of the repository without the .git extension (case-insensitive)`,
       },
+    ],
+  },
+  {
+    name: 'githubpat_repo_invitation_delete',
+    description: `Delete a repository invitation, revoking the invite before it is accepted.`,
+    params: [
+      {
+        name: 'invitation_id',
+        type: 'number',
+        required: true,
+        description: `The unique identifier of the repository invitation`,
+      },
+      {
+        name: 'owner',
+        type: 'string',
+        required: true,
+        description: `The account owner of the repository`,
+      },
+      { name: 'repo', type: 'string', required: true, description: `The name of the repository` },
+    ],
+  },
+  {
+    name: 'githubpat_repo_invitation_update',
+    description: `Update an existing repository invitation, changing the permission level the invitee will receive when they accept.`,
+    params: [
+      {
+        name: 'invitation_id',
+        type: 'number',
+        required: true,
+        description: `The unique identifier of the repository invitation`,
+      },
+      {
+        name: 'owner',
+        type: 'string',
+        required: true,
+        description: `The account owner of the repository`,
+      },
+      { name: 'repo', type: 'string', required: true, description: `The name of the repository` },
+      {
+        name: 'permissions',
+        type: 'string',
+        required: false,
+        description: `The permissions that the associated user will have on the repository`,
+      },
+    ],
+  },
+  {
+    name: 'githubpat_repo_invitations_list',
+    description: `List all currently open repository invitations.`,
+    params: [
+      {
+        name: 'owner',
+        type: 'string',
+        required: true,
+        description: `The account owner of the repository`,
+      },
+      { name: 'repo', type: 'string', required: true, description: `The name of the repository` },
+      {
+        name: 'page',
+        type: 'number',
+        required: false,
+        description: `Page number of the results to fetch`,
+      },
+      {
+        name: 'per_page',
+        type: 'number',
+        required: false,
+        description: `The number of results per page (max 100)`,
+      },
+    ],
+  },
+  {
+    name: 'githubpat_repo_languages_list',
+    description: `List the programming languages used in a repository, with the number of bytes of code written in each language.`,
+    params: [
+      {
+        name: 'owner',
+        type: 'string',
+        required: true,
+        description: `The account owner of the repository`,
+      },
+      { name: 'repo', type: 'string', required: true, description: `The name of the repository` },
     ],
   },
   {
@@ -2560,6 +4627,69 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'githubpat_repo_secret_delete',
+    description: `Delete an Actions secret from a repository.`,
+    params: [
+      {
+        name: 'owner',
+        type: 'string',
+        required: true,
+        description: `The account owner of the repository`,
+      },
+      { name: 'repo', type: 'string', required: true, description: `The name of the repository` },
+      {
+        name: 'secret_name',
+        type: 'string',
+        required: true,
+        description: `The name of the secret`,
+      },
+    ],
+  },
+  {
+    name: 'githubpat_repo_secret_get',
+    description: `Get metadata about a single Actions secret on a repository. The value is never returned by the GitHub API.`,
+    params: [
+      {
+        name: 'owner',
+        type: 'string',
+        required: true,
+        description: `The account owner of the repository`,
+      },
+      { name: 'repo', type: 'string', required: true, description: `The name of the repository` },
+      {
+        name: 'secret_name',
+        type: 'string',
+        required: true,
+        description: `The name of the secret`,
+      },
+    ],
+  },
+  {
+    name: 'githubpat_repo_secrets_list',
+    description: `List the names of Actions secrets configured on a repository. Secret values are never returned by the GitHub API.`,
+    params: [
+      {
+        name: 'owner',
+        type: 'string',
+        required: true,
+        description: `The account owner of the repository`,
+      },
+      { name: 'repo', type: 'string', required: true, description: `The name of the repository` },
+      {
+        name: 'page',
+        type: 'number',
+        required: false,
+        description: `Page number of the results to fetch`,
+      },
+      {
+        name: 'per_page',
+        type: 'number',
+        required: false,
+        description: `The number of results per page (max 100)`,
+      },
+    ],
+  },
+  {
     name: 'githubpat_repo_star',
     description: `Star a repository for the authenticated user.`,
     params: [
@@ -2594,6 +4724,81 @@ export const tools: Tool[] = [
         type: 'boolean',
         required: false,
         description: `Determines if notifications should be received from this repository`,
+      },
+    ],
+  },
+  {
+    name: 'githubpat_repo_topics_get',
+    description: `Get all topics associated with a repository.`,
+    params: [
+      {
+        name: 'owner',
+        type: 'string',
+        required: true,
+        description: `The account owner of the repository`,
+      },
+      { name: 'repo', type: 'string', required: true, description: `The name of the repository` },
+      {
+        name: 'page',
+        type: 'number',
+        required: false,
+        description: `Page number of the results to fetch`,
+      },
+      {
+        name: 'per_page',
+        type: 'number',
+        required: false,
+        description: `The number of results per page (max 100)`,
+      },
+    ],
+  },
+  {
+    name: 'githubpat_repo_topics_replace',
+    description: `Replace all topics for a repository. Send an empty array to clear all topics. Topic names are saved as lowercase.`,
+    params: [
+      {
+        name: 'names',
+        type: 'array',
+        required: true,
+        description: `An array of topics to add to the repository, replacing the existing set of topics`,
+      },
+      {
+        name: 'owner',
+        type: 'string',
+        required: true,
+        description: `The account owner of the repository`,
+      },
+      { name: 'repo', type: 'string', required: true, description: `The name of the repository` },
+    ],
+  },
+  {
+    name: 'githubpat_repo_transfer',
+    description: `Transfer a repository owned by an organization or personal account to a new owner. Requires admin access, and the new owner must accept the transfer if it is not owned by an org you also own.`,
+    params: [
+      {
+        name: 'new_owner',
+        type: 'string',
+        required: true,
+        description: `The username or organization name the repository will be transferred to`,
+      },
+      {
+        name: 'owner',
+        type: 'string',
+        required: true,
+        description: `The account owner of the repository`,
+      },
+      { name: 'repo', type: 'string', required: true, description: `The name of the repository` },
+      {
+        name: 'new_name',
+        type: 'string',
+        required: false,
+        description: `The new name to be given to the repository`,
+      },
+      {
+        name: 'team_ids',
+        type: 'array',
+        required: false,
+        description: `ID of the team or teams to add to the repository (organization-owned repositories only)`,
       },
     ],
   },
@@ -2709,6 +4914,105 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'githubpat_repo_variable_create',
+    description: `Create a new Actions variable on a repository, for use in GitHub Actions workflows.`,
+    params: [
+      { name: 'name', type: 'string', required: true, description: `The name of the variable` },
+      {
+        name: 'owner',
+        type: 'string',
+        required: true,
+        description: `The account owner of the repository`,
+      },
+      { name: 'repo', type: 'string', required: true, description: `The name of the repository` },
+      { name: 'value', type: 'string', required: true, description: `The value of the variable` },
+    ],
+  },
+  {
+    name: 'githubpat_repo_variable_delete',
+    description: `Delete an Actions variable from a repository.`,
+    params: [
+      {
+        name: 'owner',
+        type: 'string',
+        required: true,
+        description: `The account owner of the repository`,
+      },
+      { name: 'repo', type: 'string', required: true, description: `The name of the repository` },
+      {
+        name: 'variable_name',
+        type: 'string',
+        required: true,
+        description: `The name of the variable`,
+      },
+    ],
+  },
+  {
+    name: 'githubpat_repo_variable_get',
+    description: `Get a single Actions variable's name and value from a repository.`,
+    params: [
+      {
+        name: 'owner',
+        type: 'string',
+        required: true,
+        description: `The account owner of the repository`,
+      },
+      { name: 'repo', type: 'string', required: true, description: `The name of the repository` },
+      {
+        name: 'variable_name',
+        type: 'string',
+        required: true,
+        description: `The name of the variable`,
+      },
+    ],
+  },
+  {
+    name: 'githubpat_repo_variable_update',
+    description: `Update the name or value of an existing Actions variable on a repository.`,
+    params: [
+      {
+        name: 'owner',
+        type: 'string',
+        required: true,
+        description: `The account owner of the repository`,
+      },
+      { name: 'repo', type: 'string', required: true, description: `The name of the repository` },
+      {
+        name: 'variable_name',
+        type: 'string',
+        required: true,
+        description: `The name of the variable`,
+      },
+      { name: 'name', type: 'string', required: false, description: `The name of the variable` },
+      { name: 'value', type: 'string', required: false, description: `The value of the variable` },
+    ],
+  },
+  {
+    name: 'githubpat_repo_variables_list',
+    description: `List the Actions variables configured on a repository, including their values.`,
+    params: [
+      {
+        name: 'owner',
+        type: 'string',
+        required: true,
+        description: `The account owner of the repository`,
+      },
+      { name: 'repo', type: 'string', required: true, description: `The name of the repository` },
+      {
+        name: 'page',
+        type: 'number',
+        required: false,
+        description: `Page number of the results to fetch`,
+      },
+      {
+        name: 'per_page',
+        type: 'number',
+        required: false,
+        description: `The number of results per page (max 100)`,
+      },
+    ],
+  },
+  {
     name: 'githubpat_search_code',
     description: `Search for code across GitHub using search qualifiers (e.g. 'addClass in:file language:js repo:jquery/jquery'). Returns up to 100 results per page. Requires authentication and is limited to 10 requests per minute.`,
     params: [
@@ -2736,6 +5040,42 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Sort results by indexed (how recently the file was indexed)`,
+      },
+    ],
+  },
+  {
+    name: 'githubpat_search_commits',
+    description: `Search for commits across all of GitHub, or scoped with search qualifiers.`,
+    params: [
+      {
+        name: 'q',
+        type: 'string',
+        required: true,
+        description: `The search query, using GitHub search syntax`,
+      },
+      {
+        name: 'order',
+        type: 'string',
+        required: false,
+        description: `Determines whether the first search result returned is the highest or lowest number of matches`,
+      },
+      {
+        name: 'page',
+        type: 'number',
+        required: false,
+        description: `Page number of the results to fetch`,
+      },
+      {
+        name: 'per_page',
+        type: 'number',
+        required: false,
+        description: `The number of results per page (max 100)`,
+      },
+      {
+        name: 'sort',
+        type: 'string',
+        required: false,
+        description: `Sorts the results by author-date or committer-date. Default: best match`,
       },
     ],
   },
@@ -2802,6 +5142,30 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'githubpat_search_topics',
+    description: `Search for topics defined on GitHub.`,
+    params: [
+      {
+        name: 'q',
+        type: 'string',
+        required: true,
+        description: `The search query, using GitHub search syntax`,
+      },
+      {
+        name: 'page',
+        type: 'number',
+        required: false,
+        description: `Page number of the results to fetch`,
+      },
+      {
+        name: 'per_page',
+        type: 'number',
+        required: false,
+        description: `The number of results per page (max 100)`,
+      },
+    ],
+  },
+  {
     name: 'githubpat_search_users',
     description: `Search for users across GitHub via search qualifiers (e.g. 'tom repos:>42 followers:>1000'). Returns up to 100 results per page, sortable by followers, repositories, or joined date.`,
     params: [
@@ -2829,6 +5193,115 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Sort results by followers, repositories, or joined date`,
+      },
+    ],
+  },
+  {
+    name: 'githubpat_secret_scanning_alerts_list',
+    description: `List secret scanning alerts for a repository. To use this endpoint, you must have read access to the repository, and your token needs the repo scope (or security_events for public repositories).`,
+    params: [
+      {
+        name: 'owner',
+        type: 'string',
+        required: true,
+        description: `The account owner of the repository`,
+      },
+      { name: 'repo', type: 'string', required: true, description: `The name of the repository` },
+      {
+        name: 'after',
+        type: 'string',
+        required: false,
+        description: `A cursor, as given in the Link response header. Only search for results after this cursor.`,
+      },
+      {
+        name: 'assignee',
+        type: 'string',
+        required: false,
+        description: `Filter by assignee username, '*' for any assignee, or 'none' for unassigned`,
+      },
+      {
+        name: 'before',
+        type: 'string',
+        required: false,
+        description: `A cursor, as given in the Link response header. Only search for results before this cursor.`,
+      },
+      {
+        name: 'direction',
+        type: 'string',
+        required: false,
+        description: `The direction to sort the results by`,
+      },
+      {
+        name: 'exclude_providers',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of provider slugs to exclude. Cannot be combined with providers.`,
+      },
+      {
+        name: 'exclude_secret_types',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of secret types to exclude. Cannot be combined with secret_type.`,
+      },
+      {
+        name: 'is_multi_repo',
+        type: 'boolean',
+        required: false,
+        description: `Filter alerts by whether the multi-repo tag is present`,
+      },
+      {
+        name: 'is_publicly_leaked',
+        type: 'boolean',
+        required: false,
+        description: `Filter alerts by whether the publicly-leaked tag is present`,
+      },
+      {
+        name: 'page',
+        type: 'number',
+        required: false,
+        description: `Page number of results to fetch`,
+      },
+      {
+        name: 'per_page',
+        type: 'number',
+        required: false,
+        description: `Number of results per page (max 100)`,
+      },
+      {
+        name: 'providers',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of provider slugs to filter by. Cannot be combined with exclude_providers.`,
+      },
+      {
+        name: 'resolution',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of resolutions to filter by`,
+      },
+      {
+        name: 'secret_type',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of secret types to return. All default secret patterns are returned when omitted.`,
+      },
+      {
+        name: 'sort',
+        type: 'string',
+        required: false,
+        description: `The property by which to sort the results`,
+      },
+      {
+        name: 'state',
+        type: 'string',
+        required: false,
+        description: `Set to filter alerts by state`,
+      },
+      {
+        name: 'validity',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of validities to filter by`,
       },
     ],
   },
@@ -2888,6 +5361,93 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'githubpat_sub_issue_add',
+    description: `Add an existing issue as a sub-issue of a parent issue, creating a parent/child relationship between them.`,
+    params: [
+      {
+        name: 'issue_number',
+        type: 'number',
+        required: true,
+        description: `The number that identifies the parent issue`,
+      },
+      {
+        name: 'owner',
+        type: 'string',
+        required: true,
+        description: `The account owner of the repository`,
+      },
+      { name: 'repo', type: 'string', required: true, description: `The name of the repository` },
+      {
+        name: 'sub_issue_id',
+        type: 'number',
+        required: true,
+        description: `The internal id (not the issue number) of the issue to add as a sub-issue. Find it in the 'id' field of the get-issue response for the issue you want to add.`,
+      },
+      {
+        name: 'replace_parent',
+        type: 'boolean',
+        required: false,
+        description: `When true, replaces the sub-issue's current parent issue (if it already has one) with this parent`,
+      },
+    ],
+  },
+  {
+    name: 'githubpat_sub_issue_remove',
+    description: `Remove a sub-issue from its parent issue, breaking the parent/child relationship between them. The issue itself is not deleted.`,
+    params: [
+      {
+        name: 'issue_number',
+        type: 'number',
+        required: true,
+        description: `The number that identifies the parent issue`,
+      },
+      {
+        name: 'owner',
+        type: 'string',
+        required: true,
+        description: `The account owner of the repository`,
+      },
+      { name: 'repo', type: 'string', required: true, description: `The name of the repository` },
+      {
+        name: 'sub_issue_id',
+        type: 'number',
+        required: true,
+        description: `The internal id (not the issue number) of the sub-issue to remove from the parent`,
+      },
+    ],
+  },
+  {
+    name: 'githubpat_sub_issues_list',
+    description: `List the sub-issues that have been added underneath a parent issue.`,
+    params: [
+      {
+        name: 'issue_number',
+        type: 'number',
+        required: true,
+        description: `The number that identifies the parent issue`,
+      },
+      {
+        name: 'owner',
+        type: 'string',
+        required: true,
+        description: `The account owner of the repository`,
+      },
+      { name: 'repo', type: 'string', required: true, description: `The name of the repository` },
+      {
+        name: 'page',
+        type: 'number',
+        required: false,
+        description: `Page number of results to fetch`,
+      },
+      {
+        name: 'per_page',
+        type: 'number',
+        required: false,
+        description: `Number of results per page (max 100)`,
+      },
+    ],
+  },
+  {
     name: 'githubpat_tags_list',
     description: `List repository tags.`,
     params: [
@@ -2913,6 +5473,67 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'githubpat_team_create',
+    description: `Create a new team in an organization. The authenticated user must be an organization owner or a team maintainer.`,
+    params: [
+      { name: 'name', type: 'string', required: true, description: `The name of the team` },
+      {
+        name: 'org',
+        type: 'string',
+        required: true,
+        description: `The organization name (case-insensitive)`,
+      },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `The description of the team`,
+      },
+      {
+        name: 'maintainers',
+        type: 'array',
+        required: false,
+        description: `GitHub usernames of organization members who will become team maintainers`,
+      },
+      {
+        name: 'parent_team_id',
+        type: 'number',
+        required: false,
+        description: `The ID of a team to set as the parent team`,
+      },
+      {
+        name: 'privacy',
+        type: 'string',
+        required: false,
+        description: `The level of privacy this team should have`,
+      },
+      {
+        name: 'repo_names',
+        type: 'array',
+        required: false,
+        description: `Full name (e.g., 'org/repo') of repositories to add the team to`,
+      },
+    ],
+  },
+  {
+    name: 'githubpat_team_delete',
+    description: `Delete a team from an organization. This does not delete the repositories the team had access to; only the team itself.`,
+    params: [
+      {
+        name: 'org',
+        type: 'string',
+        required: true,
+        description: `The organization name (case-insensitive)`,
+      },
+      {
+        name: 'team_slug',
+        type: 'string',
+        required: true,
+        description: `The slug of the team name`,
+      },
+    ],
+  },
+  {
     name: 'githubpat_team_get',
     description: `Get a team using the team's slug. To create the slug, GitHub replaces special characters in the name, lowercases all words, and replaces spaces with a '-' separator.`,
     params: [
@@ -2927,6 +5548,30 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `The slug of the team name`,
+      },
+    ],
+  },
+  {
+    name: 'githubpat_team_member_remove',
+    description: `Remove a user from a team. Does not remove them from the organization itself.`,
+    params: [
+      {
+        name: 'org',
+        type: 'string',
+        required: true,
+        description: `The organization name (case-insensitive)`,
+      },
+      {
+        name: 'team_slug',
+        type: 'string',
+        required: true,
+        description: `The slug of the team name`,
+      },
+      {
+        name: 'username',
+        type: 'string',
+        required: true,
+        description: `The handle for the GitHub user account`,
       },
     ],
   },
@@ -2967,6 +5612,30 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'githubpat_team_membership_get',
+    description: `Get a user's membership state and role (member or maintainer) on a team.`,
+    params: [
+      {
+        name: 'org',
+        type: 'string',
+        required: true,
+        description: `The organization name (case-insensitive)`,
+      },
+      {
+        name: 'team_slug',
+        type: 'string',
+        required: true,
+        description: `The slug of the team name`,
+      },
+      {
+        name: 'username',
+        type: 'string',
+        required: true,
+        description: `The handle for the GitHub user account`,
+      },
+    ],
+  },
+  {
     name: 'githubpat_team_membership_set',
     description: `Add an organization member to a team, or update their role on the team. An authenticated organization owner or team maintainer can perform this action. If the user is not an organization member, this sends an email invitation and the membership stays 'pending' until accepted.`,
     params: [
@@ -2997,6 +5666,62 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'githubpat_team_repo_add',
+    description: `Add a repository to a team, or update the team's permission level on a repository it already has access to.`,
+    params: [
+      {
+        name: 'org',
+        type: 'string',
+        required: true,
+        description: `The organization name (case-insensitive)`,
+      },
+      {
+        name: 'owner',
+        type: 'string',
+        required: true,
+        description: `The account owner of the repository`,
+      },
+      { name: 'repo', type: 'string', required: true, description: `The name of the repository` },
+      {
+        name: 'team_slug',
+        type: 'string',
+        required: true,
+        description: `The slug of the team name`,
+      },
+      {
+        name: 'permission',
+        type: 'string',
+        required: false,
+        description: `The permission to grant the team on this repository. Custom repository roles are also accepted if the organization has defined any`,
+      },
+    ],
+  },
+  {
+    name: 'githubpat_team_repo_remove',
+    description: `Remove a repository from a team. The repository itself is not deleted, only the team's access to it.`,
+    params: [
+      {
+        name: 'org',
+        type: 'string',
+        required: true,
+        description: `The organization name (case-insensitive)`,
+      },
+      {
+        name: 'owner',
+        type: 'string',
+        required: true,
+        description: `The account owner of the repository`,
+      },
+      { name: 'repo', type: 'string', required: true, description: `The name of the repository` },
+      {
+        name: 'team_slug',
+        type: 'string',
+        required: true,
+        description: `The slug of the team name`,
+      },
+    ],
+  },
+  {
     name: 'githubpat_team_repos_list',
     description: `List a team's repositories visible to the authenticated user.`,
     params: [
@@ -3023,6 +5748,43 @@ export const tools: Tool[] = [
         type: 'number',
         required: false,
         description: `Number of results per page (max 100)`,
+      },
+    ],
+  },
+  {
+    name: 'githubpat_team_update',
+    description: `Update a team's name, description, privacy, or parent team.`,
+    params: [
+      {
+        name: 'org',
+        type: 'string',
+        required: true,
+        description: `The organization name (case-insensitive)`,
+      },
+      {
+        name: 'team_slug',
+        type: 'string',
+        required: true,
+        description: `The slug of the team name`,
+      },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `The description of the team`,
+      },
+      { name: 'name', type: 'string', required: false, description: `The name of the team` },
+      {
+        name: 'parent_team_id',
+        type: 'number',
+        required: false,
+        description: `The ID of a team to set as the parent team`,
+      },
+      {
+        name: 'privacy',
+        type: 'string',
+        required: false,
+        description: `The level of privacy this team should have`,
       },
     ],
   },
@@ -3138,6 +5900,193 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'githubpat_webhook_create',
+    description: `Create a webhook on a repository. Repositories can have up to 20 webhooks.`,
+    params: [
+      {
+        name: 'config',
+        type: 'object',
+        required: true,
+        description: `Key/value pairs to provide settings for this webhook, including url, content_type, secret, and insecure_ssl`,
+      },
+      {
+        name: 'owner',
+        type: 'string',
+        required: true,
+        description: `The account owner of the repository`,
+      },
+      { name: 'repo', type: 'string', required: true, description: `The name of the repository` },
+      {
+        name: 'active',
+        type: 'boolean',
+        required: false,
+        description: `Determines if notifications are sent when the webhook is triggered`,
+      },
+      {
+        name: 'events',
+        type: 'array',
+        required: false,
+        description: `Determines what events the hook is triggered for`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: false,
+        description: `Use 'web' to create a webhook. Default: web. This parameter only accepts the value 'web'`,
+      },
+    ],
+  },
+  {
+    name: 'githubpat_webhook_delete',
+    description: `Delete a repository webhook.`,
+    params: [
+      {
+        name: 'hook_id',
+        type: 'number',
+        required: true,
+        description: `The unique identifier of the webhook`,
+      },
+      {
+        name: 'owner',
+        type: 'string',
+        required: true,
+        description: `The account owner of the repository`,
+      },
+      { name: 'repo', type: 'string', required: true, description: `The name of the repository` },
+    ],
+  },
+  {
+    name: 'githubpat_webhook_get',
+    description: `Get a single repository webhook by its ID.`,
+    params: [
+      {
+        name: 'hook_id',
+        type: 'number',
+        required: true,
+        description: `The unique identifier of the webhook`,
+      },
+      {
+        name: 'owner',
+        type: 'string',
+        required: true,
+        description: `The account owner of the repository`,
+      },
+      { name: 'repo', type: 'string', required: true, description: `The name of the repository` },
+    ],
+  },
+  {
+    name: 'githubpat_webhook_ping',
+    description: `Trigger a ping event to test that a repository webhook is configured correctly.`,
+    params: [
+      {
+        name: 'hook_id',
+        type: 'number',
+        required: true,
+        description: `The unique identifier of the webhook`,
+      },
+      {
+        name: 'owner',
+        type: 'string',
+        required: true,
+        description: `The account owner of the repository`,
+      },
+      { name: 'repo', type: 'string', required: true, description: `The name of the repository` },
+    ],
+  },
+  {
+    name: 'githubpat_webhook_update',
+    description: `Update the configuration, events, or active state of an existing repository webhook.`,
+    params: [
+      {
+        name: 'hook_id',
+        type: 'number',
+        required: true,
+        description: `The unique identifier of the webhook`,
+      },
+      {
+        name: 'owner',
+        type: 'string',
+        required: true,
+        description: `The account owner of the repository`,
+      },
+      { name: 'repo', type: 'string', required: true, description: `The name of the repository` },
+      {
+        name: 'active',
+        type: 'boolean',
+        required: false,
+        description: `Determines if notifications are sent when the webhook is triggered`,
+      },
+      {
+        name: 'add_events',
+        type: 'array',
+        required: false,
+        description: `A list of events to be added to the list of events that the hook triggers for`,
+      },
+      {
+        name: 'config',
+        type: 'object',
+        required: false,
+        description: `Key/value pairs to provide settings for this webhook, including url, content_type, secret, and insecure_ssl`,
+      },
+      {
+        name: 'events',
+        type: 'array',
+        required: false,
+        description: `Determines what events the hook is triggered for. This replaces the entire array of events`,
+      },
+      {
+        name: 'remove_events',
+        type: 'array',
+        required: false,
+        description: `A list of events to be removed from the list of events that the hook triggers for`,
+      },
+    ],
+  },
+  {
+    name: 'githubpat_webhooks_list',
+    description: `List webhooks configured on a repository.`,
+    params: [
+      {
+        name: 'owner',
+        type: 'string',
+        required: true,
+        description: `The account owner of the repository`,
+      },
+      { name: 'repo', type: 'string', required: true, description: `The name of the repository` },
+      {
+        name: 'page',
+        type: 'number',
+        required: false,
+        description: `Page number of the results to fetch`,
+      },
+      {
+        name: 'per_page',
+        type: 'number',
+        required: false,
+        description: `The number of results per page (max 100)`,
+      },
+    ],
+  },
+  {
+    name: 'githubpat_workflow_disable',
+    description: `Disable a workflow, preventing it from running until re-enabled.`,
+    params: [
+      {
+        name: 'owner',
+        type: 'string',
+        required: true,
+        description: `The account owner of the repository`,
+      },
+      { name: 'repo', type: 'string', required: true, description: `The name of the repository` },
+      {
+        name: 'workflow_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the workflow, or the workflow file name`,
+      },
+    ],
+  },
+  {
     name: 'githubpat_workflow_dispatch',
     description: `Trigger a workflow run using the workflow's ID or filename. The workflow must declare a workflow_dispatch trigger to be dispatched this way.`,
     params: [
@@ -3165,6 +6114,44 @@ export const tools: Tool[] = [
         type: 'object',
         required: false,
         description: `Input keys and values configured in the workflow file. The maximum number of properties is 25`,
+      },
+    ],
+  },
+  {
+    name: 'githubpat_workflow_enable',
+    description: `Enable a workflow that was previously disabled.`,
+    params: [
+      {
+        name: 'owner',
+        type: 'string',
+        required: true,
+        description: `The account owner of the repository`,
+      },
+      { name: 'repo', type: 'string', required: true, description: `The name of the repository` },
+      {
+        name: 'workflow_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the workflow, or the workflow file name`,
+      },
+    ],
+  },
+  {
+    name: 'githubpat_workflow_get',
+    description: `Get a single workflow by its ID or filename.`,
+    params: [
+      {
+        name: 'owner',
+        type: 'string',
+        required: true,
+        description: `The account owner of the repository`,
+      },
+      { name: 'repo', type: 'string', required: true, description: `The name of the repository` },
+      {
+        name: 'workflow_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the workflow, or the workflow file name`,
       },
     ],
   },

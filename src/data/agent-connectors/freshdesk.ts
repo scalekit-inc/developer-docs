@@ -82,6 +82,99 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'freshdesk_agent_get',
+    description: `Retrieve details of a specific agent by ID, including their roles, groups, skills, ticket scope, and contact information.`,
+    params: [
+      {
+        name: 'agent_id',
+        type: 'number',
+        required: true,
+        description: `ID of the agent to retrieve`,
+      },
+    ],
+  },
+  {
+    name: 'freshdesk_agent_update',
+    description: `Update an existing agent in Freshdesk. Only the fields provided are changed. Use this to change an agent's role, ticket scope, group/skill assignments, or contact details.`,
+    params: [
+      {
+        name: 'agent_id',
+        type: 'number',
+        required: true,
+        description: `ID of the agent to update`,
+      },
+      {
+        name: 'agent_type',
+        type: 'number',
+        required: false,
+        description: `Type of agent (1=Support Agent, 2=Field Agent, 3=Collaborator)`,
+      },
+      { name: 'email', type: 'string', required: false, description: `Email address of the agent` },
+      {
+        name: 'focus_mode',
+        type: 'boolean',
+        required: false,
+        description: `Focus mode setting for the agent`,
+      },
+      {
+        name: 'group_ids',
+        type: 'array',
+        required: false,
+        description: `Array of group IDs to assign the agent to`,
+      },
+      {
+        name: 'language',
+        type: 'string',
+        required: false,
+        description: `Language preference of the agent`,
+      },
+      {
+        name: 'mobile',
+        type: 'string',
+        required: false,
+        description: `Mobile phone number of the agent`,
+      },
+      { name: 'name', type: 'string', required: false, description: `Full name of the agent` },
+      {
+        name: 'occasional',
+        type: 'boolean',
+        required: false,
+        description: `Whether the agent is occasional (true) or full-time (false)`,
+      },
+      {
+        name: 'phone',
+        type: 'string',
+        required: false,
+        description: `Telephone number of the agent`,
+      },
+      {
+        name: 'role_ids',
+        type: 'array',
+        required: false,
+        description: `Array of role IDs to assign to the agent`,
+      },
+      {
+        name: 'signature',
+        type: 'string',
+        required: false,
+        description: `Agent email signature in HTML format`,
+      },
+      {
+        name: 'skill_ids',
+        type: 'array',
+        required: false,
+        description: `Array of skill IDs to assign to the agent`,
+      },
+      {
+        name: 'ticket_scope',
+        type: 'number',
+        required: false,
+        description: `Ticket permission level (1=Global Access, 2=Group Access, 3=Restricted Access)`,
+      },
+      { name: 'time_zone', type: 'string', required: false, description: `Time zone of the agent` },
+    ],
+  },
+  {
     name: 'freshdesk_agents_list',
     description: `Retrieve a list of agents from Freshdesk with filtering options. Returns agent details including IDs, contact information, roles, and availability status. Supports pagination with up to 100 agents per page.`,
     params: [
@@ -120,6 +213,181 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Filter agents by state (fulltime or occasional)`,
+      },
+    ],
+  },
+  {
+    name: 'freshdesk_canned_response_create',
+    description: `Create a new canned response template that agents can insert into ticket replies. Must belong to an existing canned response folder.`,
+    params: [
+      {
+        name: 'content_html',
+        type: 'string',
+        required: true,
+        description: `HTML content of the canned response`,
+      },
+      {
+        name: 'folder_id',
+        type: 'number',
+        required: true,
+        description: `ID of the canned response folder this response belongs to`,
+      },
+      {
+        name: 'title',
+        type: 'string',
+        required: true,
+        description: `Title of the canned response`,
+      },
+      {
+        name: 'group_ids',
+        type: 'array',
+        required: false,
+        description: `Array of group IDs that can use this response, when visibility is 2`,
+      },
+      {
+        name: 'visibility',
+        type: 'number',
+        required: false,
+        description: `Who can see this canned response. 0=personal, 1=all agents, 2=specific groups`,
+      },
+    ],
+  },
+  {
+    name: 'freshdesk_canned_response_folders_list',
+    description: `Retrieve all canned response folders, each including the canned responses stored inside it. Use a folder ID with Create Canned Response.`,
+    params: [],
+  },
+  {
+    name: 'freshdesk_companies_list',
+    description: `Retrieve a paginated list of all companies in the Freshdesk account.`,
+    params: [
+      {
+        name: 'page',
+        type: 'number',
+        required: false,
+        description: `Page number for pagination (starts from 1)`,
+      },
+      {
+        name: 'per_page',
+        type: 'number',
+        required: false,
+        description: `Number of companies per page (max 100)`,
+      },
+    ],
+  },
+  {
+    name: 'freshdesk_company_create',
+    description: `Create a new company in Freshdesk. Name is required. Use domains to auto-associate contacts and tickets whose email domain matches.`,
+    params: [
+      { name: 'name', type: 'string', required: true, description: `Name of the company` },
+      {
+        name: 'custom_fields',
+        type: 'object',
+        required: false,
+        description: `Key-value pairs containing custom field names and values`,
+      },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `Description of the company`,
+      },
+      {
+        name: 'domains',
+        type: 'array',
+        required: false,
+        description: `Array of email domains associated with the company`,
+      },
+      {
+        name: 'health_score',
+        type: 'string',
+        required: false,
+        description: `Health score label for the company`,
+      },
+      {
+        name: 'industry',
+        type: 'string',
+        required: false,
+        description: `Industry the company operates in`,
+      },
+      {
+        name: 'note',
+        type: 'string',
+        required: false,
+        description: `Internal note about the company`,
+      },
+    ],
+  },
+  {
+    name: 'freshdesk_company_delete',
+    description: `Delete a company from Freshdesk. This action is irreversible; contacts and tickets associated with the company are not deleted but lose their company association.`,
+    params: [
+      {
+        name: 'company_id',
+        type: 'number',
+        required: true,
+        description: `ID of the company to delete`,
+      },
+    ],
+  },
+  {
+    name: 'freshdesk_company_get',
+    description: `Retrieve details of a specific company by ID, including custom fields, domains, and health score.`,
+    params: [
+      {
+        name: 'company_id',
+        type: 'number',
+        required: true,
+        description: `ID of the company to retrieve`,
+      },
+    ],
+  },
+  {
+    name: 'freshdesk_company_update',
+    description: `Update an existing company in Freshdesk. Only the fields provided are changed.`,
+    params: [
+      {
+        name: 'company_id',
+        type: 'number',
+        required: true,
+        description: `ID of the company to update`,
+      },
+      {
+        name: 'custom_fields',
+        type: 'object',
+        required: false,
+        description: `Key-value pairs containing custom field names and values`,
+      },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `Description of the company`,
+      },
+      {
+        name: 'domains',
+        type: 'array',
+        required: false,
+        description: `Array of email domains associated with the company`,
+      },
+      {
+        name: 'health_score',
+        type: 'string',
+        required: false,
+        description: `Health score label for the company`,
+      },
+      {
+        name: 'industry',
+        type: 'string',
+        required: false,
+        description: `Industry the company operates in`,
+      },
+      { name: 'name', type: 'string', required: false, description: `Name of the company` },
+      {
+        name: 'note',
+        type: 'string',
+        required: false,
+        description: `Internal note about the company`,
       },
     ],
   },
@@ -192,9 +460,232 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'freshdesk_contact_delete',
+    description: `Soft-delete a contact in Freshdesk, moving it to the trash. The contact can be restored from the trash within Freshdesk before it is permanently purged.`,
+    params: [
+      {
+        name: 'contact_id',
+        type: 'number',
+        required: true,
+        description: `ID of the contact to delete`,
+      },
+    ],
+  },
+  {
+    name: 'freshdesk_contact_get',
+    description: `Retrieve details of a specific contact by ID, including custom fields and associated company.`,
+    params: [
+      {
+        name: 'contact_id',
+        type: 'number',
+        required: true,
+        description: `ID of the contact to retrieve`,
+      },
+    ],
+  },
+  {
+    name: 'freshdesk_contact_update',
+    description: `Update an existing contact in Freshdesk. Only the fields provided are changed.`,
+    params: [
+      {
+        name: 'contact_id',
+        type: 'number',
+        required: true,
+        description: `ID of the contact to update`,
+      },
+      {
+        name: 'company_id',
+        type: 'number',
+        required: false,
+        description: `Company ID to associate with the contact`,
+      },
+      {
+        name: 'custom_fields',
+        type: 'object',
+        required: false,
+        description: `Key-value pairs for custom field values`,
+      },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `Description about the contact`,
+      },
+      {
+        name: 'email',
+        type: 'string',
+        required: false,
+        description: `Email address of the contact`,
+      },
+      {
+        name: 'job_title',
+        type: 'string',
+        required: false,
+        description: `Job title of the contact`,
+      },
+      {
+        name: 'mobile',
+        type: 'string',
+        required: false,
+        description: `Mobile number of the contact`,
+      },
+      { name: 'name', type: 'string', required: false, description: `Full name of the contact` },
+      {
+        name: 'phone',
+        type: 'string',
+        required: false,
+        description: `Phone number of the contact`,
+      },
+      {
+        name: 'tags',
+        type: 'array',
+        required: false,
+        description: `Array of tags to associate with the contact`,
+      },
+    ],
+  },
+  {
+    name: 'freshdesk_contacts_list',
+    description: `Retrieve a list of contacts with filtering and pagination. Supports filtering by email, phone, mobile, company, and state.`,
+    params: [
+      { name: 'company_id', type: 'number', required: false, description: `Filter by company ID` },
+      { name: 'email', type: 'string', required: false, description: `Filter by contact email` },
+      { name: 'mobile', type: 'string', required: false, description: `Filter by mobile number` },
+      {
+        name: 'page',
+        type: 'number',
+        required: false,
+        description: `Page number for pagination (starts from 1)`,
+      },
+      {
+        name: 'per_page',
+        type: 'number',
+        required: false,
+        description: `Number of contacts per page (max 100)`,
+      },
+      { name: 'phone', type: 'string', required: false, description: `Filter by phone number` },
+      { name: 'state', type: 'string', required: false, description: `Filter by contact state` },
+      {
+        name: 'updated_since',
+        type: 'string',
+        required: false,
+        description: `Filter contacts updated since this timestamp (ISO 8601)`,
+      },
+    ],
+  },
+  {
+    name: 'freshdesk_group_create',
+    description: `Create a new agent group in Freshdesk for routing and organizing tickets. Name is required.`,
+    params: [
+      { name: 'name', type: 'string', required: true, description: `Name of the group` },
+      {
+        name: 'agent_ids',
+        type: 'array',
+        required: false,
+        description: `Array of agent IDs to add to the group`,
+      },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `Description of the group`,
+      },
+      {
+        name: 'escalate_to',
+        type: 'number',
+        required: false,
+        description: `Agent ID to escalate unassigned tickets to after the unassigned_for period`,
+      },
+      {
+        name: 'unassigned_for',
+        type: 'string',
+        required: false,
+        description: `Time after which an unassigned ticket in this group is escalated`,
+      },
+    ],
+  },
+  {
+    name: 'freshdesk_groups_list',
+    description: `Retrieve a list of all agent groups in Freshdesk, including group membership and escalation settings.`,
+    params: [],
+  },
+  {
     name: 'freshdesk_roles_list',
     description: `Retrieve a list of all roles from Freshdesk. Returns role details including IDs, names, descriptions, default status, and timestamps. This endpoint provides information about the different permission levels and access controls available in the Freshdesk system.`,
     params: [],
+  },
+  {
+    name: 'freshdesk_satisfaction_ratings_list',
+    description: `Retrieve customer satisfaction survey ratings submitted across tickets, optionally filtered to ratings created since a given time.`,
+    params: [
+      {
+        name: 'created_since',
+        type: 'string',
+        required: false,
+        description: `Only return ratings created since this timestamp (ISO 8601)`,
+      },
+      {
+        name: 'page',
+        type: 'number',
+        required: false,
+        description: `Page number for pagination (starts from 1)`,
+      },
+    ],
+  },
+  {
+    name: 'freshdesk_solution_article_create',
+    description: `Create a new knowledge base article inside a solution folder. Status controls whether it is a draft or published.`,
+    params: [
+      {
+        name: 'description',
+        type: 'string',
+        required: true,
+        description: `HTML content of the article body`,
+      },
+      {
+        name: 'folder_id',
+        type: 'number',
+        required: true,
+        description: `ID of the solution folder to create the article in`,
+      },
+      { name: 'title', type: 'string', required: true, description: `Title of the article` },
+      {
+        name: 'status',
+        type: 'number',
+        required: false,
+        description: `Publication status of the article. 1=Draft, 2=Published`,
+      },
+      {
+        name: 'tags',
+        type: 'array',
+        required: false,
+        description: `Array of tags to associate with the article`,
+      },
+    ],
+  },
+  {
+    name: 'freshdesk_solution_articles_list',
+    description: `Retrieve all knowledge base articles inside a specific solution folder.`,
+    params: [
+      {
+        name: 'folder_id',
+        type: 'number',
+        required: true,
+        description: `ID of the solution folder to list articles from`,
+      },
+      {
+        name: 'page',
+        type: 'number',
+        required: false,
+        description: `Page number for pagination (starts from 1)`,
+      },
+      {
+        name: 'per_page',
+        type: 'number',
+        required: false,
+        description: `Number of articles per page (max 100)`,
+      },
+    ],
   },
   {
     name: 'freshdesk_ticket_create',
@@ -277,6 +768,60 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'freshdesk_ticket_delete',
+    description: `Move a ticket to the trash in Freshdesk. Trashed tickets can be restored within 30 days via the Freshdesk UI before being permanently purged.`,
+    params: [
+      {
+        name: 'ticket_id',
+        type: 'number',
+        required: true,
+        description: `ID of the ticket to delete`,
+      },
+    ],
+  },
+  {
+    name: 'freshdesk_ticket_forward',
+    description: `Forward a ticket's conversation to one or more external email addresses, optionally including the full ticket thread.`,
+    params: [
+      {
+        name: 'body',
+        type: 'string',
+        required: true,
+        description: `HTML content of the forward message`,
+      },
+      {
+        name: 'ticket_id',
+        type: 'number',
+        required: true,
+        description: `ID of the ticket to forward`,
+      },
+      {
+        name: 'to_emails',
+        type: 'array',
+        required: true,
+        description: `Array of email addresses to forward the ticket to`,
+      },
+      {
+        name: 'bcc_emails',
+        type: 'array',
+        required: false,
+        description: `Array of email addresses to BCC on the forward`,
+      },
+      {
+        name: 'cc_emails',
+        type: 'array',
+        required: false,
+        description: `Array of email addresses to CC on the forward`,
+      },
+      {
+        name: 'quoted_conversation',
+        type: 'boolean',
+        required: false,
+        description: `If true, includes the full ticket thread in the forwarded email`,
+      },
+    ],
+  },
+  {
     name: 'freshdesk_ticket_get',
     description: `Retrieve details of a specific ticket by ID. Includes ticket properties, conversations, and metadata.`,
     params: [
@@ -291,6 +836,43 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Additional resources to include (stats, requester, company, conversations)`,
+      },
+    ],
+  },
+  {
+    name: 'freshdesk_ticket_note_create',
+    description: `Add a note to a ticket conversation in Freshdesk. Notes are internal by default (visible only to agents); set private to false to create a public note visible to the customer.`,
+    params: [
+      { name: 'body', type: 'string', required: true, description: `HTML content of the note` },
+      {
+        name: 'ticket_id',
+        type: 'number',
+        required: true,
+        description: `ID of the ticket to add the note to`,
+      },
+      {
+        name: 'incoming',
+        type: 'boolean',
+        required: false,
+        description: `If true, marks the note as a third-party contribution added from outside Freshdesk`,
+      },
+      {
+        name: 'notify_emails',
+        type: 'array',
+        required: false,
+        description: `Array of email addresses to notify about this note`,
+      },
+      {
+        name: 'private',
+        type: 'boolean',
+        required: false,
+        description: `If true, the note is only visible to agents. Defaults to true.`,
+      },
+      {
+        name: 'user_id',
+        type: 'number',
+        required: false,
+        description: `ID of the agent creating the note`,
       },
     ],
   },
@@ -352,6 +934,24 @@ export const tools: Tool[] = [
         type: 'array',
         required: false,
         description: `Array of tags to be associated with the ticket`,
+      },
+    ],
+  },
+  {
+    name: 'freshdesk_tickets_filter',
+    description: `Search tickets using Freshdesk's structured query syntax (field:value expressions combined with AND/OR), for filtering beyond what List Tickets' predefined filters support. Supports fields like agent_id, group_id, priority, status, tag, type, due_by, fr_due_by, created_at, updated_at, closed_at, and custom fields. Returns up to 30 results per page across a maximum of 10 pages.`,
+    params: [
+      {
+        name: 'query',
+        type: 'string',
+        required: true,
+        description: `Query expression to filter tickets, e.g. "priority:3 AND status:2". Must be enclosed in double quotes and be 512 characters or fewer.`,
+      },
+      {
+        name: 'page',
+        type: 'number',
+        required: false,
+        description: `Page number for pagination (1-10)`,
       },
     ],
   },
@@ -433,6 +1033,85 @@ export const tools: Tool[] = [
         type: 'number',
         required: false,
         description: `ID of the agent sending the reply`,
+      },
+    ],
+  },
+  {
+    name: 'freshdesk_time_entries_list',
+    description: `Retrieve time entries logged across tickets, with filtering by agent, company, and execution date range.`,
+    params: [
+      {
+        name: 'agent_id',
+        type: 'number',
+        required: false,
+        description: `Filter by the agent who logged the time`,
+      },
+      {
+        name: 'billable',
+        type: 'boolean',
+        required: false,
+        description: `Filter by billable status`,
+      },
+      { name: 'company_id', type: 'number', required: false, description: `Filter by company` },
+      {
+        name: 'executed_after',
+        type: 'string',
+        required: false,
+        description: `Filter entries executed after this timestamp (ISO 8601)`,
+      },
+      {
+        name: 'executed_before',
+        type: 'string',
+        required: false,
+        description: `Filter entries executed before this timestamp (ISO 8601)`,
+      },
+      {
+        name: 'page',
+        type: 'number',
+        required: false,
+        description: `Page number for pagination (starts from 1)`,
+      },
+    ],
+  },
+  {
+    name: 'freshdesk_time_entry_create',
+    description: `Log a time entry against a ticket for billing or effort tracking.`,
+    params: [
+      {
+        name: 'ticket_id',
+        type: 'number',
+        required: true,
+        description: `ID of the ticket to log time against`,
+      },
+      {
+        name: 'time_spent',
+        type: 'string',
+        required: true,
+        description: `Time spent, formatted as hh:mm`,
+      },
+      {
+        name: 'agent_id',
+        type: 'number',
+        required: false,
+        description: `ID of the agent who performed the work`,
+      },
+      {
+        name: 'billable',
+        type: 'boolean',
+        required: false,
+        description: `Whether this time entry is billable`,
+      },
+      {
+        name: 'executed_at',
+        type: 'string',
+        required: false,
+        description: `When the work was performed (ISO 8601). Defaults to now.`,
+      },
+      {
+        name: 'note',
+        type: 'string',
+        required: false,
+        description: `Note describing the work done`,
       },
     ],
   },

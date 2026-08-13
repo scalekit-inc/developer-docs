@@ -14,6 +14,54 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'googlebusinessprofile_categories_batch_get',
+    description: `Fetch the localized display names for one or more specific Google Business Profile category IDs at once, given a language code. Complements List Business Categories, which enumerates all available categories, by resolving a known set of category resource names directly.`,
+    params: [
+      {
+        name: 'language_code',
+        type: 'string',
+        required: true,
+        description: `BCP 47 language code to localize the category display names, e.g. en.`,
+      },
+      {
+        name: 'names',
+        type: 'array',
+        required: true,
+        description: `The category resource names to look up, e.g. categories/gcid:restaurant. Obtain valid IDs from the List Business Categories tool.`,
+      },
+      {
+        name: 'region_code',
+        type: 'string',
+        required: false,
+        description: `ISO 3166-1 alpha-2 country code to further localize the results.`,
+      },
+      {
+        name: 'view',
+        type: 'string',
+        required: false,
+        description: `The level of detail to return for each category. BASIC returns only name; FULL also returns additional details.`,
+      },
+    ],
+  },
+  {
+    name: 'googlebusinessprofile_complete_verification',
+    description: `Complete a pending Google Business Profile location verification by submitting the PIN code received via the chosen verification method (SMS, phone call, postcard, etc.). Requires the verification resource name and the PIN.`,
+    params: [
+      {
+        name: 'name',
+        type: 'string',
+        required: true,
+        description: `The resource name of the pending verification to complete, in the form locations/{location_id}/verifications/{verification_id}. Obtain this from Verify Location's response or List Verifications.`,
+      },
+      {
+        name: 'pin',
+        type: 'string',
+        required: true,
+        description: `The PIN code received via the verification method (SMS, phone, postcard, etc.).`,
+      },
+    ],
+  },
+  {
     name: 'googlebusinessprofile_create_account',
     description: `Create a new Business Profile account using the Account Management API. Requires an account name and a type (e.g. ORGANIZATION or LOCATION_GROUP). PERSONAL accounts cannot typically be created via this API; use ORGANIZATION, LOCATION_GROUP, or USER_GROUP for programmatic account creation.`,
     params: [
@@ -212,6 +260,48 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'googlebusinessprofile_create_question',
+    description: `Post a new customer question on a Google Business Profile location's Q&A section using the legacy My Business API v4. Requires the parent location resource name and the question text. Note: this legacy v4 endpoint requires separate Google allow-list approval for the OAuth client; a 403 response may indicate the client has not been allow-listed rather than a tool defect.`,
+    params: [
+      {
+        name: 'parent',
+        type: 'string',
+        required: true,
+        description: `The parent location resource name to post the question under, in the form accounts/{account_id}/locations/{location_id}. Example: accounts/106234523651626475467/locations/12345678901234567890.`,
+      },
+      {
+        name: 'text',
+        type: 'string',
+        required: true,
+        description: `The text of the question to post. Example: 'Do you offer curbside pickup?'.`,
+      },
+    ],
+  },
+  {
+    name: 'googlebusinessprofile_decline_invitation',
+    description: `Decline a pending invitation to become an administrator of a Google Business Profile account. Requires the invitation resource name in the form accounts/{account_id}/invitations/{invitation_id}. The request body is empty. Once declined, the invitation is consumed and no longer usable.`,
+    params: [
+      {
+        name: 'name',
+        type: 'string',
+        required: true,
+        description: `The resource name of the invitation to decline, in the form accounts/{account_id}/invitations/{invitation_id}.`,
+      },
+    ],
+  },
+  {
+    name: 'googlebusinessprofile_delete_answer',
+    description: `Delete the caller's own answer to a customer question on a Google Business Profile location, using the legacy My Business API v4. Note: this legacy v4 endpoint requires separate Google allow-list approval for the OAuth client; a 403 response may indicate the client has not been allow-listed rather than a tool defect.`,
+    params: [
+      {
+        name: 'parent',
+        type: 'string',
+        required: true,
+        description: `The resource name of the question whose caller's answer should be deleted, in the form accounts/{account_id}/locations/{location_id}/questions/{question_id}.`,
+      },
+    ],
+  },
+  {
     name: 'googlebusinessprofile_delete_location',
     description: `Delete a location from a Google Business Profile account. Requires the location resource name in the form locations/{location_id}. This is a destructive, generally irreversible operation that removes the location's presence from Search and Maps. Some locations cannot be deleted via the API (per their LocationState) and must instead be removed via the Google Business Profile website. Returns an empty response on success.`,
     params: [
@@ -272,6 +362,72 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'googlebusinessprofile_delete_question',
+    description: `Delete a customer question (and all its answers) from a Google Business Profile location using the legacy My Business API v4. This is permanent. Note: this legacy v4 endpoint requires separate Google allow-list approval for the OAuth client; a 403 response may indicate the client has not been allow-listed rather than a tool defect.`,
+    params: [
+      {
+        name: 'name',
+        type: 'string',
+        required: true,
+        description: `The resource name of the question to delete, in the form accounts/{account_id}/locations/{location_id}/questions/{question_id}.`,
+      },
+    ],
+  },
+  {
+    name: 'googlebusinessprofile_fetch_multi_daily_metrics',
+    description: `Fetch time series data for several daily performance metrics (views, calls, direction requests, bookings, etc.) for a single Google Business Profile location in one call, instead of calling Get Daily Metric Time Series once per metric. Requires the location resource name, a list of DailyMetric enum values, and a complete start/end date.`,
+    params: [
+      {
+        name: 'daily_metrics',
+        type: 'array',
+        required: true,
+        description: `The DailyMetric enum values to fetch, e.g. ["CALL_CLICKS", "WEBSITE_CLICKS"]. Valid values: BUSINESS_IMPRESSIONS_DESKTOP_MAPS, BUSINESS_IMPRESSIONS_DESKTOP_SEARCH, BUSINESS_IMPRESSIONS_MOBILE_MAPS, BUSINESS_IMPRESSIONS_MOBILE_SEARCH, BUSINESS_CONVERSATIONS, BUSINESS_DIRECTION_REQUESTS, CALL_CLICKS, WEBSITE_CLICKS, BUSINESS_BOOKINGS, BUSINESS_FOOD_ORDERS, BUSINESS_FOOD_MENU_CLICKS.`,
+      },
+      {
+        name: 'end_day',
+        type: 'integer',
+        required: true,
+        description: `Day of the end date for the metric range (1-31).`,
+      },
+      {
+        name: 'end_month',
+        type: 'integer',
+        required: true,
+        description: `Month of the end date for the metric range (1-12).`,
+      },
+      {
+        name: 'end_year',
+        type: 'integer',
+        required: true,
+        description: `Year of the end date for the metric range.`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: true,
+        description: `The location resource name to fetch metrics for, in the form locations/{location_id}.`,
+      },
+      {
+        name: 'start_day',
+        type: 'integer',
+        required: true,
+        description: `Day of the start date for the metric range (1-31).`,
+      },
+      {
+        name: 'start_month',
+        type: 'integer',
+        required: true,
+        description: `Month of the start date for the metric range (1-12).`,
+      },
+      {
+        name: 'start_year',
+        type: 'integer',
+        required: true,
+        description: `Year of the start date for the metric range.`,
+      },
+    ],
+  },
+  {
     name: 'googlebusinessprofile_fetch_verification_options',
     description: `Report the eligible verification methods (ADDRESS, EMAIL, PHONE_CALL, SMS, AUTO) available for a Google Business Profile location, in a specific language. Requires the location resource name (locations/{location_id}) and a BCP 47 language code. Returns a list of VerificationOption objects describing, for each eligible method, the destination the PIN would be sent to (e.g. masked email address or phone number, or postcard mailing address) -- use these exact values as inputs to the Verify Location tool.`,
     params: [
@@ -298,6 +454,18 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `The account resource name to fetch, in the form accounts/{account_id}. Example: accounts/106234523651626475467.`,
+      },
+    ],
+  },
+  {
+    name: 'googlebusinessprofile_get_chain',
+    description: `Get a single business chain's full details by its resource name (chains/{chain_id}): its chain names and the websites and location counts associated with it. Use Search Business Chains first to find a chain's resource name by its display name.`,
+    params: [
+      {
+        name: 'name',
+        type: 'string',
+        required: true,
+        description: `The resource name of the chain to retrieve, in the form chains/{chain_id}.`,
       },
     ],
   },
@@ -440,6 +608,24 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'googlebusinessprofile_get_location_google_updated',
+    description: `See Google's version of a Business Profile location's data, including any crowd-sourced edits Google has applied that differ from the data the business submitted. Useful for auditing drift between what the merchant set and what is actually showing on Google Search and Maps.`,
+    params: [
+      {
+        name: 'name',
+        type: 'string',
+        required: true,
+        description: `The location resource name to check, in the form locations/{location_id}.`,
+      },
+      {
+        name: 'read_mask',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of Location fields to return, e.g. title,phoneNumbers,storefrontAddress. Defaults to all fields if omitted.`,
+      },
+    ],
+  },
+  {
     name: 'googlebusinessprofile_get_notification_settings',
     description: `Fetch the Google Pub/Sub notification settings configured for a Google Business Profile account. Requires the notification setting resource name in the form accounts/{account_id}/notificationSetting. Returns the Pub/Sub topic that receives notifications and the list of NotificationType events subscribed (e.g. NEW_REVIEW, NEW_QUESTION, GOOGLE_UPDATE).`,
     params: [
@@ -496,6 +682,18 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `The ID of the review to fetch. Example: AbFvOqk1a2b3c4d5e6f7.`,
+      },
+    ],
+  },
+  {
+    name: 'googlebusinessprofile_get_voice_of_merchant_state',
+    description: `Check whether a Google Business Profile location has 'Voice of Merchant' — meaning it is verified, not suspended, and eligible to have its edits reflected on Google Search and Maps. Returns which conditions (if any) are blocking the location from having full control over its listing.`,
+    params: [
+      {
+        name: 'name',
+        type: 'string',
+        required: true,
+        description: `The location resource name to check, in the form locations/{location_id}.`,
       },
     ],
   },
@@ -562,6 +760,36 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Resource name of the Organization or User Group whose accounts should be listed, in the form accounts/{account_id}. Leave blank to list accounts directly accessible to the authenticated user.`,
+      },
+    ],
+  },
+  {
+    name: 'googlebusinessprofile_list_answers',
+    description: `List the answers submitted for a customer question on a Google Business Profile location, using the legacy My Business API v4. Supports pagination and sorting. Note: this legacy v4 endpoint requires separate Google allow-list approval for the OAuth client; a 403 response may indicate the client has not been allow-listed rather than a tool defect.`,
+    params: [
+      {
+        name: 'parent',
+        type: 'string',
+        required: true,
+        description: `The resource name of the question whose answers to list, in the form accounts/{account_id}/locations/{location_id}/questions/{question_id}.`,
+      },
+      {
+        name: 'order_by',
+        type: 'string',
+        required: false,
+        description: `Ordering for the returned answers. Valid values: updateTime desc, upvoteCount desc.`,
+      },
+      {
+        name: 'page_size',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of answers to fetch per page. Default 10, maximum 50.`,
+      },
+      {
+        name: 'page_token',
+        type: 'string',
+        required: false,
+        description: `Token from a previous list_answers response's nextPageToken field.`,
       },
     ],
   },
@@ -652,6 +880,48 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Token from a previous list_categories call's response to fetch the next page of results. Leave blank to fetch the first page.`,
+      },
+    ],
+  },
+  {
+    name: 'googlebusinessprofile_list_invitations',
+    description: `List pending invitations for the calling user to become an administrator of a Google Business Profile account, using the Account Management API.`,
+    params: [
+      {
+        name: 'parent',
+        type: 'string',
+        required: true,
+        description: `The account resource name to list pending invitations for, in the form accounts/{account_id}.`,
+      },
+      {
+        name: 'target_type',
+        type: 'string',
+        required: false,
+        description: `Restrict the invitations returned by how they can be accepted. Valid values: ALL, URL, EMAIL.`,
+      },
+    ],
+  },
+  {
+    name: 'googlebusinessprofile_list_location_verifications',
+    description: `List a Google Business Profile location's verification history — past and current verification attempts, ordered by create time. Complements Fetch Verification Options (eligible methods), Verify Location (start a new attempt), and Complete Verification (submit a PIN), none of which show prior verification records.`,
+    params: [
+      {
+        name: 'parent',
+        type: 'string',
+        required: true,
+        description: `The resource name of the location whose verifications should be listed, in the form locations/{location_id}.`,
+      },
+      {
+        name: 'pageSize',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of verifications to return per page (1-100, default 100).`,
+      },
+      {
+        name: 'pageToken',
+        type: 'string',
+        required: false,
+        description: `Token for fetching the next page of results.`,
       },
     ],
   },
@@ -758,6 +1028,48 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'googlebusinessprofile_list_questions',
+    description: `List the customer questions posted on a Google Business Profile location using the legacy My Business API v4. Supports pagination, sorting, and optionally including a preview of each question's top answers. Note: this legacy v4 endpoint requires separate Google allow-list approval for the OAuth client; a 403 response may indicate the client has not been allow-listed rather than a tool defect.`,
+    params: [
+      {
+        name: 'parent',
+        type: 'string',
+        required: true,
+        description: `The parent location resource name to list questions for, in the form accounts/{account_id}/locations/{location_id}.`,
+      },
+      {
+        name: 'answers_per_question',
+        type: 'integer',
+        required: false,
+        description: `How many of the top answers to include per question in the response. Default 1, maximum 10.`,
+      },
+      {
+        name: 'filter',
+        type: 'string',
+        required: false,
+        description: `Filter expression restricting which questions are returned. Currently only filtering by ignoreAnsweredQuestions=true is supported.`,
+      },
+      {
+        name: 'order_by',
+        type: 'string',
+        required: false,
+        description: `Ordering for the returned questions. Valid values: updateTime desc, upvoteCount desc.`,
+      },
+      {
+        name: 'page_size',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of questions to fetch per page. Default 10, maximum 50.`,
+      },
+      {
+        name: 'page_token',
+        type: 'string',
+        required: false,
+        description: `Token from a previous list_questions response's nextPageToken field.`,
+      },
+    ],
+  },
+  {
     name: 'googlebusinessprofile_list_reviews',
     description: `List customer reviews for a Google Business Profile location using the legacy My Business API v4. Requires the account ID and location ID. Supports pagination via pageSize and pageToken. Returns each review's reviewer, star rating, comment, create/update time, and any existing reply. Note: this legacy v4 endpoint requires separate Google allow-list approval for the OAuth client; a 403 response may indicate the client has not been allow-listed rather than a tool defect.`,
     params: [
@@ -830,6 +1142,42 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'googlebusinessprofile_report_local_post_insights',
+    description: `Get view and call-to-action click metrics for up to 100 local posts (What's New updates) on a single location, in one call, using the legacy My Business API v4. All requested posts must belong to the location given in name. Note: this legacy v4 endpoint requires separate Google allow-list approval for the OAuth client; a 403 response may indicate the client has not been allow-listed rather than a tool defect.`,
+    params: [
+      {
+        name: 'localPostNames',
+        type: 'array',
+        required: true,
+        description: `Resource names of the local posts to report on (max 100), each in the form accounts/{account_id}/locations/{location_id}/localPosts/{post_id}. All must belong to the location in the name field.`,
+      },
+      {
+        name: 'metrics',
+        type: 'array',
+        required: true,
+        description: `Which local post metrics to report. LOCAL_POST_VIEWS_SEARCH is view counts on Google Search; LOCAL_POST_ACTIONS_CALL_TO_ACTION is call-to-action button clicks.`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: true,
+        description: `The location these posts belong to, in the form accounts/{account_id}/locations/{location_id}.`,
+      },
+      {
+        name: 'end_time',
+        type: 'string',
+        required: false,
+        description: `End of the reporting window, as an RFC3339 timestamp. Omit together with start_time to use the API default range.`,
+      },
+      {
+        name: 'start_time',
+        type: 'string',
+        required: false,
+        description: `Start of the reporting window, as an RFC3339 timestamp. Omit together with end_time to use the API default range.`,
+      },
+    ],
+  },
+  {
     name: 'googlebusinessprofile_search_chains',
     description: `Search for a business chain by name, to associate a Google Business Profile location with it. Requires chainName (the chain's display name to search for, e.g. Starbucks). Returns a list of matching Chain objects (chain resource name, display name, and associated location counts by group) ranked by relevance.`,
     params: [
@@ -844,6 +1192,24 @@ export const tools: Tool[] = [
         type: 'integer',
         required: false,
         description: `Maximum number of matching chains to return. Default 10, maximum 500. Leave blank to use the API default.`,
+      },
+    ],
+  },
+  {
+    name: 'googlebusinessprofile_search_google_locations',
+    description: `Search Google's existing Maps location data by free-text query (business name and address) before creating or claiming a new location. Helps avoid creating duplicate listings for a business that already exists on Google. Returns candidate matches.`,
+    params: [
+      {
+        name: 'query',
+        type: 'string',
+        required: true,
+        description: `Free-text search query combining the business name and address, e.g. 'Acme Coffee Shop, 123 Main St, Springfield, IL'.`,
+      },
+      {
+        name: 'page_size',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of matching candidates to return. Default 3, maximum 10.`,
       },
     ],
   },
@@ -928,6 +1294,24 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `The account resource name to update, in the form accounts/{account_id}. Example: accounts/106234523651626475467.`,
+      },
+    ],
+  },
+  {
+    name: 'googlebusinessprofile_update_account_admin',
+    description: `Change the role of an existing administrator on a Google Business Profile account, using the Account Management API. Requires the admin resource name in the form accounts/{account_id}/admins/{admin_id} and the new role to grant.`,
+    params: [
+      {
+        name: 'name',
+        type: 'string',
+        required: true,
+        description: `The resource name of the admin to update, in the form accounts/{account_id}/admins/{admin_id}. Example: accounts/106234523651626475467/admins/109876543210987654321.`,
+      },
+      {
+        name: 'role',
+        type: 'string',
+        required: true,
+        description: `The new role to grant the administrator. OWNER has full control, MANAGER can manage most settings, COMMUNITY_MANAGER can only manage posts/reviews/Q&A.`,
       },
     ],
   },
@@ -1034,6 +1418,30 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'googlebusinessprofile_update_notification_settings',
+    description: `Update the Google Pub/Sub notification settings for a Google Business Profile account: which Pub/Sub topic receives notifications and which NotificationType events are subscribed (e.g. NEW_REVIEW, NEW_QUESTION, GOOGLE_UPDATE).`,
+    params: [
+      {
+        name: 'name',
+        type: 'string',
+        required: true,
+        description: `The resource name of the notification setting to update, in the form accounts/{account_id}/notificationSetting.`,
+      },
+      {
+        name: 'notification_types',
+        type: 'array',
+        required: false,
+        description: `The list of NotificationType events to subscribe to. Valid values include GOOGLE_UPDATE, NEW_REVIEW, UPDATED_REVIEW, NEW_CUSTOMER_MEDIA, NEW_QUESTION, NEW_ANSWER, UPDATED_ANSWER, LOSS_OF_VOICE_OF_MERCHANT, VOICE_OF_MERCHANT_UPDATED.`,
+      },
+      {
+        name: 'pubsub_topic',
+        type: 'string',
+        required: false,
+        description: `The Google Cloud Pub/Sub topic that will receive notifications, in the form projects/{project_id}/topics/{topic_id}. Leave blank to stop sending notifications.`,
+      },
+    ],
+  },
+  {
     name: 'googlebusinessprofile_update_post',
     description: `Update an existing local post (What's New update) for a Google Business Profile location using the legacy My Business API v4 (PATCH). Provide the account ID, location ID, post ID, only the fields you want to change (summary, callToActionType/callToActionUrl, topicType), and an update_mask naming exactly those fields — Google clears any field named in update_mask that is left blank in the request body, so update_mask must match the fields you actually supply. Note: this legacy v4 endpoint requires separate Google allow-list approval for the OAuth client; a 403 response may indicate the client has not been allow-listed rather than a tool defect.`,
     params: [
@@ -1085,6 +1493,32 @@ export const tools: Tool[] = [
         required: false,
         description: `New topic type of the local post. STANDARD is a general update. EVENT requires an event object to already be set on the post. OFFER requires an offer object to already be set. ALERT is used for urgent announcements. Leave blank to keep the existing topic type.`,
       },
+    ],
+  },
+  {
+    name: 'googlebusinessprofile_update_question',
+    description: `Update the text of an existing customer question on a Google Business Profile location using the legacy My Business API v4. Note: this legacy v4 endpoint requires separate Google allow-list approval for the OAuth client; a 403 response may indicate the client has not been allow-listed rather than a tool defect.`,
+    params: [
+      {
+        name: 'name',
+        type: 'string',
+        required: true,
+        description: `The resource name of the question to update, in the form accounts/{account_id}/locations/{location_id}/questions/{question_id}.`,
+      },
+      { name: 'text', type: 'string', required: true, description: `The updated question text.` },
+    ],
+  },
+  {
+    name: 'googlebusinessprofile_upsert_answer',
+    description: `Create or replace the caller's answer to a customer question on a Google Business Profile location, using the legacy My Business API v4. Each user can have at most one answer per question; calling this again replaces the caller's existing answer. Note: this legacy v4 endpoint requires separate Google allow-list approval for the OAuth client; a 403 response may indicate the client has not been allow-listed rather than a tool defect.`,
+    params: [
+      {
+        name: 'parent',
+        type: 'string',
+        required: true,
+        description: `The resource name of the question to answer, in the form accounts/{account_id}/locations/{location_id}/questions/{question_id}.`,
+      },
+      { name: 'text', type: 'string', required: true, description: `The text of the answer.` },
     ],
   },
   {

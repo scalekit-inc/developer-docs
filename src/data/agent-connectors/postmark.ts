@@ -296,6 +296,18 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'postmark_get_bulk_email_status',
+    description: `Check the processing status of a previously submitted Bulk Email send: overall status (Accepted, Processing, or Completed), percent complete, and total message count.`,
+    params: [
+      {
+        name: 'bulk_request_id',
+        type: 'string',
+        required: true,
+        description: `The bulk request ID returned when the bulk send was submitted (Send Bulk Email).`,
+      },
+    ],
+  },
+  {
     name: 'postmark_get_click_browser_usage',
     description: `Get link click counts for a Postmark server broken down by browser family (e.g. Chrome, Safari, Firefox, Edge) for the requested date range. Requires link tracking to have been enabled on the sent messages. Use this to understand which browsers your recipients use when clicking links. Optionally scope results to a specific tag or message stream; omit all filters to get all-time, all-tag, all-stream totals.`,
     params: [
@@ -1298,6 +1310,90 @@ export const tools: Tool[] = [
         type: 'array',
         required: true,
         description: `Array of template-based email message objects to send in this batch. Maximum 500 items. Each item requires From, To, TemplateModel, and exactly one of TemplateId or TemplateAlias.`,
+      },
+    ],
+  },
+  {
+    name: 'postmark_send_bulk_email',
+    description: `Send one message (subject and body defined once) to a large list of recipients via Postmark's Bulk Email API — distinct from the Batch API (Send Batch Emails), which sends a different message per recipient in one call. Each entry in the messages array is a recipient plus optional per-recipient template variables. Requires the sending server to have Bulk API access activated by Postmark support.`,
+    params: [
+      {
+        name: 'from',
+        type: 'string',
+        required: true,
+        description: `The sender email address, with a confirmed Sender Signature on this server.`,
+      },
+      {
+        name: 'messages',
+        type: 'array',
+        required: true,
+        description: `Array of recipient entries. Each item needs at least 'to'; template_model supplies per-recipient values for {{variable}} placeholders in subject/html_body/text_body. Maximum 500 recipients per send.`,
+      },
+      {
+        name: 'subject',
+        type: 'string',
+        required: true,
+        description: `The subject line of the email. May include {{variable}} placeholders resolved per-recipient via each message's template_model.`,
+      },
+      {
+        name: 'attachments',
+        type: 'array',
+        required: false,
+        description: `Array of {Name, Content, ContentType, ContentID} attachment objects, attached to every message in the send. Counts against the 50MB total payload limit.`,
+      },
+      {
+        name: 'headers',
+        type: 'array',
+        required: false,
+        description: `Array of custom headers as {Name, Value} objects, applied to every message in the send.`,
+      },
+      {
+        name: 'html_body',
+        type: 'string',
+        required: false,
+        description: `HTML body content. Required if text_body is not provided. May include {{variable}} placeholders resolved per-recipient via each message's template_model.`,
+      },
+      {
+        name: 'message_stream',
+        type: 'string',
+        required: false,
+        description: `Message stream to send through. Defaults to the broadcast stream if omitted.`,
+      },
+      {
+        name: 'metadata',
+        type: 'object',
+        required: false,
+        description: `Free-form key-value metadata attached to every message in the send.`,
+      },
+      {
+        name: 'reply_to',
+        type: 'string',
+        required: false,
+        description: `Reply-To email address for this send.`,
+      },
+      {
+        name: 'tag',
+        type: 'string',
+        required: false,
+        description: `Tag used to categorize this send. Maximum 1000 characters.`,
+      },
+      {
+        name: 'text_body',
+        type: 'string',
+        required: false,
+        description: `Plain text body content. Required if html_body is not provided.`,
+      },
+      {
+        name: 'track_links',
+        type: 'string',
+        required: false,
+        description: `Link tracking mode: None, HtmlAndText, HtmlOnly, or TextOnly.`,
+      },
+      {
+        name: 'track_opens',
+        type: 'boolean',
+        required: false,
+        description: `Enable open tracking for this send.`,
       },
     ],
   },

@@ -266,6 +266,24 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'onedrive_download_file_in_drive',
+    description: `Download the binary content of a file in a specific drive (e.g. a SharePoint document library or another user's drive) by drive ID and item ID. To download from the signed-in user's personal OneDrive, use onedrive_download_file instead.`,
+    params: [
+      {
+        name: 'drive_id',
+        type: 'string',
+        required: true,
+        description: `The unique ID of the drive containing the file`,
+      },
+      {
+        name: 'item_id',
+        type: 'string',
+        required: true,
+        description: `The unique ID of the file to download`,
+      },
+    ],
+  },
+  {
     name: 'onedrive_follow_drive_item',
     description: `Follow a OneDrive file or folder so it appears in your list of followed items. Following an item allows you to track changes and receive notifications. Returns the updated drive item.`,
     params: [
@@ -295,6 +313,30 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'onedrive_get_item_analytics',
+    description: `Get view and access analytics for a OneDrive file or folder, aggregated over the allTime and lastSevenDays time periods. Returns metrics such as view count and unique viewer count, useful for understanding how popular or actively used an item is.`,
+    params: [
+      {
+        name: 'item_id',
+        type: 'string',
+        required: true,
+        description: `The unique ID of the OneDrive file or folder to get analytics for.`,
+      },
+    ],
+  },
+  {
+    name: 'onedrive_get_item_by_path',
+    description: `Retrieve metadata for a file or folder in the signed-in user's personal OneDrive using its human-readable folder path instead of an item ID. Useful when the caller knows a path like 'Documents/Reports/Q1.xlsx' but not the underlying item ID.`,
+    params: [
+      {
+        name: 'item_path',
+        type: 'string',
+        required: true,
+        description: `The path of the file or folder relative to the root of OneDrive, without a leading slash. Example: 'Documents/Reports/Q1.xlsx'.`,
+      },
+    ],
+  },
+  {
     name: 'onedrive_get_item_in_drive',
     description: `Retrieve metadata for a specific file or folder in a drive by drive ID and item ID. Works across any drive accessible to the signed-in user, including SharePoint document libraries and Teams drives. Returns name, size, creation date, last modified date, MIME type, and download URL. To get an item from the signed-in user's personal OneDrive, use onedrive_get_drive_item instead.`,
     params: [
@@ -309,6 +351,36 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `The unique ID of the file or folder to retrieve. Obtain item IDs from list or search operations.`,
+      },
+    ],
+  },
+  {
+    name: 'onedrive_get_permission',
+    description: `Retrieve the full details of a single sharing permission on a OneDrive file or folder by its permission ID. Use onedrive_list_permissions first to find the permission ID.`,
+    params: [
+      {
+        name: 'item_id',
+        type: 'string',
+        required: true,
+        description: `The unique ID of the OneDrive file or folder that has the permission`,
+      },
+      {
+        name: 'permission_id',
+        type: 'string',
+        required: true,
+        description: `The unique ID of the permission to retrieve`,
+      },
+    ],
+  },
+  {
+    name: 'onedrive_get_special_folder',
+    description: `Retrieve metadata for a well-known special folder in the signed-in user's OneDrive by its alias name, without needing to know its item ID. Creates the folder if it does not already exist, per Microsoft Graph behavior.`,
+    params: [
+      {
+        name: 'name',
+        type: 'string',
+        required: true,
+        description: `The alias name of the special folder to retrieve`,
       },
     ],
   },
@@ -409,6 +481,18 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'onedrive_list_delta',
+    description: `Track changes to files and folders in the signed-in user's personal OneDrive since a previous sync, without re-scanning the entire drive. Call without a token to get the current state plus a delta token; pass the token back on later calls to get only what changed since then. Essential for keeping an external system in sync with OneDrive.`,
+    params: [
+      {
+        name: 'token',
+        type: 'string',
+        required: false,
+        description: `The delta or next token from a previous list_delta response's @odata.deltaLink or @odata.nextLink. Omit on the first call to start a fresh sync from the current state.`,
+      },
+    ],
+  },
+  {
     name: 'onedrive_list_drive_items',
     description: `List the children (files and folders) of a folder in the signed-in user's personal OneDrive. Use "root" as the item_id to list top-level contents. To list children in a specific drive by drive ID (e.g. a SharePoint document library), use onedrive_list_items_in_drive instead.`,
     params: [
@@ -489,6 +573,18 @@ export const tools: Tool[] = [
         type: 'integer',
         required: false,
         description: `Maximum number of version entries to return per page. Accepts values 1–1000. Default: 25.`,
+      },
+    ],
+  },
+  {
+    name: 'onedrive_list_items_by_path',
+    description: `List the children (files and folders) of a folder in the signed-in user's personal OneDrive using its human-readable folder path instead of an item ID. Useful when the caller knows a path like 'Documents/Reports' but not the underlying item ID.`,
+    params: [
+      {
+        name: 'folder_path',
+        type: 'string',
+        required: true,
+        description: `The path of the folder relative to the root of OneDrive, without a leading slash. Example: 'Documents/Reports'.`,
       },
     ],
   },
@@ -625,6 +721,30 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'onedrive_preview_item',
+    description: `Get a short-lived, embeddable preview URL for a OneDrive file so it can be viewed in a browser (e.g. an iframe) without downloading its raw bytes. Supports Office documents, PDFs, images, and other common file types that OneDrive can render.`,
+    params: [
+      {
+        name: 'item_id',
+        type: 'string',
+        required: true,
+        description: `The unique ID of the OneDrive file to generate a preview for.`,
+      },
+      {
+        name: 'page',
+        type: 'string',
+        required: false,
+        description: `For multi-page documents, the page number to start the preview on.`,
+      },
+      {
+        name: 'zoom',
+        type: 'number',
+        required: false,
+        description: `Zoom level to render the preview at, where 1.0 is 100%.`,
+      },
+    ],
+  },
+  {
     name: 'onedrive_resolve_shared_link',
     description: `Resolve a OneDrive or SharePoint sharing URL (e.g. a link pasted from the browser) into a drive item, returning its full metadata including drive ID, item ID, name, and download URL. The sharing URL must be base64url-encoded before passing it as encoded_sharing_url. Encoding: base64url(url) with no padding, prefixed with "u!" — e.g. u!aHR0cHM6Ly4uLg.`,
     params: [
@@ -657,6 +777,24 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Optional item ID of the folder to restore the item into. If omitted, the item is restored to its original parent location.`,
+      },
+    ],
+  },
+  {
+    name: 'onedrive_restore_item_version',
+    description: `Restore a previous version of a OneDrive file, making it the current version. Obtain the version ID from onedrive_list_versions.`,
+    params: [
+      {
+        name: 'item_id',
+        type: 'string',
+        required: true,
+        description: `The unique ID of the OneDrive file whose version to restore`,
+      },
+      {
+        name: 'version_id',
+        type: 'string',
+        required: true,
+        description: `The unique ID of the version to restore as the current version`,
       },
     ],
   },

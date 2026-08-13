@@ -2,6 +2,96 @@ import type { Tool } from '../../types/agent-connectors'
 
 export const tools: Tool[] = [
   {
+    name: 'box_ai_ask',
+    description: `Sends a natural-language question plus up to 25 Box files as context to a supported LLM and returns an answer, optionally with citations and prior dialogue history for follow-up questions.`,
+    params: [
+      {
+        name: 'items',
+        type: 'string',
+        required: true,
+        description: `JSON array of 1-25 Box files to use as context, each with a unique file ID. Example: [{"id": "12345", "type": "file"}]`,
+      },
+      {
+        name: 'mode',
+        type: 'string',
+        required: true,
+        description: `Whether the question is about a single item or multiple items. If 'single_item_qa', the items list must contain exactly one item.`,
+      },
+      {
+        name: 'prompt',
+        type: 'string',
+        required: true,
+        description: `The question to ask about the given items. Max 10000 characters.`,
+      },
+      {
+        name: 'dialogue_history',
+        type: 'string',
+        required: false,
+        description: `JSON array of previous question/answer turns, to give the LLM conversational context for a follow-up question.`,
+      },
+      {
+        name: 'include_citations',
+        type: 'boolean',
+        required: false,
+        description: `Whether to include citations (the specific file passages the answer is based on) in the response.`,
+      },
+    ],
+  },
+  {
+    name: 'box_ai_extract',
+    description: `Sends a freeform extraction prompt plus Box files to an LLM and returns extracted data as key-value pairs, without needing a predefined metadata template. Use AI Extract Structured instead when you have a metadata template or a fixed field schema.`,
+    params: [
+      {
+        name: 'items',
+        type: 'string',
+        required: true,
+        description: `JSON array of 1-25 Box files to extract data from, each with a unique file ID. Example: [{"id": "12345", "type": "file"}]`,
+      },
+      {
+        name: 'prompt',
+        type: 'string',
+        required: true,
+        description: `Instructions telling the LLM what data to extract, e.g. a list of fields to pull out. Can be plain text or an XML/JSON schema. Max 10000 characters.`,
+      },
+    ],
+  },
+  {
+    name: 'box_ai_extract_structured',
+    description: `Extracts structured metadata from Box files using a metadata template or an explicit typed field list, returning key-value pairs matching that schema. Provide either metadata_template_key (with metadata_template_scope) or fields, but not both.`,
+    params: [
+      {
+        name: 'items',
+        type: 'string',
+        required: true,
+        description: `JSON array of 1-25 Box files to extract data from, each with a unique file ID. Example: [{"id": "12345", "type": "file"}]`,
+      },
+      {
+        name: 'fields',
+        type: 'string',
+        required: false,
+        description: `JSON array of field definitions to extract, used instead of a metadata template. Each field needs a unique 'key' and a 'type' (string, float, date, enum, or multiSelect). Mutually exclusive with metadata_template_key.`,
+      },
+      {
+        name: 'include_confidence_score',
+        type: 'boolean',
+        required: false,
+        description: `Whether to include a confidence score for each extracted field in the response.`,
+      },
+      {
+        name: 'metadata_template_key',
+        type: 'string',
+        required: false,
+        description: `The key of an existing Box metadata template to extract fields for. Provide metadata_template_scope alongside this. Mutually exclusive with 'fields'.`,
+      },
+      {
+        name: 'metadata_template_scope',
+        type: 'string',
+        required: false,
+        description: `The scope of the metadata template: 'global' or an enterprise scope like 'enterprise_12345'. Required when metadata_template_key is set.`,
+      },
+    ],
+  },
+  {
     name: 'box_collaboration_create',
     description: `Grants a user or group access to a file or folder.`,
     params: [
@@ -454,6 +544,120 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'box_file_upload',
+    description: `Upload a new file (up to 50MB) to a Box folder in a single request. The file content must be supplied as a base64-encoded string along with a filename and destination folder. For larger files, use the Create Upload Session tool instead.`,
+    params: [
+      {
+        name: 'file_content_base64',
+        type: 'string',
+        required: true,
+        description: `Base64-encoded contents of the file to upload.`,
+      },
+      {
+        name: 'filename',
+        type: 'string',
+        required: true,
+        description: `Name the uploaded file will have in Box, including extension.`,
+      },
+      {
+        name: 'parent_id',
+        type: 'string',
+        required: true,
+        description: `ID of the folder to upload the file into. Use '0' for root.`,
+      },
+      {
+        name: 'content_created_at',
+        type: 'string',
+        required: false,
+        description: `The date and time the file was originally created, in ISO 8601 format. Defaults to the upload time if omitted.`,
+      },
+      {
+        name: 'content_modified_at',
+        type: 'string',
+        required: false,
+        description: `The date and time the file was last modified before upload, in ISO 8601 format. Defaults to the upload time if omitted.`,
+      },
+    ],
+  },
+  {
+    name: 'box_file_version_retention_get',
+    description: `Retrieve a single file version retention record by ID, showing the file version it locks, the policy that created it, and when its retention period ends.`,
+    params: [
+      {
+        name: 'file_version_retention_id',
+        type: 'string',
+        required: true,
+        description: `ID of the file version retention record to retrieve.`,
+      },
+    ],
+  },
+  {
+    name: 'box_file_version_retentions_list',
+    description: `List the file version retention records showing which specific file versions are currently locked under a retention policy, and when their retention period will end.`,
+    params: [
+      {
+        name: 'disposition_action',
+        type: 'string',
+        required: false,
+        description: `Filter by what happens when retention ends: permanently_delete or remove_retention.`,
+      },
+      {
+        name: 'disposition_after',
+        type: 'string',
+        required: false,
+        description: `Filter to retentions whose disposition date is after this timestamp (ISO 8601).`,
+      },
+      {
+        name: 'disposition_before',
+        type: 'string',
+        required: false,
+        description: `Filter to retentions whose disposition date is before this timestamp (ISO 8601).`,
+      },
+      {
+        name: 'file_id',
+        type: 'string',
+        required: false,
+        description: `Filter to retentions on this file ID.`,
+      },
+      {
+        name: 'file_version_id',
+        type: 'string',
+        required: false,
+        description: `Filter to the retention on this specific file version ID.`,
+      },
+      {
+        name: 'policy_id',
+        type: 'string',
+        required: false,
+        description: `Filter to retentions created by this retention policy ID.`,
+      },
+    ],
+  },
+  {
+    name: 'box_file_version_upload_session_create',
+    description: `Create a chunked upload session for uploading a new large version (over 50MB) of an existing Box file. Returns an upload URL and the part size the caller uses to upload the new version's content in subsequent part uploads, followed by a commit call.`,
+    params: [
+      {
+        name: 'file_id',
+        type: 'string',
+        required: true,
+        description: `ID of the existing file to upload a new version for.`,
+      },
+      {
+        name: 'file_size',
+        type: 'integer',
+        required: true,
+        description: `Total size of the new version's file content, in bytes.`,
+      },
+      {
+        name: 'file_name',
+        type: 'string',
+        required: false,
+        description: `Optional new name for the file. Leave blank to keep the current name.`,
+      },
+    ],
+  },
+  {
     name: 'box_file_versions_list',
     description: `Retrieves all previous versions of a file.`,
     params: [{ name: 'file_id', type: 'string', required: true, description: `ID of the file.` }],
@@ -842,6 +1046,270 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'box_retention_policies_list',
+    description: `List the retention policies configured for the enterprise. Filter by name prefix, policy type, or the user who created the policy.`,
+    params: [
+      {
+        name: 'created_by_user_id',
+        type: 'string',
+        required: false,
+        description: `Filter results to retention policies created by this user ID.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Max results per page (max 1000).`,
+      },
+      {
+        name: 'marker',
+        type: 'string',
+        required: false,
+        description: `Pagination marker from a previous response's next_marker.`,
+      },
+      {
+        name: 'policy_name',
+        type: 'string',
+        required: false,
+        description: `Case-sensitive prefix to filter retention policies by name.`,
+      },
+      {
+        name: 'policy_type',
+        type: 'string',
+        required: false,
+        description: `Filter by policy type: finite or indefinite.`,
+      },
+    ],
+  },
+  {
+    name: 'box_retention_policy_assignment_create',
+    description: `Assign a retention policy to the whole enterprise, a specific folder, or all files matching a metadata template. filter_fields is only used when assigning to a metadata_template.`,
+    params: [
+      {
+        name: 'assign_to_type',
+        type: 'string',
+        required: true,
+        description: `Type of object to assign the retention policy to.`,
+      },
+      {
+        name: 'policy_id',
+        type: 'string',
+        required: true,
+        description: `ID of the retention policy to assign.`,
+      },
+      {
+        name: 'assign_to_id',
+        type: 'string',
+        required: false,
+        description: `ID of the object to assign the policy to. Required for 'folder' (folder ID) and 'metadata_template' (template scope.key, e.g. 'enterprise_12345.contractTemplate'). Omit for 'enterprise'.`,
+      },
+      {
+        name: 'filter_fields',
+        type: 'string',
+        required: false,
+        description: `JSON array of {field, value} pairs identifying the metadata template field and value that content must match. Only used when assign_to_type is metadata_template.`,
+      },
+      {
+        name: 'start_date_field',
+        type: 'string',
+        required: false,
+        description: `Field that determines when the retention period begins: 'upload_date', 'created_at', or a metadata template date field key. Only used when assign_to_type is metadata_template.`,
+      },
+    ],
+  },
+  {
+    name: 'box_retention_policy_assignment_delete',
+    description: `Remove a retention policy assignment by ID, unassigning the policy from the enterprise, folder, or metadata template it was applied to. This does not delete files already under retention.`,
+    params: [
+      {
+        name: 'retention_policy_assignment_id',
+        type: 'string',
+        required: true,
+        description: `ID of the retention policy assignment to remove.`,
+      },
+    ],
+  },
+  {
+    name: 'box_retention_policy_assignment_get',
+    description: `Retrieve a single retention policy assignment by ID, showing which policy is assigned and to what enterprise, folder, or metadata template.`,
+    params: [
+      {
+        name: 'retention_policy_assignment_id',
+        type: 'string',
+        required: true,
+        description: `ID of the retention policy assignment to retrieve.`,
+      },
+    ],
+  },
+  {
+    name: 'box_retention_policy_assignments_list',
+    description: `List the assignments (enterprise, folders, or metadata templates) that a retention policy has been applied to.`,
+    params: [
+      {
+        name: 'retention_policy_id',
+        type: 'string',
+        required: true,
+        description: `ID of the retention policy whose assignments to list.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Max results per page (max 1000).`,
+      },
+      {
+        name: 'marker',
+        type: 'string',
+        required: false,
+        description: `Pagination marker from a previous response's next_marker.`,
+      },
+      {
+        name: 'type',
+        type: 'string',
+        required: false,
+        description: `Filter assignments by the type of object they were assigned to: enterprise, folder, or metadata_template.`,
+      },
+    ],
+  },
+  {
+    name: 'box_retention_policy_create',
+    description: `Create a new retention policy for the enterprise, defining how long files under it are kept and what happens when the retention period ends (permanently delete, or just remove the retention restriction).`,
+    params: [
+      {
+        name: 'disposition_action',
+        type: 'string',
+        required: true,
+        description: `What happens when the retention period ends: permanently_delete or remove_retention (release the restriction, keeping the file).`,
+      },
+      {
+        name: 'policy_name',
+        type: 'string',
+        required: true,
+        description: `Name of the retention policy.`,
+      },
+      {
+        name: 'policy_type',
+        type: 'string',
+        required: true,
+        description: `Whether the policy retains files for a fixed number of days (finite) or forever until manually released (indefinite).`,
+      },
+      {
+        name: 'are_owners_notified',
+        type: 'boolean',
+        required: false,
+        description: `Whether owners are notified when their files are nearing the end of the retention period.`,
+      },
+      {
+        name: 'can_owner_extend_retention',
+        type: 'boolean',
+        required: false,
+        description: `Whether the file owner can extend the retention period once it is about to end.`,
+      },
+      {
+        name: 'custom_notification_recipients',
+        type: 'array',
+        required: false,
+        description: `JSON array of user IDs to notify in addition to file owners when files are nearing the end of retention.`,
+      },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `Description of the retention policy's purpose, up to 500 characters.`,
+      },
+      {
+        name: 'retention_length',
+        type: 'integer',
+        required: false,
+        description: `Number of days to retain files. Required when policy_type is 'finite'; ignored for 'indefinite'.`,
+      },
+      {
+        name: 'retention_type',
+        type: 'string',
+        required: false,
+        description: `Whether the policy can be modified/removed by an admin after creation: modifiable or non_modifiable.`,
+      },
+    ],
+  },
+  {
+    name: 'box_retention_policy_delete',
+    description: `Permanently delete a retention policy. The policy must have no active assignments; remove all retention policy assignments first.`,
+    params: [
+      {
+        name: 'retention_policy_id',
+        type: 'string',
+        required: true,
+        description: `ID of the retention policy to delete.`,
+      },
+    ],
+  },
+  {
+    name: 'box_retention_policy_get',
+    description: `Retrieve detailed information about a single retention policy by ID.`,
+    params: [
+      {
+        name: 'retention_policy_id',
+        type: 'string',
+        required: true,
+        description: `ID of the retention policy to retrieve.`,
+      },
+    ],
+  },
+  {
+    name: 'box_retention_policy_update',
+    description: `Update an existing retention policy's name, description, disposition action, modifiability, notification settings, or status. Set status to 'retired' to stop the policy from applying to newly assigned content.`,
+    params: [
+      {
+        name: 'retention_policy_id',
+        type: 'string',
+        required: true,
+        description: `ID of the retention policy to update.`,
+      },
+      {
+        name: 'are_owners_notified',
+        type: 'boolean',
+        required: false,
+        description: `Whether owners are notified when their files are nearing the end of the retention period.`,
+      },
+      {
+        name: 'can_owner_extend_retention',
+        type: 'boolean',
+        required: false,
+        description: `Whether the file owner can extend the retention period once it is about to end.`,
+      },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `Updated description of the retention policy's purpose.`,
+      },
+      {
+        name: 'disposition_action',
+        type: 'string',
+        required: false,
+        description: `What happens when the retention period ends: permanently_delete or remove_retention.`,
+      },
+      {
+        name: 'policy_name',
+        type: 'string',
+        required: false,
+        description: `Updated name of the retention policy.`,
+      },
+      {
+        name: 'retention_type',
+        type: 'string',
+        required: false,
+        description: `Whether the policy can be modified/removed after creation: modifiable or non_modifiable. Can only be changed from non_modifiable in limited cases.`,
+      },
+      {
+        name: 'status',
+        type: 'string',
+        required: false,
+        description: `Set to 'retired' to retire the policy so it no longer applies to newly assigned content.`,
+      },
+    ],
+  },
+  {
     name: 'box_search',
     description: `Searches files, folders, and web links in Box.`,
     params: [
@@ -969,6 +1437,150 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Expiry date in ISO 8601 format.`,
+      },
+    ],
+  },
+  {
+    name: 'box_sign_request_cancel',
+    description: `Cancels an in-progress Box Sign request so it can no longer be signed.`,
+    params: [
+      {
+        name: 'sign_request_id',
+        type: 'string',
+        required: true,
+        description: `ID of the sign request to cancel.`,
+      },
+      {
+        name: 'reason',
+        type: 'string',
+        required: false,
+        description: `An optional reason for cancelling the sign request.`,
+      },
+    ],
+  },
+  {
+    name: 'box_sign_request_create',
+    description: `Creates a Box Sign e-signature request for one or more files (up to ten), sending it to the given signers. Provide either source_files or template_id.`,
+    params: [
+      {
+        name: 'signers',
+        type: 'string',
+        required: true,
+        description: `JSON array of signers, each requiring at least an email address. Up to 35 signers.`,
+      },
+      {
+        name: 'are_reminders_enabled',
+        type: 'boolean',
+        required: false,
+        description: `Whether to automatically send reminder emails to signers on days 3, 8, 13, and 18.`,
+      },
+      {
+        name: 'are_text_signatures_enabled',
+        type: 'boolean',
+        required: false,
+        description: `Whether signers are allowed to type their signature instead of drawing it. Defaults to true.`,
+      },
+      {
+        name: 'days_valid',
+        type: 'integer',
+        required: false,
+        description: `Number of days the signature request remains valid before it expires. Max 730.`,
+      },
+      {
+        name: 'declined_redirect_url',
+        type: 'string',
+        required: false,
+        description: `URL to redirect signers to after they have declined to sign the document.`,
+      },
+      {
+        name: 'email_message',
+        type: 'string',
+        required: false,
+        description: `Custom message included in the signature request email. Supports a limited set of HTML tags.`,
+      },
+      {
+        name: 'email_subject',
+        type: 'string',
+        required: false,
+        description: `Custom subject line for the signature request email.`,
+      },
+      {
+        name: 'external_id',
+        type: 'string',
+        required: false,
+        description: `A reference ID for this signature request in an external system.`,
+      },
+      {
+        name: 'is_document_preparation_needed',
+        type: 'boolean',
+        required: false,
+        description: `Whether the sender needs to prepare the document (place signature fields) before it is sent to signers. When true, the response includes a prepare_url.`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: false,
+        description: `Name of the signature request.`,
+      },
+      {
+        name: 'parent_folder_id',
+        type: 'string',
+        required: false,
+        description: `ID of the Box folder where the signed documents and audit log will be placed. Cannot be the root folder.`,
+      },
+      {
+        name: 'redirect_url',
+        type: 'string',
+        required: false,
+        description: `URL to redirect signers to after they have signed the document.`,
+      },
+      {
+        name: 'source_files',
+        type: 'string',
+        required: false,
+        description: `JSON array of up to ten Box files to sign, each with a unique file ID. Required unless template_id is set.`,
+      },
+      {
+        name: 'template_id',
+        type: 'string',
+        required: false,
+        description: `ID of a pre-configured Box Sign template to use instead of source_files.`,
+      },
+    ],
+  },
+  {
+    name: 'box_sign_request_get',
+    description: `Retrieves a single Box Sign request's status, signers, and file info.`,
+    params: [
+      {
+        name: 'sign_request_id',
+        type: 'string',
+        required: true,
+        description: `ID of the sign request to retrieve.`,
+      },
+    ],
+  },
+  {
+    name: 'box_sign_requests_list',
+    description: `Lists Box Sign requests in the enterprise.`,
+    params: [
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of sign requests to return per page (max 1000).`,
+      },
+      {
+        name: 'marker',
+        type: 'string',
+        required: false,
+        description: `Pagination marker from a previous response, indicating where to continue.`,
+      },
+      {
+        name: 'shared_requests',
+        type: 'boolean',
+        required: false,
+        description: `When true, returns only sign requests where the current user is a collaborator rather than the sender.`,
       },
     ],
   },
@@ -1208,6 +1820,54 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Sort field: name, date, or size.`,
+      },
+    ],
+  },
+  {
+    name: 'box_upload_session_abort',
+    description: `Abort and remove a chunked upload session, discarding any parts already uploaded. Use this to cancel an in-progress large file upload.`,
+    params: [
+      {
+        name: 'upload_session_id',
+        type: 'string',
+        required: true,
+        description: `ID of the upload session to abort.`,
+      },
+    ],
+  },
+  {
+    name: 'box_upload_session_create',
+    description: `Create a chunked upload session for uploading a new large file (over 50MB) to a Box folder. Returns an upload URL and the part size the caller uses to upload the file content in subsequent part uploads, followed by a commit call. Use Upload File instead for files under 50MB.`,
+    params: [
+      {
+        name: 'file_name',
+        type: 'string',
+        required: true,
+        description: `Name the uploaded file will have in Box, including extension.`,
+      },
+      {
+        name: 'file_size',
+        type: 'integer',
+        required: true,
+        description: `Total size of the file to be uploaded, in bytes.`,
+      },
+      {
+        name: 'folder_id',
+        type: 'string',
+        required: true,
+        description: `ID of the folder to upload the file into. Use '0' for root.`,
+      },
+    ],
+  },
+  {
+    name: 'box_upload_session_get',
+    description: `Retrieve the status and configuration of a chunked upload session, including its part size, total parts expected, and number of parts processed so far.`,
+    params: [
+      {
+        name: 'upload_session_id',
+        type: 'string',
+        required: true,
+        description: `ID of the upload session to retrieve.`,
       },
     ],
   },

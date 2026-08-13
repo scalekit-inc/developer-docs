@@ -346,6 +346,18 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'brave_rich_results_get',
+    description: `Fetch the enriched real-time 'rich' result (weather, stocks, sports scores, currency conversion, package tracking, etc.) for a callback_key. The callback_key comes from the 'rich' field of a prior Web Search response — that search must have been made with a query that triggers a rich result hint (e.g. a weather or stock query).`,
+    params: [
+      {
+        name: 'callback_key',
+        type: 'string',
+        required: true,
+        description: `The callback key identifying which rich result to fetch, returned in a Web Search response's rich.hint.callback_key field.`,
+      },
+    ],
+  },
+  {
     name: 'brave_spellcheck',
     description: `Check and correct spelling of a query using Brave Search's spellcheck engine. Returns suggested corrections for misspelled queries.`,
     params: [

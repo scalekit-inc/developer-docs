@@ -2,6 +2,60 @@ import type { Tool } from '../../types/agent-connectors'
 
 export const tools: Tool[] = [
   {
+    name: 'microsoftteams_add_channel_member',
+    description: `Add a user as a conversationMember of a Microsoft Teams channel. This operation is only allowed for channels with a membershipType of private or shared; standard channel membership is derived from team membership instead.`,
+    params: [
+      {
+        name: 'channel_id',
+        type: 'string',
+        required: true,
+        description: `The unique identifier of the Teams channel.`,
+      },
+      {
+        name: 'team_id',
+        type: 'string',
+        required: true,
+        description: `The unique identifier of the Microsoft Teams team.`,
+      },
+      {
+        name: 'user_id',
+        type: 'string',
+        required: true,
+        description: `The Azure AD object ID of the user to add. This is the user's unique identifier in Microsoft Entra ID, not their email address.`,
+      },
+      {
+        name: 'role',
+        type: 'string',
+        required: false,
+        description: `The role to assign to the added user. Valid values: 'member' or 'owner'. Defaults to 'member'.`,
+      },
+    ],
+  },
+  {
+    name: 'microsoftteams_add_chat_member',
+    description: `Add a user as a conversationMember of a Microsoft Teams chat. Typically used to add members to an existing group chat; one-on-one chats cannot have a third member added (create a group chat instead).`,
+    params: [
+      {
+        name: 'chat_id',
+        type: 'string',
+        required: true,
+        description: `The unique identifier of the Teams chat.`,
+      },
+      {
+        name: 'user_id',
+        type: 'string',
+        required: true,
+        description: `The Azure AD object ID of the user to add. This is the user's unique identifier in Microsoft Entra ID, not their email address.`,
+      },
+      {
+        name: 'role',
+        type: 'string',
+        required: false,
+        description: `The role to assign to the added user. Valid values: 'member' or 'owner'. Defaults to 'member'.`,
+      },
+    ],
+  },
+  {
     name: 'microsoftteams_add_team_member',
     description: `Add a user to a Microsoft Teams team as a member or owner. Requires the team ID and the Azure AD user ID of the person to add. The user must exist in the same tenant. Returns the new conversationMember resource on success (HTTP 201).`,
     params: [
@@ -182,6 +236,79 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'microsoftteams_create_channel_tab',
+    description: `Add (pin) a tab to a Microsoft Teams channel, backed by an app that is already installed in the team and has the configurableTabs property defined in its app manifest.`,
+    params: [
+      {
+        name: 'channel_id',
+        type: 'string',
+        required: true,
+        description: `The unique identifier of the Teams channel.`,
+      },
+      {
+        name: 'content_url',
+        type: 'string',
+        required: true,
+        description: `URL used for rendering tab contents in Teams. Required for the tab to display content.`,
+      },
+      { name: 'display_name', type: 'string', required: true, description: `Name of the tab.` },
+      {
+        name: 'team_id',
+        type: 'string',
+        required: true,
+        description: `The unique identifier of the Microsoft Teams team.`,
+      },
+      {
+        name: 'teams_app_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Teams app (from the app catalog) that is linked to the tab. This can't be changed after tab creation.`,
+      },
+      {
+        name: 'entity_id',
+        type: 'string',
+        required: false,
+        description: `Identifier for the entity hosted by the tab provider.`,
+      },
+      {
+        name: 'remove_url',
+        type: 'string',
+        required: false,
+        description: `URL called by Teams client when a tab is removed using the Teams client.`,
+      },
+      {
+        name: 'website_url',
+        type: 'string',
+        required: false,
+        description: `URL for showing tab contents outside of Teams.`,
+      },
+    ],
+  },
+  {
+    name: 'microsoftteams_create_chat',
+    description: `Create a new one-on-one or group chat in Microsoft Teams with the given members. A oneOnOne chat requires exactly 2 members; a group chat requires 2 or more and may have a topic. All initial members are added with the 'owner' role, matching Microsoft Graph's requirement for chat creation.`,
+    params: [
+      {
+        name: 'chat_type',
+        type: 'string',
+        required: true,
+        description: `The type of chat to create. Valid values: 'oneOnOne' (exactly 2 members) or 'group' (2+ members).`,
+      },
+      {
+        name: 'member_user_ids',
+        type: 'array',
+        required: true,
+        description: `Azure AD object IDs of the users to add as chat members.`,
+      },
+      {
+        name: 'topic',
+        type: 'string',
+        required: false,
+        description: `Optional subject or topic for the chat. Only available for group chats.`,
+      },
+    ],
+  },
+  {
     name: 'microsoftteams_create_online_meeting',
     description: `Create a new Microsoft Teams online meeting for the signed-in user. Requires a subject, start time, and end time in ISO 8601 format. Optionally invite attendees by UPN (email) and control who can present.`,
     params: [
@@ -214,6 +341,42 @@ export const tools: Tool[] = [
         type: 'array',
         required: false,
         description: `Array of UPN (User Principal Name / email address) strings for meeting attendees. Example: ["alice@contoso.com", "bob@contoso.com"]. Each UPN is mapped to an attendee object in the participants block.`,
+      },
+    ],
+  },
+  {
+    name: 'microsoftteams_create_scheduling_group',
+    description: `Create a new scheduling group (a team-member grouping shifts can be assigned to) in a Microsoft Teams team's schedule. Required before microsoftteams_create_shift can assign a shift to a group if none exist yet.`,
+    params: [
+      {
+        name: 'display_name',
+        type: 'string',
+        required: true,
+        description: `The display name for the scheduling group, shown on the schedule view. Example: 'Cashiers'.`,
+      },
+      {
+        name: 'team_id',
+        type: 'string',
+        required: true,
+        description: `The unique identifier of the Microsoft Teams team whose schedule to create the scheduling group in.`,
+      },
+      {
+        name: 'code',
+        type: 'string',
+        required: false,
+        description: `An external identifier code for this scheduling group, for use with external systems.`,
+      },
+      {
+        name: 'is_active',
+        type: 'boolean',
+        required: false,
+        description: `Whether the scheduling group can be used when creating new shifts. Defaults to true.`,
+      },
+      {
+        name: 'user_ids',
+        type: 'array',
+        required: false,
+        description: `The Azure AD object IDs of the users who are members of this scheduling group.`,
       },
     ],
   },
@@ -446,6 +609,60 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'microsoftteams_delete_channel_tab',
+    description: `Remove (unpin) a tab from a Microsoft Teams channel.`,
+    params: [
+      {
+        name: 'channel_id',
+        type: 'string',
+        required: true,
+        description: `The unique identifier of the Teams channel.`,
+      },
+      {
+        name: 'tab_id',
+        type: 'string',
+        required: true,
+        description: `The unique identifier of the tab to remove.`,
+      },
+      {
+        name: 'team_id',
+        type: 'string',
+        required: true,
+        description: `The unique identifier of the Microsoft Teams team.`,
+      },
+    ],
+  },
+  {
+    name: 'microsoftteams_delete_chat',
+    description: `Soft-delete a Microsoft Teams chat. When called with delegated permissions, this operation only works for tenant admins and Teams service admins.`,
+    params: [
+      {
+        name: 'chat_id',
+        type: 'string',
+        required: true,
+        description: `The unique identifier of the Teams chat.`,
+      },
+    ],
+  },
+  {
+    name: 'microsoftteams_delete_chat_message',
+    description: `Soft-delete a Microsoft Teams chat message. The message is retracted and replaced with a tombstone indicating it was deleted.`,
+    params: [
+      {
+        name: 'chat_id',
+        type: 'string',
+        required: true,
+        description: `The unique identifier of the Teams chat.`,
+      },
+      {
+        name: 'message_id',
+        type: 'string',
+        required: true,
+        description: `The unique identifier of the chat message.`,
+      },
+    ],
+  },
+  {
     name: 'microsoftteams_delete_online_meeting',
     description: `Permanently delete a Microsoft Teams online meeting by meeting ID. This action cannot be undone and removes the meeting for all participants.`,
     params: [
@@ -530,6 +747,18 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'microsoftteams_get_chat',
+    description: `Retrieve the properties of a single Microsoft Teams chat (without its messages), such as its topic, chat type, and creation time.`,
+    params: [
+      {
+        name: 'chat_id',
+        type: 'string',
+        required: true,
+        description: `The unique identifier of the Teams chat.`,
+      },
+    ],
+  },
+  {
     name: 'microsoftteams_get_chat_message',
     description: `Retrieve a single message from a Microsoft Teams chat by its ID, including body content, sender info, attachments, reactions, and metadata.`,
     params: [
@@ -544,6 +773,24 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `The unique identifier of the Teams chat message to retrieve.`,
+      },
+    ],
+  },
+  {
+    name: 'microsoftteams_get_meeting_transcript_content',
+    description: `Download the text content of a specific Microsoft Teams meeting transcript, identified by the meeting ID and transcript ID (obtained from microsoftteams_list_meeting_transcripts). Returned as WebVTT-formatted text with timestamped speaker turns.`,
+    params: [
+      {
+        name: 'meeting_id',
+        type: 'string',
+        required: true,
+        description: `The unique identifier of the online meeting the transcript belongs to.`,
+      },
+      {
+        name: 'transcript_id',
+        type: 'string',
+        required: true,
+        description: `The unique identifier of the transcript to download. Obtain from microsoftteams_list_meeting_transcripts.`,
       },
     ],
   },
@@ -568,6 +815,84 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `The unique identifier of the Microsoft Teams team to retrieve.`,
+      },
+    ],
+  },
+  {
+    name: 'microsoftteams_install_app',
+    description: `Install an app from the tenant's app catalog into a Microsoft Teams team.`,
+    params: [
+      {
+        name: 'team_id',
+        type: 'string',
+        required: true,
+        description: `The unique identifier of the Microsoft Teams team.`,
+      },
+      {
+        name: 'teams_app_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Teams app (from the tenant's app catalog) to install into the team.`,
+      },
+    ],
+  },
+  {
+    name: 'microsoftteams_list_all_teams',
+    description: `List all teams in the organization's tenant, not just those the signed-in user has joined. This is a tenant-wide directory query distinct from 'List Joined Teams' and typically requires an application permission such as Team.ReadBasic.All.`,
+    params: [
+      {
+        name: '$filter',
+        type: 'string',
+        required: false,
+        description: `OData filter expression to narrow results. Example: "displayName eq 'Engineering'".`,
+      },
+      {
+        name: '$select',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of team properties to return. Reduces response payload size.`,
+      },
+      {
+        name: '$top',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of teams to return per page. Use for pagination.`,
+      },
+    ],
+  },
+  {
+    name: 'microsoftteams_list_channel_members',
+    description: `List the members of a Microsoft Teams channel, including direct members of standard, private, and shared channels. Channel membership can differ from team membership, especially for private and shared channels.`,
+    params: [
+      {
+        name: 'channel_id',
+        type: 'string',
+        required: true,
+        description: `The unique identifier of the Teams channel.`,
+      },
+      {
+        name: 'team_id',
+        type: 'string',
+        required: true,
+        description: `The unique identifier of the Microsoft Teams team.`,
+      },
+      {
+        name: '$filter',
+        type: 'string',
+        required: false,
+        description: `OData filter expression to narrow results.`,
+      },
+      {
+        name: '$select',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of member properties to return.`,
+      },
+      {
+        name: '$top',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of members to return per page. Use for pagination.`,
       },
     ],
   },
@@ -686,6 +1011,66 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'microsoftteams_list_chat_members',
+    description: `List the conversation members of a Microsoft Teams chat.`,
+    params: [
+      {
+        name: 'chat_id',
+        type: 'string',
+        required: true,
+        description: `The unique identifier of the Teams chat.`,
+      },
+      {
+        name: '$filter',
+        type: 'string',
+        required: false,
+        description: `OData filter expression to narrow results.`,
+      },
+      {
+        name: '$select',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of member properties to return.`,
+      },
+      {
+        name: '$top',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of members to return per page. Use for pagination.`,
+      },
+    ],
+  },
+  {
+    name: 'microsoftteams_list_chat_message_replies',
+    description: `List all replies in a Microsoft Teams chat message thread. Returns replies to the specified parent message with support for pagination. This endpoint is available on the Microsoft Graph beta API.`,
+    params: [
+      {
+        name: 'chat_id',
+        type: 'string',
+        required: true,
+        description: `The unique identifier of the Teams chat.`,
+      },
+      {
+        name: 'message_id',
+        type: 'string',
+        required: true,
+        description: `The unique identifier of the chat message.`,
+      },
+      {
+        name: '$skip',
+        type: 'integer',
+        required: false,
+        description: `Number of replies to skip for pagination. Use with $top to page through results.`,
+      },
+      {
+        name: '$top',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of replies to return per page. Use to control page size.`,
+      },
+    ],
+  },
+  {
     name: 'microsoftteams_list_chat_messages',
     description: `List messages in a Microsoft Teams chat (1:1, group, or meeting chat) with support for pagination and ordering. Returns up to 50 messages per page ordered by creation time descending by default.`,
     params: [
@@ -706,6 +1091,138 @@ export const tools: Tool[] = [
         type: 'integer',
         required: false,
         description: `Number of chat messages to return per page (1–50, default: 50). Microsoft Graph caps this at 50 for chat messages.`,
+      },
+    ],
+  },
+  {
+    name: 'microsoftteams_list_chats',
+    description: `List the chats (one-on-one, group, and meeting chats) that the signed-in user is part of. Use this to discover chat_id values before calling the other chat-scoped Teams tools.`,
+    params: [
+      {
+        name: '$filter',
+        type: 'string',
+        required: false,
+        description: `OData filter expression to narrow results.`,
+      },
+      {
+        name: '$select',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of chat properties to return.`,
+      },
+      {
+        name: '$top',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of chats to return per page. Use for pagination.`,
+      },
+    ],
+  },
+  {
+    name: 'microsoftteams_list_installed_apps',
+    description: `List the apps installed in a Microsoft Teams team. Use $expand=teamsApp to include the app's display name and other catalog details in the response.`,
+    params: [
+      {
+        name: 'team_id',
+        type: 'string',
+        required: true,
+        description: `The unique identifier of the Microsoft Teams team.`,
+      },
+      {
+        name: '$expand',
+        type: 'string',
+        required: false,
+        description: `OData $expand expression. Use 'teamsApp' to include the app's display name and details.`,
+      },
+      {
+        name: '$select',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of installation properties to return.`,
+      },
+      {
+        name: '$top',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of installed apps to return per page. Use for pagination.`,
+      },
+    ],
+  },
+  {
+    name: 'microsoftteams_list_meeting_attendance_reports',
+    description: `List the attendance reports for a Microsoft Teams online meeting, showing who joined/left and when for each meeting session. A meeting can have multiple attendance reports if it was started and stopped more than once.`,
+    params: [
+      {
+        name: 'meeting_id',
+        type: 'string',
+        required: true,
+        description: `The unique identifier of the online meeting to list attendance reports for. Obtain from the create meeting response or list meetings API.`,
+      },
+      {
+        name: '$top',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of attendance reports to return. Example: 10.`,
+      },
+    ],
+  },
+  {
+    name: 'microsoftteams_list_meeting_recordings',
+    description: `List the recordings generated for a Microsoft Teams online meeting. Supports meetings scheduled on the user's calendar (not ad-hoc meetings created via the application API). Each recording includes a recordingContentUrl for downloading the video content.`,
+    params: [
+      {
+        name: 'meeting_id',
+        type: 'string',
+        required: true,
+        description: `The unique identifier of the online meeting to list recordings for. Obtain from the create meeting response or list meetings API.`,
+      },
+      {
+        name: '$filter',
+        type: 'string',
+        required: false,
+        description: `OData filter expression to narrow recording results. Example: "createdDateTime gt 2024-07-01T00:00:00Z".`,
+      },
+      {
+        name: '$top',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of recordings to return. Example: 10.`,
+      },
+    ],
+  },
+  {
+    name: 'microsoftteams_list_meeting_transcripts',
+    description: `List the transcripts generated for a Microsoft Teams online meeting. Supports meetings scheduled on the user's calendar (not ad-hoc meetings created via the application API). Use microsoftteams_get_meeting_transcript_content to download the actual transcript text for one of the returned transcript IDs.`,
+    params: [
+      {
+        name: 'meeting_id',
+        type: 'string',
+        required: true,
+        description: `The unique identifier of the online meeting to list transcripts for. Obtain from the create meeting response or list meetings API.`,
+      },
+      {
+        name: '$filter',
+        type: 'string',
+        required: false,
+        description: `OData filter expression to narrow transcript results. Example: "createdDateTime gt 2024-07-01T00:00:00Z".`,
+      },
+      {
+        name: '$top',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of transcripts to return. Example: 10.`,
+      },
+    ],
+  },
+  {
+    name: 'microsoftteams_list_scheduling_groups',
+    description: `List the scheduling groups (team-member groupings that shifts can be assigned to) in a Microsoft Teams team's schedule. Use the returned group IDs with microsoftteams_create_shift's scheduling_group_id field.`,
+    params: [
+      {
+        name: 'team_id',
+        type: 'string',
+        required: true,
+        description: `The unique identifier of the Microsoft Teams team whose schedule's scheduling groups to list.`,
       },
     ],
   },
@@ -878,6 +1395,36 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'microsoftteams_react_to_channel_message',
+    description: `Add a reaction (such as like, heart, laugh, surprised, sad, or angry) from the signed-in user to a Microsoft Teams channel message.`,
+    params: [
+      {
+        name: 'channel_id',
+        type: 'string',
+        required: true,
+        description: `The unique identifier of the Teams channel.`,
+      },
+      {
+        name: 'message_id',
+        type: 'string',
+        required: true,
+        description: `The unique identifier of the chat message.`,
+      },
+      {
+        name: 'reaction_type',
+        type: 'string',
+        required: true,
+        description: `The type of reaction to set on the message, e.g. 'like', 'heart', 'laugh', 'surprised', 'sad', or 'angry'.`,
+      },
+      {
+        name: 'team_id',
+        type: 'string',
+        required: true,
+        description: `The unique identifier of the Microsoft Teams team.`,
+      },
+    ],
+  },
+  {
     name: 'microsoftteams_remove_channel_email',
     description: `Remove the email address provisioned for a Microsoft Teams channel. After removal, emails can no longer be sent to the channel via that email address.`,
     params: [
@@ -892,6 +1439,48 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `The unique identifier of the Microsoft Teams team that contains the channel.`,
+      },
+    ],
+  },
+  {
+    name: 'microsoftteams_remove_channel_member',
+    description: `Remove a member from a Microsoft Teams channel. Requires the conversationMember ID (not the Azure AD user ID) as returned by the list channel members or add channel member APIs.`,
+    params: [
+      {
+        name: 'channel_id',
+        type: 'string',
+        required: true,
+        description: `The unique identifier of the Teams channel.`,
+      },
+      {
+        name: 'membership_id',
+        type: 'string',
+        required: true,
+        description: `The conversationMember ID of the channel membership to remove. This is NOT the Azure AD user ID.`,
+      },
+      {
+        name: 'team_id',
+        type: 'string',
+        required: true,
+        description: `The unique identifier of the Microsoft Teams team.`,
+      },
+    ],
+  },
+  {
+    name: 'microsoftteams_remove_chat_member',
+    description: `Remove a member from a Microsoft Teams chat. Requires the conversationMember ID (not the Azure AD user ID) as returned by the list chat members or add chat member APIs.`,
+    params: [
+      {
+        name: 'chat_id',
+        type: 'string',
+        required: true,
+        description: `The unique identifier of the Teams chat.`,
+      },
+      {
+        name: 'membership_id',
+        type: 'string',
+        required: true,
+        description: `The conversationMember ID of the chat membership to remove. This is NOT the Azure AD user ID.`,
       },
     ],
   },
@@ -988,6 +1577,30 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `The format of the reply content: 'text' for plain text or 'html' for HTML markup. Defaults to 'text'.`,
+      },
+    ],
+  },
+  {
+    name: 'microsoftteams_restore_channel_message',
+    description: `Undo the soft deletion of a Microsoft Teams channel message or reply, restoring its original content. Only works on messages that were previously soft-deleted.`,
+    params: [
+      {
+        name: 'channel_id',
+        type: 'string',
+        required: true,
+        description: `The unique identifier of the Teams channel.`,
+      },
+      {
+        name: 'message_id',
+        type: 'string',
+        required: true,
+        description: `The unique identifier of the chat message.`,
+      },
+      {
+        name: 'team_id',
+        type: 'string',
+        required: true,
+        description: `The unique identifier of the Microsoft Teams team.`,
       },
     ],
   },
@@ -1136,6 +1749,54 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'microsoftteams_unarchive_channel',
+    description: `Restore an archived channel in a Microsoft Teams team, allowing members to send messages and edit the channel again. Unarchiving is an asynchronous operation (HTTP 202); the channel is fully restored once the async operation completes, which may occur after this call returns.`,
+    params: [
+      {
+        name: 'channel_id',
+        type: 'string',
+        required: true,
+        description: `The unique identifier of the Teams channel.`,
+      },
+      {
+        name: 'team_id',
+        type: 'string',
+        required: true,
+        description: `The unique identifier of the Microsoft Teams team.`,
+      },
+    ],
+  },
+  {
+    name: 'microsoftteams_unarchive_team',
+    description: `Restore an archived Microsoft Teams team, allowing members to send messages and edit the team again. Unarchiving is an asynchronous operation (HTTP 202); the team is fully restored once the async operation completes, which may occur after this call returns.`,
+    params: [
+      {
+        name: 'team_id',
+        type: 'string',
+        required: true,
+        description: `The unique identifier of the Microsoft Teams team.`,
+      },
+    ],
+  },
+  {
+    name: 'microsoftteams_uninstall_app',
+    description: `Uninstall an app from a Microsoft Teams team.`,
+    params: [
+      {
+        name: 'app_installation_id',
+        type: 'string',
+        required: true,
+        description: `The unique identifier of the teamsAppInstallation to remove. This is NOT the app catalog ID.`,
+      },
+      {
+        name: 'team_id',
+        type: 'string',
+        required: true,
+        description: `The unique identifier of the Microsoft Teams team.`,
+      },
+    ],
+  },
+  {
     name: 'microsoftteams_unpin_channel_message',
     description: `Unpin a previously pinned message in a Microsoft Teams channel. The message remains in the channel history but is removed from the pinned messages list.`,
     params: [
@@ -1156,6 +1817,36 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `The unique identifier of the Microsoft Teams team that contains the channel.`,
+      },
+    ],
+  },
+  {
+    name: 'microsoftteams_unreact_to_channel_message',
+    description: `Remove a reaction previously set by the signed-in user from a Microsoft Teams channel message.`,
+    params: [
+      {
+        name: 'channel_id',
+        type: 'string',
+        required: true,
+        description: `The unique identifier of the Teams channel.`,
+      },
+      {
+        name: 'message_id',
+        type: 'string',
+        required: true,
+        description: `The unique identifier of the chat message.`,
+      },
+      {
+        name: 'reaction_type',
+        type: 'string',
+        required: true,
+        description: `The type of reaction to unset on the message, e.g. 'like', 'heart', 'laugh', 'surprised', 'sad', or 'angry'.`,
+      },
+      {
+        name: 'team_id',
+        type: 'string',
+        required: true,
+        description: `The unique identifier of the Microsoft Teams team.`,
       },
     ],
   },
@@ -1222,6 +1913,54 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `The format of the updated content: 'text' for plain text or 'html' for HTML markup. Defaults to 'text'.`,
+      },
+    ],
+  },
+  {
+    name: 'microsoftteams_update_chat',
+    description: `Rename a Microsoft Teams group chat by updating its topic. The topic property only applies to group chats.`,
+    params: [
+      {
+        name: 'chat_id',
+        type: 'string',
+        required: true,
+        description: `The unique identifier of the Teams chat.`,
+      },
+      {
+        name: 'topic',
+        type: 'string',
+        required: true,
+        description: `The new subject or topic for the chat. Only applies to group chats.`,
+      },
+    ],
+  },
+  {
+    name: 'microsoftteams_update_chat_message',
+    description: `Update the body content of an existing Microsoft Teams chat message. Only the message body can be edited after sending.`,
+    params: [
+      {
+        name: 'chat_id',
+        type: 'string',
+        required: true,
+        description: `The unique identifier of the Teams chat.`,
+      },
+      {
+        name: 'content',
+        type: 'string',
+        required: true,
+        description: `The new text or HTML content to replace the existing message body with.`,
+      },
+      {
+        name: 'message_id',
+        type: 'string',
+        required: true,
+        description: `The unique identifier of the chat message.`,
+      },
+      {
+        name: 'content_type',
+        type: 'string',
+        required: false,
+        description: `The format of the updated content: 'text' or 'html'. Defaults to 'text'.`,
       },
     ],
   },

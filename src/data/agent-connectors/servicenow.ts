@@ -1193,6 +1193,36 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'servicenow_cmdb_ci_identify_reconcile',
+    description: `Create or update a Configuration Item via ServiceNow's Identification and Reconciliation Engine (IRE), which deduplicates by the CI class's identifier rules instead of blind-inserting a new record. Use this instead of servicenow_cmdb_ci_create when syncing from an external system of record, so re-running the sync updates the same CI rather than creating duplicates.`,
+    params: [
+      {
+        name: 'class_name',
+        type: 'string',
+        required: true,
+        description: `CI class that determines the type of configuration item (e.g. cmdb_ci_server, cmdb_ci_linux_server).`,
+      },
+      {
+        name: 'data_source',
+        type: 'string',
+        required: true,
+        description: `Identifies where this data is coming from. Must be a valid entry in the discovery_source field on the cmdb_ci table (e.g. an integration name registered by your ServiceNow admin, or 'ServiceNow' for the built-in default).`,
+      },
+      {
+        name: 'values',
+        type: 'object',
+        required: true,
+        description: `The CI's identifying and descriptive fields, e.g. name, serial_number, ip_address, mac_address. The Identification Engine uses whichever of these fields the class's identifier rules require to decide whether this matches an existing CI (update) or is new (insert).`,
+      },
+      {
+        name: 'relations',
+        type: 'array',
+        required: false,
+        description: `Optional CI relationships to establish alongside the identify/reconcile call, e.g. 'Runs on::Runs' links to another CI. Each item follows the IRE relations payload shape (parent/child class and identifying values plus relationship type).`,
+      },
+    ],
+  },
+  {
     name: 'servicenow_cmdb_ci_list',
     description: `Retrieve a list of Configuration Items (CIs) from the CMDB. Filter by class using sysparm_query (e.g., \`sys_class_name=cmdb_ci_server\`).`,
     params: [
@@ -1243,6 +1273,18 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `Sys ID of the relationship type from cmdb_rel_type table`,
+      },
+    ],
+  },
+  {
+    name: 'servicenow_cmdb_ci_relationships_delete',
+    description: `Delete a relationship between two Configuration Items in the CMDB. This removes the edge only; neither Configuration Item record is affected.`,
+    params: [
+      {
+        name: 'sys_id',
+        type: 'string',
+        required: true,
+        description: `The sys_id of the cmdb_rel_ci relationship record to delete (not the CI's own sys_id).`,
       },
     ],
   },
@@ -1399,6 +1441,18 @@ export const tools: Tool[] = [
         type: 'object',
         required: false,
         description: `Input values for the flow as key-value pairs.`,
+      },
+    ],
+  },
+  {
+    name: 'servicenow_get_current_user',
+    description: `Retrieve the ServiceNow user record for the identity behind the current OAuth access token. Useful for confirming which account a connection is authenticated as.`,
+    params: [
+      {
+        name: 'sysparm_fields',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of fields to return in the response.`,
       },
     ],
   },
@@ -1883,6 +1937,24 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'servicenow_knowledge_base_get',
+    description: `Retrieve a single knowledge base by sys_id, including its title, description, and active status.`,
+    params: [
+      {
+        name: 'sys_id',
+        type: 'string',
+        required: true,
+        description: `The sys_id of the knowledge base to retrieve.`,
+      },
+      {
+        name: 'sysparm_fields',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of fields to return in the response.`,
+      },
+    ],
+  },
+  {
     name: 'servicenow_knowledge_base_list',
     description: `Retrieve a list of knowledge bases available in ServiceNow.`,
     params: [
@@ -2069,6 +2141,54 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'servicenow_problem_mark_known_error',
+    description: `Mark a problem as a known error by setting its state to Known Error (102) once the root cause has been identified. Optionally record a temporary workaround.`,
+    params: [
+      {
+        name: 'sys_id',
+        type: 'string',
+        required: true,
+        description: `The sys_id of the problem to mark as a known error.`,
+      },
+      {
+        name: 'work_notes',
+        type: 'string',
+        required: false,
+        description: `Optional internal work notes describing how the root cause was identified.`,
+      },
+      {
+        name: 'workaround',
+        type: 'string',
+        required: false,
+        description: `Temporary workaround to mitigate the problem while a permanent fix is developed.`,
+      },
+    ],
+  },
+  {
+    name: 'servicenow_problem_resolve',
+    description: `Resolve a problem by setting its state to Closed/Resolved (104) and recording the permanent fix. Use servicenow_problem_mark_known_error first if a workaround exists but the fix is not yet in place.`,
+    params: [
+      {
+        name: 'fix_notes',
+        type: 'string',
+        required: true,
+        description: `Notes describing the permanent fix applied to resolve the problem.`,
+      },
+      {
+        name: 'sys_id',
+        type: 'string',
+        required: true,
+        description: `The sys_id of the problem to resolve.`,
+      },
+      {
+        name: 'work_notes',
+        type: 'string',
+        required: false,
+        description: `Optional internal work notes to add when resolving the problem.`,
+      },
+    ],
+  },
+  {
     name: 'servicenow_problem_task_create',
     description: `Create a new problem task to track investigation, root cause analysis, or resolution steps for a Problem record.`,
     params: [
@@ -2249,6 +2369,30 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'servicenow_sc_req_item_get',
+    description: `Retrieve a single Requested Item (RITM / sc_req_item) by sys_id.`,
+    params: [
+      {
+        name: 'sys_id',
+        type: 'string',
+        required: true,
+        description: `The sys_id of the Requested Item (RITM) to retrieve.`,
+      },
+      {
+        name: 'sysparm_display_value',
+        type: 'string',
+        required: false,
+        description: `Return field display values instead of raw values. Options: \`true\`, \`false\`, or \`all\`.`,
+      },
+      {
+        name: 'sysparm_fields',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of fields to return in the response.`,
+      },
+    ],
+  },
+  {
     name: 'servicenow_sc_req_item_update',
     description: `Update fields on a specific Requested Item (RITM / sc_req_item).`,
     params: [
@@ -2281,6 +2425,132 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Work notes to add to the request item.`,
+      },
+    ],
+  },
+  {
+    name: 'servicenow_sc_task_create',
+    description: `Create a fulfillment task (sc_task) for a specific Requested Item in ServiceNow Service Catalog.`,
+    params: [
+      {
+        name: 'request_item',
+        type: 'string',
+        required: true,
+        description: `sys_id of the parent Requested Item (sc_req_item / RITM) this task belongs to.`,
+      },
+      {
+        name: 'short_description',
+        type: 'string',
+        required: true,
+        description: `Brief summary of the catalog task.`,
+      },
+      {
+        name: 'assigned_to',
+        type: 'string',
+        required: false,
+        description: `sys_id or username of the user to assign the task to.`,
+      },
+      {
+        name: 'assignment_group',
+        type: 'string',
+        required: false,
+        description: `sys_id of the group to assign the task to.`,
+      },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `Detailed description of the catalog task.`,
+      },
+    ],
+  },
+  {
+    name: 'servicenow_sc_task_get',
+    description: `Retrieve a specific catalog task (sc_task) by its sys_id. Returns all fields for the task record including state, assignment, and work notes.`,
+    params: [
+      {
+        name: 'sys_id',
+        type: 'string',
+        required: true,
+        description: `The sys_id of the catalog task to retrieve.`,
+      },
+    ],
+  },
+  {
+    name: 'servicenow_sc_task_list',
+    description: `Retrieve a list of catalog fulfillment tasks (sc_task) from ServiceNow, optionally filtered with an encoded query such as \`request_item=<sys_id>\` to scope to one Requested Item.`,
+    params: [
+      {
+        name: 'sysparm_display_value',
+        type: 'string',
+        required: false,
+        description: `Return field display values instead of raw values. Options: \`true\`, \`false\`, or \`all\`.`,
+      },
+      {
+        name: 'sysparm_fields',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of fields to return in the response.`,
+      },
+      {
+        name: 'sysparm_limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of records to return (default: 10, max: 10000).`,
+      },
+      {
+        name: 'sysparm_offset',
+        type: 'integer',
+        required: false,
+        description: `Number of records to skip for pagination.`,
+      },
+      {
+        name: 'sysparm_query',
+        type: 'string',
+        required: false,
+        description: `Encoded query string to filter results. Use \`request_item=<sys_id>\` to filter by parent Requested Item.`,
+      },
+    ],
+  },
+  {
+    name: 'servicenow_sc_task_update',
+    description: `Update fields on an existing catalog task (sc_task), such as its state, assignment, or work notes.`,
+    params: [
+      {
+        name: 'sys_id',
+        type: 'string',
+        required: true,
+        description: `The sys_id of the catalog task to update.`,
+      },
+      {
+        name: 'assigned_to',
+        type: 'string',
+        required: false,
+        description: `sys_id or username of the user to assign the task to.`,
+      },
+      {
+        name: 'assignment_group',
+        type: 'string',
+        required: false,
+        description: `sys_id of the group to assign the task to.`,
+      },
+      {
+        name: 'short_description',
+        type: 'string',
+        required: false,
+        description: `Updated brief summary of the catalog task.`,
+      },
+      {
+        name: 'state',
+        type: 'string',
+        required: false,
+        description: `Task state: \`1\`=Open, \`2\`=Work in Progress, \`3\`=Closed Complete, \`4\`=Closed Incomplete.`,
+      },
+      {
+        name: 'work_notes',
+        type: 'string',
+        required: false,
+        description: `Work notes to append to the catalog task activity log.`,
       },
     ],
   },
@@ -2765,6 +3035,48 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `The sys_id of the sys_user_grmember record (group membership record) to delete.`,
+      },
+    ],
+  },
+  {
+    name: 'servicenow_user_group_update',
+    description: `Update fields on an existing user group in ServiceNow, such as its name, description, manager, or active status.`,
+    params: [
+      {
+        name: 'sys_id',
+        type: 'string',
+        required: true,
+        description: `The sys_id of the sys_user_group record to update.`,
+      },
+      {
+        name: 'active',
+        type: 'boolean',
+        required: false,
+        description: `Whether the group is active.`,
+      },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `Updated description of the user group.`,
+      },
+      {
+        name: 'email',
+        type: 'string',
+        required: false,
+        description: `Updated email address for the group.`,
+      },
+      {
+        name: 'manager',
+        type: 'string',
+        required: false,
+        description: `Updated sys_id or username of the group manager.`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: false,
+        description: `Updated name of the user group.`,
       },
     ],
   },

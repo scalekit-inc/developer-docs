@@ -152,6 +152,18 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'dynamo_delete_document',
+    description: `Deletes a single Dynamo document by ID. This is a convenience shortcut for the generic Entity delete endpoint with the entity name fixed to 'Document'.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The unique identifier (UUID) of the document to delete.`,
+      },
+    ],
+  },
+  {
     name: 'dynamo_entity_by_id',
     description: `Returns a single instance of a Dynamo entity by its ID with optional column selection and formatting controls.`,
     params: [

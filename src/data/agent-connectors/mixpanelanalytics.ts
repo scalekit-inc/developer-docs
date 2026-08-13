@@ -38,6 +38,156 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'mixpanelanalytics_annotation_create',
+    description: `Create a new annotation — a dated note shown as a marker on Mixpanel charts and reports, e.g. "Shipped v2.0 checkout flow" — in a project. Optionally attach existing tag IDs; use 'mixpanelanalytics_annotation_tags_list' to find tag IDs or 'mixpanelanalytics_annotation_tag_create' to create a new one first. Requires an Analyst role or higher on the Mixpanel project.`,
+    params: [
+      {
+        name: 'date',
+        type: 'string',
+        required: true,
+        description: `The date and time this annotation marks, in "YYYY-MM-DD HH:mm:ss" format.`,
+      },
+      {
+        name: 'description',
+        type: 'string',
+        required: true,
+        description: `The note text to display for this annotation.`,
+      },
+      {
+        name: 'project_id',
+        type: 'string',
+        required: true,
+        description: `Your numeric Mixpanel Project ID, required to authenticate Service Account requests. Find it in Mixpanel under Project Settings > Overview.`,
+      },
+      {
+        name: 'tags',
+        type: 'array',
+        required: false,
+        description: `Existing annotation tag IDs to attach to this annotation, as a JSON array of integers. Use 'mixpanelanalytics_annotation_tags_list' to find tag IDs.`,
+      },
+    ],
+  },
+  {
+    name: 'mixpanelanalytics_annotation_delete',
+    description: `Permanently delete an annotation from a Mixpanel project. This action is irreversible. Use 'mixpanelanalytics_annotations_list' to find the annotation_id. Requires an Analyst role or higher.`,
+    params: [
+      {
+        name: 'annotation_id',
+        type: 'string',
+        required: true,
+        description: `The numeric id of the annotation to delete. Find it via 'mixpanelanalytics_annotations_list'.`,
+      },
+      {
+        name: 'project_id',
+        type: 'string',
+        required: true,
+        description: `Your numeric Mixpanel Project ID, required to authenticate Service Account requests. Find it in Mixpanel under Project Settings > Overview.`,
+      },
+    ],
+  },
+  {
+    name: 'mixpanelanalytics_annotation_get',
+    description: `Get a single annotation by its numeric id, including its date, description, tags, and creator. Use 'mixpanelanalytics_annotations_list' to find the id.`,
+    params: [
+      {
+        name: 'annotation_id',
+        type: 'string',
+        required: true,
+        description: `The numeric id of the annotation to fetch. Find it via 'mixpanelanalytics_annotations_list'.`,
+      },
+      {
+        name: 'project_id',
+        type: 'string',
+        required: true,
+        description: `Your numeric Mixpanel Project ID, required to authenticate Service Account requests. Find it in Mixpanel under Project Settings > Overview.`,
+      },
+    ],
+  },
+  {
+    name: 'mixpanelanalytics_annotation_tag_create',
+    description: `Create a new annotation tag in a project, which can then be attached to annotations via 'mixpanelanalytics_annotation_create' or 'mixpanelanalytics_annotation_update'. Use 'mixpanelanalytics_annotation_tags_list' first to check whether a similar tag already exists. Requires an Analyst role or higher.`,
+    params: [
+      {
+        name: 'name',
+        type: 'string',
+        required: true,
+        description: `The text shown when this tag is added to an annotation.`,
+      },
+      {
+        name: 'project_id',
+        type: 'string',
+        required: true,
+        description: `Your numeric Mixpanel Project ID, required to authenticate Service Account requests. Find it in Mixpanel under Project Settings > Overview.`,
+      },
+    ],
+  },
+  {
+    name: 'mixpanelanalytics_annotation_tags_list',
+    description: `List every annotation tag defined in a Mixpanel project, including whether each tag is currently attached to any annotations. Use with 'mixpanelanalytics_annotation_create' or 'mixpanelanalytics_annotation_update' to attach a tag by id.`,
+    params: [
+      {
+        name: 'project_id',
+        type: 'string',
+        required: true,
+        description: `Your numeric Mixpanel Project ID, required to authenticate Service Account requests. Find it in Mixpanel under Project Settings > Overview.`,
+      },
+    ],
+  },
+  {
+    name: 'mixpanelanalytics_annotation_update',
+    description: `Update the description and/or tags of an existing annotation. The annotation's date cannot be changed this way — delete and recreate it instead. Use 'mixpanelanalytics_annotations_list' to find the annotation_id. Requires an Analyst role or higher.`,
+    params: [
+      {
+        name: 'annotation_id',
+        type: 'string',
+        required: true,
+        description: `The numeric id of the annotation to update. Find it via 'mixpanelanalytics_annotations_list'.`,
+      },
+      {
+        name: 'project_id',
+        type: 'string',
+        required: true,
+        description: `Your numeric Mixpanel Project ID, required to authenticate Service Account requests. Find it in Mixpanel under Project Settings > Overview.`,
+      },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `New note text to display for this annotation. Omit to leave the current description unchanged.`,
+      },
+      {
+        name: 'tags',
+        type: 'array',
+        required: false,
+        description: `Replacement set of tag IDs to attach to this annotation, as a JSON array of integers. Omit to leave the current tags unchanged. Use 'mixpanelanalytics_annotation_tags_list' to find tag IDs.`,
+      },
+    ],
+  },
+  {
+    name: 'mixpanelanalytics_annotations_list',
+    description: `List annotations in a Mixpanel project, optionally filtered to a date range. Use 'mixpanelanalytics_annotation_get' to fetch a single annotation by id, or 'mixpanelanalytics_annotation_create' to add a new one.`,
+    params: [
+      {
+        name: 'project_id',
+        type: 'string',
+        required: true,
+        description: `Your numeric Mixpanel Project ID, required to authenticate Service Account requests. Find it in Mixpanel under Project Settings > Overview.`,
+      },
+      {
+        name: 'from_date',
+        type: 'string',
+        required: false,
+        description: `Only return annotations on or after this date, in yyyy-mm-dd format (inclusive). Omit to return annotations from the start of the project's data.`,
+      },
+      {
+        name: 'to_date',
+        type: 'string',
+        required: false,
+        description: `Only return annotations on or before this date, in yyyy-mm-dd format (inclusive). Omit to return annotations up to the most recent.`,
+      },
+    ],
+  },
+  {
     name: 'mixpanelanalytics_cohorts_list',
     description: `List every saved cohort in a Mixpanel project, including each cohort's numeric id, name, member count, description, and creation date. Use the id with 'mixpanelanalytics_profiles_query' (filter_by_cohort) to fetch the profiles in a cohort.`,
     params: [
@@ -304,6 +454,318 @@ export const tools: Tool[] = [
         type: 'integer',
         required: false,
         description: `The numeric ID of the Mixpanel workspace to query, for projects with multiple workspaces. Omit to use the project's default workspace.`,
+      },
+    ],
+  },
+  {
+    name: 'mixpanelanalytics_feature_flag_create',
+    description: `Create a new feature flag/experiment definition in a Mixpanel project workspace, including its variants and rollout rules. This manages the flag's configuration via Service Account auth; to evaluate a flag for a user at runtime, or to fetch all flag definitions, use 'mixpanelingestion_feature_flags_evaluate' / 'mixpanelingestion_feature_flags_definitions' instead. Check an existing flag (via 'mixpanelanalytics_feature_flags_list' or 'mixpanelanalytics_feature_flag_get') or current Mixpanel documentation for a full worked 'ruleset' example before writing one from scratch — its nested targeting/cohort options are not fully reproduced here.`,
+    params: [
+      {
+        name: 'context',
+        type: 'string',
+        required: true,
+        description: `A short label (1-255 characters) identifying the context this flag belongs to. Mixpanel's API reference does not fully define the allowed values or meaning beyond the length constraint — check an existing flag definition in your project (via 'mixpanelanalytics_feature_flags_list') for the convention your team uses.`,
+      },
+      {
+        name: 'key',
+        type: 'string',
+        required: true,
+        description: `The unique programmatic key SDKs use to reference this flag, e.g. "new-checkout-flow". Must be unique within the project.`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: true,
+        description: `The human-readable display name for this flag, shown in the Mixpanel UI.`,
+      },
+      {
+        name: 'project_id',
+        type: 'string',
+        required: true,
+        description: `Your numeric Mixpanel Project ID, required to authenticate Service Account requests. Find it in Mixpanel under Project Settings > Overview.`,
+      },
+      {
+        name: 'ruleset',
+        type: 'object',
+        required: true,
+        description: `A JSON object defining this flag's variants and rollout rules. Shape: {"variants": [{"key": "control", "value": true, "is_control": true, "split": 0.5}, {"key": "treatment", "value": true, "is_control": false, "split": 0.5}] (max 11 variants), "rollout": [{"rollout_percentage": 1.0, "variant_splits": {"control": 0.5, "treatment": 0.5}}]}. Mixpanel supports additional optional targeting fields on each rollout entry (cohort-based or runtime-event-based triggers) not fully reproduced here — check an existing flag's ruleset (via 'mixpanelanalytics_feature_flag_get') or current Mixpanel documentation before building a complex ruleset from scratch.`,
+      },
+      {
+        name: 'serving_method',
+        type: 'string',
+        required: true,
+        description: `How this flag is served: 'client' (evaluated in client SDKs), 'server' (evaluated in server SDKs), 'remote_or_local' (either), or 'remote_only' (must be evaluated via a live call to Mixpanel, not cached locally).`,
+      },
+      {
+        name: 'tags',
+        type: 'array',
+        required: true,
+        description: `Tags to categorize this flag, as a JSON array of strings.`,
+      },
+      {
+        name: 'workspace_id',
+        type: 'string',
+        required: true,
+        description: `The numeric ID of the Mixpanel workspace this flag belongs to. Found in the Mixpanel URL when viewing the project, or use your project's default workspace ID from Project Settings.`,
+      },
+      {
+        name: 'data_group_id',
+        type: 'string',
+        required: false,
+        description: `The group key this flag is evaluated against for group-level (rather than user-level) targeting, if this flag uses Group Analytics. Omit for user-level flags.`,
+      },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `A human-readable description of what this flag controls.`,
+      },
+      {
+        name: 'experiment_id',
+        type: 'string',
+        required: false,
+        description: `The UUID of a Mixpanel experiment to link this flag to, if it powers an A/B experiment. Omit for a plain rollout/release flag with no linked experiment.`,
+      },
+      {
+        name: 'hash_salt',
+        type: 'string',
+        required: false,
+        description: `A 32-character string used to deterministically hash users into variants for this flag. Omit to let Mixpanel generate one.`,
+      },
+      {
+        name: 'is_experiment_active',
+        type: 'boolean',
+        required: false,
+        description: `Whether the linked experiment (see 'experiment_id') is actively running. Irrelevant if this flag has no linked experiment.`,
+      },
+      {
+        name: 'reset_hash_salt',
+        type: 'boolean',
+        required: false,
+        description: `If true, generate a new random hash salt for this flag instead of using 'hash_salt', re-randomizing which variant every user is bucketed into.`,
+      },
+      {
+        name: 'status',
+        type: 'string',
+        required: false,
+        description: `The flag's status: 'enabled' to start serving it, 'disabled' to turn it off (default for new flags), or 'archived' to retire it.`,
+      },
+    ],
+  },
+  {
+    name: 'mixpanelanalytics_feature_flag_definitions_get',
+    description: `Retrieve all enabled feature flag definitions (rulesets, variants, rollout config) for the project, from the same evaluation-API host used by 'mixpanelanalytics_feature_flag_variant_assignments_get'. The identical operation is also available as 'mixpanelingestion_feature_flags_definitions' on the Mixpanel Ingestion connector; use whichever connection you already have set up. Provide either 'project_token' or 'project_id' to authenticate.`,
+    params: [
+      {
+        name: 'project_id',
+        type: 'string',
+        required: false,
+        description: `Your numeric Mixpanel Project ID, used if authenticating with a Service Account. Provide this or project_token.`,
+      },
+      {
+        name: 'project_token',
+        type: 'string',
+        required: false,
+        description: `Your Mixpanel Project Token, used if authenticating without a Service Account. Provide this or project_id.`,
+      },
+    ],
+  },
+  {
+    name: 'mixpanelanalytics_feature_flag_delete',
+    description: `Permanently delete a feature flag from a Mixpanel project workspace. This action is irreversible — consider setting its status to 'archived' via 'mixpanelanalytics_feature_flag_update' instead if you may need it again. Use 'mixpanelanalytics_feature_flags_list' to find the flag_id.`,
+    params: [
+      {
+        name: 'flag_id',
+        type: 'string',
+        required: true,
+        description: `The id of the feature flag to delete. Find it via 'mixpanelanalytics_feature_flags_list'.`,
+      },
+      {
+        name: 'project_id',
+        type: 'string',
+        required: true,
+        description: `Your numeric Mixpanel Project ID, required to authenticate Service Account requests. Find it in Mixpanel under Project Settings > Overview.`,
+      },
+      {
+        name: 'workspace_id',
+        type: 'string',
+        required: true,
+        description: `The numeric ID of the Mixpanel workspace this flag belongs to.`,
+      },
+    ],
+  },
+  {
+    name: 'mixpanelanalytics_feature_flag_get',
+    description: `Get a single feature flag's full configuration by id, including its variants, rollout rules, and status. Use 'mixpanelanalytics_feature_flags_list' to find the flag_id.`,
+    params: [
+      {
+        name: 'flag_id',
+        type: 'string',
+        required: true,
+        description: `The id of the feature flag to fetch. Find it via 'mixpanelanalytics_feature_flags_list'.`,
+      },
+      {
+        name: 'project_id',
+        type: 'string',
+        required: true,
+        description: `Your numeric Mixpanel Project ID, required to authenticate Service Account requests. Find it in Mixpanel under Project Settings > Overview.`,
+      },
+      {
+        name: 'workspace_id',
+        type: 'string',
+        required: true,
+        description: `The numeric ID of the Mixpanel workspace this flag belongs to. Found in the Mixpanel URL when viewing the project, or use your project's default workspace ID from Project Settings.`,
+      },
+    ],
+  },
+  {
+    name: 'mixpanelanalytics_feature_flag_update',
+    description: `Replace an existing feature flag's full configuration by id — this is a full update, not a partial patch, so provide the complete desired 'name', 'key', 'tags', 'context', 'serving_method', and 'ruleset' (not just the fields you're changing). Use 'mixpanelanalytics_feature_flag_get' first to see the flag's current configuration. Use 'mixpanelanalytics_feature_flags_list' to find the flag_id.`,
+    params: [
+      {
+        name: 'context',
+        type: 'string',
+        required: true,
+        description: `A short label (1-255 characters) identifying the context this flag belongs to. Mixpanel's API reference does not fully define the allowed values or meaning beyond the length constraint — check the flag's current value (via 'mixpanelanalytics_feature_flag_get') for the convention your team uses.`,
+      },
+      {
+        name: 'flag_id',
+        type: 'string',
+        required: true,
+        description: `The id of the feature flag to update. Find it via 'mixpanelanalytics_feature_flags_list'.`,
+      },
+      {
+        name: 'key',
+        type: 'string',
+        required: true,
+        description: `The unique programmatic key SDKs use to reference this flag, e.g. "new-checkout-flow".`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: true,
+        description: `The human-readable display name for this flag, shown in the Mixpanel UI.`,
+      },
+      {
+        name: 'project_id',
+        type: 'string',
+        required: true,
+        description: `Your numeric Mixpanel Project ID, required to authenticate Service Account requests. Find it in Mixpanel under Project Settings > Overview.`,
+      },
+      {
+        name: 'ruleset',
+        type: 'object',
+        required: true,
+        description: `A JSON object defining this flag's variants and rollout rules. Shape: {"variants": [{"key": "control", "value": true, "is_control": true, "split": 0.5}, {"key": "treatment", "value": true, "is_control": false, "split": 0.5}] (max 11 variants), "rollout": [{"rollout_percentage": 1.0, "variant_splits": {"control": 0.5, "treatment": 0.5}}]}. This replaces the flag's entire ruleset — fetch the current one with 'mixpanelanalytics_feature_flag_get' and modify it rather than writing a new one from scratch, since Mixpanel supports additional optional targeting fields (cohort-based or runtime-event-based triggers) not fully reproduced here.`,
+      },
+      {
+        name: 'serving_method',
+        type: 'string',
+        required: true,
+        description: `How this flag is served: 'client' (evaluated in client SDKs), 'server' (evaluated in server SDKs), 'remote_or_local' (either), or 'remote_only' (must be evaluated via a live call to Mixpanel, not cached locally).`,
+      },
+      {
+        name: 'tags',
+        type: 'array',
+        required: true,
+        description: `Tags to categorize this flag, as a JSON array of strings.`,
+      },
+      {
+        name: 'workspace_id',
+        type: 'string',
+        required: true,
+        description: `The numeric ID of the Mixpanel workspace this flag belongs to.`,
+      },
+      {
+        name: 'data_group_id',
+        type: 'string',
+        required: false,
+        description: `The group key this flag is evaluated against for group-level (rather than user-level) targeting, if this flag uses Group Analytics. Omit for user-level flags.`,
+      },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `A human-readable description of what this flag controls.`,
+      },
+      {
+        name: 'experiment_id',
+        type: 'string',
+        required: false,
+        description: `The UUID of a Mixpanel experiment to link this flag to, if it powers an A/B experiment. Omit for a plain rollout/release flag with no linked experiment.`,
+      },
+      {
+        name: 'hash_salt',
+        type: 'string',
+        required: false,
+        description: `A 32-character string used to deterministically hash users into variants for this flag. Omit to leave the current salt unchanged.`,
+      },
+      {
+        name: 'is_experiment_active',
+        type: 'boolean',
+        required: false,
+        description: `Whether the linked experiment (see 'experiment_id') is actively running. Irrelevant if this flag has no linked experiment.`,
+      },
+      {
+        name: 'reset_hash_salt',
+        type: 'boolean',
+        required: false,
+        description: `If true, generate a new random hash salt for this flag instead of using 'hash_salt', re-randomizing which variant every user is bucketed into.`,
+      },
+      {
+        name: 'status',
+        type: 'string',
+        required: false,
+        description: `The flag's status: 'enabled' to serve it, 'disabled' to turn it off, or 'archived' to retire it.`,
+      },
+    ],
+  },
+  {
+    name: 'mixpanelanalytics_feature_flag_variant_assignments_get',
+    description: `Evaluate all enabled feature flags and experiments for a given user/context, returning the variant each flag assigns them. This is the real-time evaluation API (distinct from the already-covered management CRUD API for defining flags). Runs on api.mixpanel.com rather than this connector's usual host — the identical operation is also available as 'mixpanelingestion_feature_flags_evaluate' on the Mixpanel Ingestion connector; use whichever connection you already have set up. Provide either 'project_token' or 'project_id' to authenticate.`,
+    params: [
+      {
+        name: 'context',
+        type: 'object',
+        required: true,
+        description: `JSON object describing the user/context to evaluate flags for. Must include 'distinct_id'; may include 'device_id' and 'custom_properties' used for targeting rules.`,
+      },
+      {
+        name: 'project_id',
+        type: 'string',
+        required: false,
+        description: `Your numeric Mixpanel Project ID, used if authenticating with a Service Account. Provide this or project_token.`,
+      },
+      {
+        name: 'project_token',
+        type: 'string',
+        required: false,
+        description: `Your Mixpanel Project Token, used if authenticating without a Service Account. Provide this or project_id.`,
+      },
+    ],
+  },
+  {
+    name: 'mixpanelanalytics_feature_flags_list',
+    description: `List every feature flag/experiment defined in a Mixpanel project workspace, including each flag's variants, rollout rules, and status. This manages flag configuration via Service Account auth; to evaluate flags for a specific user at runtime, use 'mixpanelingestion_feature_flags_evaluate' instead.`,
+    params: [
+      {
+        name: 'project_id',
+        type: 'string',
+        required: true,
+        description: `Your numeric Mixpanel Project ID, required to authenticate Service Account requests. Find it in Mixpanel under Project Settings > Overview.`,
+      },
+      {
+        name: 'workspace_id',
+        type: 'string',
+        required: true,
+        description: `The numeric ID of the Mixpanel workspace to list flags for. Found in the Mixpanel URL when viewing the project, or use your project's default workspace ID from Project Settings.`,
+      },
+      {
+        name: 'include_archived',
+        type: 'boolean',
+        required: false,
+        description: `Whether to include archived feature flags in the results. Defaults to false.`,
       },
     ],
   },
