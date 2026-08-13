@@ -788,15 +788,9 @@ export const sidebarToSecondaryNav: Record<string, SecondaryNavMapping> = {
   // Agent connectors sidebar → AgentKit Connectors tab
   'agent-connectors': 'agentkit-connectors',
 
-  // Product guide shelves → secondary nav entries
+  // Product guide shelves → top-level Guides secondary nav (not Developer Resources)
   'agentkit-guides': 'agentkit-guides',
-  'saaskit-guides': {
-    default: 'saaskit-cookbooks',
-    pathOverrides: {
-      '/saaskit/cookbooks': 'saaskit-cookbooks',
-      '/saaskit/how-to': 'saaskit-how-to',
-    },
-  },
+  'saaskit-guides': 'saaskit-guides',
 
   // AgentKit sidebar → AgentKit tabs
   connect: {
