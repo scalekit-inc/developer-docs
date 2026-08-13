@@ -38,6 +38,10 @@ export const config = {
     '/fonts/*',
     '/favicon*',
     '/og/*',
+    // Auth API routes: local Netlify edge proxy mishandles empty-body POSTs
+    // (e.g. /auth/refresh) and surfaces TypeError: fetch failed as unhandled rejections.
+    '/auth/*',
+    '/api/*',
     '/*.js',
     '/*.css',
     '/*.png',

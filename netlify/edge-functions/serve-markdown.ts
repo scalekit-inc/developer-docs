@@ -165,6 +165,9 @@ export const config: Config = {
     '/images/*',
     '/fonts/*',
     '/favicon*',
+    // Auth/API: not HTML→markdown; also avoids local edge empty-body POST proxy bugs.
+    '/auth/*',
+    '/api/*',
     '/*.js',
     '/*.css',
     '/*.json',
