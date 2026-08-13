@@ -57,6 +57,8 @@ export const getSession = async (): Promise<AuthSession> => {
       const refreshResponse = await fetch('/auth/refresh', {
         method: 'POST',
         credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: '{}',
       })
 
       if (refreshResponse.ok) {

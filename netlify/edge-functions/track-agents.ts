@@ -38,6 +38,11 @@ export const config = {
     '/fonts/*',
     '/favicon*',
     '/og/*',
+    // Auth routes only: the local Netlify edge proxy mishandles empty-body POSTs
+    // (e.g. /auth/refresh) and surfaces TypeError: fetch failed as unhandled rejections.
+    // `/api/*` stays tracked — agents fetch the OpenAPI specs under it, which is
+    // exactly the traffic this function exists to measure.
+    '/auth/*',
     '/*.js',
     '/*.css',
     '/*.png',
