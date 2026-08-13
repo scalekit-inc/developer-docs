@@ -70,17 +70,17 @@ const agentKitItems: NavItem[] = [
     iconComponent: IconApi,
   },
   {
-    id: 'enterprise-deployment',
-    href: '/self-hosted/overview/',
-    label: 'Enterprise Deployment',
-    iconComponent: IconSolarServerPathOutline,
-  },
-  {
     // Opens the dedicated AgentKit guides sidebar (Cookbooks + How-to collapsibles)
     id: 'agentkit-guides',
     href: '/agentkit/cookbooks/',
     label: 'Guides',
     iconComponent: IconLucideBookOpenText,
+  },
+  {
+    id: 'enterprise-deployment',
+    href: '/self-hosted/overview/',
+    label: 'Enterprise Deployment',
+    iconComponent: IconSolarServerPathOutline,
   },
 ]
 
