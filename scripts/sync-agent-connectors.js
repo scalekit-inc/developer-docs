@@ -927,12 +927,7 @@ function generateCapabilityBullets(tools, providerName) {
     const desc = groupTools[0].description || ''
     // MDX treats bare <ident> as JSX tags and {ident} as expressions.
     // Escape both so tool-description placeholders stay literal prose.
-    const firstSentence = escapeMdxProse(
-      desc
-        .split(/\.\s/)[0]
-        .replace(/\.$/, '')
-        .trim(),
-    )
+    const firstSentence = escapeMdxProse(desc.split(/\.\s/)[0].replace(/\.$/, '').trim())
     const label = objects
       ? `**${action.charAt(0).toUpperCase() + action.slice(1)} ${objects}**`
       : `**${action.charAt(0).toUpperCase() + action.slice(1)} records**`
