@@ -202,7 +202,12 @@ const OTHER_SECTIONS = [
   },
   {
     heading: 'Cookbooks & Examples',
-    match: (p) => p.startsWith('/cookbooks/') || p.startsWith('/resources/'),
+    match: (p) =>
+      p.startsWith('/agentkit/cookbooks/') ||
+      p.startsWith('/saaskit/cookbooks/') ||
+      p.startsWith('/agentkit/how-to/') ||
+      p.startsWith('/saaskit/how-to/') ||
+      p.startsWith('/resources/'),
   },
   {
     heading: 'Developer Kit & AI-Assisted Development',

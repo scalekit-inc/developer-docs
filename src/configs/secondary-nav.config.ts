@@ -75,6 +75,13 @@ const agentKitItems: NavItem[] = [
     label: 'Enterprise Deployment',
     iconComponent: IconSolarServerPathOutline,
   },
+  {
+    // Opens the dedicated AgentKit guides sidebar (Cookbooks + How-to collapsibles)
+    id: 'agentkit-guides',
+    href: '/agentkit/cookbooks/',
+    label: 'Guides',
+    iconComponent: IconLucideBookOpenText,
+  },
 ]
 
 const saasKitItems: NavItem[] = [
@@ -175,12 +182,21 @@ const saasKitItems: NavItem[] = [
         columnGroup: 'right',
       },
       {
-        id: 'cookbooks',
-        href: '/cookbooks/',
+        id: 'saaskit-cookbooks',
+        href: '/saaskit/cookbooks/',
         label: 'Developer Resources',
         dropdownLabel: 'Cookbooks',
         iconComponent: IconLucideBookOpenText,
         description: 'Implement common patterns with step-by-step recipes',
+        columnGroup: 'right',
+      },
+      {
+        id: 'saaskit-how-to',
+        href: '/saaskit/how-to/',
+        label: 'Developer Resources',
+        dropdownLabel: 'How-to guides',
+        iconComponent: IconLucideBookOpenText,
+        description: 'Short answers to dashboard, workspace, and account tasks',
         columnGroup: 'right',
       },
       {

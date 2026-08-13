@@ -216,9 +216,10 @@ export const redirects = {
   // Coding agent guides moved from product quickstarts to /dev-kit/build-with-ai/
   // Note: With trailingSlash: 'ignore', single redirect without slash handles both /path and /path/ variants
 
-  '/agentkit/start-agentkit-coding-agents': '/cookbooks/set-up-agentkit-with-your-coding-agent/',
+  '/agentkit/start-agentkit-coding-agents':
+    '/agentkit/cookbooks/set-up-agentkit-with-your-coding-agent/',
   '/agent-auth/start-agent-auth-coding-agents':
-    '/cookbooks/set-up-agentkit-with-your-coding-agent/',
+    '/agentkit/cookbooks/set-up-agentkit-with-your-coding-agent/',
   '/authenticate/fsa/start-fsa-coding-agents': '/dev-kit/build-with-ai/full-stack-auth/',
   '/authenticate/mcp/start-mcp-auth-coding-agents': '/dev-kit/build-with-ai/mcp-auth/',
   '/authenticate/sso/start-sso-coding-agents': '/dev-kit/build-with-ai/sso/',
@@ -226,12 +227,13 @@ export const redirects = {
 
   // Build with AI moved from /build-with-ai/ to /dev-kit/build-with-ai/
   // Agent Auth variant now lives in cookbooks
-  '/agentkit/build-with-ai': '/cookbooks/set-up-agentkit-with-your-coding-agent/',
+  '/agentkit/build-with-ai': '/agentkit/cookbooks/set-up-agentkit-with-your-coding-agent/',
   '/build-with-ai': '/dev-kit/build-with-ai/',
   '/build-with-ai/full-stack-auth': '/dev-kit/build-with-ai/full-stack-auth/',
-  '/build-with-ai/agent-auth': '/cookbooks/set-up-agentkit-with-your-coding-agent/',
-  '/dev-kit/build-with-ai/agentkit': '/cookbooks/set-up-agentkit-with-your-coding-agent/',
-  '/dev-kit/build-with-ai/agent-auth': '/cookbooks/set-up-agentkit-with-your-coding-agent/',
+  '/build-with-ai/agent-auth': '/agentkit/cookbooks/set-up-agentkit-with-your-coding-agent/',
+  '/dev-kit/build-with-ai/agentkit': '/agentkit/cookbooks/set-up-agentkit-with-your-coding-agent/',
+  '/dev-kit/build-with-ai/agent-auth':
+    '/agentkit/cookbooks/set-up-agentkit-with-your-coding-agent/',
   '/build-with-ai/mcp-auth': '/dev-kit/build-with-ai/mcp-auth/',
   '/build-with-ai/sso': '/dev-kit/build-with-ai/sso/',
   '/build-with-ai/scim': '/dev-kit/build-with-ai/scim/',
@@ -466,4 +468,46 @@ export const redirects = {
   '/sdks/go/reference': '/saaskit/sdks/go/',
   '/sdks/java': '/saaskit/sdks/java/',
   '/sdks/java/reference': '/saaskit/sdks/java/',
+
+  // =============================================================================
+  // COOKBOOK REDIRECTS (per-product shelves)
+  // =============================================================================
+  '/cookbooks/apify-actor-per-user-oauth': '/agentkit/cookbooks/apify-actor-per-user-oauth/',
+  '/cookbooks/build-voice-assistant-1000-tools':
+    '/agentkit/cookbooks/build-voice-assistant-1000-tools/',
+  '/cookbooks/crewai-agentkit-email-triage': '/agentkit/cookbooks/crewai-agentkit-email-triage/',
+  '/cookbooks/daily-briefing-agent': '/agentkit/cookbooks/daily-briefing-agent/',
+  '/cookbooks/fastrouter-agentkit-tool-calling':
+    '/agentkit/cookbooks/fastrouter-agentkit-tool-calling/',
+  '/cookbooks/langsmith-tracing-agentkit': '/agentkit/cookbooks/langsmith-tracing-agentkit/',
+  '/cookbooks/litellm-agentkit-inbox-triage': '/agentkit/cookbooks/litellm-agentkit-inbox-triage/',
+  '/cookbooks/livekit-agentkit-voice-tool-calling':
+    '/agentkit/cookbooks/livekit-agentkit-voice-tool-calling/',
+  '/cookbooks/mastra-agentkit': '/agentkit/cookbooks/mastra-agentkit/',
+  '/cookbooks/render-github-pr-summarizer': '/agentkit/cookbooks/render-github-pr-summarizer/',
+  '/cookbooks/schedule-meeting-and-draft-email':
+    '/agentkit/cookbooks/schedule-meeting-and-draft-email/',
+  '/cookbooks/set-up-agentkit-with-your-coding-agent':
+    '/agentkit/cookbooks/set-up-agentkit-with-your-coding-agent/',
+  '/cookbooks/add-enterprise-sso-nextjs-authjs':
+    '/saaskit/cookbooks/add-enterprise-sso-nextjs-authjs/',
+  '/cookbooks/add-hosted-auth-nextjs-app-router':
+    '/saaskit/cookbooks/add-hosted-auth-nextjs-app-router/',
+  '/cookbooks/building-custom-org-switcher': '/saaskit/cookbooks/building-custom-org-switcher/',
+  '/cookbooks/implement-nextjs-auth': '/saaskit/cookbooks/implement-nextjs-auth/',
+  '/cookbooks/java-spring-boot-jwt-timeout': '/saaskit/cookbooks/java-spring-boot-jwt-timeout/',
+  '/cookbooks/m2m-jwks-and-oauth-scopes': '/saaskit/cookbooks/m2m-jwks-and-oauth-scopes/',
+  '/cookbooks/migrate-from-auth0-to-scalekit': '/saaskit/cookbooks/migrate-from-auth0-to-scalekit/',
+  '/cookbooks/scim-seat-limit-enforcement': '/saaskit/cookbooks/scim-seat-limit-enforcement/',
+  '/cookbooks/search-scalekit-docs-in-your-ide':
+    '/saaskit/cookbooks/search-scalekit-docs-in-your-ide/',
+  '/cookbooks/sync-b2b-billing-with-chargebee':
+    '/saaskit/cookbooks/sync-b2b-billing-with-chargebee/',
+
+  // =============================================================================
+  // WORKSPACE HOW-TO REDIRECTS
+  // =============================================================================
+  '/dev-kit/guides/dashboard/billing': '/saaskit/how-to/billing/',
+  '/dev-kit/guides/dashboard/environments': '/saaskit/how-to/environments/',
+  '/dev-kit/guides/dashboard/manage-team-members': '/saaskit/how-to/manage-team-members/',
 }
