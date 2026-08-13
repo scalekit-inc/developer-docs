@@ -2,6 +2,43 @@ import type { Tool } from '../../types/agent-connectors'
 
 export const tools: Tool[] = [
   {
+    name: 'slack_add_bookmark',
+    description: `Add a bookmark to a Slack channel, such as a link. Requires a valid Slack OAuth2 connection with the bookmarks:write scope.`,
+    params: [
+      {
+        name: 'channel_id',
+        type: 'string',
+        required: true,
+        description: `Channel to add the bookmark to.`,
+      },
+      { name: 'title', type: 'string', required: true, description: `Title for the bookmark.` },
+      {
+        name: 'type',
+        type: 'string',
+        required: true,
+        description: `Type of the bookmark, e.g. 'link'.`,
+      },
+      {
+        name: 'emoji',
+        type: 'string',
+        required: false,
+        description: `Emoji to display alongside the bookmark, e.g. ':pushpin:'.`,
+      },
+      {
+        name: 'entity_id',
+        type: 'string',
+        required: false,
+        description: `ID of the entity being bookmarked. Only applies to 'message' or 'file' bookmark types.`,
+      },
+      {
+        name: 'link',
+        type: 'string',
+        required: false,
+        description: `URL to bookmark. Required when type is 'link'.`,
+      },
+    ],
+  },
+  {
     name: 'slack_add_reaction',
     description: `Add an emoji reaction to a message in Slack. Requires a valid Slack OAuth2 connection with reactions:write scope.`,
     params: [
@@ -22,6 +59,115 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `Timestamp of the message to add reaction to`,
+      },
+    ],
+  },
+  {
+    name: 'slack_add_reminder',
+    description: `Create a Slack reminder for a user. Requires a valid Slack OAuth2 connection with the reminders:write scope.`,
+    params: [
+      { name: 'text', type: 'string', required: true, description: `The content of the reminder.` },
+      {
+        name: 'time',
+        type: 'string',
+        required: true,
+        description: `When this reminder should happen: a UNIX timestamp, the number of seconds until the reminder, or a natural-language string like 'in 15 minutes' or 'every Thursday'.`,
+      },
+      {
+        name: 'user',
+        type: 'string',
+        required: false,
+        description: `The user who will receive the reminder. Defaults to the reminder's creator if omitted.`,
+      },
+    ],
+  },
+  {
+    name: 'slack_archive_conversation',
+    description: `Archive a public or private Slack channel. Requires a valid Slack OAuth2 connection with the conversations:write scope.`,
+    params: [
+      {
+        name: 'channel',
+        type: 'string',
+        required: true,
+        description: `ID of the conversation to archive.`,
+      },
+    ],
+  },
+  {
+    name: 'slack_auth_test',
+    description: `Verify the current Slack connection's authentication and identity. Returns the connected team, user, and bot identity for the active token.`,
+    params: [],
+  },
+  {
+    name: 'slack_close_conversation',
+    description: `Close a direct message or multi-person direct message conversation in Slack. Requires a valid Slack OAuth2 connection with the im:write or mpim:write scope.`,
+    params: [
+      { name: 'channel', type: 'string', required: true, description: `Conversation to close.` },
+    ],
+  },
+  {
+    name: 'slack_complete_reminder',
+    description: `Mark a Slack reminder as complete. Requires a valid Slack OAuth2 connection with the reminders:write scope.`,
+    params: [
+      {
+        name: 'reminder',
+        type: 'string',
+        required: true,
+        description: `The ID of the reminder to mark as complete.`,
+      },
+    ],
+  },
+  {
+    name: 'slack_complete_upload_external',
+    description: `Step 2 of Slack's current file-upload flow: finalize file(s) previously uploaded to the URL returned by slack_get_upload_url_external, and optionally share them to a channel or thread. Requires a valid Slack OAuth2 connection with the files:write scope.`,
+    params: [
+      {
+        name: 'files',
+        type: 'array',
+        required: true,
+        description: `Array of uploaded files to finalize. Each item must have 'id' (the file_id from slack_get_upload_url_external) and may include 'title'.`,
+      },
+      {
+        name: 'channel_id',
+        type: 'string',
+        required: false,
+        description: `Channel ID to share the completed files to.`,
+      },
+      {
+        name: 'initial_comment',
+        type: 'string',
+        required: false,
+        description: `Message text to introduce the uploaded file(s) with.`,
+      },
+      {
+        name: 'thread_ts',
+        type: 'string',
+        required: false,
+        description: `Timestamp of the parent message, to share the file(s) as a threaded reply.`,
+      },
+    ],
+  },
+  {
+    name: 'slack_create_canvas',
+    description: `Create a new standalone Canvas, or one tabbed in a channel. The entire Canvases feature is otherwise uncovered by this connector. Requires a valid Slack OAuth2 connection with the canvases:write scope.`,
+    params: [
+      {
+        name: 'channel_id',
+        type: 'string',
+        required: false,
+        description: `Channel ID to tab this canvas in. Required for free/standard workspaces to create a canvas.`,
+      },
+      {
+        name: 'document_content',
+        type: 'object',
+        required: false,
+        description: `Structure describing the initial content, e.g. {"type": "markdown", "markdown": "# Hello"}. Markdown content is limited to 1 MiB.`,
+      },
+      {
+        name: 'title',
+        type: 'string',
+        required: false,
+        description: `Title of the newly created canvas.`,
       },
     ],
   },
@@ -50,6 +196,49 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'slack_create_usergroup',
+    description: `Create a new Slack User Group (@handle group) for mentioning a set of users at once. Requires a valid Slack OAuth2 connection with the usergroups:write scope.`,
+    params: [
+      {
+        name: 'name',
+        type: 'string',
+        required: true,
+        description: `A name for the User Group. Must be unique among User Groups.`,
+      },
+      {
+        name: 'channels',
+        type: 'string',
+        required: false,
+        description: `Comma-separated string of encoded channel IDs the User Group uses as its default channels.`,
+      },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `A short description of the User Group.`,
+      },
+      {
+        name: 'handle',
+        type: 'string',
+        required: false,
+        description: `A mention handle. Must be unique among channels, users, and User Groups.`,
+      },
+      {
+        name: 'include_count',
+        type: 'boolean',
+        required: false,
+        description: `Include the number of users in the User Group in the response.`,
+      },
+    ],
+  },
+  {
+    name: 'slack_delete_file',
+    description: `Delete a file uploaded to Slack. Requires a valid Slack OAuth2 connection with the files:write scope.`,
+    params: [
+      { name: 'file', type: 'string', required: true, description: `ID of the file to delete.` },
+    ],
+  },
+  {
     name: 'slack_delete_message',
     description: `Deletes a message from a Slack channel or direct message. Requires a valid Slack OAuth2 connection with chat:write scope.`,
     params: [
@@ -66,6 +255,114 @@ export const tools: Tool[] = [
         description: `Timestamp of the message to delete`,
       },
     ],
+  },
+  {
+    name: 'slack_delete_reminder',
+    description: `Delete a Slack reminder. Requires a valid Slack OAuth2 connection with the reminders:write scope.`,
+    params: [
+      {
+        name: 'reminder',
+        type: 'string',
+        required: true,
+        description: `The ID of the reminder to delete.`,
+      },
+    ],
+  },
+  {
+    name: 'slack_delete_scheduled_message',
+    description: `Delete a pending scheduled message from the queue before it is sent. Requires a valid Slack OAuth2 connection with the chat:write scope.`,
+    params: [
+      {
+        name: 'channel',
+        type: 'string',
+        required: true,
+        description: `The channel the scheduled message is posting to.`,
+      },
+      {
+        name: 'scheduled_message_id',
+        type: 'string',
+        required: true,
+        description: `The scheduled_message_id returned from a prior call to slack_schedule_rich_message.`,
+      },
+      {
+        name: 'as_user',
+        type: 'boolean',
+        required: false,
+        description: `Pass true to delete the message as the authed user, requires the chat:write:user scope.`,
+      },
+    ],
+  },
+  {
+    name: 'slack_disable_usergroup',
+    description: `Disable an existing Slack User Group. Requires a valid Slack OAuth2 connection with the usergroups:write scope.`,
+    params: [
+      {
+        name: 'usergroup',
+        type: 'string',
+        required: true,
+        description: `The encoded ID of the User Group to disable.`,
+      },
+      {
+        name: 'include_count',
+        type: 'boolean',
+        required: false,
+        description: `Include the number of users in the User Group in the response.`,
+      },
+    ],
+  },
+  {
+    name: 'slack_edit_bookmark',
+    description: `Edit an existing Slack channel bookmark's title, link, or emoji. Requires a valid Slack OAuth2 connection with the bookmarks:write scope.`,
+    params: [
+      {
+        name: 'bookmark_id',
+        type: 'string',
+        required: true,
+        description: `ID of the bookmark to update.`,
+      },
+      {
+        name: 'channel_id',
+        type: 'string',
+        required: true,
+        description: `Channel where the bookmark resides.`,
+      },
+      {
+        name: 'emoji',
+        type: 'string',
+        required: false,
+        description: `New emoji to associate with the bookmark, e.g. ':pushpin:'.`,
+      },
+      { name: 'link', type: 'string', required: false, description: `New URL for the bookmark.` },
+      {
+        name: 'title',
+        type: 'string',
+        required: false,
+        description: `New display title for the bookmark.`,
+      },
+    ],
+  },
+  {
+    name: 'slack_enable_usergroup',
+    description: `Enable a previously disabled Slack User Group. Requires a valid Slack OAuth2 connection with the usergroups:write scope.`,
+    params: [
+      {
+        name: 'usergroup',
+        type: 'string',
+        required: true,
+        description: `The encoded ID of the User Group to enable.`,
+      },
+      {
+        name: 'include_count',
+        type: 'boolean',
+        required: false,
+        description: `Include the number of users in the User Group in the response.`,
+      },
+    ],
+  },
+  {
+    name: 'slack_end_dnd_snooze',
+    description: `End the current Slack user's active Do Not Disturb snooze early. Requires a valid Slack OAuth2 connection with the dnd:write scope.`,
+    params: [],
   },
   {
     name: 'slack_fetch_conversation_history',
@@ -100,6 +397,18 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Start of time range of messages to include in results`,
+      },
+    ],
+  },
+  {
+    name: 'slack_get_bot_info',
+    description: `Retrieve information about a bot user in Slack, such as its name and icons. Requires a valid Slack OAuth2 connection with the users:read scope.`,
+    params: [
+      {
+        name: 'bot',
+        type: 'string',
+        required: false,
+        description: `Bot user to get info on. Defaults to the calling bot's own identity if omitted.`,
       },
     ],
   },
@@ -176,6 +485,157 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'slack_get_dnd_info',
+    description: `Retrieve a Slack user's current Do Not Disturb status, including whether it is active and when it ends. Requires a valid Slack OAuth2 connection with the dnd:read scope.`,
+    params: [
+      {
+        name: 'user',
+        type: 'string',
+        required: false,
+        description: `User to fetch Do Not Disturb status for. Defaults to the authenticated user.`,
+      },
+    ],
+  },
+  {
+    name: 'slack_get_file_info',
+    description: `Retrieve metadata and comments for a specific file shared in Slack. Requires a valid Slack OAuth2 connection with the files:read scope.`,
+    params: [
+      {
+        name: 'file',
+        type: 'string',
+        required: true,
+        description: `Specify a file by providing its ID.`,
+      },
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Pagination cursor from a previous call's response_metadata.next_cursor.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `The maximum number of items to return.`,
+      },
+    ],
+  },
+  {
+    name: 'slack_get_permalink',
+    description: `Retrieve a permalink URL for a specific existing Slack message, identified by its channel and timestamp.`,
+    params: [
+      {
+        name: 'channel',
+        type: 'string',
+        required: true,
+        description: `The ID of the conversation or channel containing the message.`,
+      },
+      {
+        name: 'message_ts',
+        type: 'string',
+        required: true,
+        description: `A message's ts value, uniquely identifying it within a channel.`,
+      },
+    ],
+  },
+  {
+    name: 'slack_get_reactions',
+    description: `Get the emoji reactions on a Slack message, file, or file comment. Requires a valid Slack OAuth2 connection with the reactions:read scope.`,
+    params: [
+      {
+        name: 'channel',
+        type: 'string',
+        required: false,
+        description: `Channel where the message to get reactions for was posted. Required when looking up a message.`,
+      },
+      { name: 'file', type: 'string', required: false, description: `File to get reactions for.` },
+      {
+        name: 'file_comment',
+        type: 'string',
+        required: false,
+        description: `File comment to get reactions for.`,
+      },
+      {
+        name: 'full',
+        type: 'boolean',
+        required: false,
+        description: `If true, always return the complete reaction list.`,
+      },
+      {
+        name: 'timestamp',
+        type: 'string',
+        required: false,
+        description: `Timestamp of the message to get reactions for. Required when looking up a message.`,
+      },
+    ],
+  },
+  {
+    name: 'slack_get_reminder_info',
+    description: `Retrieve details about a specific Slack reminder by its ID. Requires a valid Slack OAuth2 connection with the reminders:read scope.`,
+    params: [
+      {
+        name: 'reminder',
+        type: 'string',
+        required: true,
+        description: `The ID of the reminder to look up.`,
+      },
+    ],
+  },
+  {
+    name: 'slack_get_team_dnd_info',
+    description: `Retrieve the Do Not Disturb status for up to 50 users on a Slack team at once. Requires a valid Slack OAuth2 connection with the dnd:read scope.`,
+    params: [
+      {
+        name: 'users',
+        type: 'string',
+        required: true,
+        description: `Comma-separated list of user IDs to fetch Do Not Disturb status for (up to 50).`,
+      },
+    ],
+  },
+  {
+    name: 'slack_get_team_info',
+    description: `Retrieve information about the current Slack team/workspace, such as its name, domain, and icon. Requires a valid Slack OAuth2 connection with the team:read scope.`,
+    params: [
+      {
+        name: 'team',
+        type: 'string',
+        required: false,
+        description: `Team to get info on. If omitted, returns information about the current team.`,
+      },
+    ],
+  },
+  {
+    name: 'slack_get_upload_url_external',
+    description: `Step 1 of Slack's current file-upload flow: request an upload URL and file ID for a given filename and size. Use slack_complete_upload_external afterward to finalize and share the uploaded file. The classic files.upload method was sunset on 2025-11-12; this is the only way to upload new file content today. Requires a valid Slack OAuth2 connection with the files:write scope.`,
+    params: [
+      {
+        name: 'filename',
+        type: 'string',
+        required: true,
+        description: `Name of the file being uploaded.`,
+      },
+      {
+        name: 'length',
+        type: 'integer',
+        required: true,
+        description: `Size of the file to upload, in bytes.`,
+      },
+      {
+        name: 'alt_txt',
+        type: 'string',
+        required: false,
+        description: `Description of the image for accessibility, max 1000 characters.`,
+      },
+      {
+        name: 'snippet_type',
+        type: 'string',
+        required: false,
+        description: `Syntax type of the snippet being uploaded, if any (e.g. python, json).`,
+      },
+    ],
+  },
+  {
     name: 'slack_get_user_info',
     description: `Retrieves detailed information about a specific Slack user, including profile data, status, and workspace information. Requires a valid Slack OAuth2 connection with users:read scope.`,
     params: [
@@ -202,6 +662,24 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `User ID to check presence for`,
+      },
+    ],
+  },
+  {
+    name: 'slack_get_user_profile',
+    description: `Retrieve detailed profile information for a Slack user, including custom profile fields. Requires a valid Slack OAuth2 connection with the users.profile:read scope.`,
+    params: [
+      {
+        name: 'include_labels',
+        type: 'boolean',
+        required: false,
+        description: `Include labels for each custom profile field ID.`,
+      },
+      {
+        name: 'user',
+        type: 'string',
+        required: false,
+        description: `User to retrieve profile info for. Defaults to the authenticated user if omitted.`,
       },
     ],
   },
@@ -236,6 +714,19 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'slack_kick_from_conversation',
+    description: `Remove a user from a Slack conversation. Requires a valid Slack OAuth2 connection with the conversations:write scope.`,
+    params: [
+      {
+        name: 'channel',
+        type: 'string',
+        required: true,
+        description: `ID of the conversation to remove the user from.`,
+      },
+      { name: 'user', type: 'string', required: true, description: `User ID to be removed.` },
+    ],
+  },
+  {
     name: 'slack_leave_conversation',
     description: `Leaves a Slack channel. The authenticated user will be removed from the channel and will no longer receive messages from it. Requires a valid Slack OAuth2 connection with channels:write scope for public channels or groups:write for private channels.`,
     params: [
@@ -244,6 +735,42 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `Channel ID or channel name (#general) to leave`,
+      },
+    ],
+  },
+  {
+    name: 'slack_list_bookmarks',
+    description: `List the bookmarks on a Slack channel. Requires a valid Slack OAuth2 connection with the bookmarks:read scope.`,
+    params: [
+      {
+        name: 'channel_id',
+        type: 'string',
+        required: true,
+        description: `Channel whose bookmarks should be listed.`,
+      },
+    ],
+  },
+  {
+    name: 'slack_list_channel_members',
+    description: `List the member user IDs of a Slack channel. Requires a valid Slack OAuth2 connection with channels:read (public) or groups:read (private) scope.`,
+    params: [
+      {
+        name: 'channel',
+        type: 'string',
+        required: true,
+        description: `Channel ID or channel name to list members for`,
+      },
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Pagination cursor from a previous response's response_metadata.next_cursor`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of members to return per page`,
       },
     ],
   },
@@ -280,6 +807,220 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Mix and match channel types (public_channel, private_channel, mpim, im)`,
+      },
+    ],
+  },
+  {
+    name: 'slack_list_emoji',
+    description: `List the custom emoji available for a Slack team. Requires a valid Slack OAuth2 connection with the emoji:read scope.`,
+    params: [],
+  },
+  {
+    name: 'slack_list_files',
+    description: `List files shared in a Slack workspace, optionally filtered by user, channel, file type, or a time range. Requires a valid Slack OAuth2 connection with the files:read scope.`,
+    params: [
+      {
+        name: 'channel',
+        type: 'string',
+        required: false,
+        description: `Filter files appearing in a specific channel, indicated by its ID.`,
+      },
+      {
+        name: 'count',
+        type: 'integer',
+        required: false,
+        description: `Number of items to return per page.`,
+      },
+      {
+        name: 'page',
+        type: 'integer',
+        required: false,
+        description: `Page number of results to return.`,
+      },
+      {
+        name: 'ts_from',
+        type: 'string',
+        required: false,
+        description: `Filter files created after this UNIX timestamp (inclusive).`,
+      },
+      {
+        name: 'ts_to',
+        type: 'string',
+        required: false,
+        description: `Filter files created before this UNIX timestamp (inclusive).`,
+      },
+      {
+        name: 'types',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of file types to filter by (e.g., images, pdfs, docs).`,
+      },
+      {
+        name: 'user',
+        type: 'string',
+        required: false,
+        description: `Filter files created by a single user.`,
+      },
+    ],
+  },
+  {
+    name: 'slack_list_pinned_items',
+    description: `List the messages and files pinned to a Slack channel. Requires a valid Slack OAuth2 connection with the pins:read scope.`,
+    params: [
+      {
+        name: 'channel',
+        type: 'string',
+        required: true,
+        description: `Channel to get pinned items for.`,
+      },
+    ],
+  },
+  {
+    name: 'slack_list_reactions',
+    description: `List all items (messages, files, file comments) that a Slack user has reacted to. Requires a valid Slack OAuth2 connection with the reactions:read scope.`,
+    params: [
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Pagination cursor from a previous call's response_metadata.next_cursor.`,
+      },
+      {
+        name: 'full',
+        type: 'boolean',
+        required: false,
+        description: `If true, always return the complete reaction list for each item.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `The maximum number of items to return.`,
+      },
+      {
+        name: 'user',
+        type: 'string',
+        required: false,
+        description: `Show reactions made by this user. Defaults to the authenticated user.`,
+      },
+    ],
+  },
+  {
+    name: 'slack_list_reminders',
+    description: `List all reminders created by or for the authenticated Slack user. Requires a valid Slack OAuth2 connection with the reminders:read scope.`,
+    params: [],
+  },
+  {
+    name: 'slack_list_scheduled_messages',
+    description: `Return a list of messages that are scheduled to be sent to Slack channels, optionally filtered by channel and time range.`,
+    params: [
+      {
+        name: 'channel',
+        type: 'string',
+        required: false,
+        description: `The channel of the scheduled messages. Omit to list across all channels.`,
+      },
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Pagination cursor from a previous call's response_metadata.next_cursor.`,
+      },
+      {
+        name: 'latest',
+        type: 'string',
+        required: false,
+        description: `A UNIX timestamp of the latest value in the time range.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of original entries to return.`,
+      },
+      {
+        name: 'oldest',
+        type: 'string',
+        required: false,
+        description: `A UNIX timestamp of the oldest value in the time range.`,
+      },
+    ],
+  },
+  {
+    name: 'slack_list_user_conversations',
+    description: `List conversations a specific user is a member of, optionally filtered by channel type. Requires a valid Slack OAuth2 connection with the conversations:read scope.`,
+    params: [
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Pagination cursor from a previous call's next_cursor value.`,
+      },
+      {
+        name: 'exclude_archived',
+        type: 'boolean',
+        required: false,
+        description: `Set to true to exclude archived channels from the list.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `The maximum number of items to return.`,
+      },
+      {
+        name: 'types',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of channel types to include (public_channel, private_channel, mpim, im).`,
+      },
+      {
+        name: 'user',
+        type: 'string',
+        required: false,
+        description: `Browse conversations by a specific user ID's membership. Defaults to the authenticated user if omitted.`,
+      },
+    ],
+  },
+  {
+    name: 'slack_list_usergroup_users',
+    description: `List all users belonging to a Slack User Group. Requires a valid Slack OAuth2 connection with the usergroups:read scope.`,
+    params: [
+      {
+        name: 'usergroup',
+        type: 'string',
+        required: true,
+        description: `The encoded ID of the User Group to list members for.`,
+      },
+      {
+        name: 'include_disabled',
+        type: 'boolean',
+        required: false,
+        description: `Allow results for disabled User Groups.`,
+      },
+    ],
+  },
+  {
+    name: 'slack_list_usergroups',
+    description: `List all User Groups (@handle groups) for a Slack team. Requires a valid Slack OAuth2 connection with the usergroups:read scope.`,
+    params: [
+      {
+        name: 'include_count',
+        type: 'boolean',
+        required: false,
+        description: `Include the number of users in each User Group.`,
+      },
+      {
+        name: 'include_disabled',
+        type: 'boolean',
+        required: false,
+        description: `Include disabled User Groups in the results.`,
+      },
+      {
+        name: 'include_users',
+        type: 'boolean',
+        required: false,
+        description: `Include the list of users for each User Group.`,
       },
     ],
   },
@@ -326,6 +1067,66 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'slack_mark_conversation_read',
+    description: `Set the read cursor in a Slack channel or conversation to a given message, marking everything up to and including it as read. Requires a valid Slack OAuth2 connection with the conversations:write scope.`,
+    params: [
+      {
+        name: 'channel',
+        type: 'string',
+        required: true,
+        description: `Channel or conversation to set the read cursor for.`,
+      },
+      {
+        name: 'ts',
+        type: 'string',
+        required: true,
+        description: `Unique identifier (timestamp) of the message marked as most recently seen in this conversation.`,
+      },
+    ],
+  },
+  {
+    name: 'slack_open_conversation',
+    description: `Open or resume a direct message or multi-person direct message in Slack. Provide either an existing im/mpim channel ID to resume, or a list of user IDs to start a new one. Requires a valid Slack OAuth2 connection with the im:write scope.`,
+    params: [
+      {
+        name: 'channel',
+        type: 'string',
+        required: false,
+        description: `Resume a conversation by supplying an existing im or mpim channel ID. Provide this or users, not both.`,
+      },
+      {
+        name: 'return_im',
+        type: 'boolean',
+        required: false,
+        description: `If true, the response includes the full IM channel definition even if the channel already existed.`,
+      },
+      {
+        name: 'users',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of user IDs. If only one user is included, this creates a 1:1 DM.`,
+      },
+    ],
+  },
+  {
+    name: 'slack_open_view',
+    description: `Open a modal view for a Slack user in response to a trigger (e.g., a slash command or button click). Requires a valid Slack OAuth2 connection.`,
+    params: [
+      {
+        name: 'trigger_id',
+        type: 'string',
+        required: true,
+        description: `Exchange a trigger to post the view to the user. Trigger IDs expire after 3 seconds.`,
+      },
+      {
+        name: 'view',
+        type: 'object',
+        required: true,
+        description: `A view payload object describing the modal to display.`,
+      },
+    ],
+  },
+  {
     name: 'slack_pin_message',
     description: `Pin a message to a Slack channel. Pinned messages are highlighted and easily accessible to channel members. Requires a valid Slack OAuth2 connection with pins:write scope.`,
     params: [
@@ -341,6 +1142,343 @@ export const tools: Tool[] = [
         required: true,
         description: `Timestamp of the message to pin`,
       },
+    ],
+  },
+  {
+    name: 'slack_publish_view',
+    description: `Publish a static App Home view for a specific Slack user. Requires a valid Slack OAuth2 connection.`,
+    params: [
+      {
+        name: 'user_id',
+        type: 'string',
+        required: true,
+        description: `The id of the user you want to publish the App Home view to.`,
+      },
+      {
+        name: 'view',
+        type: 'object',
+        required: true,
+        description: `A view payload object of type 'home' describing the App Home content.`,
+      },
+      {
+        name: 'hash',
+        type: 'string',
+        required: false,
+        description: `A string representing view state, used to protect against race conditions between multiple publishes.`,
+      },
+    ],
+  },
+  {
+    name: 'slack_push_view',
+    description: `Push a new modal view onto the stack of an existing root modal view for a Slack user. Requires a valid Slack OAuth2 connection.`,
+    params: [
+      {
+        name: 'trigger_id',
+        type: 'string',
+        required: true,
+        description: `Exchange a trigger to post the view to the user. Trigger IDs expire after 3 seconds.`,
+      },
+      {
+        name: 'view',
+        type: 'object',
+        required: true,
+        description: `A view payload object describing the modal to push onto the stack.`,
+      },
+    ],
+  },
+  {
+    name: 'slack_remove_bookmark',
+    description: `Remove a bookmark from a Slack channel. Requires a valid Slack OAuth2 connection with the bookmarks:write scope.`,
+    params: [
+      {
+        name: 'bookmark_id',
+        type: 'string',
+        required: true,
+        description: `ID of the bookmark to remove.`,
+      },
+      {
+        name: 'channel_id',
+        type: 'string',
+        required: true,
+        description: `Channel where the bookmark resides.`,
+      },
+    ],
+  },
+  {
+    name: 'slack_remove_pin',
+    description: `Un-pin a message from a Slack channel. Requires a valid Slack OAuth2 connection with the pins:write scope.`,
+    params: [
+      {
+        name: 'channel',
+        type: 'string',
+        required: true,
+        description: `Channel where the item is pinned.`,
+      },
+      {
+        name: 'timestamp',
+        type: 'string',
+        required: false,
+        description: `Timestamp of the message to un-pin.`,
+      },
+    ],
+  },
+  {
+    name: 'slack_remove_reaction',
+    description: `Remove an emoji reaction from a message in Slack. Requires a valid Slack OAuth2 connection with reactions:write scope.`,
+    params: [
+      {
+        name: 'channel',
+        type: 'string',
+        required: true,
+        description: `Channel ID or channel name where the message exists`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: true,
+        description: `Emoji name to remove (without colons)`,
+      },
+      {
+        name: 'timestamp',
+        type: 'string',
+        required: true,
+        description: `Timestamp of the message to remove reaction from`,
+      },
+    ],
+  },
+  {
+    name: 'slack_rename_conversation',
+    description: `Rename an existing Slack channel. Requires a valid Slack OAuth2 connection with the conversations:write scope.`,
+    params: [
+      {
+        name: 'channel',
+        type: 'string',
+        required: true,
+        description: `ID of the conversation to rename.`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: true,
+        description: `New name for the conversation.`,
+      },
+    ],
+  },
+  {
+    name: 'slack_revoke_file_public_url',
+    description: `Revoke public, external sharing access for a file uploaded to Slack, disabling its public URL. Requires a valid Slack OAuth2 connection with the files:write scope.`,
+    params: [
+      {
+        name: 'file',
+        type: 'string',
+        required: true,
+        description: `File to revoke public sharing for.`,
+      },
+    ],
+  },
+  {
+    name: 'slack_schedule_rich_message',
+    description: `Schedules a message for future delivery to a Slack channel or direct message, with full support for Block Kit blocks and legacy attachments. Use this when a scheduled message needs rich formatting (sections, dividers, buttons, images, markdown layout) or attachments. Requires a valid Slack OAuth2 connection with chat:write scope.`,
+    params: [
+      {
+        name: 'channel',
+        type: 'string',
+        required: true,
+        description: `Channel ID, channel name (#general), or user ID for DM`,
+      },
+      {
+        name: 'post_at',
+        type: 'integer',
+        required: true,
+        description: `Unix timestamp (seconds) for when the message should be sent`,
+      },
+      {
+        name: 'text',
+        type: 'string',
+        required: true,
+        description: `Fallback message text, shown in notifications and clients that can't render blocks/attachments`,
+      },
+      {
+        name: 'attachments',
+        type: 'array',
+        required: false,
+        description: `Array of legacy attachment objects for additional message formatting`,
+      },
+      {
+        name: 'blocks',
+        type: 'array',
+        required: false,
+        description: `Array of Block Kit block elements for rich message formatting`,
+      },
+      {
+        name: 'reply_broadcast',
+        type: 'boolean',
+        required: false,
+        description: `Used in conjunction with thread_ts to broadcast reply to channel`,
+      },
+      {
+        name: 'thread_ts',
+        type: 'string',
+        required: false,
+        description: `Timestamp of parent message to reply in thread`,
+      },
+      {
+        name: 'unfurl_links',
+        type: 'boolean',
+        required: false,
+        description: `Enable or disable link previews`,
+      },
+      {
+        name: 'unfurl_media',
+        type: 'boolean',
+        required: false,
+        description: `Enable or disable media link previews`,
+      },
+    ],
+  },
+  {
+    name: 'slack_search_files',
+    description: `Search for files matching a query across a Slack workspace. The existing slack_search_messages tool only covers messages, not files. Requires a valid Slack OAuth2 connection with the search:read scope (a user token, not a bot token).`,
+    params: [
+      {
+        name: 'query',
+        type: 'string',
+        required: true,
+        description: `Search query. Supports Slack search modifiers such as from:, in:, and before:.`,
+      },
+      {
+        name: 'count',
+        type: 'integer',
+        required: false,
+        description: `Number of results to return per page.`,
+      },
+      {
+        name: 'highlight',
+        type: 'boolean',
+        required: false,
+        description: `Enable query highlight markers in the returned results.`,
+      },
+      {
+        name: 'page',
+        type: 'integer',
+        required: false,
+        description: `Page number of results to return.`,
+      },
+      {
+        name: 'sort',
+        type: 'string',
+        required: false,
+        description: `Return matches sorted by either score (relevance) or timestamp (recency).`,
+      },
+      {
+        name: 'sort_dir',
+        type: 'string',
+        required: false,
+        description: `Sort direction: ascending (asc) or descending (desc).`,
+      },
+      {
+        name: 'team_id',
+        type: 'string',
+        required: false,
+        description: `Encoded team ID to search in. Required if using an org-wide token.`,
+      },
+    ],
+  },
+  {
+    name: 'slack_search_messages',
+    description: `Search for messages matching a query across a Slack workspace. Requires a valid Slack OAuth2 connection with the search:read scope (a user token, not a bot token).`,
+    params: [
+      {
+        name: 'query',
+        type: 'string',
+        required: true,
+        description: `Search query. Supports Slack search modifiers such as from:, in:, and before:.`,
+      },
+      {
+        name: 'count',
+        type: 'integer',
+        required: false,
+        description: `Number of results to return per page. Maximum of 100.`,
+      },
+      {
+        name: 'highlight',
+        type: 'boolean',
+        required: false,
+        description: `Enable query highlight markers in the returned message text.`,
+      },
+      {
+        name: 'page',
+        type: 'integer',
+        required: false,
+        description: `Page number of results to return.`,
+      },
+      {
+        name: 'sort',
+        type: 'string',
+        required: false,
+        description: `Return matches sorted by either score (relevance) or timestamp (recency).`,
+      },
+      {
+        name: 'sort_dir',
+        type: 'string',
+        required: false,
+        description: `Sort direction: ascending (asc) or descending (desc).`,
+      },
+    ],
+  },
+  {
+    name: 'slack_send_ephemeral_message',
+    description: `Sends a message to a Slack channel that is only visible to a specific user (ephemeral message), with support for Block Kit blocks and legacy attachments. Requires a valid Slack OAuth2 connection with chat:write scope.`,
+    params: [
+      {
+        name: 'channel',
+        type: 'string',
+        required: true,
+        description: `Channel ID or channel name where the ephemeral message should appear`,
+      },
+      {
+        name: 'text',
+        type: 'string',
+        required: true,
+        description: `Fallback message text, shown in notifications and clients that can't render blocks/attachments`,
+      },
+      {
+        name: 'user',
+        type: 'string',
+        required: true,
+        description: `User ID of the user who should see the ephemeral message`,
+      },
+      {
+        name: 'attachments',
+        type: 'array',
+        required: false,
+        description: `Array of legacy attachment objects for additional message formatting`,
+      },
+      {
+        name: 'blocks',
+        type: 'array',
+        required: false,
+        description: `Array of Block Kit block elements for rich message formatting`,
+      },
+      {
+        name: 'thread_ts',
+        type: 'string',
+        required: false,
+        description: `Timestamp of parent message to post the ephemeral message in a thread`,
+      },
+    ],
+  },
+  {
+    name: 'slack_send_me_message',
+    description: `Share an italicized '/me'-style action message into a Slack channel (e.g., '_is away from keyboard_'). Requires a valid Slack OAuth2 connection with the chat:write scope.`,
+    params: [
+      {
+        name: 'channel',
+        type: 'string',
+        required: true,
+        description: `Channel to send the message to. Can be a public channel, private group, or IM channel.`,
+      },
+      { name: 'text', type: 'string', required: true, description: `Text of the message to send.` },
     ],
   },
   {
@@ -405,6 +1543,120 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'slack_send_rich_message',
+    description: `Sends a message to a Slack channel or direct message with full support for Block Kit blocks and legacy attachments. Use this instead of slack_send_message whenever the message needs rich formatting (sections, dividers, buttons, images, markdown layout) or attachments — slack_send_message currently ignores those fields. Requires a valid Slack OAuth2 connection with chat:write scope.`,
+    params: [
+      {
+        name: 'channel',
+        type: 'string',
+        required: true,
+        description: `Channel ID, channel name (#general), or user ID for DM`,
+      },
+      {
+        name: 'text',
+        type: 'string',
+        required: true,
+        description: `Fallback message text, shown in notifications and clients that can't render blocks/attachments`,
+      },
+      {
+        name: 'attachments',
+        type: 'array',
+        required: false,
+        description: `Array of legacy attachment objects for additional message formatting`,
+      },
+      {
+        name: 'blocks',
+        type: 'array',
+        required: false,
+        description: `Array of Block Kit block elements for rich message formatting`,
+      },
+      {
+        name: 'reply_broadcast',
+        type: 'boolean',
+        required: false,
+        description: `Used in conjunction with thread_ts to broadcast reply to channel`,
+      },
+      {
+        name: 'thread_ts',
+        type: 'string',
+        required: false,
+        description: `Timestamp of parent message to reply in thread`,
+      },
+      {
+        name: 'unfurl_links',
+        type: 'boolean',
+        required: false,
+        description: `Enable or disable link previews`,
+      },
+      {
+        name: 'unfurl_media',
+        type: 'boolean',
+        required: false,
+        description: `Enable or disable media link previews`,
+      },
+    ],
+  },
+  {
+    name: 'slack_set_conversation_purpose',
+    description: `Set the purpose (description) for a Slack conversation. Requires a valid Slack OAuth2 connection with the conversations:write scope.`,
+    params: [
+      {
+        name: 'channel',
+        type: 'string',
+        required: true,
+        description: `Conversation to set the purpose of.`,
+      },
+      {
+        name: 'purpose',
+        type: 'string',
+        required: true,
+        description: `The new purpose text for the conversation.`,
+      },
+    ],
+  },
+  {
+    name: 'slack_set_conversation_topic',
+    description: `Set the topic for a Slack conversation. Does not support formatting or linkification. Requires a valid Slack OAuth2 connection with the conversations:write scope.`,
+    params: [
+      {
+        name: 'channel',
+        type: 'string',
+        required: true,
+        description: `Conversation to set the topic of.`,
+      },
+      {
+        name: 'topic',
+        type: 'string',
+        required: true,
+        description: `The new topic string. Does not support formatting or linkification.`,
+      },
+    ],
+  },
+  {
+    name: 'slack_set_dnd_snooze',
+    description: `Turn on Do Not Disturb snooze for the current Slack user for a given number of minutes. Requires a valid Slack OAuth2 connection with the dnd:write scope.`,
+    params: [
+      {
+        name: 'num_minutes',
+        type: 'integer',
+        required: true,
+        description: `Number of minutes, from now, to snooze notifications for.`,
+      },
+    ],
+  },
+  {
+    name: 'slack_set_user_presence',
+    description: `Manually set the authenticated user's Slack presence to active or away. Requires a valid Slack OAuth2 connection with the users:write scope.`,
+    params: [
+      {
+        name: 'presence',
+        type: 'string',
+        required: true,
+        description: `The presence to set: auto (active) or away.`,
+      },
+    ],
+  },
+  {
     name: 'slack_set_user_status',
     description: `Set the user's custom status with text and emoji. This appears in their profile and can include an expiration time. Requires a valid Slack OAuth2 connection with users.profile:write scope.`,
     params: [
@@ -425,6 +1677,49 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Status text to display`,
+      },
+    ],
+  },
+  {
+    name: 'slack_share_file_public_url',
+    description: `Enable public, external sharing for a file uploaded to Slack, generating a URL anyone can use to view it. Requires a valid Slack OAuth2 connection with the files:write scope.`,
+    params: [
+      { name: 'file', type: 'string', required: true, description: `File to share publicly.` },
+    ],
+  },
+  {
+    name: 'slack_unarchive_conversation',
+    description: `Reverse the archival of a Slack channel, restoring it to active use. Requires a valid Slack OAuth2 connection with the conversations:write scope.`,
+    params: [
+      {
+        name: 'channel',
+        type: 'string',
+        required: true,
+        description: `ID of the conversation to unarchive.`,
+      },
+    ],
+  },
+  {
+    name: 'slack_unfurl_message',
+    description: `Provide custom unfurl (link preview) content for a URL posted in an existing Slack message. Requires a valid Slack OAuth2 connection with the links:write scope.`,
+    params: [
+      {
+        name: 'channel',
+        type: 'string',
+        required: true,
+        description: `Channel ID of the message.`,
+      },
+      {
+        name: 'ts',
+        type: 'string',
+        required: true,
+        description: `Timestamp of the message to add unfurl behavior to.`,
+      },
+      {
+        name: 'unfurls',
+        type: 'object',
+        required: true,
+        description: `JSON object with keys set to URLs featured in the message, each mapped to its unfurl attachment payload.`,
       },
     ],
   },
@@ -457,6 +1752,102 @@ export const tools: Tool[] = [
         description: `JSON-encoded array of Block Kit block elements for rich message formatting`,
       },
       { name: 'text', type: 'string', required: false, description: `New message text content` },
+    ],
+  },
+  {
+    name: 'slack_update_usergroup',
+    description: `Update the name, handle, description, or default channels of an existing Slack User Group. Only the fields you provide are changed. Requires a valid Slack OAuth2 connection with the usergroups:write scope.`,
+    params: [
+      {
+        name: 'usergroup',
+        type: 'string',
+        required: true,
+        description: `The encoded ID of the User Group to update.`,
+      },
+      {
+        name: 'channels',
+        type: 'string',
+        required: false,
+        description: `Comma-separated string of encoded channel IDs the User Group uses as its default channels.`,
+      },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `A new short description of the User Group.`,
+      },
+      {
+        name: 'handle',
+        type: 'string',
+        required: false,
+        description: `A new mention handle. Must be unique among channels, users, and User Groups.`,
+      },
+      {
+        name: 'include_count',
+        type: 'boolean',
+        required: false,
+        description: `Include the number of users in the User Group in the response.`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: false,
+        description: `A new name for the User Group. Must be unique among User Groups.`,
+      },
+    ],
+  },
+  {
+    name: 'slack_update_usergroup_users',
+    description: `Replace the entire member list of a Slack User Group with a new set of users. Requires a valid Slack OAuth2 connection with the usergroups:write scope.`,
+    params: [
+      {
+        name: 'usergroup',
+        type: 'string',
+        required: true,
+        description: `The encoded ID of the User Group to update.`,
+      },
+      {
+        name: 'users',
+        type: 'string',
+        required: true,
+        description: `Comma-separated string of encoded user IDs that represent the entire new list of users for the User Group.`,
+      },
+      {
+        name: 'include_count',
+        type: 'boolean',
+        required: false,
+        description: `Include the number of users in the User Group in the response.`,
+      },
+    ],
+  },
+  {
+    name: 'slack_update_view',
+    description: `Update an existing modal view in place, identified by its view_id or external_id. Requires a valid Slack OAuth2 connection.`,
+    params: [
+      {
+        name: 'view',
+        type: 'object',
+        required: true,
+        description: `A view payload object describing the modal's new content.`,
+      },
+      {
+        name: 'external_id',
+        type: 'string',
+        required: false,
+        description: `A unique identifier of the view set by the developer, unique per team. Provide either this or view_id.`,
+      },
+      {
+        name: 'hash',
+        type: 'string',
+        required: false,
+        description: `A string representing view state, used to protect against race conditions between multiple updates.`,
+      },
+      {
+        name: 'view_id',
+        type: 'string',
+        required: false,
+        description: `A unique identifier of the view to update. Provide either this or external_id.`,
+      },
     ],
   },
 ]

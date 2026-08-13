@@ -50,6 +50,24 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'sendgrid_add_contactdb_recipient',
+    description: `Add one or more recipients to SendGrid's legacy Marketing Campaigns contact database (contactdb), or update them if a recipient with the same email already exists. Each recipient object must include 'email'; you can also set 'first_name', 'last_name', and any of your own custom field names as additional keys on the same object — unlike the 'first_name'/'last_name' shown here, arbitrary custom field keys are NOT declared individually by this tool's schema, so add them directly by name. Rate limit: 3 requests per 2 seconds, up to 1000 recipients per request (so up to 1500/second sustained). This is part of SendGrid's legacy Marketing Campaigns API (Contact DB / Campaigns). It remains fully operational, but SendGrid recommends new integrations use the current Marketing Campaigns tool instead ('Add or Update a Contact', for /v3/marketing/contacts). You can submit this request as one of your subusers by including their ID in the on_behalf_of field.`,
+    params: [
+      {
+        name: 'recipients',
+        type: 'array',
+        required: true,
+        description: `One or more recipient objects to add or update, each requiring at least 'email'. Besides email/first_name/last_name shown here, you may add any other key matching one of your contactdb custom field names (see the 'Retrieve all custom fields' tool) — for example {"email": "a@example.com", "pet": "Fluffy"} sets the custom field 'pet'.`,
+      },
+      {
+        name: 'on_behalf_of',
+        type: 'string',
+        required: false,
+        description: `Optional 'on-behalf-of' header value to make this call from a parent account on behalf of one of its Subusers or customer accounts. Use 'account-id <account-id>' for a customer account, or the Subuser's username for a Subuser. Uses the parent account's API key.`,
+      },
+    ],
+  },
+  {
     name: 'sendgrid_add_integration',
     description: `Create a new External Integration for forwarding SendGrid email events to a third-party destination (currently only 'Segment' is supported). Requires destination, filters (which SendGrid email events to forward), and properties (the destination-specific connection details — for Segment, write_key and destination_region). Each destination has a maximum number of allowed Integration instances per user (e.g. up to 10 Segment Integrations). Returns the created Integration, including its generated integration_id.`,
     params: [
@@ -214,6 +232,54 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `The unique ID of the IP Pool to add IP addresses to. Obtain this from the List IP Pools tool.`,
+      },
+    ],
+  },
+  {
+    name: 'sendgrid_add_recipient_to_contactdb_list',
+    description: `Add a single existing recipient to a list in SendGrid's legacy Marketing Campaigns contact database (contactdb). The recipient must already exist in your contactdb; use the 'Add recipients' tool first if they don't. No request body is needed. Obtain list_id from the 'Retrieve all lists' tool and recipient_id from the 'Retrieve recipients' tool. This is part of SendGrid's legacy Marketing Campaigns API (Contact DB / Campaigns). It remains fully operational, but SendGrid recommends new integrations use the current Marketing Campaigns tool instead ('Add a Contact to a List', for /v3/marketing/lists). You can submit this request as one of your subusers by including their ID in the on_behalf_of field.`,
+    params: [
+      {
+        name: 'list_id',
+        type: 'integer',
+        required: true,
+        description: `The ID of the list to add the recipient to. Obtain this from the 'Retrieve all lists' tool's response.`,
+      },
+      {
+        name: 'recipient_id',
+        type: 'string',
+        required: true,
+        description: `The ID (base64-encoded email address) of the recipient to add. Obtain this from the 'Retrieve recipients' or 'Add recipients' tool's response.`,
+      },
+      {
+        name: 'on_behalf_of',
+        type: 'string',
+        required: false,
+        description: `Optional 'on-behalf-of' header value to make this call from a parent account on behalf of one of its Subusers or customer accounts. Use 'account-id <account-id>' for a customer account, or the Subuser's username for a Subuser. Uses the parent account's API key.`,
+      },
+    ],
+  },
+  {
+    name: 'sendgrid_add_recipients_to_contactdb_list',
+    description: `Add multiple existing recipients to a list in SendGrid's legacy Marketing Campaigns contact database (contactdb), by their recipient IDs (base64-encoded email addresses — pass them exactly as returned from recipient endpoints). The recipients must already exist in your contactdb; use the 'Add recipients' tool first if they don't. Obtain list_id from the 'Retrieve all lists' tool and recipient_ids from the 'Retrieve recipients' tool. This is part of SendGrid's legacy Marketing Campaigns API (Contact DB / Campaigns). It remains fully operational, but SendGrid recommends new integrations use the current Marketing Campaigns tool instead ('Add Multiple Contacts to a List', for /v3/marketing/lists). You can submit this request as one of your subusers by including their ID in the on_behalf_of field.`,
+    params: [
+      {
+        name: 'list_id',
+        type: 'integer',
+        required: true,
+        description: `The ID of the list to add recipients to. Obtain this from the 'Retrieve all lists' tool's response.`,
+      },
+      {
+        name: 'recipient_ids',
+        type: 'array',
+        required: true,
+        description: `The recipient IDs (base64-encoded email addresses) to add to this list. Obtain these from the 'Retrieve recipients' or 'Add recipients' tool's response.`,
+      },
+      {
+        name: 'on_behalf_of',
+        type: 'string',
+        required: false,
+        description: `Optional 'on-behalf-of' header value to make this call from a parent account on behalf of one of its Subusers or customer accounts. Use 'account-id <account-id>' for a customer account, or the Subuser's username for a Subuser. Uses the parent account's API key.`,
       },
     ],
   },
@@ -532,6 +598,193 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `The subdomain to create the link branding for, used to generate the DNS records. Must be different from the subdomain used for authenticating your sending domain. If omitted, SendGrid generates one automatically.`,
+      },
+    ],
+  },
+  {
+    name: 'sendgrid_create_campaign',
+    description: `Create a new Campaign in SendGrid's legacy Marketing Campaigns feature, in Draft status. Only 'title' is required to create the campaign; you do not need subject, sender_id, content, or a list/segment yet — but you must set all of those (via the 'Update a Campaign' tool) before you can send or schedule it. You may have up to 250 campaigns. Obtain sender_id from the 'Get a List of All Sender Identities' tool, and list_ids/segment_ids from the 'Retrieve all Lists' and 'Retrieve all Segments' contactdb tools. This is part of SendGrid's legacy Marketing Campaigns API (Contact DB / Campaigns). It remains fully operational, but SendGrid recommends new integrations use the current Marketing Campaigns tool instead ('Create a Single Send', for /v3/marketing/singlesends). You can submit this request as one of your subusers by including their ID in the on_behalf_of field.`,
+    params: [
+      {
+        name: 'title',
+        type: 'string',
+        required: true,
+        description: `The display title of your campaign. Shown to you in the Marketing Campaigns UI only — never seen by recipients.`,
+      },
+      {
+        name: 'categories',
+        type: 'array',
+        required: false,
+        description: `Categories to associate with this campaign, for tracking/reporting purposes.`,
+      },
+      {
+        name: 'custom_unsubscribe_url',
+        type: 'string',
+        required: false,
+        description: `The URL of a custom unsubscribe landing page you host, for recipients to opt out of this suppression group. Cannot be combined with suppression_group_id.`,
+      },
+      {
+        name: 'editor',
+        type: 'string',
+        required: false,
+        description: `Which editor was used to create this campaign's content in the SendGrid UI.`,
+      },
+      {
+        name: 'html_content',
+        type: 'string',
+        required: false,
+        description: `The HTML body of your marketing email.`,
+      },
+      {
+        name: 'ip_pool',
+        type: 'string',
+        required: false,
+        description: `The name of the IP pool to send this campaign from.`,
+      },
+      {
+        name: 'list_ids',
+        type: 'array',
+        required: false,
+        description: `The IDs of the contactdb Lists you are sending this campaign to. You can combine list_ids and segment_ids.`,
+      },
+      {
+        name: 'on_behalf_of',
+        type: 'string',
+        required: false,
+        description: `Optional 'on-behalf-of' header value to make this call from a parent account on behalf of one of its Subusers or customer accounts. Use 'account-id <account-id>' for a customer account, or the Subuser's username for a Subuser. Uses the parent account's API key.`,
+      },
+      {
+        name: 'plain_content',
+        type: 'string',
+        required: false,
+        description: `The plain-text body of your marketing email.`,
+      },
+      {
+        name: 'segment_ids',
+        type: 'array',
+        required: false,
+        description: `The IDs of the contactdb Segments you are sending this campaign to. Limited to 10 segment IDs. You can combine list_ids and segment_ids.`,
+      },
+      {
+        name: 'sender_id',
+        type: 'integer',
+        required: false,
+        description: `The ID of the Sender Identity to send this campaign from. Obtain this from the 'Get a List of All Sender Identities' tool.`,
+      },
+      {
+        name: 'subject',
+        type: 'string',
+        required: false,
+        description: `The subject line your recipients will see.`,
+      },
+      {
+        name: 'suppression_group_id',
+        type: 'integer',
+        required: false,
+        description: `The unsubscribe group this campaign belongs to, letting recipients opt out of this type of email. Cannot be combined with custom_unsubscribe_url.`,
+      },
+    ],
+  },
+  {
+    name: 'sendgrid_create_contactdb_custom_field',
+    description: `Create a custom field on SendGrid's legacy Marketing Campaigns contact database (contactdb). You can create up to 120 custom fields. Both name and type are required. type must be one of 'text', 'number', or 'date'. This is part of SendGrid's legacy Marketing Campaigns API (Contact DB / Campaigns). It remains fully operational, but SendGrid recommends new integrations use the current Marketing Campaigns tool instead ('Create Custom Field Definition', for /v3/marketing/field_definitions). You can submit this request as one of your subusers by including their ID in the on_behalf_of field.`,
+    params: [
+      {
+        name: 'name',
+        type: 'string',
+        required: true,
+        description: `The name of the custom field. Must not collide with a reserved field name (see the 'Retrieve reserved fields' tool).`,
+      },
+      {
+        name: 'type',
+        type: 'string',
+        required: true,
+        description: `The data type of the custom field.`,
+      },
+      {
+        name: 'on_behalf_of',
+        type: 'string',
+        required: false,
+        description: `Optional 'on-behalf-of' header value to make this call from a parent account on behalf of one of its Subusers or customer accounts. Use 'account-id <account-id>' for a customer account, or the Subuser's username for a Subuser. Uses the parent account's API key.`,
+      },
+    ],
+  },
+  {
+    name: 'sendgrid_create_contactdb_export',
+    description: `Start an asynchronous export of lists and/or segments of recipients from SendGrid's legacy Marketing Campaigns contact database (contactdb), as CSV or JSON files. Set notifications.email to true to receive an emailed link when the export is ready, or poll the 'Export Recipients Status' tool with the returned job id. Provide list_ids and/or segment_ids to select what to export. If the export exceeds max_file_size (in MB), it is split into multiple files. Obtain list_ids from 'Retrieve all lists' and segment_ids from 'Retrieve all segments'. Note: unlike most contactdb endpoints, this one does not support the on-behalf-of header.`,
+    params: [
+      {
+        name: 'file_type',
+        type: 'string',
+        required: false,
+        description: `The file format for the export.`,
+      },
+      {
+        name: 'list_ids',
+        type: 'array',
+        required: false,
+        description: `IDs of the contactdb lists to export.`,
+      },
+      {
+        name: 'max_file_size',
+        type: 'integer',
+        required: false,
+        description: `The maximum size of a single export file, in MB. If the export is larger, it is split into multiple files.`,
+      },
+      {
+        name: 'notifications',
+        type: 'object',
+        required: false,
+        description: `Shape: {"email": true}. Set email to true to have SendGrid email you a link to the exported file(s) once ready, instead of (or in addition to) polling for status.`,
+      },
+      {
+        name: 'segment_ids',
+        type: 'array',
+        required: false,
+        description: `IDs of the contactdb segments to export.`,
+      },
+    ],
+  },
+  {
+    name: 'sendgrid_create_contactdb_list',
+    description: `Create a new recipient list in SendGrid's legacy Marketing Campaigns contact database (contactdb). The name must be unique against all other lists and segments. This is part of SendGrid's legacy Marketing Campaigns API (Contact DB / Campaigns). It remains fully operational, but SendGrid recommends new integrations use the current Marketing Campaigns tool instead ('Create a List', for /v3/marketing/lists). You can submit this request as one of your subusers by including their ID in the on_behalf_of field.`,
+    params: [
+      {
+        name: 'name',
+        type: 'string',
+        required: true,
+        description: `The name for the new list. Must be unique against all other contactdb list and segment names.`,
+      },
+      {
+        name: 'on_behalf_of',
+        type: 'string',
+        required: false,
+        description: `Optional 'on-behalf-of' header value to make this call from a parent account on behalf of one of its Subusers or customer accounts. Use 'account-id <account-id>' for a customer account, or the Subuser's username for a Subuser. Uses the parent account's API key.`,
+      },
+    ],
+  },
+  {
+    name: 'sendgrid_create_contactdb_segment',
+    description: `Create a new segment in SendGrid's legacy Marketing Campaigns contact database (contactdb), defined by conditions recipients must match. Omit list_id to build the segment from your entire contactdb rather than a specific list. Valid operators depend on field type: dates support eq/ne/lt(before)/gt(after)/empty/not_empty; text supports contains/eq/ne/empty/not_empty; numbers support eq/lt/gt/empty/not_empty; email clicks/opens (field 'clicks.campaign_identifier' or 'opens.campaign_identifier') support eq(opened)/ne(not opened). The first condition must have and_or of '' and every subsequent condition must specify 'and' or 'or'. All condition values must be strings. This is part of SendGrid's legacy Marketing Campaigns API (Contact DB / Campaigns). It remains fully operational, but SendGrid recommends new integrations use the current Marketing Campaigns tool instead ('Create a Segment', for /v3/marketing/segments/2.0). You can submit this request as one of your subusers by including their ID in the on_behalf_of field.`,
+    params: [
+      {
+        name: 'conditions',
+        type: 'array',
+        required: true,
+        description: `The conditions a recipient must match to be included in this segment.`,
+      },
+      { name: 'name', type: 'string', required: true, description: `The name of this segment.` },
+      {
+        name: 'list_id',
+        type: 'integer',
+        required: false,
+        description: `The contactdb list ID to build this segment from. Omit to build the segment from your entire contactdb instead of a specific list.`,
+      },
+      {
+        name: 'on_behalf_of',
+        type: 'string',
+        required: false,
+        description: `Optional 'on-behalf-of' header value to make this call from a parent account on behalf of one of its Subusers or customer accounts. Use 'account-id <account-id>' for a customer account, or the Subuser's username for a Subuser. Uses the parent account's API key.`,
       },
     ],
   },
@@ -946,6 +1199,72 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `The zip/postal code of the Sender's physical address.`,
+      },
+    ],
+  },
+  {
+    name: 'sendgrid_create_sender_identity',
+    description: `Create a new Sender Identity used by SendGrid's legacy Marketing Campaigns 'Campaigns' feature (you may create up to 100 unique Sender Identities). Requires nickname, address, city, and country; from and reply_to are optional but if provided must include at least an email address. Sender Identities must be verified before they can be used to send: if your domain has been authenticated, the new Sender Identity auto-verifies on creation; otherwise SendGrid emails a verification link to from.email. This is part of SendGrid's legacy Marketing Campaigns API (Contact DB / Campaigns). It remains fully operational, but SendGrid recommends new integrations use the current Marketing Campaigns tool instead ('Create a Sender', which manages the newer /v3/marketing/senders resource used by Single Sends). You can submit this request as one of your subusers by including their ID in the on_behalf_of field.`,
+    params: [
+      {
+        name: 'address',
+        type: 'string',
+        required: true,
+        description: `The physical street address of the Sender Identity. Required by CAN-SPAM regulations.`,
+      },
+      {
+        name: 'city',
+        type: 'string',
+        required: true,
+        description: `The city of the Sender Identity's physical address.`,
+      },
+      {
+        name: 'country',
+        type: 'string',
+        required: true,
+        description: `The country of the Sender Identity's physical address.`,
+      },
+      {
+        name: 'nickname',
+        type: 'string',
+        required: true,
+        description: `A nickname for the Sender Identity used only for internal identification in the SendGrid dashboard; it is never shown to email recipients.`,
+      },
+      {
+        name: 'address_2',
+        type: 'string',
+        required: false,
+        description: `Additional Sender Identity address information, such as a suite or unit number.`,
+      },
+      {
+        name: 'from',
+        type: 'object',
+        required: false,
+        description: `The address your recipients will see the email come from. Shape: {"email": "orders@example.com", "name": "Example Orders"}. If provided, email is required.`,
+      },
+      {
+        name: 'on_behalf_of',
+        type: 'string',
+        required: false,
+        description: `Optional 'on-behalf-of' header value to make this call from a parent account on behalf of one of its Subusers or customer accounts. Use 'account-id <account-id>' for a customer account, or the Subuser's username for a Subuser. Uses the parent account's API key.`,
+      },
+      {
+        name: 'reply_to',
+        type: 'object',
+        required: false,
+        description: `The address your recipients will reply to. Shape: {"email": "support@example.com", "name": "Example Support"}. If provided, email is required.`,
+      },
+      {
+        name: 'state',
+        type: 'string',
+        required: false,
+        description: `The state or region of the Sender Identity's physical address.`,
+      },
+      {
+        name: 'zip',
+        type: 'string',
+        required: false,
+        description: `The zip/postal code of the Sender Identity's physical address.`,
       },
     ],
   },
@@ -1436,6 +1755,24 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'sendgrid_delete_campaign',
+    description: `Permanently delete a Campaign from SendGrid's legacy Marketing Campaigns feature by its numeric campaign_id. Returns an empty body on success (HTTP 204). Obtain campaign_id from the 'Retrieve all Campaigns' tool. This is part of SendGrid's legacy Marketing Campaigns API (Contact DB / Campaigns). It remains fully operational, but SendGrid recommends new integrations use the current Marketing Campaigns tool instead ('Delete a Single Send', for /v3/marketing/singlesends). You can submit this request as one of your subusers by including their ID in the on_behalf_of field.`,
+    params: [
+      {
+        name: 'campaign_id',
+        type: 'integer',
+        required: true,
+        description: `The ID of the campaign you would like to delete. Obtain this from the 'Retrieve all Campaigns' tool's response.`,
+      },
+      {
+        name: 'on_behalf_of',
+        type: 'string',
+        required: false,
+        description: `Optional 'on-behalf-of' header value to make this call from a parent account on behalf of one of its Subusers or customer accounts. Use 'account-id <account-id>' for a customer account, or the Subuser's username for a Subuser. Uses the parent account's API key.`,
+      },
+    ],
+  },
+  {
     name: 'sendgrid_delete_contact_identifier',
     description: `Delete a single identifier (email, phone number ID, external ID, or anonymous ID) from a SendGrid Marketing Contact, without deleting the contact itself. The contact must have at least one identifier remaining after the deletion — if the contact only has one identifier, this request will fail asynchronously. Deletion is processed asynchronously; the response returns a job_id you can check via the Import Contacts Status tool.`,
     params: [
@@ -1492,6 +1829,126 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `The ID of the list to remove contacts from. Obtain this from the Get a List by ID tool's response (the "id" field).`,
+      },
+    ],
+  },
+  {
+    name: 'sendgrid_delete_contactdb_custom_field',
+    description: `Delete a custom field by ID from SendGrid's legacy Marketing Campaigns contact database (contactdb). Fails if the custom field is still in use by a segment condition. The delete is processed asynchronously (HTTP 202). Obtain custom_field_id from the 'Retrieve all custom fields' tool. This is part of SendGrid's legacy Marketing Campaigns API (Contact DB / Campaigns). It remains fully operational, but SendGrid recommends new integrations use the current Marketing Campaigns tool instead ('Delete a Field Definition', for /v3/marketing/field_definitions). You can submit this request as one of your subusers by including their ID in the on_behalf_of field.`,
+    params: [
+      {
+        name: 'custom_field_id',
+        type: 'integer',
+        required: true,
+        description: `The ID of the custom field to delete. Obtain this from the 'Retrieve all custom fields' tool's response.`,
+      },
+      {
+        name: 'on_behalf_of',
+        type: 'string',
+        required: false,
+        description: `Optional 'on-behalf-of' header value to make this call from a parent account on behalf of one of its Subusers or customer accounts. Use 'account-id <account-id>' for a customer account, or the Subuser's username for a Subuser. Uses the parent account's API key.`,
+      },
+    ],
+  },
+  {
+    name: 'sendgrid_delete_contactdb_list',
+    description: `Delete a single recipient list by ID from SendGrid's legacy Marketing Campaigns contact database (contactdb). Set delete_contacts to true to also delete every contact on the list from your entire contactdb, not just remove them from this list. Processed asynchronously (HTTP 202). Obtain list_id from the 'Retrieve all lists' tool. This is part of SendGrid's legacy Marketing Campaigns API (Contact DB / Campaigns). It remains fully operational, but SendGrid recommends new integrations use the current Marketing Campaigns tool instead ('Delete a List', for /v3/marketing/lists). You can submit this request as one of your subusers by including their ID in the on_behalf_of field.`,
+    params: [
+      {
+        name: 'list_id',
+        type: 'integer',
+        required: true,
+        description: `The ID of the list to delete. Obtain this from the 'Retrieve all lists' tool's response.`,
+      },
+      {
+        name: 'delete_contacts',
+        type: 'boolean',
+        required: false,
+        description: `If true, also permanently delete every contact on this list from your entire contactdb (not just remove them from the list). If false or omitted, only the list itself is deleted.`,
+      },
+      {
+        name: 'on_behalf_of',
+        type: 'string',
+        required: false,
+        description: `Optional 'on-behalf-of' header value to make this call from a parent account on behalf of one of its Subusers or customer accounts. Use 'account-id <account-id>' for a customer account, or the Subuser's username for a Subuser. Uses the parent account's API key.`,
+      },
+    ],
+  },
+  {
+    name: 'sendgrid_delete_contactdb_lists',
+    description: `Delete multiple recipient lists at once from SendGrid's legacy Marketing Campaigns contact database (contactdb), by their numeric IDs. This does not delete the recipients themselves, only the lists. Returns an empty body on success (HTTP 204). Obtain list IDs from the 'Retrieve all lists' tool. This is part of SendGrid's legacy Marketing Campaigns API (Contact DB / Campaigns). It remains fully operational, but SendGrid recommends new integrations use the current Marketing Campaigns tool instead ('Delete Multiple Lists', for /v3/marketing/lists). You can submit this request as one of your subusers by including their ID in the on_behalf_of field.`,
+    params: [
+      {
+        name: 'list_ids',
+        type: 'array',
+        required: true,
+        description: `The IDs of the lists to delete. Obtain these from the 'Retrieve all lists' tool's response.`,
+      },
+      {
+        name: 'on_behalf_of',
+        type: 'string',
+        required: false,
+        description: `Optional 'on-behalf-of' header value to make this call from a parent account on behalf of one of its Subusers or customer accounts. Use 'account-id <account-id>' for a customer account, or the Subuser's username for a Subuser. Uses the parent account's API key.`,
+      },
+    ],
+  },
+  {
+    name: 'sendgrid_delete_contactdb_recipient',
+    description: `Permanently delete a single recipient by ID from SendGrid's legacy Marketing Campaigns contact database (contactdb), removing them from all lists and segments. Use this where required by applicable privacy law. Returns an empty body on success (HTTP 204). Obtain recipient_id from the 'Retrieve recipients' tool. This is part of SendGrid's legacy Marketing Campaigns API (Contact DB / Campaigns). It remains fully operational, but SendGrid recommends new integrations use the current Marketing Campaigns tool instead ('Delete a Contact', for /v3/marketing/contacts). You can submit this request as one of your subusers by including their ID in the on_behalf_of field.`,
+    params: [
+      {
+        name: 'recipient_id',
+        type: 'string',
+        required: true,
+        description: `The ID (base64-encoded email address) of the recipient to delete. Obtain this from the 'Retrieve recipients' tool's response.`,
+      },
+      {
+        name: 'on_behalf_of',
+        type: 'string',
+        required: false,
+        description: `Optional 'on-behalf-of' header value to make this call from a parent account on behalf of one of its Subusers or customer accounts. Use 'account-id <account-id>' for a customer account, or the Subuser's username for a Subuser. Uses the parent account's API key.`,
+      },
+    ],
+  },
+  {
+    name: 'sendgrid_delete_contactdb_recipients',
+    description: `Permanently delete one or more recipients, by ID, from SendGrid's legacy Marketing Campaigns contact database (contactdb). Use this to remove recipients from all lists and segments at once, including where required by applicable privacy law. Obtain recipient IDs from the 'Retrieve recipients' tool. This is part of SendGrid's legacy Marketing Campaigns API (Contact DB / Campaigns). It remains fully operational, but SendGrid recommends new integrations use the current Marketing Campaigns tool instead ('Delete Contacts', for /v3/marketing/contacts). You can submit this request as one of your subusers by including their ID in the on_behalf_of field.`,
+    params: [
+      {
+        name: 'recipient_ids',
+        type: 'array',
+        required: true,
+        description: `The IDs (base64-encoded email addresses) of the recipients to delete. Obtain these from the 'Retrieve recipients' tool's response.`,
+      },
+      {
+        name: 'on_behalf_of',
+        type: 'string',
+        required: false,
+        description: `Optional 'on-behalf-of' header value to make this call from a parent account on behalf of one of its Subusers or customer accounts. Use 'account-id <account-id>' for a customer account, or the Subuser's username for a Subuser. Uses the parent account's API key.`,
+      },
+    ],
+  },
+  {
+    name: 'sendgrid_delete_contactdb_segment',
+    description: `Delete a segment by ID from SendGrid's legacy Marketing Campaigns contact database (contactdb). Set delete_contacts to true to also delete every recipient matching the segment from your entire contactdb, not just the segment definition. Returns an empty body on success (HTTP 204). Obtain segment_id from the 'Retrieve all segments' tool. This is part of SendGrid's legacy Marketing Campaigns API (Contact DB / Campaigns). It remains fully operational, but SendGrid recommends new integrations use the current Marketing Campaigns tool instead ('Delete a Segment', for /v3/marketing/segments/2.0). You can submit this request as one of your subusers by including their ID in the on_behalf_of field.`,
+    params: [
+      {
+        name: 'segment_id',
+        type: 'integer',
+        required: true,
+        description: `The ID of the segment to delete. Obtain this from the 'Retrieve all segments' tool's response.`,
+      },
+      {
+        name: 'delete_contacts',
+        type: 'boolean',
+        required: false,
+        description: `If true, also permanently delete every recipient matching this segment from your entire contactdb. If false or omitted, only the segment definition is deleted.`,
+      },
+      {
+        name: 'on_behalf_of',
+        type: 'string',
+        required: false,
+        description: `Optional 'on-behalf-of' header value to make this call from a parent account on behalf of one of its Subusers or customer accounts. Use 'account-id <account-id>' for a customer account, or the Subuser's username for a Subuser. Uses the parent account's API key.`,
       },
     ],
   },
@@ -1748,6 +2205,30 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'sendgrid_delete_recipient_from_contactdb_list',
+    description: `Remove a single recipient from a single list in SendGrid's legacy Marketing Campaigns contact database (contactdb), without deleting the recipient from your contactdb entirely. Returns an empty body on success (HTTP 204). Obtain list_id from the 'Retrieve all lists' tool and recipient_id from the 'Retrieve recipients' tool. This is part of SendGrid's legacy Marketing Campaigns API (Contact DB / Campaigns). It remains fully operational, but SendGrid recommends new integrations use the current Marketing Campaigns tool instead ('Remove a Contact from a List', for /v3/marketing/lists). You can submit this request as one of your subusers by including their ID in the on_behalf_of field.`,
+    params: [
+      {
+        name: 'list_id',
+        type: 'integer',
+        required: true,
+        description: `The ID of the list to remove the recipient from. Obtain this from the 'Retrieve all lists' tool's response.`,
+      },
+      {
+        name: 'recipient_id',
+        type: 'string',
+        required: true,
+        description: `The ID (base64-encoded email address) of the recipient to remove from this list. Obtain this from the 'Retrieve recipients' tool's response.`,
+      },
+      {
+        name: 'on_behalf_of',
+        type: 'string',
+        required: false,
+        description: `Optional 'on-behalf-of' header value to make this call from a parent account on behalf of one of its Subusers or customer accounts. Use 'account-id <account-id>' for a customer account, or the Subuser's username for a Subuser. Uses the parent account's API key.`,
+      },
+    ],
+  },
+  {
     name: 'sendgrid_delete_reverse_dns',
     description: `Permanently delete a Reverse DNS record from SendGrid, identified by id. This action cannot be undone. Obtain the id from the 'List Reverse DNS Records' tool's response (the 'id' field). Returns an empty body on success (HTTP 204).`,
     params: [
@@ -1852,6 +2333,24 @@ export const tools: Tool[] = [
         type: 'integer',
         required: true,
         description: `The unique numeric identifier of the Sender to delete. Obtain this from the 'Get a List of All Senders' tool's response (the 'id' field).`,
+      },
+      {
+        name: 'on_behalf_of',
+        type: 'string',
+        required: false,
+        description: `Optional 'on-behalf-of' header value to make this call from a parent account on behalf of one of its Subusers or customer accounts. Use 'account-id <account-id>' for a customer account, or the Subuser's username for a Subuser. Uses the parent account's API key.`,
+      },
+    ],
+  },
+  {
+    name: 'sendgrid_delete_sender_identity',
+    description: `Permanently delete a Sender Identity used by SendGrid's legacy Marketing Campaigns 'Campaigns' feature, by its numeric sender_id. A locked Sender Identity (one associated with a campaign in Draft, Scheduled, or In Progress status) cannot be deleted. Returns an empty body on success (HTTP 204). Obtain sender_id from the 'Get a List of All Sender Identities' tool. This is part of SendGrid's legacy Marketing Campaigns API (Contact DB / Campaigns). It remains fully operational, but SendGrid recommends new integrations use the current Marketing Campaigns tool instead ('Delete a Sender', for /v3/marketing/senders). You can submit this request as one of your subusers by including their ID in the on_behalf_of field.`,
+    params: [
+      {
+        name: 'sender_id',
+        type: 'integer',
+        required: true,
+        description: `The numeric ID of the Sender Identity to delete. Obtain this from the 'Get a List of All Sender Identities' tool's response (the 'id' field).`,
       },
       {
         name: 'on_behalf_of',
@@ -2624,6 +3123,42 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'sendgrid_get_campaign',
+    description: `Retrieve a single Campaign from SendGrid's legacy Marketing Campaigns feature by its numeric campaign_id. Obtain campaign_id from the 'Retrieve all Campaigns' tool. This is part of SendGrid's legacy Marketing Campaigns API (Contact DB / Campaigns). It remains fully operational, but SendGrid recommends new integrations use the current Marketing Campaigns tool instead ('Get a Single Send', for /v3/marketing/singlesends). You can submit this request as one of your subusers by including their ID in the on_behalf_of field.`,
+    params: [
+      {
+        name: 'campaign_id',
+        type: 'integer',
+        required: true,
+        description: `The ID of the campaign you would like to retrieve. Obtain this from the 'Retrieve all Campaigns' tool's response.`,
+      },
+      {
+        name: 'on_behalf_of',
+        type: 'string',
+        required: false,
+        description: `Optional 'on-behalf-of' header value to make this call from a parent account on behalf of one of its Subusers or customer accounts. Use 'account-id <account-id>' for a customer account, or the Subuser's username for a Subuser. Uses the parent account's API key.`,
+      },
+    ],
+  },
+  {
+    name: 'sendgrid_get_campaign_schedule',
+    description: `Retrieve the date and time a Campaign in SendGrid's legacy Marketing Campaigns feature has been scheduled to be sent. Obtain campaign_id from the 'Retrieve all Campaigns' tool. This is part of SendGrid's legacy Marketing Campaigns API (Contact DB / Campaigns). It remains fully operational, but SendGrid recommends new integrations use the current Marketing Campaigns tool instead ('Get Scheduled Time of a Single Send', for /v3/marketing/singlesends). You can submit this request as one of your subusers by including their ID in the on_behalf_of field.`,
+    params: [
+      {
+        name: 'campaign_id',
+        type: 'integer',
+        required: true,
+        description: `The ID of the campaign whose scheduled time you want to view. Obtain this from the 'Retrieve all Campaigns' tool's response.`,
+      },
+      {
+        name: 'on_behalf_of',
+        type: 'string',
+        required: false,
+        description: `Optional 'on-behalf-of' header value to make this call from a parent account on behalf of one of its Subusers or customer accounts. Use 'account-id <account-id>' for a customer account, or the Subuser's username for a Subuser. Uses the parent account's API key.`,
+      },
+    ],
+  },
+  {
     name: 'sendgrid_get_client_stat',
     description: `Retrieve email statistics segmented by a single specific client type: phone, tablet, webmail, or desktop. SendGrid only stores up to 7 days of email activity; up to 500 items are returned per request. Use start_date (required) and optionally end_date to bound the range, and aggregated_by to group results by day, week, or month. You can also call this on behalf of a Subuser or parent-account customer using on_behalf_of.`,
     params: [
@@ -2686,6 +3221,102 @@ export const tools: Tool[] = [
         type: 'array',
         required: true,
         description: `One or more identifier values of the given identifier_type to search for among your Marketing Contacts. Example: ["jane_doe@example.com"] when identifier_type is "email".`,
+      },
+    ],
+  },
+  {
+    name: 'sendgrid_get_contactdb_custom_field',
+    description: `Retrieve a single custom field by ID from SendGrid's legacy Marketing Campaigns contact database (contactdb). Obtain custom_field_id from the 'Retrieve all custom fields' tool. This is part of SendGrid's legacy Marketing Campaigns API (Contact DB / Campaigns). It remains fully operational, but SendGrid recommends new integrations use the current Marketing Campaigns tool instead ('Get a Field Definition', for /v3/marketing/field_definitions). You can submit this request as one of your subusers by including their ID in the on_behalf_of field.`,
+    params: [
+      {
+        name: 'custom_field_id',
+        type: 'integer',
+        required: true,
+        description: `The ID of the custom field to retrieve. Obtain this from the 'Retrieve all custom fields' tool's response.`,
+      },
+      {
+        name: 'on_behalf_of',
+        type: 'string',
+        required: false,
+        description: `Optional 'on-behalf-of' header value to make this call from a parent account on behalf of one of its Subusers or customer accounts. Use 'account-id <account-id>' for a customer account, or the Subuser's username for a Subuser. Uses the parent account's API key.`,
+      },
+    ],
+  },
+  {
+    name: 'sendgrid_get_contactdb_export',
+    description: `Check the status of a specific recipient export job from SendGrid's legacy Marketing Campaigns contact database (contactdb), using the job id returned by the 'Export Recipients' tool. Once status is 'ready', download each file listed in 'urls' with a GET request. SendGrid recommends exporting recipients regularly as a backup. Note: unlike most contactdb endpoints, this one does not support the on-behalf-of header.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The ID of the export job to check. Obtain this from the 'Export Recipients' tool's response.`,
+      },
+    ],
+  },
+  {
+    name: 'sendgrid_get_contactdb_list',
+    description: `Retrieve a single recipient list by ID from SendGrid's legacy Marketing Campaigns contact database (contactdb). Obtain list_id from the 'Retrieve all lists' tool. This is part of SendGrid's legacy Marketing Campaigns API (Contact DB / Campaigns). It remains fully operational, but SendGrid recommends new integrations use the current Marketing Campaigns tool instead ('Get a List', for /v3/marketing/lists). You can submit this request as one of your subusers by including their ID in the on_behalf_of field.`,
+    params: [
+      {
+        name: 'list_id',
+        type: 'integer',
+        required: true,
+        description: `The ID of the list to retrieve. Obtain this from the 'Retrieve all lists' tool's response.`,
+      },
+      {
+        name: 'on_behalf_of',
+        type: 'string',
+        required: false,
+        description: `Optional 'on-behalf-of' header value to make this call from a parent account on behalf of one of its Subusers or customer accounts. Use 'account-id <account-id>' for a customer account, or the Subuser's username for a Subuser. Uses the parent account's API key.`,
+      },
+    ],
+  },
+  {
+    name: 'sendgrid_get_contactdb_recipient',
+    description: `Retrieve a single recipient by ID from SendGrid's legacy Marketing Campaigns contact database (contactdb). Obtain recipient_id from the 'Retrieve recipients' tool. This is part of SendGrid's legacy Marketing Campaigns API (Contact DB / Campaigns). It remains fully operational, but SendGrid recommends new integrations use the current Marketing Campaigns tool instead ('Get a Contact by ID', for /v3/marketing/contacts). You can submit this request as one of your subusers by including their ID in the on_behalf_of field.`,
+    params: [
+      {
+        name: 'recipient_id',
+        type: 'string',
+        required: true,
+        description: `The ID (base64-encoded email address) of the recipient to retrieve. Obtain this from the 'Retrieve recipients' tool's response.`,
+      },
+      {
+        name: 'on_behalf_of',
+        type: 'string',
+        required: false,
+        description: `Optional 'on-behalf-of' header value to make this call from a parent account on behalf of one of its Subusers or customer accounts. Use 'account-id <account-id>' for a customer account, or the Subuser's username for a Subuser. Uses the parent account's API key.`,
+      },
+    ],
+  },
+  {
+    name: 'sendgrid_get_contactdb_segment',
+    description: `Retrieve a single segment by ID from SendGrid's legacy Marketing Campaigns contact database (contactdb). Obtain segment_id from the 'Retrieve all segments' tool. This is part of SendGrid's legacy Marketing Campaigns API (Contact DB / Campaigns). It remains fully operational, but SendGrid recommends new integrations use the current Marketing Campaigns tool instead ('Get a Segment', for /v3/marketing/segments/2.0). You can submit this request as one of your subusers by including their ID in the on_behalf_of field.`,
+    params: [
+      {
+        name: 'segment_id',
+        type: 'integer',
+        required: true,
+        description: `The ID of the segment to retrieve. Obtain this from the 'Retrieve all segments' tool's response.`,
+      },
+      {
+        name: 'on_behalf_of',
+        type: 'string',
+        required: false,
+        description: `Optional 'on-behalf-of' header value to make this call from a parent account on behalf of one of its Subusers or customer accounts. Use 'account-id <account-id>' for a customer account, or the Subuser's username for a Subuser. Uses the parent account's API key.`,
+      },
+    ],
+  },
+  {
+    name: 'sendgrid_get_contactdb_upload_status',
+    description: `Check the current recipient-upload processing status of SendGrid's legacy Marketing Campaigns contact database (contactdb), e.g. whether uploads (via the 'Add recipients' tool) are being processed normally or are delayed, and by how many seconds. This is part of SendGrid's legacy Marketing Campaigns API (Contact DB / Campaigns). It remains fully operational, but SendGrid recommends new integrations use the current Marketing Campaigns tool instead (there is no direct equivalent for /v3/marketing/contacts, which processes uploads asynchronously via job IDs instead). You can submit this request as one of your subusers by including their ID in the on_behalf_of field.`,
+    params: [
+      {
+        name: 'on_behalf_of',
+        type: 'string',
+        required: false,
+        description: `Optional 'on-behalf-of' header value to make this call from a parent account on behalf of one of its Subusers or customer accounts. Use 'account-id <account-id>' for a customer account, or the Subuser's username for a Subuser. Uses the parent account's API key.`,
       },
     ],
   },
@@ -3057,6 +3688,24 @@ export const tools: Tool[] = [
         type: 'integer',
         required: true,
         description: `The unique numeric identifier of the Sender to retrieve. Obtain this from the 'Get a List of All Senders' tool's response (the 'id' field).`,
+      },
+      {
+        name: 'on_behalf_of',
+        type: 'string',
+        required: false,
+        description: `Optional 'on-behalf-of' header value to make this call from a parent account on behalf of one of its Subusers or customer accounts. Use 'account-id <account-id>' for a customer account, or the Subuser's username for a Subuser. Uses the parent account's API key.`,
+      },
+    ],
+  },
+  {
+    name: 'sendgrid_get_sender_identity',
+    description: `Retrieve a single Sender Identity from SendGrid's legacy Marketing Campaigns 'Campaigns' feature by its numeric sender_id. Obtain sender_id from the 'Get a List of All Sender Identities' tool. This is part of SendGrid's legacy Marketing Campaigns API (Contact DB / Campaigns). It remains fully operational, but SendGrid recommends new integrations use the current Marketing Campaigns tool instead ('View a Sender', for /v3/marketing/senders). You can submit this request as one of your subusers by including their ID in the on_behalf_of field.`,
+    params: [
+      {
+        name: 'sender_id',
+        type: 'integer',
+        required: true,
+        description: `The numeric ID of the Sender Identity to retrieve. Obtain this from the 'Get a List of All Sender Identities' tool's response (the 'id' field).`,
       },
       {
         name: 'on_behalf_of',
@@ -3766,6 +4415,30 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'sendgrid_list_campaign',
+    description: `Retrieve a paginated list of all Campaigns in SendGrid's legacy Marketing Campaigns feature, newest first. Returns an empty array if no campaigns exist. Use limit to set the page size and offset to page through additional results. This is part of SendGrid's legacy Marketing Campaigns API (Contact DB / Campaigns). It remains fully operational, but SendGrid recommends new integrations use the current Marketing Campaigns tool instead ('Get all Single Sends', for /v3/marketing/singlesends). You can submit this request as one of your subusers by including their ID in the on_behalf_of field.`,
+    params: [
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `The maximum number of campaigns to return for this page. Defaults to 10 if omitted.`,
+      },
+      {
+        name: 'offset',
+        type: 'integer',
+        required: false,
+        description: `The number of campaigns to skip before starting to return results, for pagination. 0 is the first page.`,
+      },
+      {
+        name: 'on_behalf_of',
+        type: 'string',
+        required: false,
+        description: `Optional 'on-behalf-of' header value to make this call from a parent account on behalf of one of its Subusers or customer accounts. Use 'account-id <account-id>' for a customer account, or the Subuser's username for a Subuser. Uses the parent account's API key.`,
+      },
+    ],
+  },
+  {
     name: 'sendgrid_list_category_mc_singlesends',
     description: `Retrieve all the categories associated with your Twilio SendGrid Marketing Campaigns Single Sends. Returns your latest 1,000 unique categories in ascending order. Use this to discover valid category values before calling the Search Single Send tool with a categories filter, or before creating/updating a Single Send with categories. No parameters are required.`,
     params: [],
@@ -4017,6 +4690,185 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `The ID of the list to get the contact count for. Obtain this from the Get a List by ID tool's response (the "id" field).`,
+      },
+    ],
+  },
+  {
+    name: 'sendgrid_list_contactdb_custom_field',
+    description: `Retrieve all custom fields defined on SendGrid's legacy Marketing Campaigns contact database (contactdb). Each entry includes its id, name, and type. This is part of SendGrid's legacy Marketing Campaigns API (Contact DB / Campaigns). It remains fully operational, but SendGrid recommends new integrations use the current Marketing Campaigns tool instead ('Get all Field Definitions', for /v3/marketing/field_definitions). You can submit this request as one of your subusers by including their ID in the on_behalf_of field.`,
+    params: [
+      {
+        name: 'on_behalf_of',
+        type: 'string',
+        required: false,
+        description: `Optional 'on-behalf-of' header value to make this call from a parent account on behalf of one of its Subusers or customer accounts. Use 'account-id <account-id>' for a customer account, or the Subuser's username for a Subuser. Uses the parent account's API key.`,
+      },
+    ],
+  },
+  {
+    name: 'sendgrid_list_contactdb_export',
+    description: `Retrieve details of every recipient export job (in flight or recently completed) for SendGrid's legacy Marketing Campaigns contact database (contactdb). Each entry's export_type shows what kind of export it is (contacts_export, list_export, or segment_export) and status shows its stage (pending, ready, or failure); entries with status 'ready' include download 'urls'. Use this if you have exports in flight but don't know their job IDs. Note: unlike most contactdb endpoints, this one does not support the on-behalf-of header.`,
+    params: [],
+  },
+  {
+    name: 'sendgrid_list_contactdb_list',
+    description: `Retrieve all recipient lists in SendGrid's legacy Marketing Campaigns contact database (contactdb). Returns an empty array if you have no lists. This is part of SendGrid's legacy Marketing Campaigns API (Contact DB / Campaigns). It remains fully operational, but SendGrid recommends new integrations use the current Marketing Campaigns tool instead ('Get all Lists', for /v3/marketing/lists). You can submit this request as one of your subusers by including their ID in the on_behalf_of field.`,
+    params: [
+      {
+        name: 'on_behalf_of',
+        type: 'string',
+        required: false,
+        description: `Optional 'on-behalf-of' header value to make this call from a parent account on behalf of one of its Subusers or customer accounts. Use 'account-id <account-id>' for a customer account, or the Subuser's username for a Subuser. Uses the parent account's API key.`,
+      },
+    ],
+  },
+  {
+    name: 'sendgrid_list_contactdb_list_recipients',
+    description: `Retrieve all recipients on a single list from SendGrid's legacy Marketing Campaigns contact database (contactdb), paginated. Use page and page_size to page through results. Obtain list_id from the 'Retrieve all lists' tool. This is part of SendGrid's legacy Marketing Campaigns API (Contact DB / Campaigns). It remains fully operational, but SendGrid recommends new integrations use the current Marketing Campaigns tool instead ('Get Contacts on a List', for /v3/marketing/lists). You can submit this request as one of your subusers by including their ID in the on_behalf_of field.`,
+    params: [
+      {
+        name: 'list_id',
+        type: 'integer',
+        required: true,
+        description: `The ID of the list whose recipients you want to retrieve. Obtain this from the 'Retrieve all lists' tool's response.`,
+      },
+      {
+        name: 'on_behalf_of',
+        type: 'string',
+        required: false,
+        description: `Optional 'on-behalf-of' header value to make this call from a parent account on behalf of one of its Subusers or customer accounts. Use 'account-id <account-id>' for a customer account, or the Subuser's username for a Subuser. Uses the parent account's API key.`,
+      },
+      {
+        name: 'page',
+        type: 'integer',
+        required: false,
+        description: `Page index of the first recipient to return. Must be a positive integer.`,
+      },
+      {
+        name: 'page_size',
+        type: 'integer',
+        required: false,
+        description: `Number of recipients to return per page. Must be between 1 and 1000.`,
+      },
+    ],
+  },
+  {
+    name: 'sendgrid_list_contactdb_recipient',
+    description: `Retrieve all recipients in SendGrid's legacy Marketing Campaigns contact database (contactdb), paginated. Because deleting a page of recipients can produce an empty page before the true end of the list, keep paging with increasing 'page' values until you get a 404 rather than stopping at the first empty page. This is part of SendGrid's legacy Marketing Campaigns API (Contact DB / Campaigns). It remains fully operational, but SendGrid recommends new integrations use the current Marketing Campaigns tool instead ('Get all Contacts', for /v3/marketing/contacts). You can submit this request as one of your subusers by including their ID in the on_behalf_of field.`,
+    params: [
+      {
+        name: 'on_behalf_of',
+        type: 'string',
+        required: false,
+        description: `Optional 'on-behalf-of' header value to make this call from a parent account on behalf of one of its Subusers or customer accounts. Use 'account-id <account-id>' for a customer account, or the Subuser's username for a Subuser. Uses the parent account's API key.`,
+      },
+      {
+        name: 'page',
+        type: 'integer',
+        required: false,
+        description: `Page index of the first recipient to return. Must be a positive integer.`,
+      },
+      {
+        name: 'page_size',
+        type: 'integer',
+        required: false,
+        description: `Number of recipients to return per page. Must be between 1 and 1000.`,
+      },
+    ],
+  },
+  {
+    name: 'sendgrid_list_contactdb_recipient_billable_count',
+    description: `Retrieve the number of recipients in SendGrid's legacy Marketing Campaigns contact database (contactdb) that you are billed for — the highest number of recipients your account has ever held at one time. This is part of SendGrid's legacy Marketing Campaigns API (Contact DB / Campaigns). It remains fully operational, but SendGrid recommends new integrations use the current Marketing Campaigns tool instead ('Get all Contacts Count', for /v3/marketing/contacts, though billing counts may differ in definition). You can submit this request as one of your subusers by including their ID in the on_behalf_of field.`,
+    params: [
+      {
+        name: 'on_behalf_of',
+        type: 'string',
+        required: false,
+        description: `Optional 'on-behalf-of' header value to make this call from a parent account on behalf of one of its Subusers or customer accounts. Use 'account-id <account-id>' for a customer account, or the Subuser's username for a Subuser. Uses the parent account's API key.`,
+      },
+    ],
+  },
+  {
+    name: 'sendgrid_list_contactdb_recipient_count',
+    description: `Retrieve the total number of recipients currently in SendGrid's legacy Marketing Campaigns contact database (contactdb). This is part of SendGrid's legacy Marketing Campaigns API (Contact DB / Campaigns). It remains fully operational, but SendGrid recommends new integrations use the current Marketing Campaigns tool instead ('Get all Contacts Count', for /v3/marketing/contacts). You can submit this request as one of your subusers by including their ID in the on_behalf_of field.`,
+    params: [
+      {
+        name: 'on_behalf_of',
+        type: 'string',
+        required: false,
+        description: `Optional 'on-behalf-of' header value to make this call from a parent account on behalf of one of its Subusers or customer accounts. Use 'account-id <account-id>' for a customer account, or the Subuser's username for a Subuser. Uses the parent account's API key.`,
+      },
+    ],
+  },
+  {
+    name: 'sendgrid_list_contactdb_recipient_lists',
+    description: `Retrieve every list a given recipient belongs to in SendGrid's legacy Marketing Campaigns contact database (contactdb). Obtain recipient_id from the 'Retrieve recipients' tool. This is part of SendGrid's legacy Marketing Campaigns API (Contact DB / Campaigns). It remains fully operational, but SendGrid recommends new integrations use the current Marketing Campaigns tool instead ('Get Lists a Contact Belongs to', for /v3/marketing/contacts). You can submit this request as one of your subusers by including their ID in the on_behalf_of field.`,
+    params: [
+      {
+        name: 'recipient_id',
+        type: 'string',
+        required: true,
+        description: `The ID (base64-encoded email address) of the recipient whose lists you want to retrieve. Obtain this from the 'Retrieve recipients' tool's response.`,
+      },
+      {
+        name: 'on_behalf_of',
+        type: 'string',
+        required: false,
+        description: `Optional 'on-behalf-of' header value to make this call from a parent account on behalf of one of its Subusers or customer accounts. Use 'account-id <account-id>' for a customer account, or the Subuser's username for a Subuser. Uses the parent account's API key.`,
+      },
+    ],
+  },
+  {
+    name: 'sendgrid_list_contactdb_reserved_field',
+    description: `List all field names that are reserved by SendGrid's legacy Marketing Campaigns contact database (contactdb) and therefore cannot be used as a custom field name — e.g. first_name, last_name, email, created_at, updated_at, last_emailed, last_clicked, last_opened, lists, campaigns. Check this before creating a custom field. This is part of SendGrid's legacy Marketing Campaigns API (Contact DB / Campaigns). It remains fully operational, but SendGrid recommends new integrations use the current Marketing Campaigns tool instead ('Get all Field Definitions', which separates reserved fields from custom fields for /v3/marketing/field_definitions). You can submit this request as one of your subusers by including their ID in the on_behalf_of field.`,
+    params: [
+      {
+        name: 'on_behalf_of',
+        type: 'string',
+        required: false,
+        description: `Optional 'on-behalf-of' header value to make this call from a parent account on behalf of one of its Subusers or customer accounts. Use 'account-id <account-id>' for a customer account, or the Subuser's username for a Subuser. Uses the parent account's API key.`,
+      },
+    ],
+  },
+  {
+    name: 'sendgrid_list_contactdb_segment',
+    description: `Retrieve all segments in SendGrid's legacy Marketing Campaigns contact database (contactdb), including their conditions and recipient counts. This is part of SendGrid's legacy Marketing Campaigns API (Contact DB / Campaigns). It remains fully operational, but SendGrid recommends new integrations use the current Marketing Campaigns tool instead ('Get List of Segments', for /v3/marketing/segments/2.0). You can submit this request as one of your subusers by including their ID in the on_behalf_of field.`,
+    params: [
+      {
+        name: 'on_behalf_of',
+        type: 'string',
+        required: false,
+        description: `Optional 'on-behalf-of' header value to make this call from a parent account on behalf of one of its Subusers or customer accounts. Use 'account-id <account-id>' for a customer account, or the Subuser's username for a Subuser. Uses the parent account's API key.`,
+      },
+    ],
+  },
+  {
+    name: 'sendgrid_list_contactdb_segment_recipients',
+    description: `Retrieve all recipients in a segment from SendGrid's legacy Marketing Campaigns contact database (contactdb), paginated. Obtain segment_id from the 'Retrieve all segments' tool. This is part of SendGrid's legacy Marketing Campaigns API (Contact DB / Campaigns). It remains fully operational, but SendGrid recommends new integrations use the current Marketing Campaigns tool instead ('Get Contacts by Segment ID', for /v3/marketing/segments). You can submit this request as one of your subusers by including their ID in the on_behalf_of field.`,
+    params: [
+      {
+        name: 'segment_id',
+        type: 'integer',
+        required: true,
+        description: `The ID of the segment whose recipients you want to retrieve. Obtain this from the 'Retrieve all segments' tool's response.`,
+      },
+      {
+        name: 'on_behalf_of',
+        type: 'string',
+        required: false,
+        description: `Optional 'on-behalf-of' header value to make this call from a parent account on behalf of one of its Subusers or customer accounts. Use 'account-id <account-id>' for a customer account, or the Subuser's username for a Subuser. Uses the parent account's API key.`,
+      },
+      {
+        name: 'page',
+        type: 'integer',
+        required: false,
+        description: `Page index of the first recipient to return.`,
+      },
+      {
+        name: 'page_size',
+        type: 'integer',
+        required: false,
+        description: `Number of recipients to return per page.`,
       },
     ],
   },
@@ -5042,6 +5894,18 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'sendgrid_list_sender_identity',
+    description: `Retrieve a list of all Sender Identities configured for SendGrid's legacy Marketing Campaigns 'Campaigns' feature on this account. Each returned Sender Identity includes its id, nickname, from/reply_to addresses, physical address, verified and locked flags, and timestamps. No parameters are required. This is part of SendGrid's legacy Marketing Campaigns API (Contact DB / Campaigns). It remains fully operational, but SendGrid recommends new integrations use the current Marketing Campaigns tool instead ('Get a List of All Senders', for /v3/marketing/senders). You can submit this request as one of your subusers by including their ID in the on_behalf_of field.`,
+    params: [
+      {
+        name: 'on_behalf_of',
+        type: 'string',
+        required: false,
+        description: `Optional 'on-behalf-of' header value to make this call from a parent account on behalf of one of its Subusers or customer accounts. Use 'account-id <account-id>' for a customer account, or the Subuser's username for a Subuser. Uses the parent account's API key.`,
+      },
+    ],
+  },
+  {
     name: 'sendgrid_list_single_send',
     description: `Retrieve all of your Twilio SendGrid Marketing Campaigns Single Sends (one-time marketing email campaigns). Returns condensed details for each Single Send, including its id, name, status (draft/scheduled/triggered), categories, is_abtest, send_at, and timestamps. Use page_size and page_token to page through results when you have many Single Sends. For the full details of one Single Send (including its email_config and send_to targeting), pass its id to the Get Single Send by ID tool.`,
     params: [
@@ -5849,6 +6713,24 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'sendgrid_reset_sender_identity_verification',
+    description: `Resend the verification email for a specific unverified Sender Identity used by SendGrid's legacy Marketing Campaigns 'Campaigns' feature, by its numeric sender_id. Use this if the original verification email was lost, expired, or never received. Returns an empty body on success (HTTP 204). Obtain sender_id from the 'Get a List of All Sender Identities' tool. This is part of SendGrid's legacy Marketing Campaigns API (Contact DB / Campaigns). It remains fully operational, but SendGrid recommends new integrations use the current Marketing Campaigns tool instead ('Resend a Sender Verification', for /v3/marketing/senders). You can submit this request as one of your subusers by including their ID in the on_behalf_of field.`,
+    params: [
+      {
+        name: 'sender_id',
+        type: 'integer',
+        required: true,
+        description: `The numeric ID of the Sender Identity whose verification email should be resent. Obtain this from the 'Get a List of All Sender Identities' tool's response (the 'id' field).`,
+      },
+      {
+        name: 'on_behalf_of',
+        type: 'string',
+        required: false,
+        description: `Optional 'on-behalf-of' header value to make this call from a parent account on behalf of one of its Subusers or customer accounts. Use 'account-id <account-id>' for a customer account, or the Subuser's username for a Subuser. Uses the parent account's API key.`,
+      },
+    ],
+  },
+  {
     name: 'sendgrid_reset_sender_verification',
     description: `Resend the verification email for a specific unverified Sender identity by its numeric id. Use this if the original verification email was lost, expired, or never received. Returns an empty body on success (HTTP 204). Obtain the id from the 'Get a List of All Senders' tool. You can submit this request as one of your subusers by including their ID in the on_behalf_of field.`,
     params: [
@@ -5857,6 +6739,30 @@ export const tools: Tool[] = [
         type: 'integer',
         required: true,
         description: `The unique numeric identifier of the Sender whose verification email should be resent. Obtain this from the 'Get a List of All Senders' tool's response (the 'id' field).`,
+      },
+      {
+        name: 'on_behalf_of',
+        type: 'string',
+        required: false,
+        description: `Optional 'on-behalf-of' header value to make this call from a parent account on behalf of one of its Subusers or customer accounts. Use 'account-id <account-id>' for a customer account, or the Subuser's username for a Subuser. Uses the parent account's API key.`,
+      },
+    ],
+  },
+  {
+    name: 'sendgrid_schedule_campaign',
+    description: `Schedule a specific date and time for a Draft Campaign in SendGrid's legacy Marketing Campaigns feature to be sent. If you have the flexibility, scheduling for off-peak times (avoiding the top and bottom of the hour) can lower deferral rates. Obtain campaign_id from the 'Retrieve all Campaigns' tool. This is part of SendGrid's legacy Marketing Campaigns API (Contact DB / Campaigns). It remains fully operational, but SendGrid recommends new integrations use the current Marketing Campaigns tool instead ('Schedule a Single Send', for /v3/marketing/singlesends). You can submit this request as one of your subusers by including their ID in the on_behalf_of field.`,
+    params: [
+      {
+        name: 'campaign_id',
+        type: 'integer',
+        required: true,
+        description: `The ID of the campaign you would like to schedule. Obtain this from the 'Retrieve all Campaigns' tool's response.`,
+      },
+      {
+        name: 'send_at',
+        type: 'integer',
+        required: true,
+        description: `The Unix timestamp for the date and time you would like this campaign to be sent.`,
       },
       {
         name: 'on_behalf_of',
@@ -5893,6 +6799,48 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `An SGQL (Segmentation Query Language) search string used to match contacts. Email address comparisons must use lower-case values. Example: "email LIKE 'jane%' AND CONTAINS(list_ids, 'e2f2f214-6c17-4562-add9-4a4b41ea6d90')".`,
+      },
+    ],
+  },
+  {
+    name: 'sendgrid_search_contactdb_recipient',
+    description: `Search recipients in SendGrid's legacy Marketing Campaigns contact database (contactdb) using the same condition structure as segments, without creating a saved segment. Provide 'list_id' to scope the search to one list, and 'conditions' (field, value, operator, and_or) to filter — valid operators depend on field type: dates support eq/ne/lt(before)/gt(after)/empty/not_empty; text supports contains/eq/ne/empty/not_empty; numbers support eq/lt/gt/empty/not_empty; email clicks/opens (field 'clicks.campaign_identifier' or 'opens.campaign_identifier') support eq(opened)/ne(not opened). The first condition must have and_or of '' and every subsequent condition must specify 'and' or 'or'. All condition values must be strings. This is part of SendGrid's legacy Marketing Campaigns API (Contact DB / Campaigns). It remains fully operational, but SendGrid recommends new integrations use the current Marketing Campaigns tool instead ('Search Contacts', for /v3/marketing/contacts/search). You can submit this request as one of your subusers by including their ID in the on_behalf_of field.`,
+    params: [
+      {
+        name: 'conditions',
+        type: 'array',
+        required: true,
+        description: `The conditions a recipient must match to be included in the results.`,
+      },
+      {
+        name: 'list_id',
+        type: 'integer',
+        required: true,
+        description: `The ID of the contactdb list to limit this search to. Obtain this from the 'Retrieve all lists' tool.`,
+      },
+      {
+        name: 'on_behalf_of',
+        type: 'string',
+        required: false,
+        description: `Optional 'on-behalf-of' header value to make this call from a parent account on behalf of one of its Subusers or customer accounts. Use 'account-id <account-id>' for a customer account, or the Subuser's username for a Subuser. Uses the parent account's API key.`,
+      },
+    ],
+  },
+  {
+    name: 'sendgrid_search_contactdb_recipients_by_field',
+    description: `Search SendGrid's legacy Marketing Campaigns contact database (contactdb) for recipients matching one or more exact field=value pairs passed directly as the request's query string, e.g. GET /v3/contactdb/recipients/search?first_name=John. Field names can be reserved fields (first_name, last_name, email, etc.) or any custom field defined on this account. This is distinct from the sendgrid_search_contactdb_recipient tool, which requires 'list_id' and a structured 'conditions' array and cannot express a simple exact-match lookup. This is part of SendGrid's legacy Marketing Campaigns API (Contact DB / Campaigns). It remains fully operational, but SendGrid recommends new integrations use the current Marketing Campaigns tool instead ('Search Contacts', for /v3/marketing/contacts/search). You can submit this request as one of your subusers by including their ID in the on_behalf_of field.`,
+    params: [
+      {
+        name: 'query_string',
+        type: 'string',
+        required: true,
+        description: `One or more 'field=value' pairs to match exactly, joined with '&' and already URL-encoded, e.g. 'first_name=John&last_name=Miller'. Field names may be reserved recipient fields or any custom field on this account.`,
+      },
+      {
+        name: 'on_behalf_of',
+        type: 'string',
+        required: false,
+        description: `Optional 'on-behalf-of' header value to make this call from a parent account on behalf of one of its Subusers or customer accounts. Use 'account-id <account-id>' for a customer account, or the Subuser's username for a Subuser. Uses the parent account's API key.`,
       },
     ],
   },
@@ -5947,6 +6895,24 @@ export const tools: Tool[] = [
         type: 'array',
         required: true,
         description: `Array of candidate email addresses to check against this suppression group. Only the addresses that are actually suppressed in the group are returned. Example: ["test1@example.com", "test2@example.com"].`,
+      },
+      {
+        name: 'on_behalf_of',
+        type: 'string',
+        required: false,
+        description: `Optional 'on-behalf-of' header value to make this call from a parent account on behalf of one of its Subusers or customer accounts. Use 'account-id <account-id>' for a customer account, or the Subuser's username for a Subuser. Uses the parent account's API key.`,
+      },
+    ],
+  },
+  {
+    name: 'sendgrid_send_campaign',
+    description: `Immediately send an existing Draft Campaign in SendGrid's legacy Marketing Campaigns feature. No request body is needed — this just tells SendGrid to send the resource that already exists. The campaign must have a subject, sender, content, and at least one list or segment set (via 'Update a Campaign') before it can be sent. Obtain campaign_id from the 'Retrieve all Campaigns' tool. This is part of SendGrid's legacy Marketing Campaigns API (Contact DB / Campaigns). It remains fully operational, but SendGrid recommends new integrations use the current Marketing Campaigns tool instead ('Send a Single Send Now', for /v3/marketing/singlesends). You can submit this request as one of your subusers by including their ID in the on_behalf_of field.`,
+    params: [
+      {
+        name: 'campaign_id',
+        type: 'integer',
+        required: true,
+        description: `The ID of the campaign you would like to send immediately. Obtain this from the 'Retrieve all Campaigns' tool's response.`,
       },
       {
         name: 'on_behalf_of',
@@ -6095,6 +7061,30 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'sendgrid_send_test_campaign',
+    description: `Send a test copy of a Campaign from SendGrid's legacy Marketing Campaigns feature to a single email address, without affecting the campaign's Draft/Scheduled status or your real recipients. Obtain campaign_id from the 'Retrieve all Campaigns' tool. This is part of SendGrid's legacy Marketing Campaigns API (Contact DB / Campaigns). It remains fully operational, but SendGrid recommends new integrations use the current Marketing Campaigns tool instead ('Send a Test Single Send', for /v3/marketing/singlesends). You can submit this request as one of your subusers by including their ID in the on_behalf_of field.`,
+    params: [
+      {
+        name: 'campaign_id',
+        type: 'integer',
+        required: true,
+        description: `The ID of the campaign to send a test of. Obtain this from the 'Retrieve all Campaigns' tool's response.`,
+      },
+      {
+        name: 'to',
+        type: 'string',
+        required: true,
+        description: `The email address that should receive the test campaign.`,
+      },
+      {
+        name: 'on_behalf_of',
+        type: 'string',
+        required: false,
+        description: `Optional 'on-behalf-of' header value to make this call from a parent account on behalf of one of its Subusers or customer accounts. Use 'account-id <account-id>' for a customer account, or the Subuser's username for a Subuser. Uses the parent account's API key.`,
+      },
+    ],
+  },
+  {
     name: 'sendgrid_send_test_marketing_email',
     description: `Send a test marketing email (built from a Dynamic Transactional Template) to up to 10 email addresses, before using the template in a real Single Send or Automation. Requires template_id (a Dynamic Template ID, which starts with "d-") and emails. You must also supply either sender_id (a verified sender's numeric ID) or from_address (a verified sender email address) — at least one of the two is required by the API. Optionally override the active template version with version_id_override, set a custom_unsubscribe_url, or associate the test send with an unsubscribe suppression_group_id. Note: this endpoint only works with Dynamic Transactional Templates; legacy Transactional Templates will not be delivered. A successful call returns HTTP 202 Accepted.`,
     params: [
@@ -6217,6 +7207,24 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `The URL where SendGrid sends the OAuth client ID and secret to generate an access token, used only when testing OAuth configuration. Required together with oauth_client_id.`,
+      },
+      {
+        name: 'on_behalf_of',
+        type: 'string',
+        required: false,
+        description: `Optional 'on-behalf-of' header value to make this call from a parent account on behalf of one of its Subusers or customer accounts. Use 'account-id <account-id>' for a customer account, or the Subuser's username for a Subuser. Uses the parent account's API key.`,
+      },
+    ],
+  },
+  {
+    name: 'sendgrid_unschedule_campaign',
+    description: `Unschedule a Campaign in SendGrid's legacy Marketing Campaigns feature that has already been scheduled to be sent, returning it to Draft status. Returns an empty body on success (HTTP 204). If the campaign is already in the process of being sent, it can no longer be unscheduled. Obtain campaign_id from the 'Retrieve all Campaigns' tool. This is part of SendGrid's legacy Marketing Campaigns API (Contact DB / Campaigns). It remains fully operational, but SendGrid recommends new integrations use the current Marketing Campaigns tool instead ('Delete a Scheduled Single Send', for /v3/marketing/singlesends). You can submit this request as one of your subusers by including their ID in the on_behalf_of field.`,
+    params: [
+      {
+        name: 'campaign_id',
+        type: 'integer',
+        required: true,
+        description: `The ID of the scheduled campaign to unschedule. Obtain this from the 'Retrieve all Campaigns' tool's response.`,
       },
       {
         name: 'on_behalf_of',
@@ -6479,6 +7487,78 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'sendgrid_update_campaign',
+    description: `Update a Campaign in SendGrid's legacy Marketing Campaigns feature, especially useful for filling in the fields you skipped when you created it with just a title. You can only update a campaign while it is in Draft status. Per SendGrid's API, title, subject, categories, html_content, and plain_content must ALL be supplied together on every call to this endpoint — it does not support omitting some of them for a partial update. Obtain campaign_id from the 'Retrieve all Campaigns' tool. This is part of SendGrid's legacy Marketing Campaigns API (Contact DB / Campaigns). It remains fully operational, but SendGrid recommends new integrations use the current Marketing Campaigns tool instead ('Update a Single Send', for /v3/marketing/singlesends). You can submit this request as one of your subusers by including their ID in the on_behalf_of field.`,
+    params: [
+      {
+        name: 'campaign_id',
+        type: 'integer',
+        required: true,
+        description: `The ID of the campaign you would like to update. Obtain this from the 'Retrieve all Campaigns' tool's response.`,
+      },
+      {
+        name: 'categories',
+        type: 'array',
+        required: true,
+        description: `The categories you want to tag on this campaign.`,
+      },
+      {
+        name: 'html_content',
+        type: 'string',
+        required: true,
+        description: `The HTML content of this campaign.`,
+      },
+      {
+        name: 'plain_content',
+        type: 'string',
+        required: true,
+        description: `The plain content of this campaign.`,
+      },
+      {
+        name: 'subject',
+        type: 'string',
+        required: true,
+        description: `The subject line your recipients will see.`,
+      },
+      {
+        name: 'title',
+        type: 'string',
+        required: true,
+        description: `The display title of your campaign.`,
+      },
+      {
+        name: 'on_behalf_of',
+        type: 'string',
+        required: false,
+        description: `Optional 'on-behalf-of' header value to make this call from a parent account on behalf of one of its Subusers or customer accounts. Use 'account-id <account-id>' for a customer account, or the Subuser's username for a Subuser. Uses the parent account's API key.`,
+      },
+    ],
+  },
+  {
+    name: 'sendgrid_update_campaign_schedule',
+    description: `Change the scheduled send date and time for a Campaign in SendGrid's legacy Marketing Campaigns feature that has already been scheduled. Obtain campaign_id from the 'Retrieve all Campaigns' tool. This is part of SendGrid's legacy Marketing Campaigns API (Contact DB / Campaigns). It remains fully operational, but SendGrid recommends new integrations use the current Marketing Campaigns tool instead ('Update a Scheduled Single Send', for /v3/marketing/singlesends). You can submit this request as one of your subusers by including their ID in the on_behalf_of field.`,
+    params: [
+      {
+        name: 'campaign_id',
+        type: 'integer',
+        required: true,
+        description: `The ID of the scheduled campaign to reschedule. Obtain this from the 'Retrieve all Campaigns' tool's response.`,
+      },
+      {
+        name: 'send_at',
+        type: 'integer',
+        required: true,
+        description: `The new Unix timestamp for the date and time you would like this campaign to be sent.`,
+      },
+      {
+        name: 'on_behalf_of',
+        type: 'string',
+        required: false,
+        description: `Optional 'on-behalf-of' header value to make this call from a parent account on behalf of one of its Subusers or customer accounts. Use 'account-id <account-id>' for a customer account, or the Subuser's username for a Subuser. Uses the parent account's API key.`,
+      },
+    ],
+  },
+  {
     name: 'sendgrid_update_click_tracking_setting',
     description: `Enable or disable the account's Click Tracking setting. Click Tracking rewrites all links and URLs in your emails to point through SendGrid's servers (or your branded click-tracking domain) so that link clicks can be tracked; SendGrid can track up to 1000 links per email. Set 'enabled' to true to turn click tracking on, or false to turn it off. Omit 'enabled' to leave the current setting unchanged. Returns the resulting click tracking settings object (including 'enable_text' for plain-text emails). You can submit this request as one of your subusers by including their ID in the on_behalf_of field.`,
     params: [
@@ -6511,6 +7591,84 @@ export const tools: Tool[] = [
         type: 'array',
         required: false,
         description: `Array of List ID strings (UUIDs) that these contacts will be added to. Omit to upsert the contacts without adding them to any list.`,
+      },
+    ],
+  },
+  {
+    name: 'sendgrid_update_contactdb_list',
+    description: `Rename a recipient list in SendGrid's legacy Marketing Campaigns contact database (contactdb). Obtain list_id from the 'Retrieve all lists' tool. This is part of SendGrid's legacy Marketing Campaigns API (Contact DB / Campaigns). It remains fully operational, but SendGrid recommends new integrations use the current Marketing Campaigns tool instead ('Update a List', for /v3/marketing/lists). You can submit this request as one of your subusers by including their ID in the on_behalf_of field.`,
+    params: [
+      {
+        name: 'list_id',
+        type: 'integer',
+        required: true,
+        description: `The ID of the list to rename. Obtain this from the 'Retrieve all lists' tool's response.`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: true,
+        description: `The new name for this list. Must be unique against all other contactdb list and segment names.`,
+      },
+      {
+        name: 'on_behalf_of',
+        type: 'string',
+        required: false,
+        description: `Optional 'on-behalf-of' header value to make this call from a parent account on behalf of one of its Subusers or customer accounts. Use 'account-id <account-id>' for a customer account, or the Subuser's username for a Subuser. Uses the parent account's API key.`,
+      },
+    ],
+  },
+  {
+    name: 'sendgrid_update_contactdb_recipient',
+    description: `Update one or more existing recipients in SendGrid's legacy Marketing Campaigns contact database (contactdb). Each recipient object must include 'email' to identify which recipient to update; you can also set 'first_name', 'last_name', and any of your own custom field names as additional keys. This is part of SendGrid's legacy Marketing Campaigns API (Contact DB / Campaigns). It remains fully operational, but SendGrid recommends new integrations use the current Marketing Campaigns tool instead ('Add or Update a Contact', for /v3/marketing/contacts). You can submit this request as one of your subusers by including their ID in the on_behalf_of field.`,
+    params: [
+      {
+        name: 'recipients',
+        type: 'array',
+        required: true,
+        description: `One or more recipient objects to update, each requiring at least 'email'. Besides email/first_name/last_name shown here, you may add any other key matching one of your contactdb custom field names (see the 'Retrieve all custom fields' tool) — for example {"email": "a@example.com", "pet": "Fluffy"} sets the custom field 'pet'.`,
+      },
+      {
+        name: 'on_behalf_of',
+        type: 'string',
+        required: false,
+        description: `Optional 'on-behalf-of' header value to make this call from a parent account on behalf of one of its Subusers or customer accounts. Use 'account-id <account-id>' for a customer account, or the Subuser's username for a Subuser. Uses the parent account's API key.`,
+      },
+    ],
+  },
+  {
+    name: 'sendgrid_update_contactdb_segment',
+    description: `Update a segment in SendGrid's legacy Marketing Campaigns contact database (contactdb). name is required on every call; list_id and conditions are optional and, if omitted, leave the segment's current list/conditions unchanged. Obtain segment_id from the 'Retrieve all segments' tool. This is part of SendGrid's legacy Marketing Campaigns API (Contact DB / Campaigns). It remains fully operational, but SendGrid recommends new integrations use the current Marketing Campaigns tool instead ('Update a Segment', for /v3/marketing/segments/2.0). You can submit this request as one of your subusers by including their ID in the on_behalf_of field.`,
+    params: [
+      {
+        name: 'name',
+        type: 'string',
+        required: true,
+        description: `The new name for this segment.`,
+      },
+      {
+        name: 'segment_id',
+        type: 'integer',
+        required: true,
+        description: `The ID of the segment to update. Obtain this from the 'Retrieve all segments' tool's response.`,
+      },
+      {
+        name: 'conditions',
+        type: 'array',
+        required: false,
+        description: `The conditions a recipient must match to be included in this segment. Omit to leave the current conditions unchanged.`,
+      },
+      {
+        name: 'list_id',
+        type: 'integer',
+        required: false,
+        description: `The contactdb list ID this segment should be built from. Omit to leave the current list association unchanged.`,
+      },
+      {
+        name: 'on_behalf_of',
+        type: 'string',
+        required: false,
+        description: `Optional 'on-behalf-of' header value to make this call from a parent account on behalf of one of its Subusers or customer accounts. Use 'account-id <account-id>' for a customer account, or the Subuser's username for a Subuser. Uses the parent account's API key.`,
       },
     ],
   },
@@ -7315,6 +8473,78 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `The zip/postal code of the Sender's physical address. Omit to keep the current value.`,
+      },
+    ],
+  },
+  {
+    name: 'sendgrid_update_sender_identity',
+    description: `Update an existing Sender Identity used by SendGrid's legacy Marketing Campaigns 'Campaigns' feature, by its numeric sender_id. All fields are optional and this performs a partial update — only include the fields you want to change. Updating from.email requires re-verification. A locked Sender Identity (one associated with a campaign in Draft, Scheduled, or In Progress status) cannot be updated. Obtain sender_id from the 'Get a List of All Sender Identities' tool. This is part of SendGrid's legacy Marketing Campaigns API (Contact DB / Campaigns). It remains fully operational, but SendGrid recommends new integrations use the current Marketing Campaigns tool instead ('Update a Sender', for /v3/marketing/senders). You can submit this request as one of your subusers by including their ID in the on_behalf_of field.`,
+    params: [
+      {
+        name: 'sender_id',
+        type: 'integer',
+        required: true,
+        description: `The numeric ID of the Sender Identity to update. Obtain this from the 'Get a List of All Sender Identities' tool's response (the 'id' field).`,
+      },
+      {
+        name: 'address',
+        type: 'string',
+        required: false,
+        description: `The physical street address of the Sender Identity. Omit to keep the current value.`,
+      },
+      {
+        name: 'address_2',
+        type: 'string',
+        required: false,
+        description: `Additional Sender Identity address information. Omit to keep the current value.`,
+      },
+      {
+        name: 'city',
+        type: 'string',
+        required: false,
+        description: `The city of the Sender Identity's physical address. Omit to keep the current value.`,
+      },
+      {
+        name: 'country',
+        type: 'string',
+        required: false,
+        description: `The country of the Sender Identity's physical address. Omit to keep the current value.`,
+      },
+      {
+        name: 'from',
+        type: 'object',
+        required: false,
+        description: `The address your recipients will see the email come from. Shape: {"email": "orders@example.com", "name": "Example Orders"}. Changing email triggers re-verification. Omit to keep the current value.`,
+      },
+      {
+        name: 'nickname',
+        type: 'string',
+        required: false,
+        description: `A nickname for the Sender Identity used only for internal identification in the SendGrid dashboard; it is never shown to email recipients. Omit to keep the current value.`,
+      },
+      {
+        name: 'on_behalf_of',
+        type: 'string',
+        required: false,
+        description: `Optional 'on-behalf-of' header value to make this call from a parent account on behalf of one of its Subusers or customer accounts. Use 'account-id <account-id>' for a customer account, or the Subuser's username for a Subuser. Uses the parent account's API key.`,
+      },
+      {
+        name: 'reply_to',
+        type: 'object',
+        required: false,
+        description: `The address your recipients will reply to. Shape: {"email": "support@example.com", "name": "Example Support"}. Omit to keep the current value.`,
+      },
+      {
+        name: 'state',
+        type: 'string',
+        required: false,
+        description: `The state or region of the Sender Identity's physical address. Omit to keep the current value.`,
+      },
+      {
+        name: 'zip',
+        type: 'string',
+        required: false,
+        description: `The zip/postal code of the Sender Identity's physical address. Omit to keep the current value.`,
       },
     ],
   },

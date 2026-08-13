@@ -80,6 +80,30 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'microsoft365_excel_calculate_workbook',
+    description: `Force Excel to recalculate all formulas in a workbook. Useful after updating cell values or ranges via the API, since automation-driven writes do not always trigger a recalculation on their own.`,
+    params: [
+      {
+        name: 'item_id',
+        type: 'string',
+        required: true,
+        description: `OneDrive item ID of the Excel (.xlsx) file.`,
+      },
+      {
+        name: 'calculation_type',
+        type: 'string',
+        required: false,
+        description: `The type of recalculation to perform. 'Recalculate' recalculates cells that depend on changed cells, 'Full' recalculates everything, 'FullRebuild' also rebuilds the dependency chain. Defaults to 'Recalculate'.`,
+      },
+      {
+        name: 'session_id',
+        type: 'string',
+        required: false,
+        description: `Optional workbook session ID from createSession. When provided, sent as the workbook-session-id header. Example: 'cluster=SN2&session=...'.`,
+      },
+    ],
+  },
+  {
     name: 'microsoft365_excel_clear_range',
     description: `Clear the contents, formats, or both from a cell range in an Excel worksheet stored in OneDrive. Use apply_to to control what is cleared: 'All' clears both content and formatting, 'Contents' clears only values and formulas, 'Formats' clears only cell formatting.`,
     params: [
@@ -500,6 +524,30 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'microsoft365_excel_get_used_range',
+    description: `Get the smallest range that encompasses all cells in a worksheet that have a value or formatting, without needing to know the data's exact boundaries ahead of time.`,
+    params: [
+      {
+        name: 'item_id',
+        type: 'string',
+        required: true,
+        description: `OneDrive item ID of the Excel (.xlsx) file.`,
+      },
+      {
+        name: 'worksheet_id',
+        type: 'string',
+        required: true,
+        description: `Worksheet name or GUID containing the data.`,
+      },
+      {
+        name: 'session_id',
+        type: 'string',
+        required: false,
+        description: `Optional workbook session ID from createSession. When provided, sent as the workbook-session-id header. Example: 'cluster=SN2&session=...'.`,
+      },
+    ],
+  },
+  {
     name: 'microsoft365_excel_get_worksheet',
     description: `Retrieve the properties of a specific worksheet in an Excel workbook stored in OneDrive. Use the worksheet name or its GUID as the worksheet_id. Optionally accepts a workbook session ID.`,
     params: [
@@ -598,6 +646,30 @@ export const tools: Tool[] = [
         type: 'integer',
         required: false,
         description: `Maximum number of named items to return (1–1000). Defaults to server-defined page size.`,
+      },
+      {
+        name: 'session_id',
+        type: 'string',
+        required: false,
+        description: `Optional workbook session ID from createSession. When provided, sent as the workbook-session-id header. Example: 'cluster=SN2&session=...'.`,
+      },
+    ],
+  },
+  {
+    name: 'microsoft365_excel_list_pivot_tables',
+    description: `List the pivot tables present in an Excel worksheet, including their names and IDs.`,
+    params: [
+      {
+        name: 'item_id',
+        type: 'string',
+        required: true,
+        description: `OneDrive item ID of the Excel (.xlsx) file.`,
+      },
+      {
+        name: 'worksheet_id',
+        type: 'string',
+        required: true,
+        description: `Worksheet name or GUID containing the pivot tables.`,
       },
       {
         name: 'session_id',
@@ -1495,6 +1567,18 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'microsoft365_onedrive_get_special_folder',
+    description: `Retrieve a well-known OneDrive folder (Documents, Photos, App Root, etc.) by its special-folder name, without needing to know its item ID or navigate by path. The folder is created automatically the first time it is written to.`,
+    params: [
+      {
+        name: 'name',
+        type: 'string',
+        required: true,
+        description: `The special folder name to look up.`,
+      },
+    ],
+  },
+  {
     name: 'microsoft365_onedrive_get_thumbnails',
     description: `Retrieve thumbnail images for a specific OneDrive file or folder. Returns a collection of thumbnail sets including small, medium, and large thumbnail URLs. Useful for displaying file previews.`,
     params: [
@@ -1592,7 +1676,7 @@ export const tools: Tool[] = [
   },
   {
     name: 'microsoft365_onedrive_list_drive_items',
-    description: `List the children (files and folders) of a OneDrive folder by item ID. Use "root" as the item_id to list top-level drive contents. Supports OData filtering, sorting, pagination, and field selection.`,
+    description: `List the children (files and folders) of a folder in the signed-in user's personal OneDrive. Use "root" as the item_id to list top-level contents. To list children in a specific drive by drive ID (e.g. a SharePoint document library), use microsoft365_onedrive_list_items_in_drive instead.`,
     params: [
       {
         name: 'item_id',
@@ -1807,6 +1891,30 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'microsoft365_onedrive_preview_drive_item',
+    description: `Obtain a short-lived embeddable preview URL for a OneDrive file, suitable for rendering the file inline in a web page. For long-lived shareable links, use create_sharing_link instead.`,
+    params: [
+      {
+        name: 'item_id',
+        type: 'string',
+        required: true,
+        description: `The unique identifier of the OneDrive file to generate a preview for.`,
+      },
+      {
+        name: 'page',
+        type: 'string',
+        required: false,
+        description: `Optional page number of the document to start at, if applicable.`,
+      },
+      {
+        name: 'zoom',
+        type: 'integer',
+        required: false,
+        description: `Optional zoom level to start the preview at, if applicable.`,
+      },
+    ],
+  },
+  {
     name: 'microsoft365_onedrive_resolve_shared_link',
     description: `Resolve a OneDrive or SharePoint sharing URL (e.g. a link pasted from the browser) into a drive item, returning its full metadata including drive ID, item ID, name, and download URL. The sharing URL must be base64url-encoded before passing it as encoded_sharing_url. Encoding: base64url(url) with no padding, prefixed with "u!" — e.g. u!aHR0cHM6Ly4uLg.`,
     params: [
@@ -1844,7 +1952,7 @@ export const tools: Tool[] = [
   },
   {
     name: 'microsoft365_onedrive_search_drive_items',
-    description: `Search the signed-in user's OneDrive for files and folders matching a query string. Searches across file names, content, and metadata. Supports OData $top for result count and $select for field selection.`,
+    description: `Search the signed-in user's personal OneDrive (root) for files and folders matching a query string. Searches across file names, content, and metadata. To search within a specific drive by drive ID (e.g. a SharePoint document library), use microsoft365_onedrive_search_items_in_drive instead.`,
     params: [
       {
         name: 'query',
@@ -1981,6 +2089,192 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'microsoft365_onenote_create_notebook',
+    description: `Create a new OneNote notebook for the signed-in user. Notebook names must be unique within the user's OneNote, cannot exceed 128 characters, and cannot contain the characters ?*/:<>|'\\". Returns the new notebook object including its id and sectionsUrl. Requires Notes.Create or Notes.ReadWrite scope.`,
+    params: [
+      {
+        name: 'display_name',
+        type: 'string',
+        required: true,
+        description: `The display name for the new notebook. Must be unique among the user's notebooks, 128 characters or fewer, and cannot contain the characters ?*/:<>|'\\".`,
+      },
+    ],
+  },
+  {
+    name: 'microsoft365_onenote_create_page',
+    description: `Create a new OneNote page in the specified section by posting well-formed HTML directly as the request body. Content-Type is text/html — the body must be valid XHTML-compliant markup (properly closed/nested tags), not JSON. Use a <title> element inside <head> to set the page title. This tool only supports plain HTML (including remote image URLs); pages that embed binary image/file data require a multipart/form-data request, which is not supported by this tool. Requires Notes.Create or Notes.ReadWrite scope.`,
+    params: [
+      {
+        name: 'html_content',
+        type: 'string',
+        required: true,
+        description: `Well-formed XHTML-compliant HTML for the new page, including the <html>, <head>, and <body> elements. Example: "<!DOCTYPE html><html><head><title>Meeting Notes</title></head><body><p>Agenda items...</p></body></html>". Remote image URLs are allowed in <img src="https://...">; embedded binary data is not supported by this tool.`,
+      },
+      {
+        name: 'section_id',
+        type: 'string',
+        required: true,
+        description: `The unique ID of the section in which to create the new page. Obtain section IDs from microsoft365_onenote_list_sections or microsoft365_onenote_create_section.`,
+      },
+    ],
+  },
+  {
+    name: 'microsoft365_onenote_create_section',
+    description: `Create a new OneNote section inside the specified notebook. Section names must be unique within the same hierarchy level, cannot exceed 50 characters, and cannot contain the characters ?*/:<>|'%~. Returns the new onenoteSection object including its id and pagesUrl. Requires Notes.Create or Notes.ReadWrite scope.`,
+    params: [
+      {
+        name: 'display_name',
+        type: 'string',
+        required: true,
+        description: `The display name for the new section. Must be unique among the notebook's other sections, 50 characters or fewer, and cannot contain the characters ?*/:<>|'%~.`,
+      },
+      {
+        name: 'notebook_id',
+        type: 'string',
+        required: true,
+        description: `The unique ID of the notebook in which to create the new section. Obtain notebook IDs from microsoft365_onenote_list_notebooks or microsoft365_onenote_create_notebook.`,
+      },
+    ],
+  },
+  {
+    name: 'microsoft365_onenote_get_page_content',
+    description: `Retrieve the full HTML content of a OneNote page by page ID. Returns raw HTML (Content-Type: text/html), not JSON — the response body is the page's markup, including any embedded images as data URIs or object references. Set include_ids to true to have the server annotate elements with data-id attributes, useful for building a subsequent content-update request. Requires Notes.Read, Notes.Create, or Notes.ReadWrite scope.`,
+    params: [
+      {
+        name: 'page_id',
+        type: 'string',
+        required: true,
+        description: `The unique ID of the OneNote page whose content to retrieve. Obtain page IDs from microsoft365_onenote_list_pages or microsoft365_onenote_create_page.`,
+      },
+      {
+        name: 'include_ids',
+        type: 'boolean',
+        required: false,
+        description: `When true, the returned HTML includes data-id attributes on elements so they can be targeted by a later page-content update. Default: false.`,
+      },
+    ],
+  },
+  {
+    name: 'microsoft365_onenote_list_notebooks',
+    description: `List all OneNote notebooks owned by or shared with the signed-in user. Returns each notebook's id, displayName, createdDateTime, lastModifiedDateTime, userRole, isShared, sectionsUrl, and sectionGroupsUrl. Requires Notes.Read, Notes.Create, or Notes.ReadWrite scope.`,
+    params: [
+      {
+        name: '$filter',
+        type: 'string',
+        required: false,
+        description: `OData filter expression to narrow results. Example: "displayName eq 'Work Notebook'".`,
+      },
+      {
+        name: '$orderby',
+        type: 'string',
+        required: false,
+        description: `Property to sort results by. Example: "displayName desc". The default sort order is "displayName asc".`,
+      },
+      {
+        name: '$select',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of notebook properties to return. Example: "id,displayName,lastModifiedDateTime" reduces response payload.`,
+      },
+      {
+        name: '$skip',
+        type: 'integer',
+        required: false,
+        description: `Number of notebooks to skip for pagination.`,
+      },
+      {
+        name: '$top',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of notebooks to return per page. Accepts values 1-999.`,
+      },
+    ],
+  },
+  {
+    name: 'microsoft365_onenote_list_pages',
+    description: `List the OneNote pages inside a specific section. Returns each page's id, title, createdByAppId, contentUrl, and lastModifiedDateTime. By default returns the top 20 pages ordered by lastModifiedDateTime descending; the maximum for $top is 100. Use microsoft365_onenote_get_page_content to fetch a page's HTML body. Requires Notes.Read, Notes.Create, or Notes.ReadWrite scope.`,
+    params: [
+      {
+        name: 'section_id',
+        type: 'string',
+        required: true,
+        description: `The unique ID of the section whose pages to list. Obtain section IDs from microsoft365_onenote_list_sections or microsoft365_onenote_create_section.`,
+      },
+      {
+        name: '$filter',
+        type: 'string',
+        required: false,
+        description: `OData filter expression to narrow results. Example: "contains(tolower(title),'standup')".`,
+      },
+      {
+        name: '$orderby',
+        type: 'string',
+        required: false,
+        description: `Property to sort results by. Example: "title asc". The default sort order is "lastModifiedDateTime desc".`,
+      },
+      {
+        name: '$select',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of page properties to return. Example: "id,title,lastModifiedDateTime" reduces response payload.`,
+      },
+      {
+        name: '$skip',
+        type: 'integer',
+        required: false,
+        description: `Number of pages to skip for pagination.`,
+      },
+      {
+        name: '$top',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of pages to return per page of results (default: 20). The server-enforced maximum is 100.`,
+      },
+    ],
+  },
+  {
+    name: 'microsoft365_onenote_list_sections',
+    description: `List the OneNote sections inside a specific notebook. Returns each section's id, displayName, isDefault, pagesUrl, createdDateTime, and lastModifiedDateTime. Requires Notes.Create, Notes.Read, or Notes.ReadWrite scope.`,
+    params: [
+      {
+        name: 'notebook_id',
+        type: 'string',
+        required: true,
+        description: `The unique ID of the notebook whose sections to list. Obtain notebook IDs from microsoft365_onenote_list_notebooks or microsoft365_onenote_create_notebook.`,
+      },
+      {
+        name: '$filter',
+        type: 'string',
+        required: false,
+        description: `OData filter expression to narrow results. Example: "displayName eq 'Meeting Notes'".`,
+      },
+      {
+        name: '$orderby',
+        type: 'string',
+        required: false,
+        description: `Property to sort results by. Example: "lastModifiedDateTime desc". The default sort order is "displayName asc".`,
+      },
+      {
+        name: '$select',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of section properties to return. Example: "id,displayName,pagesUrl" reduces response payload.`,
+      },
+      {
+        name: '$skip',
+        type: 'integer',
+        required: false,
+        description: `Number of sections to skip for pagination.`,
+      },
+      {
+        name: '$top',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of sections to return per page. Accepts values 1-999.`,
+      },
+    ],
+  },
+  {
     name: 'microsoft365_outlook_accept_event',
     description: `Accept a calendar event invitation.`,
     params: [
@@ -1989,6 +2283,36 @@ export const tools: Tool[] = [
       { name: 'schema_version', type: 'string', required: false, description: `Schema version` },
       { name: 'send_response', type: 'boolean', required: false, description: `Send response.` },
       { name: 'tool_version', type: 'string', required: false, description: `Tool version` },
+    ],
+  },
+  {
+    name: 'microsoft365_outlook_add_message_attachment',
+    description: `Add a file attachment to an existing draft message by posting to its attachments collection. Provide the file content as base64-encoded bytes. Works on draft messages created via create_draft_message or the reply/forward draft actions.`,
+    params: [
+      {
+        name: 'content_bytes',
+        type: 'string',
+        required: true,
+        description: `The base64-encoded content of the file to attach.`,
+      },
+      {
+        name: 'message_id',
+        type: 'string',
+        required: true,
+        description: `The unique identifier of the draft message.`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: true,
+        description: `The name of the attachment file, including its extension.`,
+      },
+      {
+        name: 'content_type',
+        type: 'string',
+        required: false,
+        description: `The MIME content type of the attachment. Defaults to application/octet-stream if omitted.`,
+      },
     ],
   },
   {
@@ -2024,6 +2348,42 @@ export const tools: Tool[] = [
         type: 'object',
         required: true,
         description: `Free-form object of message properties to update on all specified messages. Example: {"isRead": true} to mark as read, or {"isRead": false, "flag": {"flagStatus": "flagged"}} for multiple changes.`,
+      },
+    ],
+  },
+  {
+    name: 'microsoft365_outlook_copy_message',
+    description: `Copy an email message to another mail folder, leaving the original message in place. Returns the newly created copy.`,
+    params: [
+      {
+        name: 'destination_id',
+        type: 'string',
+        required: true,
+        description: `The ID or well-known name (e.g. 'inbox', 'archive') of the mail folder to copy the message into.`,
+      },
+      {
+        name: 'message_id',
+        type: 'string',
+        required: true,
+        description: `The unique identifier of the message to copy.`,
+      },
+    ],
+  },
+  {
+    name: 'microsoft365_outlook_create_calendar',
+    description: `Create a new named calendar in the user's mailbox (in the default calendar group). Distinct from calendar groups and events — this creates the calendar container itself, e.g. a separate calendar for a project or team.`,
+    params: [
+      {
+        name: 'name',
+        type: 'string',
+        required: true,
+        description: `The display name for the new calendar.`,
+      },
+      {
+        name: 'color',
+        type: 'string',
+        required: false,
+        description: `Color theme to distinguish the calendar in the UI. One of: auto, lightBlue, lightGreen, lightOrange, lightGray, lightYellow, lightTeal, lightPink, lightBrown, lightRed, maxColor.`,
       },
     ],
   },
@@ -2259,12 +2619,18 @@ export const tools: Tool[] = [
   },
   {
     name: 'microsoft365_outlook_create_draft_message',
-    description: `Create a new email draft in the mailbox.`,
+    description: `Create a new email draft in the mailbox. Supports setting a follow-up flag.`,
     params: [
       { name: 'bcc_recipients', type: 'string', required: false, description: `BCC recipients.` },
       { name: 'body', type: 'string', required: false, description: `Email body content.` },
       { name: 'body_type', type: 'string', required: false, description: `Body content type.` },
       { name: 'cc_recipients', type: 'string', required: false, description: `CC recipients.` },
+      {
+        name: 'flag_status',
+        type: 'string',
+        required: false,
+        description: `Follow-up flag status.`,
+      },
       { name: 'importance', type: 'string', required: false, description: `Importance.` },
       { name: 'schema_version', type: 'string', required: false, description: `Schema version` },
       { name: 'subject', type: 'string', required: false, description: `Email subject.` },
@@ -2528,6 +2894,18 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'microsoft365_outlook_delete_calendar',
+    description: `Delete a calendar and all the events it contains. Cannot be used to delete the user's default calendar.`,
+    params: [
+      {
+        name: 'calendar_id',
+        type: 'string',
+        required: true,
+        description: `The unique identifier of the calendar to delete.`,
+      },
+    ],
+  },
+  {
     name: 'microsoft365_outlook_delete_calendar_event',
     description: `Delete a calendar event by ID.`,
     params: [{ name: 'event_id', type: 'string', required: true, description: `No description.` }],
@@ -2694,6 +3072,30 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'microsoft365_outlook_forward_message',
+    description: `Forward an existing email message directly to new recipients. The message is sent immediately and a copy is saved in Sent Items. Use create_forward_draft instead if you need to edit the forwarded message before sending.`,
+    params: [
+      {
+        name: 'message_id',
+        type: 'string',
+        required: true,
+        description: `The unique identifier of the message to forward.`,
+      },
+      {
+        name: 'to_recipients',
+        type: 'string',
+        required: true,
+        description: `Comma-separated list of email addresses to forward the message to.`,
+      },
+      {
+        name: 'comment',
+        type: 'string',
+        required: false,
+        description: `Optional comment to include with the forwarded message.`,
+      },
+    ],
+  },
+  {
     name: 'microsoft365_outlook_get_attachment',
     description: `Download a specific attachment from an Outlook email message by attachment ID. Returns the full attachment including base64-encoded file content in the contentBytes field. Use List Attachments to get the attachment ID first.`,
     params: [
@@ -2708,6 +3110,18 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `The ID of the message containing the attachment.`,
+      },
+    ],
+  },
+  {
+    name: 'microsoft365_outlook_get_calendar',
+    description: `Retrieve the properties of a specific calendar by ID, such as its name, color, and sharing permissions.`,
+    params: [
+      {
+        name: 'calendar_id',
+        type: 'string',
+        required: true,
+        description: `The unique identifier of the calendar to retrieve.`,
       },
     ],
   },
@@ -2814,6 +3228,18 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `IANA time zone identifier for interpreting start and end times (e.g., "UTC", "America/New_York", "Europe/London"). Defaults to UTC.`,
+      },
+    ],
+  },
+  {
+    name: 'microsoft365_outlook_get_mail_folder',
+    description: `Retrieve the properties of a specific mail folder by ID, including its display name, parent folder, and item counts. Accepts well-known folder names such as 'inbox', 'drafts', or 'sentitems'.`,
+    params: [
+      {
+        name: 'folder_id',
+        type: 'string',
+        required: true,
+        description: `The unique identifier or well-known name (e.g. 'inbox', 'drafts') of the mail folder.`,
       },
     ],
   },
@@ -3478,6 +3904,36 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'microsoft365_outlook_permanently_delete_message',
+    description: `Permanently delete a message, bypassing the Deleted Items folder. The message is moved straight to the Purges folder in Recoverable Items and cannot be restored from the mailbox UI. Use delete_message instead for a normal, recoverable delete.`,
+    params: [
+      {
+        name: 'message_id',
+        type: 'string',
+        required: true,
+        description: `The unique identifier of the message to permanently delete.`,
+      },
+    ],
+  },
+  {
+    name: 'microsoft365_outlook_reply_all_to_message',
+    description: `Reply immediately to all recipients of a message (sender, To, and Cc). The reply is sent right away and saved in Sent Items. Use create_reply_all_draft instead if you need to edit the reply before sending.`,
+    params: [
+      {
+        name: 'message_id',
+        type: 'string',
+        required: true,
+        description: `The unique identifier of the message to reply to.`,
+      },
+      {
+        name: 'comment',
+        type: 'string',
+        required: false,
+        description: `The reply message content.`,
+      },
+    ],
+  },
+  {
     name: 'microsoft365_outlook_reply_from_shared_mailbox',
     description: `Reply to an existing email message on behalf of a shared mailbox. The reply is automatically sent to the original sender and saved in the shared mailbox's Sent Items folder. Requires send-as or send-on-behalf permissions on the shared mailbox.`,
     params: [
@@ -3585,6 +4041,18 @@ export const tools: Tool[] = [
         type: 'integer',
         required: false,
         description: `Maximum number of messages to return (1-1000). Defaults to 10 if omitted.`,
+      },
+    ],
+  },
+  {
+    name: 'microsoft365_outlook_send_draft_message',
+    description: `Send a previously created draft message (from create_draft_message, create_reply_draft, create_reply_all_draft, or create_forward_draft). The message is sent as-is and saved in Sent Items.`,
+    params: [
+      {
+        name: 'message_id',
+        type: 'string',
+        required: true,
+        description: `The unique identifier of the draft message to send.`,
       },
     ],
   },
@@ -4002,6 +4470,30 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'microsoft365_outlook_update_calendar',
+    description: `Update the properties of an existing calendar, such as renaming it or changing its display color.`,
+    params: [
+      {
+        name: 'calendar_id',
+        type: 'string',
+        required: true,
+        description: `The unique identifier of the calendar to update.`,
+      },
+      {
+        name: 'color',
+        type: 'string',
+        required: false,
+        description: `New color theme for the calendar. One of: auto, lightBlue, lightGreen, lightOrange, lightGray, lightYellow, lightTeal, lightPink, lightBrown, lightRed, maxColor.`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: false,
+        description: `New display name for the calendar.`,
+      },
+    ],
+  },
+  {
     name: 'microsoft365_outlook_update_calendar_event',
     description: `Update an existing Outlook calendar event. Only provided fields will be updated. Supports time, attendees, location, reminders, online meetings, recurrence, and event properties.`,
     params: [
@@ -4301,7 +4793,7 @@ export const tools: Tool[] = [
   },
   {
     name: 'microsoft365_outlook_update_message',
-    description: `Update properties of an email message (e.g. mark as read, set importance).`,
+    description: `Update properties of an email message (e.g. mark as read, set importance, set a follow-up flag).`,
     params: [
       { name: 'message_id', type: 'string', required: true, description: `Message ID.` },
       { name: 'body', type: 'string', required: false, description: `Message body content.` },
@@ -4312,6 +4804,12 @@ export const tools: Tool[] = [
         description: `Body content type.`,
       },
       { name: 'categories', type: 'array', required: false, description: `Categories.` },
+      {
+        name: 'flag_status',
+        type: 'string',
+        required: false,
+        description: `Follow-up flag status.`,
+      },
       { name: 'importance', type: 'string', required: false, description: `Importance.` },
       {
         name: 'inference_classification',
@@ -4769,6 +5267,36 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'microsoft365_sharepoint_create_site_page',
+    description: `Create a new modern SharePoint site page with a title. The page is created as a draft; use publish_site_page to make it visible to site visitors.`,
+    params: [
+      {
+        name: 'name',
+        type: 'string',
+        required: true,
+        description: `The file name for the new page, including the .aspx extension.`,
+      },
+      {
+        name: 'site_id',
+        type: 'string',
+        required: true,
+        description: `ID of the SharePoint site to create the page in. Use a site GUID, 'root', or the format '<hostname>:/sites/<path>'.`,
+      },
+      {
+        name: 'title',
+        type: 'string',
+        required: true,
+        description: `The display title of the new page.`,
+      },
+      {
+        name: 'page_layout',
+        type: 'string',
+        required: false,
+        description: `The layout of the page. 'article' is a standard content page; 'home' designates it as the site's home page.`,
+      },
+    ],
+  },
+  {
     name: 'microsoft365_sharepoint_create_subsite',
     description: `Create a new subsite under an existing SharePoint site using the Microsoft Graph beta API. Requires the parent site ID and display name. Optionally specify a description and web template (e.g., 'STS#0' for a team site).`,
     params: [
@@ -5021,6 +5549,36 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'microsoft365_sharepoint_get_site_page',
+    description: `Retrieve the properties of a specific SharePoint site page, including its title, layout, and publishing status.`,
+    params: [
+      {
+        name: 'page_id',
+        type: 'string',
+        required: true,
+        description: `The unique identifier of the site page to retrieve.`,
+      },
+      {
+        name: 'site_id',
+        type: 'string',
+        required: true,
+        description: `ID of the SharePoint site that contains the page. Use a site GUID, 'root', or the format '<hostname>:/sites/<path>'.`,
+      },
+    ],
+  },
+  {
+    name: 'microsoft365_sharepoint_get_webhook',
+    description: `Retrieve the properties of a specific webhook subscription by ID, including its current expiration time.`,
+    params: [
+      {
+        name: 'subscription_id',
+        type: 'string',
+        required: true,
+        description: `The unique identifier of the subscription to retrieve.`,
+      },
+    ],
+  },
+  {
     name: 'microsoft365_sharepoint_list_content_types',
     description: `List all content types defined in a SharePoint site. Supports OData filtering, field selection, and pagination via $top. Content types define the metadata schema for lists and libraries.`,
     params: [
@@ -5224,6 +5782,30 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'microsoft365_sharepoint_list_recycle_bin_items',
+    description: `List the items currently in a SharePoint site's recycle bin, such as items previously removed with recycle_item. Use restore_recycled_item to bring an item back.`,
+    params: [
+      {
+        name: 'site_id',
+        type: 'string',
+        required: true,
+        description: `ID of the SharePoint site whose recycle bin to list. Use a site GUID, 'root', or the format '<hostname>:/sites/<path>'.`,
+      },
+    ],
+  },
+  {
+    name: 'microsoft365_sharepoint_list_role_assignments',
+    description: `List the current permission (role assignment) entries on a SharePoint site, showing which users or groups have read, write, or owner access. Complements add_role_assignment and delete_role_assignment.`,
+    params: [
+      {
+        name: 'site_id',
+        type: 'string',
+        required: true,
+        description: `ID of the SharePoint site whose permissions to list. Use a site GUID, 'root', or the format '<hostname>:/sites/<path>'.`,
+      },
+    ],
+  },
+  {
     name: 'microsoft365_sharepoint_list_site_members',
     description: `List all permission entries (members) for a SharePoint site. Returns users and groups with their assigned roles. Supports OData pagination and expansion of related identity resources.`,
     params: [
@@ -5248,6 +5830,24 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'microsoft365_sharepoint_list_site_pages',
+    description: `List the modern SharePoint site pages (news posts and pages) in a site's Site Pages library.`,
+    params: [
+      {
+        name: 'site_id',
+        type: 'string',
+        required: true,
+        description: `ID of the SharePoint site whose pages to list. Use a site GUID, 'root', or the format '<hostname>:/sites/<path>'.`,
+      },
+      {
+        name: '$top',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of pages to return per page of results.`,
+      },
+    ],
+  },
+  {
     name: 'microsoft365_sharepoint_list_sites',
     description: `List SharePoint sites accessible to the signed-in user. Use the search parameter to find sites by name or keyword. Defaults to returning all sites (search=*). Supports OData query options for pagination and field selection.`,
     params: [
@@ -5268,6 +5868,29 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Search keyword to filter sites by name or description. Use '*' to return all accessible sites. Example: 'Marketing' or 'project'.`,
+      },
+    ],
+  },
+  {
+    name: 'microsoft365_sharepoint_list_webhooks',
+    description: `List all active Microsoft Graph change-notification webhook subscriptions owned by the calling app/user, including their resource, expiration time, and notification URL.`,
+    params: [],
+  },
+  {
+    name: 'microsoft365_sharepoint_publish_site_page',
+    description: `Publish a SharePoint site page, making the current version visible to site visitors. The page must have already been created via create_site_page.`,
+    params: [
+      {
+        name: 'page_id',
+        type: 'string',
+        required: true,
+        description: `The unique identifier of the site page to publish.`,
+      },
+      {
+        name: 'site_id',
+        type: 'string',
+        required: true,
+        description: `ID of the SharePoint site that contains the page. Use a site GUID, 'root', or the format '<hostname>:/sites/<path>'.`,
       },
     ],
   },
@@ -5304,6 +5927,30 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `The Azure AD object ID of the user to remove from the group. Example: 'aaaabbbb-1234-5678-abcd-ef0123456789'.`,
+      },
+    ],
+  },
+  {
+    name: 'microsoft365_sharepoint_renew_webhook',
+    description: `Renew a webhook subscription by extending its expiration time before it lapses. Subscriptions created via subscribe_webhook expire quickly (as soon as 3 days for SharePoint resources) and must be renewed periodically to keep receiving change notifications.`,
+    params: [
+      {
+        name: 'expiration_date_time',
+        type: 'string',
+        required: true,
+        description: `The new ISO 8601 datetime when the subscription should expire.`,
+      },
+      {
+        name: 'subscription_id',
+        type: 'string',
+        required: true,
+        description: `The unique identifier of the subscription to renew.`,
+      },
+      {
+        name: 'notification_url',
+        type: 'string',
+        required: false,
+        description: `Optional new HTTPS endpoint to receive change notifications. Leave blank to keep the existing URL.`,
       },
     ],
   },
@@ -5578,6 +6225,30 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'microsoft365_teams_add_chat_member',
+    description: `Add a user to an existing group chat. Cannot be used on one-on-one chats, whose two-person roster is fixed.`,
+    params: [
+      {
+        name: 'chat_id',
+        type: 'string',
+        required: true,
+        description: `The unique identifier of the group chat to add the member to.`,
+      },
+      {
+        name: 'user_id',
+        type: 'string',
+        required: true,
+        description: `The Azure AD object ID of the user to add to the chat.`,
+      },
+      {
+        name: 'is_owner',
+        type: 'boolean',
+        required: false,
+        description: `Whether the new member should be granted the 'owner' role. Defaults to false (regular member).`,
+      },
+    ],
+  },
+  {
     name: 'microsoft365_teams_add_team_member',
     description: `Add a user to a Microsoft Teams team as a member or owner. Requires the team ID and the Azure AD user ID of the person to add. The user must exist in the same tenant. Returns the new conversationMember resource on success (HTTP 201).`,
     params: [
@@ -5598,6 +6269,30 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `The role to assign to the added user. Valid values: 'member' (standard member) or 'owner' (team owner with admin privileges). Defaults to 'member'.`,
+      },
+    ],
+  },
+  {
+    name: 'microsoft365_teams_approve_shift_swap_request',
+    description: `Approve a pending shift swap request in a Microsoft Teams team schedule. Requires the team ID and request ID. Optionally include a manager note with the approval.`,
+    params: [
+      {
+        name: 'request_id',
+        type: 'string',
+        required: true,
+        description: `The unique identifier of the shift swap request to approve.`,
+      },
+      {
+        name: 'team_id',
+        type: 'string',
+        required: true,
+        description: `The unique identifier of the Microsoft Teams team whose schedule contains the swap request.`,
+      },
+      {
+        name: 'message',
+        type: 'string',
+        required: false,
+        description: `Optional message from the manager to include with the approval decision.`,
       },
     ],
   },
@@ -5754,6 +6449,78 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `The membership type of the channel: 'standard' (visible to all team members), 'private' (invite-only subset of team members), or 'shared' (shared with people outside the team). Defaults to 'standard'.`,
+      },
+    ],
+  },
+  {
+    name: 'microsoft365_teams_create_channel_tab',
+    description: `Add (pin) a new app tab to a Microsoft Teams channel, such as a website, document, or third-party app tab.`,
+    params: [
+      {
+        name: 'channel_id',
+        type: 'string',
+        required: true,
+        description: `The unique identifier of the channel to add the tab to.`,
+      },
+      {
+        name: 'content_url',
+        type: 'string',
+        required: true,
+        description: `The URL to render inside the tab (the tab's configuration.contentUrl).`,
+      },
+      {
+        name: 'display_name',
+        type: 'string',
+        required: true,
+        description: `The display name of the new tab.`,
+      },
+      {
+        name: 'team_id',
+        type: 'string',
+        required: true,
+        description: `The unique identifier of the Microsoft Teams team that contains the channel.`,
+      },
+      {
+        name: 'teams_app_id',
+        type: 'string',
+        required: true,
+        description: `The teamsApp catalog identifier for the app to pin as a tab. Use 'com.microsoft.teamspace.tab.web' for a generic website tab.`,
+      },
+      {
+        name: 'entity_id',
+        type: 'string',
+        required: false,
+        description: `Optional app-defined identifier for the entity displayed in the tab.`,
+      },
+      {
+        name: 'website_url',
+        type: 'string',
+        required: false,
+        description: `Optional URL to use when the tab is opened outside of Teams, in a browser.`,
+      },
+    ],
+  },
+  {
+    name: 'microsoft365_teams_create_chat',
+    description: `Create a new one-on-one or group chat in Microsoft Teams. Provide the Azure AD object IDs of the members to include (not including the caller, who is added automatically).`,
+    params: [
+      {
+        name: 'chat_type',
+        type: 'string',
+        required: true,
+        description: `The type of chat to create. Use 'oneOnOne' when member_user_ids contains exactly one other user, or 'group' for a group chat.`,
+      },
+      {
+        name: 'member_user_ids',
+        type: 'string',
+        required: true,
+        description: `Comma-separated Azure AD object IDs of the users to add to the chat, in addition to the caller.`,
+      },
+      {
+        name: 'topic',
+        type: 'string',
+        required: false,
+        description: `Optional subject or topic for the chat. Only applies to group chats.`,
       },
     ],
   },
@@ -5956,6 +6723,30 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'microsoft365_teams_decline_shift_swap_request',
+    description: `Decline a pending shift swap request in a Microsoft Teams team schedule. Requires the team ID and request ID. Optionally include a manager note with the decision.`,
+    params: [
+      {
+        name: 'request_id',
+        type: 'string',
+        required: true,
+        description: `The unique identifier of the shift swap request to decline.`,
+      },
+      {
+        name: 'team_id',
+        type: 'string',
+        required: true,
+        description: `The unique identifier of the Microsoft Teams team whose schedule contains the swap request.`,
+      },
+      {
+        name: 'message',
+        type: 'string',
+        required: false,
+        description: `Optional message from the manager to include with the decline decision.`,
+      },
+    ],
+  },
+  {
     name: 'microsoft365_teams_decline_time_off_request',
     description: `Decline a pending time-off request in a Microsoft Teams team schedule. Requires the team ID and request ID. Optionally include a manager message explaining the decision. Returns HTTP 204 No Content on success.`,
     params: [
@@ -6018,6 +6809,24 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `The unique identifier of the Microsoft Teams team that contains the channel.`,
+      },
+    ],
+  },
+  {
+    name: 'microsoft365_teams_delete_chat_message',
+    description: `Soft-delete a message in a Microsoft Teams chat. The message is retracted and replaced with a tombstone indicating it was deleted.`,
+    params: [
+      {
+        name: 'chat_id',
+        type: 'string',
+        required: true,
+        description: `The unique identifier of the chat that contains the message.`,
+      },
+      {
+        name: 'message_id',
+        type: 'string',
+        required: true,
+        description: `The unique identifier of the message to soft-delete.`,
       },
     ],
   },
@@ -6106,6 +6915,18 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'microsoft365_teams_get_chat',
+    description: `Retrieve the properties of a specific Microsoft Teams chat by ID, including its type, topic, and creation time.`,
+    params: [
+      {
+        name: 'chat_id',
+        type: 'string',
+        required: true,
+        description: `The unique identifier of the chat.`,
+      },
+    ],
+  },
+  {
     name: 'microsoft365_teams_get_chat_message',
     description: `Retrieve a single message from a Microsoft Teams chat by its ID, including body content, sender info, attachments, reactions, and metadata.`,
     params: [
@@ -6132,6 +6953,18 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `The unique identifier of the online meeting to retrieve. Obtain from the create meeting response or list meetings API.`,
+      },
+    ],
+  },
+  {
+    name: 'microsoft365_teams_get_presences_by_user_id',
+    description: `Get the presence information (available, busy, away, etc.) for multiple users in a single request. More efficient than calling get_user_presence once per user.`,
+    params: [
+      {
+        name: 'user_ids',
+        type: 'string',
+        required: true,
+        description: `Comma-separated list of Azure AD object IDs of the users whose presence to retrieve.`,
       },
     ],
   },
@@ -6262,6 +7095,18 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'microsoft365_teams_list_chat_members',
+    description: `List the members of a Microsoft Teams chat, including their display names, roles, and user IDs.`,
+    params: [
+      {
+        name: 'chat_id',
+        type: 'string',
+        required: true,
+        description: `The unique identifier of the chat whose members to list.`,
+      },
+    ],
+  },
+  {
     name: 'microsoft365_teams_list_chat_messages',
     description: `List messages in a Microsoft Teams chat (1:1, group, or meeting chat) with support for pagination and ordering. Returns up to 50 messages per page ordered by creation time descending by default.`,
     params: [
@@ -6282,6 +7127,72 @@ export const tools: Tool[] = [
         type: 'integer',
         required: false,
         description: `Number of chat messages to return per page (1–50, default: 50). Microsoft Graph caps this at 50 for chat messages.`,
+      },
+    ],
+  },
+  {
+    name: 'microsoft365_teams_list_chats',
+    description: `List the Microsoft Teams chats (1:1, group, and meeting chats) that the signed-in user is a participant in.`,
+    params: [
+      {
+        name: '$expand',
+        type: 'string',
+        required: false,
+        description: `Related resource to expand inline, such as 'members'.`,
+      },
+      {
+        name: '$filter',
+        type: 'string',
+        required: false,
+        description: `OData filter expression to narrow the chats returned. Example: "chatType eq 'oneOnOne'".`,
+      },
+      {
+        name: '$top',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of chats to return per page.`,
+      },
+    ],
+  },
+  {
+    name: 'microsoft365_teams_list_online_meeting_attendance_reports',
+    description: `List the attendance reports generated for a Microsoft Teams online meeting. Each report covers one meeting session and can optionally be expanded to include per-attendee attendance records.`,
+    params: [
+      {
+        name: 'meeting_id',
+        type: 'string',
+        required: true,
+        description: `The unique identifier of the online meeting whose attendance reports to list.`,
+      },
+      {
+        name: '$expand',
+        type: 'string',
+        required: false,
+        description: `Related resource to expand inline. Set to 'attendanceRecords' to include each attendee's join/leave times in the response.`,
+      },
+    ],
+  },
+  {
+    name: 'microsoft365_teams_list_online_meeting_recordings',
+    description: `List the recordings generated for a Microsoft Teams online meeting. Returns recording metadata; download the recording content separately via its content URL.`,
+    params: [
+      {
+        name: 'meeting_id',
+        type: 'string',
+        required: true,
+        description: `The unique identifier of the online meeting whose recordings to list.`,
+      },
+    ],
+  },
+  {
+    name: 'microsoft365_teams_list_online_meeting_transcripts',
+    description: `List the transcripts generated for a Microsoft Teams online meeting. Returns transcript metadata; download the transcript content separately via its content URL.`,
+    params: [
+      {
+        name: 'meeting_id',
+        type: 'string',
+        required: true,
+        description: `The unique identifier of the online meeting whose transcripts to list.`,
       },
     ],
   },
@@ -6468,6 +7379,48 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `The unique identifier of the Microsoft Teams team that contains the channel.`,
+      },
+    ],
+  },
+  {
+    name: 'microsoft365_teams_remove_channel_tab',
+    description: `Remove (unpin) a tab from a Microsoft Teams channel.`,
+    params: [
+      {
+        name: 'channel_id',
+        type: 'string',
+        required: true,
+        description: `The unique identifier of the channel that contains the tab.`,
+      },
+      {
+        name: 'tab_id',
+        type: 'string',
+        required: true,
+        description: `The unique identifier of the tab to remove.`,
+      },
+      {
+        name: 'team_id',
+        type: 'string',
+        required: true,
+        description: `The unique identifier of the Microsoft Teams team that contains the channel.`,
+      },
+    ],
+  },
+  {
+    name: 'microsoft365_teams_remove_chat_member',
+    description: `Remove a member from a Microsoft Teams group chat.`,
+    params: [
+      {
+        name: 'chat_id',
+        type: 'string',
+        required: true,
+        description: `The unique identifier of the chat to remove the member from.`,
+      },
+      {
+        name: 'membership_id',
+        type: 'string',
+        required: true,
+        description: `The conversationMember ID identifying the user's membership in this chat. Obtain from list_chat_members.`,
       },
     ],
   },
@@ -6798,6 +7751,24 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `The format of the updated content: 'text' for plain text or 'html' for HTML markup. Defaults to 'text'.`,
+      },
+    ],
+  },
+  {
+    name: 'microsoft365_teams_update_chat',
+    description: `Update the properties of a group chat, such as renaming its topic. Only applies to group chats — 1:1 chats do not support a topic.`,
+    params: [
+      {
+        name: 'chat_id',
+        type: 'string',
+        required: true,
+        description: `The unique identifier of the chat to update.`,
+      },
+      {
+        name: 'topic',
+        type: 'string',
+        required: true,
+        description: `The new subject or topic for the group chat.`,
       },
     ],
   },

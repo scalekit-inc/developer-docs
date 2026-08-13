@@ -2,6 +2,42 @@ import type { Tool } from '../../types/agent-connectors'
 
 export const tools: Tool[] = [
   {
+    name: 'microsoftexcel_add_named_item',
+    description: `Define a new named item (named range or named formula) in an Excel workbook stored in OneDrive. Named items let formulas and other tools refer to a range or value by a memorable name instead of a cell address.`,
+    params: [
+      {
+        name: 'item_id',
+        type: 'string',
+        required: true,
+        description: `OneDrive item ID of the Excel (.xlsx) file.`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: true,
+        description: `The name to assign to the new named item. Must be unique within the workbook.`,
+      },
+      {
+        name: 'reference',
+        type: 'string',
+        required: true,
+        description: `A formula-style string starting with '=' that this name refers to — either a range address (e.g. '=Sheet1!$A$1:$B$10') or a computed formula (e.g. '=SUM(Sheet1!A1:A10)').`,
+      },
+      {
+        name: 'comment',
+        type: 'string',
+        required: false,
+        description: `Optional comment describing the named item.`,
+      },
+      {
+        name: 'session_id',
+        type: 'string',
+        required: false,
+        description: `Optional workbook session ID from createSession. When provided, sent as the workbook-session-id header.`,
+      },
+    ],
+  },
+  {
     name: 'microsoftexcel_add_table_column',
     description: `Add a new column to an existing Excel table in OneDrive. Optionally specify the column name, its zero-based insertion index (null = append at end), and initial cell values as a 2D array (first row is the header). Returns the created column object.`,
     params: [
@@ -80,6 +116,36 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'microsoftexcel_calculate_function',
+    description: `Invoke any built-in Excel worksheet function (e.g. PMT, SUM, VLOOKUP, TEXTJOIN) directly against a workbook stored in OneDrive and return its computed result, without needing to write the formula into a cell first.`,
+    params: [
+      {
+        name: 'arguments',
+        type: 'object',
+        required: true,
+        description: `Named arguments for the function, matching the function's parameter names. Example for pmt: {"rate": 0.045, "nper": 12, "pv": -1250}.`,
+      },
+      {
+        name: 'function_name',
+        type: 'string',
+        required: true,
+        description: `The name of the Excel function to invoke, in lowercase (e.g. 'pmt', 'sum', 'vlookup').`,
+      },
+      {
+        name: 'item_id',
+        type: 'string',
+        required: true,
+        description: `OneDrive item ID of the Excel (.xlsx) file.`,
+      },
+      {
+        name: 'session_id',
+        type: 'string',
+        required: false,
+        description: `Optional workbook session ID from createSession. When provided, sent as the workbook-session-id header.`,
+      },
+    ],
+  },
+  {
     name: 'microsoftexcel_clear_range',
     description: `Clear the contents, formats, or both from a cell range in an Excel worksheet stored in OneDrive. Use apply_to to control what is cleared: 'All' clears both content and formatting, 'Contents' clears only values and formulas, 'Formats' clears only cell formatting.`,
     params: [
@@ -116,6 +182,36 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'microsoftexcel_clear_table_filter',
+    description: `Clear an active filter on a table column, complementing Filter Excel Table Column (apply), which has no corresponding clear action of its own.`,
+    params: [
+      {
+        name: 'column_id',
+        type: 'string',
+        required: true,
+        description: `Name or ID of the column within the table whose filter should be cleared. Example: 'Status' or the column's integer ID.`,
+      },
+      {
+        name: 'item_id',
+        type: 'string',
+        required: true,
+        description: `OneDrive item ID of the Excel (.xlsx) file. Example: '01BYE5RZ6QN3ZWBTUFOFD3GSPGOHDJD36K'.`,
+      },
+      {
+        name: 'table_id',
+        type: 'string',
+        required: true,
+        description: `Name or ID of the table whose column filter should be cleared. Example: 'Table1' or the GUID assigned by Excel.`,
+      },
+      {
+        name: 'session_id',
+        type: 'string',
+        required: false,
+        description: `Optional workbook session ID from createSession. When provided, sent as the workbook-session-id header. Example: 'cluster=SN2&session=...'.`,
+      },
+    ],
+  },
+  {
     name: 'microsoftexcel_close_session',
     description: `Close an active workbook session for an Excel file in OneDrive. Releases server-side resources associated with the session. Pass the session ID returned by the createSession call as session_id.`,
     params: [
@@ -130,6 +226,66 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `Workbook session ID returned by the createSession call. Sent as the workbook-session-id request header to identify which session to close. Example: 'cluster=SN2&session=...'.`,
+      },
+    ],
+  },
+  {
+    name: 'microsoftexcel_convert_table_to_range',
+    description: `Convert an Excel table back into a plain cell range, removing table formatting and behaviors (filters, structured references, banding) while keeping the underlying data in place.`,
+    params: [
+      {
+        name: 'item_id',
+        type: 'string',
+        required: true,
+        description: `OneDrive item ID of the Excel (.xlsx) file.`,
+      },
+      {
+        name: 'table_id',
+        type: 'string',
+        required: true,
+        description: `Name or ID of the table to convert. Use List Tables to find it.`,
+      },
+      {
+        name: 'session_id',
+        type: 'string',
+        required: false,
+        description: `Optional workbook session ID from createSession. When provided, sent as the workbook-session-id header.`,
+      },
+    ],
+  },
+  {
+    name: 'microsoftexcel_copy_worksheet',
+    description: `Duplicate a worksheet within the same Excel workbook stored in OneDrive, including its data, formatting, and charts. The copy is placed relative to an existing worksheet.`,
+    params: [
+      {
+        name: 'item_id',
+        type: 'string',
+        required: true,
+        description: `OneDrive item ID of the Excel (.xlsx) file.`,
+      },
+      {
+        name: 'worksheet_id',
+        type: 'string',
+        required: true,
+        description: `Worksheet name or GUID to copy.`,
+      },
+      {
+        name: 'position_type',
+        type: 'string',
+        required: false,
+        description: `Where to place the new worksheet relative to relative_to (or absolutely for Beginning/End). Defaults to After.`,
+      },
+      {
+        name: 'relative_to',
+        type: 'string',
+        required: false,
+        description: `Worksheet name or GUID that position_type (Before/After) is relative to. Defaults to the source worksheet.`,
+      },
+      {
+        name: 'session_id',
+        type: 'string',
+        required: false,
+        description: `Optional workbook session ID from createSession. When provided, sent as the workbook-session-id header.`,
       },
     ],
   },
@@ -280,6 +436,30 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Optional workbook session ID from createSession. When provided, sent as the workbook-session-id header. Example: 'cluster=SN2&session=...'.`,
+      },
+    ],
+  },
+  {
+    name: 'microsoftexcel_delete_named_item',
+    description: `Delete a named item (named range or named formula) definition from an Excel workbook stored in OneDrive. This removes the name only; the underlying cells and their data are not affected.`,
+    params: [
+      {
+        name: 'item_id',
+        type: 'string',
+        required: true,
+        description: `OneDrive item ID of the Excel (.xlsx) file.`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: true,
+        description: `The name of the named item to delete.`,
+      },
+      {
+        name: 'session_id',
+        type: 'string',
+        required: false,
+        description: `Optional workbook session ID from createSession. When provided, sent as the workbook-session-id header.`,
       },
     ],
   },
@@ -446,6 +626,72 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'microsoftexcel_get_chart_image',
+    description: `Render an Excel chart to a base64-encoded image, useful for embedding a snapshot of the chart in a report, email, or dashboard without opening the workbook.`,
+    params: [
+      {
+        name: 'chart_id',
+        type: 'string',
+        required: true,
+        description: `Name or ID of the chart to render. Use List Charts to find it.`,
+      },
+      {
+        name: 'item_id',
+        type: 'string',
+        required: true,
+        description: `OneDrive item ID of the Excel (.xlsx) file.`,
+      },
+      {
+        name: 'worksheet_id',
+        type: 'string',
+        required: true,
+        description: `Worksheet name or GUID containing the chart.`,
+      },
+      {
+        name: 'height',
+        type: 'integer',
+        required: false,
+        description: `Desired image height in pixels. Use 0 to keep the chart's natural height.`,
+      },
+      {
+        name: 'session_id',
+        type: 'string',
+        required: false,
+        description: `Optional workbook session ID from createSession. When provided, sent as the workbook-session-id header.`,
+      },
+      {
+        name: 'width',
+        type: 'integer',
+        required: false,
+        description: `Desired image width in pixels. Use 0 to keep the chart's natural width.`,
+      },
+    ],
+  },
+  {
+    name: 'microsoftexcel_get_named_item',
+    description: `Retrieve the definition of a single named item (named range or named formula) in an Excel workbook stored in OneDrive, by its name.`,
+    params: [
+      {
+        name: 'item_id',
+        type: 'string',
+        required: true,
+        description: `OneDrive item ID of the Excel (.xlsx) file.`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: true,
+        description: `The name of the named item to retrieve.`,
+      },
+      {
+        name: 'session_id',
+        type: 'string',
+        required: false,
+        description: `Optional workbook session ID from createSession. When provided, sent as the workbook-session-id header.`,
+      },
+    ],
+  },
+  {
     name: 'microsoftexcel_get_range',
     description: `Retrieve the values, formulas, format, and address of a cell range in an Excel worksheet stored in OneDrive. Specify the range using standard Excel notation (e.g., 'A1:C10' or 'B2'). Optionally accepts a workbook session ID.`,
     params: [
@@ -496,6 +742,30 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Optional workbook session ID from createSession. When provided, sent as the workbook-session-id header. Example: 'cluster=SN2&session=...'.`,
+      },
+    ],
+  },
+  {
+    name: 'microsoftexcel_get_used_range',
+    description: `Retrieve the smallest range that contains any data or formatting on an Excel worksheet stored in OneDrive, without needing to already know the address. Useful for reading all the data on a sheet in one call.`,
+    params: [
+      {
+        name: 'item_id',
+        type: 'string',
+        required: true,
+        description: `OneDrive item ID of the Excel (.xlsx) file.`,
+      },
+      {
+        name: 'worksheet_id',
+        type: 'string',
+        required: true,
+        description: `Worksheet name or GUID whose used range to retrieve.`,
+      },
+      {
+        name: 'session_id',
+        type: 'string',
+        required: false,
+        description: `Optional workbook session ID from createSession. When provided, sent as the workbook-session-id header.`,
       },
     ],
   },
@@ -598,6 +868,36 @@ export const tools: Tool[] = [
         type: 'integer',
         required: false,
         description: `Maximum number of named items to return (1–1000). Defaults to server-defined page size.`,
+      },
+      {
+        name: 'session_id',
+        type: 'string',
+        required: false,
+        description: `Optional workbook session ID from createSession. When provided, sent as the workbook-session-id header. Example: 'cluster=SN2&session=...'.`,
+      },
+    ],
+  },
+  {
+    name: 'microsoftexcel_list_pivot_tables',
+    description: `List all PivotTables on a worksheet in an Excel workbook stored in OneDrive. Returns each PivotTable's name and ID. PivotTables are not covered by any other existing tool.`,
+    params: [
+      {
+        name: 'item_id',
+        type: 'string',
+        required: true,
+        description: `OneDrive item ID of the Excel (.xlsx) file. Example: '01BYE5RZ6QN3ZWBTUFOFD3GSPGOHDJD36K'.`,
+      },
+      {
+        name: 'worksheet_id',
+        type: 'string',
+        required: true,
+        description: `Worksheet name or GUID containing the PivotTables to list. Example: 'Sheet1'.`,
+      },
+      {
+        name: '$top',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of PivotTables to return (1–1000). Defaults to server-defined page size.`,
       },
       {
         name: 'session_id',
@@ -862,6 +1162,102 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Optional password to protect the worksheet. If set, users must enter this password to unprotect the sheet. Example: 'MySecretPass123'.`,
+      },
+      {
+        name: 'session_id',
+        type: 'string',
+        required: false,
+        description: `Optional workbook session ID from createSession. When provided, sent as the workbook-session-id header. Example: 'cluster=SN2&session=...'.`,
+      },
+    ],
+  },
+  {
+    name: 'microsoftexcel_refresh_all_pivot_tables',
+    description: `Refresh every PivotTable on a worksheet in one call, picking up any changes made to their underlying source data since they were last refreshed.`,
+    params: [
+      {
+        name: 'item_id',
+        type: 'string',
+        required: true,
+        description: `OneDrive item ID of the Excel (.xlsx) file. Example: '01BYE5RZ6QN3ZWBTUFOFD3GSPGOHDJD36K'.`,
+      },
+      {
+        name: 'worksheet_id',
+        type: 'string',
+        required: true,
+        description: `Worksheet name or GUID whose PivotTables should all be refreshed. Example: 'Sheet1'.`,
+      },
+      {
+        name: 'session_id',
+        type: 'string',
+        required: false,
+        description: `Optional workbook session ID from createSession. When provided, sent as the workbook-session-id header. Example: 'cluster=SN2&session=...'.`,
+      },
+    ],
+  },
+  {
+    name: 'microsoftexcel_refresh_pivot_table',
+    description: `Refresh a single PivotTable's data from its source range, picking up any changes made to the underlying data since it was last refreshed.`,
+    params: [
+      {
+        name: 'item_id',
+        type: 'string',
+        required: true,
+        description: `OneDrive item ID of the Excel (.xlsx) file. Example: '01BYE5RZ6QN3ZWBTUFOFD3GSPGOHDJD36K'.`,
+      },
+      {
+        name: 'pivot_table_id',
+        type: 'string',
+        required: true,
+        description: `Name or ID of the PivotTable to refresh. Use List Excel PivotTables to find it.`,
+      },
+      {
+        name: 'worksheet_id',
+        type: 'string',
+        required: true,
+        description: `Worksheet name or GUID containing the PivotTable. Example: 'Sheet1'.`,
+      },
+      {
+        name: 'session_id',
+        type: 'string',
+        required: false,
+        description: `Optional workbook session ID from createSession. When provided, sent as the workbook-session-id header. Example: 'cluster=SN2&session=...'.`,
+      },
+    ],
+  },
+  {
+    name: 'microsoftexcel_set_chart_data',
+    description: `Repoint an existing chart at a new source data range and/or seriesBy setting. Distinct from Update Excel Chart, which per Microsoft's docs only changes position/size/title properties, not the underlying data the chart plots.`,
+    params: [
+      {
+        name: 'chart_id',
+        type: 'string',
+        required: true,
+        description: `Name or ID of the chart to repoint. Example: 'Chart 1' or the GUID assigned by Excel.`,
+      },
+      {
+        name: 'item_id',
+        type: 'string',
+        required: true,
+        description: `OneDrive item ID of the Excel (.xlsx) file. Example: '01BYE5RZ6QN3ZWBTUFOFD3GSPGOHDJD36K'.`,
+      },
+      {
+        name: 'source_data',
+        type: 'string',
+        required: true,
+        description: `The new range address the chart should plot, e.g. 'A1:B4' or 'Sheet1!A1:B4'.`,
+      },
+      {
+        name: 'worksheet_id',
+        type: 'string',
+        required: true,
+        description: `Worksheet name or GUID containing the chart. Example: 'Sheet1'.`,
+      },
+      {
+        name: 'series_by',
+        type: 'string',
+        required: false,
+        description: `Whether the chart series should be created from rows or columns of the source data. Accepted values: Auto, Columns, Rows. Defaults to Auto.`,
       },
       {
         name: 'session_id',

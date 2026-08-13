@@ -62,6 +62,18 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'gmail_create_delegate',
+    description: `Grant another user delegate access to the authenticated Gmail mailbox, letting them read, send, and manage mail on its behalf. The delegate must accept an invitation email before access becomes effective, and delegation is only available on Google Workspace accounts. Uses OAuth credentials.`,
+    params: [
+      {
+        name: 'delegate_email',
+        type: 'string',
+        required: true,
+        description: `Email address of the user to grant delegate access to.`,
+      },
+    ],
+  },
+  {
     name: 'gmail_create_draft',
     description: `Create a new draft email in Gmail for the authenticated user. Constructs a MIME message and saves it as a draft. Supports plain text and HTML content types, CC, BCC, and threading. Uses OAuth credentials.`,
     params: [
@@ -230,6 +242,18 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'gmail_create_forwarding_address',
+    description: `Add a new forwarding address to the authenticated Gmail account. Gmail sends a confirmation email to the address; the recipient must click the confirmation link before the address can be used for auto-forwarding or set as a filter action. Uses OAuth credentials.`,
+    params: [
+      {
+        name: 'forwarding_email',
+        type: 'string',
+        required: true,
+        description: `The email address to add as a forwarding address. A confirmation email is sent to this address.`,
+      },
+    ],
+  },
+  {
     name: 'gmail_create_label',
     description: `Create a new user label in the authenticated Gmail account. Labels can be applied to messages for organization and are visible in the Gmail label list and message list based on the visibility settings. Uses OAuth credentials.`,
     params: [
@@ -262,6 +286,48 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Optional tool version to use for execution`,
+      },
+    ],
+  },
+  {
+    name: 'gmail_create_send_as',
+    description: `Add a new send-as alias to the authenticated Gmail account, letting the user send mail that appears to come from a different address. Unless the address is on a domain the account owns via Workspace, Gmail sends a confirmation email that must be clicked before the alias can send mail (see verify_send_as). Uses OAuth credentials.`,
+    params: [
+      {
+        name: 'send_as_email',
+        type: 'string',
+        required: true,
+        description: `The email address to send as. Example: 'sales@example.com'.`,
+      },
+      {
+        name: 'display_name',
+        type: 'string',
+        required: false,
+        description: `The name shown in the 'From' header when sending as this address.`,
+      },
+      {
+        name: 'is_default',
+        type: 'boolean',
+        required: false,
+        description: `Whether this alias should become the default 'From' address for the account.`,
+      },
+      {
+        name: 'reply_to_address',
+        type: 'string',
+        required: false,
+        description: `An optional address that replies to messages sent as this alias should be routed to instead.`,
+      },
+      {
+        name: 'signature',
+        type: 'string',
+        required: false,
+        description: `HTML signature appended to messages sent as this alias.`,
+      },
+      {
+        name: 'treat_as_alias',
+        type: 'boolean',
+        required: false,
+        description: `Whether Gmail should treat this address as an alias of the primary account for purposes such as delegated access and reply-from behavior.`,
       },
     ],
   },
@@ -314,6 +380,18 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'gmail_delete_forwarding_address',
+    description: `Permanently remove a forwarding address from the authenticated Gmail account. If auto-forwarding or any filter currently uses this address, remove those references first. Uses OAuth credentials.`,
+    params: [
+      {
+        name: 'forwarding_email',
+        type: 'string',
+        required: true,
+        description: `The forwarding email address to remove. Use List Forwarding Addresses to find configured addresses.`,
+      },
+    ],
+  },
+  {
     name: 'gmail_delete_label',
     description: `Permanently delete a user label from the authenticated Gmail account. This removes the label from all messages it was applied to and cannot be undone. Use the List Labels tool to find the label ID. Uses OAuth credentials.`,
     params: [
@@ -358,6 +436,30 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Optional tool version to use for execution`,
+      },
+    ],
+  },
+  {
+    name: 'gmail_delete_send_as',
+    description: `Permanently delete a send-as alias from the authenticated Gmail account. The primary email address of the account cannot be deleted this way. Uses OAuth credentials.`,
+    params: [
+      {
+        name: 'send_as_email',
+        type: 'string',
+        required: true,
+        description: `The send-as alias email address to delete. Use List Send-As Aliases to find configured aliases.`,
+      },
+    ],
+  },
+  {
+    name: 'gmail_delete_thread',
+    description: `Permanently and immediately delete a Gmail thread and all of its messages, bypassing Trash. This cannot be undone — prefer trash_thread unless permanent deletion is specifically required. Uses OAuth credentials.`,
+    params: [
+      {
+        name: 'thread_id',
+        type: 'string',
+        required: true,
+        description: `The Gmail thread ID to permanently delete.`,
       },
     ],
   },
@@ -452,6 +554,11 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'gmail_get_auto_forwarding',
+    description: `Get the auto-forwarding settings for the authenticated Gmail account, showing whether incoming mail is automatically forwarded to another address and what happens to the local copy. Uses OAuth credentials.`,
+    params: [],
+  },
+  {
     name: 'gmail_get_contacts',
     description: `Fetch a list of contacts from the connected Gmail account. Supports pagination and field filtering.`,
     params: [
@@ -538,6 +645,18 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Optional tool version to use for execution`,
+      },
+    ],
+  },
+  {
+    name: 'gmail_get_forwarding_address',
+    description: `Get the verification status of a single forwarding address configured for the authenticated Gmail account. Uses OAuth credentials.`,
+    params: [
+      {
+        name: 'forwarding_email',
+        type: 'string',
+        required: true,
+        description: `The forwarding email address to look up. Use List Forwarding Addresses to find configured addresses.`,
       },
     ],
   },
@@ -687,6 +806,77 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'gmail_import_message',
+    description: `Import an RFC 822 message into the authenticated Gmail mailbox using the standard receiving pipeline: spam classification and matching filters are applied, unlike gmail_insert_message which bypasses that pipeline. Intended for migrating existing messages that already have their own headers (From, Date, Message-ID, etc.).`,
+    params: [
+      {
+        name: 'raw_message',
+        type: 'string',
+        required: true,
+        description: `The full RFC 822 formatted message source, including headers (From, To, Subject, Date, etc.) and body, exactly as it should appear in the mailbox. This is base64url-encoded automatically before sending.`,
+      },
+      {
+        name: 'deleted',
+        type: 'boolean',
+        required: false,
+        description: `Mark the imported message as immediately deleted (moved to Trash), e.g. to preserve a copy of a message that a delete-message policy already removed elsewhere.`,
+      },
+      {
+        name: 'internal_date_source',
+        type: 'string',
+        required: false,
+        description: `Source used to determine the message's internal (received) date shown in Gmail. 'dateHeader' uses the Date header from raw_message; 'receivedTime' uses the time this API call was made. Defaults to dateHeader.`,
+      },
+      {
+        name: 'label_ids',
+        type: 'array',
+        required: false,
+        description: `Label IDs to apply to the imported message. Example: ["INBOX", "UNREAD"].`,
+      },
+      {
+        name: 'never_mark_spam',
+        type: 'boolean',
+        required: false,
+        description: `If true, the message is never marked as SPAM in the resulting thread, even if Gmail's spam classifier would otherwise flag it.`,
+      },
+      {
+        name: 'process_for_calendar',
+        type: 'boolean',
+        required: false,
+        description: `If true, and the message contains a calendar invite, process the invite to add an entry to the user's calendar.`,
+      },
+    ],
+  },
+  {
+    name: 'gmail_insert_message',
+    description: `Directly insert a fully-formed RFC 822 message into the authenticated Gmail mailbox without sending it and without running it through Gmail's normal receiving pipeline (no spam filtering, no user filters applied). Intended for migrating or restoring existing messages that already have their own headers (From, Date, Message-ID, etc.), unlike send_message which composes a new outgoing email. Uses OAuth credentials.`,
+    params: [
+      {
+        name: 'raw_message',
+        type: 'string',
+        required: true,
+        description: `The full RFC 822 formatted message source, including headers (From, To, Subject, Date, etc.) and body, exactly as it should appear in the mailbox. This is base64url-encoded automatically before sending.`,
+      },
+      {
+        name: 'internal_date_source',
+        type: 'string',
+        required: false,
+        description: `Source used to determine the message's internal (received) date shown in Gmail. 'dateHeader' uses the Date header from raw_message; 'receivedTime' uses the time this API call was made. Defaults to dateHeader.`,
+      },
+      {
+        name: 'label_ids',
+        type: 'array',
+        required: false,
+        description: `Label IDs to apply to the inserted message. Example: ["INBOX", "UNREAD"].`,
+      },
+    ],
+  },
+  {
+    name: 'gmail_list_delegates',
+    description: `List the delegate accounts (other users granted access to read, send, and manage mail) for the authenticated Gmail account. Delegates can be added only in a Google Workspace account. Uses OAuth credentials.`,
+    params: [],
+  },
+  {
     name: 'gmail_list_drafts',
     description: `List draft emails from a connected Gmail account. Requires a valid Gmail OAuth2 connection.`,
     params: [
@@ -735,6 +925,47 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'gmail_list_forwarding_addresses',
+    description: `List all forwarding addresses configured for the authenticated Gmail account, including their verification status. Uses OAuth credentials.`,
+    params: [],
+  },
+  {
+    name: 'gmail_list_history',
+    description: `List the history of changes (messages added, deleted, or labels changed) to a Gmail mailbox since a given historyId. Used together with watch_mailbox to keep an external system in sync with mailbox changes without polling the full mailbox. History is only retained for a limited time, so a gap since the last known historyId may require a full resync.`,
+    params: [
+      {
+        name: 'start_history_id',
+        type: 'string',
+        required: true,
+        description: `Required. Returns history records after this historyId. Obtain this from the historyId field of a previous message/thread/profile response or a watch_mailbox notification.`,
+      },
+      {
+        name: 'history_types',
+        type: 'array',
+        required: false,
+        description: `History types to return. Valid values: messageAdded, messageDeleted, labelAdded, labelRemoved. Omit to return all types.`,
+      },
+      {
+        name: 'label_id',
+        type: 'string',
+        required: false,
+        description: `Only return history records that concern this label ID.`,
+      },
+      {
+        name: 'max_results',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of history records to return per page.`,
+      },
+      {
+        name: 'page_token',
+        type: 'string',
+        required: false,
+        description: `Page token for pagination, from a previous list_history response.`,
+      },
+    ],
+  },
+  {
     name: 'gmail_list_labels',
     description: `List all labels (system and user-created) in the authenticated Gmail account. Returns label IDs, names, and visibility settings that can be used with message and filter operations. Uses OAuth credentials.`,
     params: [
@@ -751,6 +982,11 @@ export const tools: Tool[] = [
         description: `Optional tool version to use for execution`,
       },
     ],
+  },
+  {
+    name: 'gmail_list_send_as',
+    description: `List all send-as aliases (including the primary address) configured for the authenticated Gmail account, showing each alias's display name, signature, and verification status. Uses OAuth credentials.`,
+    params: [],
   },
   {
     name: 'gmail_list_threads',
@@ -833,6 +1069,30 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Optional tool version to use for execution`,
+      },
+    ],
+  },
+  {
+    name: 'gmail_modify_thread_labels',
+    description: `Add or remove Gmail labels across every message in a thread at once, applying the change consistently to the whole conversation instead of one message at a time. Uses OAuth credentials.`,
+    params: [
+      {
+        name: 'thread_id',
+        type: 'string',
+        required: true,
+        description: `The Gmail thread ID whose messages should be relabeled.`,
+      },
+      {
+        name: 'add_label_ids',
+        type: 'array',
+        required: false,
+        description: `Label IDs to add to every message in the thread.`,
+      },
+      {
+        name: 'remove_label_ids',
+        type: 'array',
+        required: false,
+        description: `Label IDs to remove from every message in the thread.`,
       },
     ],
   },
@@ -1071,6 +1331,18 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'gmail_trash_thread',
+    description: `Move an entire Gmail thread (all its messages) to Trash. The thread is not permanently deleted and can be recovered from Trash within 30 days. Idempotent — trashing an already-trashed thread is a no-op. Uses OAuth credentials.`,
+    params: [
+      {
+        name: 'thread_id',
+        type: 'string',
+        required: true,
+        description: `The Gmail thread ID to move to Trash. Obtain this from a list or search threads operation.`,
+      },
+    ],
+  },
+  {
     name: 'gmail_untrash_message',
     description: `Remove a Gmail message from Trash and restore it to its previous location. This operation is idempotent — untrashing a message that is not in Trash is a no-op. Uses OAuth credentials.`,
     params: [
@@ -1091,6 +1363,42 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Optional tool version to use for execution`,
+      },
+    ],
+  },
+  {
+    name: 'gmail_untrash_thread',
+    description: `Remove an entire Gmail thread from Trash, restoring it and its messages to their prior location. Idempotent — untrashing a thread that isn't in Trash is a no-op. Uses OAuth credentials.`,
+    params: [
+      {
+        name: 'thread_id',
+        type: 'string',
+        required: true,
+        description: `The Gmail thread ID to remove from Trash.`,
+      },
+    ],
+  },
+  {
+    name: 'gmail_update_auto_forwarding',
+    description: `Update the auto-forwarding settings for the authenticated Gmail account. The target address must already be a verified forwarding address (see create_forwarding_address) before auto-forwarding to it can be enabled. Uses OAuth credentials.`,
+    params: [
+      {
+        name: 'enabled',
+        type: 'boolean',
+        required: true,
+        description: `Whether all incoming mail is automatically forwarded to email_address.`,
+      },
+      {
+        name: 'disposition',
+        type: 'string',
+        required: false,
+        description: `What happens to the local copy of a forwarded message. leaveInInbox keeps it in the inbox, archive skips the inbox, trash moves it to Trash, markRead marks it read and keeps it in the inbox.`,
+      },
+      {
+        name: 'email_address',
+        type: 'string',
+        required: false,
+        description: `The verified forwarding address mail is auto-forwarded to. Required when enabled is true.`,
       },
     ],
   },
@@ -1313,6 +1621,18 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Optional tool version to use for execution`,
+      },
+    ],
+  },
+  {
+    name: 'gmail_verify_send_as',
+    description: `Send a verification email for a pending send-as alias on the authenticated Gmail account. The recipient must click the link in that email before the alias can be used to send mail. Has no effect on aliases that are already verified. Uses OAuth credentials.`,
+    params: [
+      {
+        name: 'send_as_email',
+        type: 'string',
+        required: true,
+        description: `The unverified send-as alias to trigger a verification email for.`,
       },
     ],
   },

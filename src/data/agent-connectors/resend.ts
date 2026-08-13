@@ -248,6 +248,18 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'resend_broadcast_cancel',
+    description: `Cancel a broadcast that is currently queued or scheduled, stopping any further emails from being sent. Emails already delivered before cancellation are not affected. Only broadcasts that have not fully sent yet can be canceled.`,
+    params: [
+      {
+        name: 'broadcast_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the broadcast to cancel.`,
+      },
+    ],
+  },
+  {
     name: 'resend_broadcast_create',
     description: `Create a broadcast email in Resend, targeted at a segment of contacts. A broadcast is created as a draft by default -- pass send=true to send it immediately, or send=true with scheduled_at to schedule it for later. Provide html and/or text content for the message body -- at least one of the two is required by the API.`,
     params: [
@@ -364,6 +376,66 @@ export const tools: Tool[] = [
         type: 'integer',
         required: false,
         description: `Number of broadcasts to return per page. Must be between 1 and 100. If omitted, the Resend API default page size is used.`,
+      },
+    ],
+  },
+  {
+    name: 'resend_broadcast_metrics_get',
+    description: `Retrieve delivery and engagement statistics for a single broadcast: counts and percentages for delivered, opened, clicked, unsubscribed, bounced, complained, and suppressed recipients, plus per-link click analytics.`,
+    params: [
+      {
+        name: 'broadcast_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the broadcast whose metrics should be retrieved.`,
+      },
+    ],
+  },
+  {
+    name: 'resend_broadcast_recipients_list',
+    description: `Retrieve the recipients of a broadcast, filtered by delivery/engagement event type (sent, delivered, opened, clicked, bounced, complained, unsubscribed, or suppressed). Supports cursor-based pagination via limit/after/before, an email substring filter, and a bounce_type filter that only applies when type=bounced.`,
+    params: [
+      {
+        name: 'broadcast_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the broadcast whose recipients should be listed.`,
+      },
+      {
+        name: 'type',
+        type: 'string',
+        required: true,
+        description: `Event filter. Must be one of: sent, delivered, opened, clicked, bounced, complained, unsubscribed, suppressed.`,
+      },
+      {
+        name: 'after',
+        type: 'string',
+        required: false,
+        description: `Cursor for forward pagination. Pass the ID of a recipient from the current page to fetch the page of results immediately after it. Cannot be used together with before.`,
+      },
+      {
+        name: 'before',
+        type: 'string',
+        required: false,
+        description: `Cursor for backward pagination. Pass the ID of a recipient from the current page to fetch the page of results immediately before it. Cannot be used together with after.`,
+      },
+      {
+        name: 'bounce_type',
+        type: 'string',
+        required: false,
+        description: `Bounce classification filter. Only applies when type=bounced. Must be one of: permanent, transient, undetermined.`,
+      },
+      {
+        name: 'email',
+        type: 'string',
+        required: false,
+        description: `Filter recipients by an email substring match.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Number of recipients to return per page. Must be between 1 and 100. If omitted, the Resend API default page size (20) is used.`,
       },
     ],
   },
@@ -1196,6 +1268,72 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'resend_email_metrics_get',
+    description: `Retrieve account-wide sending/engagement metrics for emails over a date range, with optional bucketing by time granularity and breakdown by dimension (e.g. period, domain). Can be scoped to specific domain IDs or email IDs. This is an aggregate analytics endpoint, not a lookup of a single email's status.`,
+    params: [
+      {
+        name: 'dimensions',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of dimensions to break the response down by, e.g. period,domain.`,
+      },
+      {
+        name: 'domain_id',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of sending domain IDs to restrict results to.`,
+      },
+      {
+        name: 'email_id',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of email IDs to restrict results to.`,
+      },
+      {
+        name: 'end_date',
+        type: 'string',
+        required: false,
+        description: `ISO 8601 date or datetime for the end of the range. Future values are clamped to the current time.`,
+      },
+      {
+        name: 'granularity',
+        type: 'string',
+        required: false,
+        description: `Time bucket size for the period dimension. One of: hourly, daily, weekly, monthly. Defaults to daily.`,
+      },
+      {
+        name: 'metrics',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of metrics to include in the response, e.g. sent,delivered,open_rate.`,
+      },
+      {
+        name: 'sort_by',
+        type: 'string',
+        required: false,
+        description: `Field to sort the data array by: date, or any requested metric name.`,
+      },
+      {
+        name: 'sort_order',
+        type: 'string',
+        required: false,
+        description: `Sort direction for the data array: asc or desc.`,
+      },
+      {
+        name: 'start_date',
+        type: 'string',
+        required: false,
+        description: `ISO 8601 date or datetime for the start of the range. Defaults to 6 days before end_date.`,
+      },
+      {
+        name: 'timezone',
+        type: 'string',
+        required: false,
+        description: `IANA timezone used for bucketing periods. Defaults to UTC.`,
+      },
+    ],
+  },
+  {
     name: 'resend_email_send',
     description: `Send a transactional email through Resend. Requires a sender (from), at least one recipient (to), and a subject. Provide either html and/or text content, or a published template (do not combine template with html/text). Supports cc, bcc, reply_to, custom headers, scheduling for later delivery, file attachments, tags for tracking, and topic-scoped sending for contacts that have opted in/out.`,
     params: [
@@ -1653,6 +1791,42 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'resend_segment_metrics_get',
+    description: `Retrieve account-wide contact metrics (all_contacts, subscribers, unsubscribers), optionally broken down by segment and scoped to specific segment IDs. This is an aggregate analytics endpoint, not a per-segment lookup.`,
+    params: [
+      {
+        name: 'dimensions',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of dimensions to break the data down by. Valid value: segment. Defaults to no breakdown (totals only).`,
+      },
+      {
+        name: 'metrics',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of metrics to include in totals/data. Valid values: all_contacts, subscribers, unsubscribers. Defaults to all of them.`,
+      },
+      {
+        name: 'segment_id',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of segment IDs to scope the results to. If omitted, all segments are included.`,
+      },
+      {
+        name: 'sort_by',
+        type: 'string',
+        required: false,
+        description: `Field to sort the data array by. One of: date, all_contacts, subscribers, unsubscribers. Defaults to all_contacts.`,
+      },
+      {
+        name: 'sort_order',
+        type: 'string',
+        required: false,
+        description: `Sort direction for the data array: asc or desc. Defaults to asc.`,
+      },
+    ],
+  },
+  {
     name: 'resend_suppression_batch_add',
     description: `Add up to 100 email addresses to the Resend account's suppression list in a single call. Suppressed addresses will not receive further emails from this account until the suppression is removed. Example: emails=["steve.wozniak@gmail.com"].`,
     params: [
@@ -2064,6 +2238,78 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `The ID (UUID) of the webhook to permanently delete.`,
+      },
+    ],
+  },
+  {
+    name: 'resend_webhook_event_attempts_list',
+    description: `Retrieve the delivery attempts made for a single webhook event, most recent first -- each attempt shows the HTTP status code and response body returned by the receiving endpoint. Supports forward-only cursor pagination via limit/after (this endpoint does not support a before cursor).`,
+    params: [
+      {
+        name: 'event_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the webhook event whose delivery attempts should be listed.`,
+      },
+      {
+        name: 'webhook_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the webhook the event belongs to.`,
+      },
+      {
+        name: 'after',
+        type: 'string',
+        required: false,
+        description: `Cursor for forward pagination. Pass the ID of an attempt from the current page to fetch the page of results immediately after it. This endpoint does not support a before cursor.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Number of attempts to return per page. Must be between 1 and 100. If omitted, the Resend API default page size (20) is used.`,
+      },
+    ],
+  },
+  {
+    name: 'resend_webhook_event_get',
+    description: `Retrieve a single webhook delivery event by ID, including its type, delivery status, next retry time (if still attempting), and the full event payload that was (or will be) sent to the endpoint.`,
+    params: [
+      {
+        name: 'event_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the webhook event to retrieve.`,
+      },
+      {
+        name: 'webhook_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the webhook the event belongs to.`,
+      },
+    ],
+  },
+  {
+    name: 'resend_webhook_events_list',
+    description: `Retrieve the delivery event log for a webhook endpoint -- each entry is one event Resend attempted to deliver, with its type and delivery status (success, failed, attempting, or pending). Supports forward-only cursor pagination via limit/after (this endpoint does not support a before cursor).`,
+    params: [
+      {
+        name: 'webhook_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the webhook whose events should be listed.`,
+      },
+      {
+        name: 'after',
+        type: 'string',
+        required: false,
+        description: `Cursor for forward pagination. Pass the ID of an event from the current page to fetch the page of results immediately after it. This endpoint does not support a before cursor.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Number of events to return per page. Must be between 1 and 100. If omitted, the Resend API default page size (20) is used.`,
       },
     ],
   },

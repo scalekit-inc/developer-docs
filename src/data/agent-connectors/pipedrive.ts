@@ -128,6 +128,23 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'pipedrive_activity_get',
+    description: `Retrieve details of a single activity in Pipedrive by its ID, including subject, type, due date/time, and associated deal, person, or organization.`,
+    params: [
+      {
+        name: 'id',
+        type: 'integer',
+        required: true,
+        description: `The ID of the activity to retrieve.`,
+      },
+    ],
+  },
+  {
+    name: 'pipedrive_activity_types_list',
+    description: `List all activity types in Pipedrive (the valid 'type' values and icons for activities). Use this before creating activities that need a specific type.`,
+    params: [],
+  },
+  {
     name: 'pipedrive_activity_update',
     description: `Update an existing activity in Pipedrive. Modify subject, type, due date/time, note, completion status, or associations.`,
     params: [
@@ -244,6 +261,73 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'pipedrive_deal_duplicate',
+    description: `Create a copy of an existing deal in Pipedrive, duplicating its fields into a new deal record.`,
+    params: [
+      {
+        name: 'id',
+        type: 'integer',
+        required: true,
+        description: `The ID of the deal to duplicate.`,
+      },
+    ],
+  },
+  {
+    name: 'pipedrive_deal_fields_list',
+    description: `Get metadata for all deal fields in Pipedrive, including custom fields. Use this to discover valid field keys and option values before writing deal data.`,
+    params: [
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Cursor for pagination from a previous response.`,
+      },
+      {
+        name: 'include_fields',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of extra properties to include, e.g. ui_visibility, important_fields, required_fields.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Number of fields to return per page (max 500, default 100).`,
+      },
+    ],
+  },
+  {
+    name: 'pipedrive_deal_follower_add',
+    description: `Add a user as a follower of a deal so they receive updates about it in Pipedrive.`,
+    params: [
+      { name: 'id', type: 'integer', required: true, description: `The ID of the deal to follow.` },
+      {
+        name: 'user_id',
+        type: 'integer',
+        required: true,
+        description: `The ID of the user to add as a follower.`,
+      },
+    ],
+  },
+  {
+    name: 'pipedrive_deal_follower_delete',
+    description: `Remove a follower from a deal in Pipedrive.`,
+    params: [
+      {
+        name: 'follower_id',
+        type: 'integer',
+        required: true,
+        description: `The user ID of the follower to remove.`,
+      },
+      { name: 'id', type: 'integer', required: true, description: `The ID of the deal.` },
+    ],
+  },
+  {
+    name: 'pipedrive_deal_followers_list',
+    description: `List the users who are following a specific deal in Pipedrive.`,
+    params: [{ name: 'id', type: 'integer', required: true, description: `The ID of the deal.` }],
+  },
+  {
     name: 'pipedrive_deal_get',
     description: `Retrieve details of a specific deal in Pipedrive by its ID, including title, value, status, pipeline stage, associated person and organization.`,
     params: [
@@ -252,6 +336,268 @@ export const tools: Tool[] = [
         type: 'integer',
         required: true,
         description: `The ID of the deal to retrieve.`,
+      },
+    ],
+  },
+  {
+    name: 'pipedrive_deal_merge',
+    description: `Merge two deals in Pipedrive. The deal given by merge_with_id is merged into the deal given by id, and the source deal is removed.`,
+    params: [
+      {
+        name: 'id',
+        type: 'integer',
+        required: true,
+        description: `The ID of the deal to merge into.`,
+      },
+      {
+        name: 'merge_with_id',
+        type: 'integer',
+        required: true,
+        description: `The ID of the deal that will be merged into the deal given by id and then removed.`,
+      },
+    ],
+  },
+  {
+    name: 'pipedrive_deal_participant_add',
+    description: `Add a person as a participant on a deal in Pipedrive, useful for deals involving multiple stakeholders.`,
+    params: [
+      { name: 'id', type: 'integer', required: true, description: `The ID of the deal.` },
+      {
+        name: 'person_id',
+        type: 'integer',
+        required: true,
+        description: `The ID of the person to add as a participant.`,
+      },
+    ],
+  },
+  {
+    name: 'pipedrive_deal_participant_delete',
+    description: `Remove a participant from a deal in Pipedrive.`,
+    params: [
+      {
+        name: 'deal_participant_id',
+        type: 'integer',
+        required: true,
+        description: `The ID of the deal-participant relationship to remove (not the person ID).`,
+      },
+      { name: 'id', type: 'integer', required: true, description: `The ID of the deal.` },
+    ],
+  },
+  {
+    name: 'pipedrive_deal_participants_list',
+    description: `List the persons who are participants on a specific deal in Pipedrive.`,
+    params: [{ name: 'id', type: 'integer', required: true, description: `The ID of the deal.` }],
+  },
+  {
+    name: 'pipedrive_deal_product_add',
+    description: `Attach a product to a deal in Pipedrive as a line item, with price, quantity, tax, and discount.`,
+    params: [
+      {
+        name: 'id',
+        type: 'integer',
+        required: true,
+        description: `The ID of the deal to attach the product to.`,
+      },
+      {
+        name: 'item_price',
+        type: 'number',
+        required: true,
+        description: `The price at which to attach the product for this deal.`,
+      },
+      {
+        name: 'product_id',
+        type: 'integer',
+        required: true,
+        description: `The ID of the product to attach.`,
+      },
+      {
+        name: 'quantity',
+        type: 'number',
+        required: true,
+        description: `The quantity of the product for this deal.`,
+      },
+      {
+        name: 'billing_frequency',
+        type: 'string',
+        required: false,
+        description: `How often this line item is billed. Defaults to one-time.`,
+      },
+      {
+        name: 'billing_frequency_cycles',
+        type: 'integer',
+        required: false,
+        description: `Number of times the billing frequency repeats. Leave empty for indefinite (only valid when billing_frequency is not one-time).`,
+      },
+      {
+        name: 'billing_start_date',
+        type: 'string',
+        required: false,
+        description: `The date to start billing this line item, in YYYY-MM-DD format. Only valid when billing_frequency is not one-time.`,
+      },
+      {
+        name: 'comments',
+        type: 'string',
+        required: false,
+        description: `A text comment associated with this line item.`,
+      },
+      {
+        name: 'discount',
+        type: 'number',
+        required: false,
+        description: `Discount value for this line item, in the unit given by discount_type. Defaults to 0.`,
+      },
+      {
+        name: 'discount_type',
+        type: 'string',
+        required: false,
+        description: `Whether the discount value is a percentage or a fixed amount. Defaults to percentage.`,
+      },
+      {
+        name: 'is_enabled',
+        type: 'boolean',
+        required: false,
+        description: `Whether this line item is enabled for the deal. Defaults to true.`,
+      },
+      {
+        name: 'product_variation_id',
+        type: 'integer',
+        required: false,
+        description: `The ID of the specific product variation to use, if any.`,
+      },
+      {
+        name: 'tax',
+        type: 'number',
+        required: false,
+        description: `Tax percentage for this line item. Defaults to 0.`,
+      },
+      {
+        name: 'tax_method',
+        type: 'string',
+        required: false,
+        description: `How tax is calculated for this line item.`,
+      },
+    ],
+  },
+  {
+    name: 'pipedrive_deal_product_delete',
+    description: `Remove an attached product from a deal in Pipedrive.`,
+    params: [
+      { name: 'id', type: 'integer', required: true, description: `The ID of the deal.` },
+      {
+        name: 'product_attachment_id',
+        type: 'integer',
+        required: true,
+        description: `The ID of the product attachment (deal-product) to remove.`,
+      },
+    ],
+  },
+  {
+    name: 'pipedrive_deal_product_update',
+    description: `Update a product already attached to a deal in Pipedrive, such as its quantity, price, tax, or discount.`,
+    params: [
+      { name: 'id', type: 'integer', required: true, description: `The ID of the deal.` },
+      {
+        name: 'product_attachment_id',
+        type: 'integer',
+        required: true,
+        description: `The ID of the product attachment (deal-product) to update.`,
+      },
+      {
+        name: 'billing_frequency',
+        type: 'string',
+        required: false,
+        description: `How often this line item is billed.`,
+      },
+      {
+        name: 'billing_frequency_cycles',
+        type: 'integer',
+        required: false,
+        description: `Number of times the billing frequency repeats. Only valid when billing_frequency is not one-time.`,
+      },
+      {
+        name: 'billing_start_date',
+        type: 'string',
+        required: false,
+        description: `The date to start billing this line item, in YYYY-MM-DD format.`,
+      },
+      {
+        name: 'comments',
+        type: 'string',
+        required: false,
+        description: `A text comment associated with this line item.`,
+      },
+      {
+        name: 'discount',
+        type: 'number',
+        required: false,
+        description: `Discount value for this line item, in the unit given by discount_type.`,
+      },
+      {
+        name: 'discount_type',
+        type: 'string',
+        required: false,
+        description: `Whether the discount value is a percentage or a fixed amount.`,
+      },
+      {
+        name: 'is_enabled',
+        type: 'boolean',
+        required: false,
+        description: `Whether this line item is enabled for the deal.`,
+      },
+      {
+        name: 'item_price',
+        type: 'number',
+        required: false,
+        description: `The price at which the product is attached for this deal.`,
+      },
+      {
+        name: 'quantity',
+        type: 'number',
+        required: false,
+        description: `The quantity of the product for this deal.`,
+      },
+      {
+        name: 'tax',
+        type: 'number',
+        required: false,
+        description: `Tax percentage for this line item.`,
+      },
+      {
+        name: 'tax_method',
+        type: 'string',
+        required: false,
+        description: `How tax is calculated for this line item.`,
+      },
+    ],
+  },
+  {
+    name: 'pipedrive_deal_products_list',
+    description: `List the products (line items) attached to a deal in Pipedrive, including quantities, pricing, and discounts.`,
+    params: [
+      { name: 'id', type: 'integer', required: true, description: `The ID of the deal.` },
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Cursor for pagination from a previous response.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Number of products to return per page (max 500).`,
+      },
+      {
+        name: 'sort_by',
+        type: 'string',
+        required: false,
+        description: `Field to sort results by: add_time or update_time.`,
+      },
+      {
+        name: 'sort_direction',
+        type: 'string',
+        required: false,
+        description: `Sort direction: asc or desc.`,
       },
     ],
   },
@@ -439,6 +785,18 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'pipedrive_file_download',
+    description: `Download the raw contents of a file previously uploaded to Pipedrive, by its file ID.`,
+    params: [
+      {
+        name: 'id',
+        type: 'integer',
+        required: true,
+        description: `The ID of the file to download.`,
+      },
+    ],
+  },
+  {
     name: 'pipedrive_file_get',
     description: `Retrieve metadata of a specific file in Pipedrive by its ID.`,
     params: [
@@ -462,6 +820,80 @@ export const tools: Tool[] = [
         description: `Field and direction to sort by (e.g., id DESC, add_time ASC).`,
       },
       { name: 'start', type: 'integer', required: false, description: `Pagination start offset.` },
+    ],
+  },
+  {
+    name: 'pipedrive_filter_create',
+    description: `Create a new saved filter in Pipedrive for deals, leads, organizations, people, products, activities, or projects, defined by a JSON conditions tree.`,
+    params: [
+      {
+        name: 'conditions',
+        type: 'object',
+        required: true,
+        description: `The filter conditions as a JSON object. Maximum 16 conditions per filter; date values must be YYYY-MM-DD. Minimum structure: {"glue":"and","conditions":[{"glue":"and","conditions":[CONDITION_OBJECTS]},{"glue":"or","conditions":[CONDITION_OBJECTS]}]}, where each CONDITION_OBJECT is {"object":"deal|person|organization|product|activity","field_id":"","operator":"=|!=|<|<=|>|>=|IS NULL|IS NOT NULL|LIKE '%$%'","value":"","extra_value":""}.`,
+      },
+      { name: 'name', type: 'string', required: true, description: `The name of the filter.` },
+      {
+        name: 'type',
+        type: 'string',
+        required: true,
+        description: `The type of entity this filter applies to.`,
+      },
+    ],
+  },
+  {
+    name: 'pipedrive_filter_delete',
+    description: `Permanently delete a saved filter from Pipedrive by its ID.`,
+    params: [
+      {
+        name: 'id',
+        type: 'integer',
+        required: true,
+        description: `The ID of the filter to delete.`,
+      },
+    ],
+  },
+  {
+    name: 'pipedrive_filter_get',
+    description: `Retrieve details of a single saved filter, including its name, type, and conditions.`,
+    params: [
+      {
+        name: 'id',
+        type: 'integer',
+        required: true,
+        description: `The ID of the filter to retrieve.`,
+      },
+    ],
+  },
+  {
+    name: 'pipedrive_filter_update',
+    description: `Update an existing saved filter's name and/or conditions.`,
+    params: [
+      {
+        name: 'conditions',
+        type: 'object',
+        required: true,
+        description: `The filter conditions as a JSON object. Maximum 16 conditions per filter; date values must be YYYY-MM-DD. Minimum structure: {"glue":"and","conditions":[{"glue":"and","conditions":[CONDITION_OBJECTS]},{"glue":"or","conditions":[CONDITION_OBJECTS]}]}, where each CONDITION_OBJECT is {"object":"deal|person|organization|product|activity","field_id":"","operator":"=|!=|<|<=|>|>=|IS NULL|IS NOT NULL|LIKE '%$%'","value":"","extra_value":""}.`,
+      },
+      {
+        name: 'id',
+        type: 'integer',
+        required: true,
+        description: `The ID of the filter to update.`,
+      },
+      { name: 'name', type: 'string', required: false, description: `The new name of the filter.` },
+    ],
+  },
+  {
+    name: 'pipedrive_filters_list',
+    description: `Retrieve all saved filters in the Pipedrive account, optionally scoped to a specific entity type.`,
+    params: [
+      {
+        name: 'type',
+        type: 'string',
+        required: false,
+        description: `Restrict results to filters of this type.`,
+      },
     ],
   },
   {
@@ -600,6 +1032,60 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Filter by goal type: deals_won, deals_progressed, activities_completed, activities_added, revenue_forecast.`,
+      },
+    ],
+  },
+  {
+    name: 'pipedrive_item_search',
+    description: `Search across multiple item types at once in Pipedrive (deals, persons, organizations, products, leads, files) by a search term, optionally scoped to specific item types and fields.`,
+    params: [
+      {
+        name: 'term',
+        type: 'string',
+        required: true,
+        description: `The search term to look for. Minimum 2 characters, or 1 character if exact_match is true.`,
+      },
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Cursor for pagination from a previous response.`,
+      },
+      {
+        name: 'exact_match',
+        type: 'boolean',
+        required: false,
+        description: `When true, only full exact (case-insensitive) matches against the term are returned.`,
+      },
+      {
+        name: 'fields',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of fields to search in. Defaults to all searchable fields for the given item types.`,
+      },
+      {
+        name: 'include_fields',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of additional, otherwise-omitted fields to include per item type, e.g. deal.cc_email.`,
+      },
+      {
+        name: 'item_types',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of item types to search. Defaults to all types if omitted.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Number of results to return per page (max 100).`,
+      },
+      {
+        name: 'search_for_related_items',
+        type: 'boolean',
+        required: false,
+        description: `When true, also returns related items (e.g. the person and organization for a matched deal).`,
       },
     ],
   },
@@ -808,6 +1294,18 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'pipedrive_note_get',
+    description: `Retrieve details of a single note in Pipedrive by its ID, including content and the deal, person, organization, or lead it is attached to.`,
+    params: [
+      {
+        name: 'id',
+        type: 'integer',
+        required: true,
+        description: `The ID of the note to retrieve.`,
+      },
+    ],
+  },
+  {
     name: 'pipedrive_note_update',
     description: `Update the content of an existing note in Pipedrive.`,
     params: [
@@ -890,6 +1388,68 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'pipedrive_organization_fields_list',
+    description: `Get metadata for all organization fields in Pipedrive, including custom fields. Use this to discover valid field keys and option values before writing organization data.`,
+    params: [
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Cursor for pagination from a previous response.`,
+      },
+      {
+        name: 'include_fields',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of extra properties to include, e.g. ui_visibility, important_fields, required_fields.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Number of fields to return per page (max 500, default 100).`,
+      },
+    ],
+  },
+  {
+    name: 'pipedrive_organization_follower_add',
+    description: `Add a user as a follower of an organization so they receive updates about it in Pipedrive.`,
+    params: [
+      {
+        name: 'id',
+        type: 'integer',
+        required: true,
+        description: `The ID of the organization to follow.`,
+      },
+      {
+        name: 'user_id',
+        type: 'integer',
+        required: true,
+        description: `The ID of the user to add as a follower.`,
+      },
+    ],
+  },
+  {
+    name: 'pipedrive_organization_follower_delete',
+    description: `Remove a follower from an organization in Pipedrive.`,
+    params: [
+      {
+        name: 'follower_id',
+        type: 'integer',
+        required: true,
+        description: `The user ID of the follower to remove.`,
+      },
+      { name: 'id', type: 'integer', required: true, description: `The ID of the organization.` },
+    ],
+  },
+  {
+    name: 'pipedrive_organization_followers_list',
+    description: `List the users who are following a specific organization in Pipedrive.`,
+    params: [
+      { name: 'id', type: 'integer', required: true, description: `The ID of the organization.` },
+    ],
+  },
+  {
     name: 'pipedrive_organization_get',
     description: `Retrieve details of a specific organization in Pipedrive by its ID, including name, address, and associated deals and contacts.`,
     params: [
@@ -898,6 +1458,24 @@ export const tools: Tool[] = [
         type: 'integer',
         required: true,
         description: `The ID of the organization to retrieve.`,
+      },
+    ],
+  },
+  {
+    name: 'pipedrive_organization_merge',
+    description: `Merge two organizations in Pipedrive. The organization given by merge_with_id is merged into the organization given by id, and the source organization is removed.`,
+    params: [
+      {
+        name: 'id',
+        type: 'integer',
+        required: true,
+        description: `The ID of the organization to merge into.`,
+      },
+      {
+        name: 'merge_with_id',
+        type: 'integer',
+        required: true,
+        description: `The ID of the organization that will be merged into the organization given by id and then removed.`,
       },
     ],
   },
@@ -1041,6 +1619,66 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'pipedrive_person_fields_list',
+    description: `Get metadata for all person fields in Pipedrive, including custom fields. Use this to discover valid field keys and option values before writing person data.`,
+    params: [
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Cursor for pagination from a previous response.`,
+      },
+      {
+        name: 'include_fields',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of extra properties to include, e.g. ui_visibility, important_fields, required_fields.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Number of fields to return per page (max 500, default 100).`,
+      },
+    ],
+  },
+  {
+    name: 'pipedrive_person_follower_add',
+    description: `Add a user as a follower of a person so they receive updates about them in Pipedrive.`,
+    params: [
+      {
+        name: 'id',
+        type: 'integer',
+        required: true,
+        description: `The ID of the person to follow.`,
+      },
+      {
+        name: 'user_id',
+        type: 'integer',
+        required: true,
+        description: `The ID of the user to add as a follower.`,
+      },
+    ],
+  },
+  {
+    name: 'pipedrive_person_follower_delete',
+    description: `Remove a follower from a person in Pipedrive.`,
+    params: [
+      {
+        name: 'follower_id',
+        type: 'integer',
+        required: true,
+        description: `The user ID of the follower to remove.`,
+      },
+      { name: 'id', type: 'integer', required: true, description: `The ID of the person.` },
+    ],
+  },
+  {
+    name: 'pipedrive_person_followers_list',
+    description: `List the users who are following a specific person in Pipedrive.`,
+    params: [{ name: 'id', type: 'integer', required: true, description: `The ID of the person.` }],
+  },
+  {
     name: 'pipedrive_person_get',
     description: `Retrieve details of a specific person (contact) in Pipedrive by their ID, including name, emails, phones, and associated organization.`,
     params: [
@@ -1049,6 +1687,24 @@ export const tools: Tool[] = [
         type: 'integer',
         required: true,
         description: `The ID of the person to retrieve.`,
+      },
+    ],
+  },
+  {
+    name: 'pipedrive_person_merge',
+    description: `Merge two persons in Pipedrive. The person given by merge_with_id is merged into the person given by id, and the source person is removed.`,
+    params: [
+      {
+        name: 'id',
+        type: 'integer',
+        required: true,
+        description: `The ID of the person to merge into.`,
+      },
+      {
+        name: 'merge_with_id',
+        type: 'integer',
+        required: true,
+        description: `The ID of the person that will be merged into the person given by id and then removed.`,
       },
     ],
   },
@@ -1173,6 +1829,31 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'pipedrive_pipeline_conversion_statistics',
+    description: `Get the deal conversion rates between stages of a pipeline over a given date range.`,
+    params: [
+      {
+        name: 'end_date',
+        type: 'string',
+        required: true,
+        description: `The end of the period to compute conversion statistics for (YYYY-MM-DD).`,
+      },
+      { name: 'id', type: 'integer', required: true, description: `The ID of the pipeline.` },
+      {
+        name: 'start_date',
+        type: 'string',
+        required: true,
+        description: `The start of the period to compute conversion statistics for (YYYY-MM-DD).`,
+      },
+      {
+        name: 'user_id',
+        type: 'integer',
+        required: false,
+        description: `The ID of the user whose pipeline statistics to fetch. Defaults to the authorized user if omitted.`,
+      },
+    ],
+  },
+  {
     name: 'pipedrive_pipeline_create',
     description: `Create a new sales pipeline in Pipedrive with a name and optional deal probability setting.`,
     params: [
@@ -1182,6 +1863,44 @@ export const tools: Tool[] = [
         type: 'boolean',
         required: false,
         description: `Whether deal probability is enabled for this pipeline.`,
+      },
+    ],
+  },
+  {
+    name: 'pipedrive_pipeline_deals_list',
+    description: `List the deals currently sitting in a specific pipeline, optionally filtered by owner, stage, or a saved filter.`,
+    params: [
+      { name: 'id', type: 'integer', required: true, description: `The ID of the pipeline.` },
+      {
+        name: 'everyone',
+        type: 'number',
+        required: false,
+        description: `If set to 1, filter_id and user_id are ignored and deals owned by everyone are returned.`,
+      },
+      {
+        name: 'filter_id',
+        type: 'integer',
+        required: false,
+        description: `If supplied, only deals matching the given filter will be returned.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Number of items to show per page.`,
+      },
+      {
+        name: 'stage_id',
+        type: 'integer',
+        required: false,
+        description: `If supplied, only deals within the given stage will be returned.`,
+      },
+      { name: 'start', type: 'integer', required: false, description: `Pagination start offset.` },
+      {
+        name: 'user_id',
+        type: 'integer',
+        required: false,
+        description: `If supplied, filter_id is ignored and only deals owned by this user are returned.`,
       },
     ],
   },
@@ -1206,6 +1925,31 @@ export const tools: Tool[] = [
         type: 'integer',
         required: true,
         description: `The ID of the pipeline to retrieve.`,
+      },
+    ],
+  },
+  {
+    name: 'pipedrive_pipeline_movement_statistics',
+    description: `Get counts of how deals moved into and out of each stage of a pipeline over a given date range.`,
+    params: [
+      {
+        name: 'end_date',
+        type: 'string',
+        required: true,
+        description: `The end of the period to compute movement statistics for (YYYY-MM-DD).`,
+      },
+      { name: 'id', type: 'integer', required: true, description: `The ID of the pipeline.` },
+      {
+        name: 'start_date',
+        type: 'string',
+        required: true,
+        description: `The start of the period to compute movement statistics for (YYYY-MM-DD).`,
+      },
+      {
+        name: 'user_id',
+        type: 'integer',
+        required: false,
+        description: `The ID of the user whose pipeline statistics to fetch. Defaults to the authorized user if omitted.`,
       },
     ],
   },
@@ -1305,6 +2049,68 @@ export const tools: Tool[] = [
         required: true,
         description: `The ID of the product to delete.`,
       },
+    ],
+  },
+  {
+    name: 'pipedrive_product_fields_list',
+    description: `Get metadata for all product fields in Pipedrive, including custom fields. Use this to discover valid field keys and option values before writing product data.`,
+    params: [
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Cursor for pagination from a previous response.`,
+      },
+      {
+        name: 'include_fields',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of extra properties to include, e.g. ui_visibility, important_fields, required_fields.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Number of fields to return per page (max 500, default 100).`,
+      },
+    ],
+  },
+  {
+    name: 'pipedrive_product_follower_add',
+    description: `Add a user as a follower of a product so they receive updates about it in Pipedrive.`,
+    params: [
+      {
+        name: 'id',
+        type: 'integer',
+        required: true,
+        description: `The ID of the product to follow.`,
+      },
+      {
+        name: 'user_id',
+        type: 'integer',
+        required: true,
+        description: `The ID of the user to add as a follower.`,
+      },
+    ],
+  },
+  {
+    name: 'pipedrive_product_follower_delete',
+    description: `Remove a follower from a product in Pipedrive.`,
+    params: [
+      {
+        name: 'follower_id',
+        type: 'integer',
+        required: true,
+        description: `The user ID of the follower to remove.`,
+      },
+      { name: 'id', type: 'integer', required: true, description: `The ID of the product.` },
+    ],
+  },
+  {
+    name: 'pipedrive_product_followers_list',
+    description: `List the users who are following a specific product in Pipedrive.`,
+    params: [
+      { name: 'id', type: 'integer', required: true, description: `The ID of the product.` },
     ],
   },
   {
@@ -1472,6 +2278,38 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'pipedrive_stage_deals_list',
+    description: `List the deals currently sitting in a specific pipeline stage, optionally filtered by owner or a saved filter.`,
+    params: [
+      { name: 'id', type: 'integer', required: true, description: `The ID of the stage.` },
+      {
+        name: 'everyone',
+        type: 'number',
+        required: false,
+        description: `If set to 1, filter_id and user_id are ignored and deals owned by everyone are returned.`,
+      },
+      {
+        name: 'filter_id',
+        type: 'integer',
+        required: false,
+        description: `If supplied, only deals matching the given filter will be returned.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Number of items to show per page.`,
+      },
+      { name: 'start', type: 'integer', required: false, description: `Pagination start offset.` },
+      {
+        name: 'user_id',
+        type: 'integer',
+        required: false,
+        description: `If supplied, filter_id is ignored and only deals owned by this user are returned.`,
+      },
+    ],
+  },
+  {
     name: 'pipedrive_stage_delete',
     description: `Delete a pipeline stage from Pipedrive by its ID.`,
     params: [
@@ -1569,6 +2407,36 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'pipedrive_user_create',
+    description: `Invite a new user to the Pipedrive account by email, optionally setting their app access level and active status.`,
+    params: [
+      {
+        name: 'email',
+        type: 'string',
+        required: true,
+        description: `The email address of the user to invite.`,
+      },
+      {
+        name: 'access_admin',
+        type: 'boolean',
+        required: false,
+        description: `Whether the user should have admin access within the given app.`,
+      },
+      {
+        name: 'access_app',
+        type: 'string',
+        required: false,
+        description: `The app to grant access to. One of: global, sales, campaigns, projects, account_settings, partnership.`,
+      },
+      {
+        name: 'active_flag',
+        type: 'boolean',
+        required: false,
+        description: `Whether the user is activated. false = Not activated, true = Activated.`,
+      },
+    ],
+  },
+  {
     name: 'pipedrive_user_get',
     description: `Retrieve details of a specific user in Pipedrive by their ID.`,
     params: [
@@ -1584,6 +2452,19 @@ export const tools: Tool[] = [
     name: 'pipedrive_user_me',
     description: `Retrieve the profile of the currently authenticated user in Pipedrive.`,
     params: [],
+  },
+  {
+    name: 'pipedrive_user_update',
+    description: `Update a Pipedrive user's activation status. This is the only field the Pipedrive Users API allows changing after invite.`,
+    params: [
+      {
+        name: 'active_flag',
+        type: 'boolean',
+        required: true,
+        description: `Whether the user is activated. false = Not activated, true = Activated.`,
+      },
+      { name: 'id', type: 'integer', required: true, description: `The ID of the user to update.` },
+    ],
   },
   {
     name: 'pipedrive_users_find',

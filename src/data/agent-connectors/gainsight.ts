@@ -2,6 +2,67 @@ import type { Tool } from '../../types/agent-connectors'
 
 export const tools: Tool[] = [
   {
+    name: 'gainsight_company_create',
+    description: `Create a new company record in Gainsight. Use gainsight_company_query afterward to retrieve its GSID for linking CTAs, timeline activities, or success plans.`,
+    params: [
+      { name: 'name', type: 'string', required: true, description: `Name of the company.` },
+      {
+        name: 'arr',
+        type: 'number',
+        required: false,
+        description: `Annual recurring revenue for this company.`,
+      },
+      {
+        name: 'csm_first_name',
+        type: 'string',
+        required: false,
+        description: `First name of the assigned Customer Success Manager.`,
+      },
+      {
+        name: 'csm_last_name',
+        type: 'string',
+        required: false,
+        description: `Last name of the assigned Customer Success Manager.`,
+      },
+      {
+        name: 'employees',
+        type: 'integer',
+        required: false,
+        description: `Number of employees at this company.`,
+      },
+      {
+        name: 'external_record_id',
+        type: 'string',
+        required: false,
+        description: `Your external identifier for this company (e.g. from your CRM), used to keep records in sync across systems.`,
+      },
+      {
+        name: 'industry',
+        type: 'string',
+        required: false,
+        description: `Industry the company operates in.`,
+      },
+      {
+        name: 'renewal_date',
+        type: 'string',
+        required: false,
+        description: `Renewal date in YYYY-MM-DD format.`,
+      },
+      {
+        name: 'stage',
+        type: 'string',
+        required: false,
+        description: `Lifecycle stage as configured in your Gainsight instance (e.g. New Customer, Kicked Off, Launched).`,
+      },
+      {
+        name: 'status',
+        type: 'string',
+        required: false,
+        description: `Status value as configured in your Gainsight instance.`,
+      },
+    ],
+  },
+  {
     name: 'gainsight_company_query',
     description: `Search and filter Gainsight company records by any field. Returns up to 5000 records per call.`,
     params: [
@@ -34,6 +95,55 @@ export const tools: Tool[] = [
         type: 'object',
         required: false,
         description: `Filter object with conditions array and expression string. Each condition uses name (field name), alias, value array, and operator.`,
+      },
+    ],
+  },
+  {
+    name: 'gainsight_company_update',
+    description: `Update one or more fields on an existing Gainsight company, identified by its GSID. Only the fields you include are changed — all other fields remain untouched.`,
+    params: [
+      {
+        name: 'company_gsid',
+        type: 'string',
+        required: true,
+        description: `GSID of the company to update. Retrieve it from gainsight_company_query.`,
+      },
+      {
+        name: 'arr',
+        type: 'number',
+        required: false,
+        description: `New annual recurring revenue.`,
+      },
+      {
+        name: 'employees',
+        type: 'integer',
+        required: false,
+        description: `New employee headcount.`,
+      },
+      {
+        name: 'industry',
+        type: 'string',
+        required: false,
+        description: `New industry classification.`,
+      },
+      { name: 'name', type: 'string', required: false, description: `New name for the company.` },
+      {
+        name: 'renewal_date',
+        type: 'string',
+        required: false,
+        description: `New renewal date in YYYY-MM-DD format.`,
+      },
+      {
+        name: 'stage',
+        type: 'string',
+        required: false,
+        description: `New lifecycle stage as configured in your Gainsight instance.`,
+      },
+      {
+        name: 'status',
+        type: 'string',
+        required: false,
+        description: `New status value as configured in your Gainsight instance.`,
       },
     ],
   },
@@ -212,6 +322,146 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'gainsight_goal_create',
+    description: `Creates a Customer Goal record in Gainsight. Customer Goals track outcomes you're driving toward with a company, relationship, or globally. GoalTypeId and StatusId are internal Gainsight IDs configured in your instance (Administration > Customer Goals) — not free-text names.`,
+    params: [
+      {
+        name: 'entity_type',
+        type: 'string',
+        required: true,
+        description: `Level this goal is tracked at: COMPANY, RELATIONSHIP, or GLOBAL.`,
+      },
+      {
+        name: 'goal_type_id',
+        type: 'string',
+        required: true,
+        description: `Internal Gainsight ID of the goal type, as configured in your instance.`,
+      },
+      { name: 'name', type: 'string', required: true, description: `Name of the goal.` },
+      {
+        name: 'status_id',
+        type: 'string',
+        required: true,
+        description: `Internal Gainsight ID of the goal status, as configured in your instance.`,
+      },
+      {
+        name: 'company_name',
+        type: 'string',
+        required: false,
+        description: `Name of the company this goal belongs to. Required when entity_type is COMPANY.`,
+      },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `Description of the goal. HTML is supported.`,
+      },
+      {
+        name: 'due_date',
+        type: 'string',
+        required: false,
+        description: `Due date in YYYY-MM-DD format.`,
+      },
+    ],
+  },
+  {
+    name: 'gainsight_goal_fetch',
+    description: `Fetches/queries Customer Goal records in Gainsight. Select which fields to return, and optionally filter by company, relationship, status, opportunity, or any custom attribute.`,
+    params: [
+      {
+        name: 'select',
+        type: 'array',
+        required: true,
+        description: `Field names to return for each goal.`,
+      },
+      {
+        name: 'page_number',
+        type: 'integer',
+        required: false,
+        description: `Page number to fetch, starting from 1.`,
+      },
+      {
+        name: 'page_size',
+        type: 'integer',
+        required: false,
+        description: `Number of records to return per page.`,
+      },
+      {
+        name: 'where',
+        type: 'object',
+        required: false,
+        description: `Filter conditions with a conditions array (fieldName, value, operator, alias) and an expression combining their aliases.`,
+      },
+    ],
+  },
+  {
+    name: 'gainsight_goal_update',
+    description: `Updates an existing Customer Goal record in Gainsight by its GSID. Only the fields you include are changed — all other fields remain untouched.`,
+    params: [
+      {
+        name: 'gsid',
+        type: 'string',
+        required: true,
+        description: `Gainsight internal ID (GSID) of the goal to update. Retrieve it from gainsight_goal_fetch.`,
+      },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `New description of the goal. HTML is supported.`,
+      },
+      {
+        name: 'due_date',
+        type: 'string',
+        required: false,
+        description: `New due date in YYYY-MM-DD format.`,
+      },
+      { name: 'name', type: 'string', required: false, description: `New name for the goal.` },
+      {
+        name: 'status_id',
+        type: 'string',
+        required: false,
+        description: `New internal Gainsight status ID, as configured in your instance.`,
+      },
+    ],
+  },
+  {
+    name: 'gainsight_object_create',
+    description: `Insert up to 50 records into any standard or custom Gainsight MDA object by name. Custom objects use the __gc suffix (e.g. MyObject__gc). Use gainsight_object_describe to see the fields available on an object.`,
+    params: [
+      {
+        name: 'object_name',
+        type: 'string',
+        required: true,
+        description: `Gainsight MDA object name to insert into, e.g. Company, company_person, or a custom object like MyObj__gc.`,
+      },
+      {
+        name: 'records',
+        type: 'array',
+        required: true,
+        description: `Array of record objects to insert, each a map of field name to value. Up to 50 records per call.`,
+      },
+    ],
+  },
+  {
+    name: 'gainsight_object_delete',
+    description: `Delete a single record from any standard or custom Gainsight MDA object by its GSID. This works for any object exposed via the generic MDA API, including records not covered by a dedicated delete tool (e.g. call_to_action, success_plan, cockpit_task).`,
+    params: [
+      {
+        name: 'gsid',
+        type: 'string',
+        required: true,
+        description: `The GSID of the record to delete.`,
+      },
+      {
+        name: 'object_name',
+        type: 'string',
+        required: true,
+        description: `Gainsight MDA object name the record belongs to, e.g. Company, call_to_action, or a custom object like MyObj__gc.`,
+      },
+    ],
+  },
+  {
     name: 'gainsight_object_describe',
     description: `Return the full field schema for any Gainsight MDA object, including field names, types, and picklist values. Use gainsight_object_list to find valid object names.`,
     params: [
@@ -299,6 +549,54 @@ export const tools: Tool[] = [
         type: 'object',
         required: false,
         description: `Filter object with conditions array and expression string. Each condition uses name, alias, value array, and operator.`,
+      },
+    ],
+  },
+  {
+    name: 'gainsight_object_update',
+    description: `Update up to 50 records on any standard or custom Gainsight MDA object by name, matching existing records via one or more key fields (usually Gsid). Only the fields you include on each record are changed.`,
+    params: [
+      {
+        name: 'object_name',
+        type: 'string',
+        required: true,
+        description: `Gainsight MDA object name to update, e.g. Company, company_person, or a custom object like MyObj__gc.`,
+      },
+      {
+        name: 'records',
+        type: 'array',
+        required: true,
+        description: `Array of record objects to update. Each must include the key field(s) plus any fields to change, as a map of field name to value.`,
+      },
+      {
+        name: 'key_fields',
+        type: 'string',
+        required: false,
+        description: `Comma-separated field name(s) used to match each record to an existing one. Up to 3 fields of type String, Gsid, Number, or Email.`,
+      },
+    ],
+  },
+  {
+    name: 'gainsight_playbook_list',
+    description: `List Playbooks configured in Gainsight Cockpit, optionally filtered by entity type, active status, and playbook type. Useful for discovering valid playbook names before referencing one in gainsight_cta_create's playbook field.`,
+    params: [
+      {
+        name: 'active',
+        type: 'boolean',
+        required: false,
+        description: `Restrict to active (true) or inactive (false) playbooks. Omit to return both.`,
+      },
+      {
+        name: 'entity_type',
+        type: 'string',
+        required: false,
+        description: `Restrict to playbooks configured for this entity type, e.g. COMPANY or GLOBAL.`,
+      },
+      {
+        name: 'type',
+        type: 'string',
+        required: false,
+        description: `Comma-separated playbook types to filter by, e.g. Risk,Expansion.`,
       },
     ],
   },
@@ -611,6 +909,66 @@ export const tools: Tool[] = [
         type: 'integer',
         required: false,
         description: `Number of tasks per page (max 1000). Default: 1000.`,
+      },
+    ],
+  },
+  {
+    name: 'gainsight_task_update',
+    description: `Update one or more fields on an existing task in Gainsight Cockpit. Only the fields you include are changed — all other fields remain untouched.`,
+    params: [
+      {
+        name: 'gsid',
+        type: 'string',
+        required: true,
+        description: `Gainsight internal ID (GSID) of the task to update. Retrieve it from gainsight_task_list.`,
+      },
+      {
+        name: 'reference_id',
+        type: 'string',
+        required: true,
+        description: `Your external identifier for this record, returned in error responses so you can match failures back to your source data.`,
+      },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `Optional free-text description providing additional context for this task.`,
+      },
+      {
+        name: 'due_date',
+        type: 'string',
+        required: false,
+        description: `Due date in YYYY-MM-DD format.`,
+      },
+      {
+        name: 'due_date_criteria',
+        type: 'string',
+        required: false,
+        description: `When changing due_date, optionally cascade the new date to related open items.`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: false,
+        description: `New display name for this task.`,
+      },
+      {
+        name: 'owner_email',
+        type: 'string',
+        required: false,
+        description: `Email address of the Gainsight user to assign as owner. Resolved to an internal user ID automatically.`,
+      },
+      {
+        name: 'priority',
+        type: 'string',
+        required: false,
+        description: `Priority level for this record. Accepted values: High, Medium, Low.`,
+      },
+      {
+        name: 'status',
+        type: 'string',
+        required: false,
+        description: `Status value as configured in your Gainsight instance. Check your Gainsight admin settings for valid values.`,
       },
     ],
   },

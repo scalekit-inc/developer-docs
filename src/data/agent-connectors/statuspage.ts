@@ -2478,6 +2478,11 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'statuspage_pages_list',
+    description: `Get the list of Statuspage pages accessible to the authenticated API key. Use this to discover page_id values before calling the other page-scoped Statuspage tools.`,
+    params: [],
+  },
+  {
     name: 'statuspage_status_embed_config_get',
     description: `Retrieve the status embed config settings for a Statuspage status page, including the iframe position and its background/text colors for incident and maintenance states.`,
     params: [

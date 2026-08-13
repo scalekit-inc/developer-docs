@@ -13,6 +13,66 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'outlook_add_event_attachment',
+    description: `Attach a small file (under 3 MB) directly to a calendar event by uploading base64-encoded content.`,
+    params: [
+      {
+        name: 'attachment_name',
+        type: 'string',
+        required: true,
+        description: `The filename of the attachment, including its extension.`,
+      },
+      {
+        name: 'content_bytes',
+        type: 'string',
+        required: true,
+        description: `The base64-encoded content of the file to attach.`,
+      },
+      {
+        name: 'event_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the event to attach the file to.`,
+      },
+      {
+        name: 'content_type',
+        type: 'string',
+        required: false,
+        description: `MIME type of the file (e.g., 'application/pdf'). Defaults to application/octet-stream if omitted.`,
+      },
+    ],
+  },
+  {
+    name: 'outlook_add_message_attachment',
+    description: `Attach a small file (under 3 MB) directly to a message by uploading base64-encoded content. For files larger than 3 MB, use Create Attachment Upload Session instead.`,
+    params: [
+      {
+        name: 'attachment_name',
+        type: 'string',
+        required: true,
+        description: `The filename of the attachment, including its extension.`,
+      },
+      {
+        name: 'content_bytes',
+        type: 'string',
+        required: true,
+        description: `The base64-encoded content of the file to attach.`,
+      },
+      {
+        name: 'message_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the message to attach the file to.`,
+      },
+      {
+        name: 'content_type',
+        type: 'string',
+        required: false,
+        description: `MIME type of the file (e.g., 'application/pdf'). Defaults to application/octet-stream if omitted.`,
+      },
+    ],
+  },
+  {
     name: 'outlook_batch_move_messages',
     description: `Move up to 20 Outlook messages to a destination folder in a single Microsoft Graph batch request. Builds a $batch envelope where each subrequest POSTs to /me/messages/{id}/move. Returns a 200 response with per-subrequest status codes inside the responses array.`,
     params: [
@@ -45,6 +105,78 @@ export const tools: Tool[] = [
         type: 'object',
         required: true,
         description: `Free-form object of message properties to update on all specified messages. Example: {"isRead": true} to mark as read, or {"isRead": false, "flag": {"flagStatus": "flagged"}} for multiple changes.`,
+      },
+    ],
+  },
+  {
+    name: 'outlook_cancel_event',
+    description: `Cancel a meeting as the organizer. Sends a cancellation message to all attendees and removes the event from the calendar. Only available to the event organizer.`,
+    params: [
+      {
+        name: 'event_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the event to cancel.`,
+      },
+      {
+        name: 'comment',
+        type: 'string',
+        required: false,
+        description: `Optional message to include in the cancellation notice sent to attendees.`,
+      },
+    ],
+  },
+  {
+    name: 'outlook_copy_mail_folder',
+    description: `Copy a mail folder, along with its contents and any child folders, into another folder. The original folder is left in place.`,
+    params: [
+      {
+        name: 'destination_folder_id',
+        type: 'string',
+        required: true,
+        description: `The ID or well-known name of the folder to copy into (e.g., 'inbox' or a folder ID).`,
+      },
+      {
+        name: 'folder_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the mail folder to copy.`,
+      },
+    ],
+  },
+  {
+    name: 'outlook_copy_message',
+    description: `Copy a message to another mail folder. The original message is left in place and a new copy is created in the destination folder.`,
+    params: [
+      {
+        name: 'destination_folder_id',
+        type: 'string',
+        required: true,
+        description: `The ID or well-known name of the folder to copy the message into (e.g., 'inbox', 'drafts', or a folder ID).`,
+      },
+      {
+        name: 'message_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the message to copy.`,
+      },
+    ],
+  },
+  {
+    name: 'outlook_create_calendar',
+    description: `Create a new calendar in the signed-in user's default calendar group. Use Create Calendar Group first if you want a dedicated group for related calendars.`,
+    params: [
+      {
+        name: 'name',
+        type: 'string',
+        required: true,
+        description: `The display name of the new calendar.`,
+      },
+      {
+        name: 'color',
+        type: 'string',
+        required: false,
+        description: `Color theme to associate with the calendar.`,
       },
     ],
   },
@@ -233,6 +365,24 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'outlook_create_child_folder',
+    description: `Create a new mail folder nested directly under an existing mail folder.`,
+    params: [
+      {
+        name: 'display_name',
+        type: 'string',
+        required: true,
+        description: `The display name for the new child folder.`,
+      },
+      {
+        name: 'folder_id',
+        type: 'string',
+        required: true,
+        description: `The ID or well-known name of the parent mail folder to create the child folder under.`,
+      },
+    ],
+  },
+  {
     name: 'outlook_create_contact',
     description: `Create a new contact in the user's mailbox with name, email addresses, and phone numbers.`,
     params: [
@@ -280,12 +430,18 @@ export const tools: Tool[] = [
   },
   {
     name: 'outlook_create_draft_message',
-    description: `Create a new email draft in the mailbox.`,
+    description: `Create a new email draft in the mailbox. Supports setting a follow-up flag.`,
     params: [
       { name: 'bcc_recipients', type: 'string', required: false, description: `BCC recipients.` },
       { name: 'body', type: 'string', required: false, description: `Email body content.` },
       { name: 'body_type', type: 'string', required: false, description: `Body content type.` },
       { name: 'cc_recipients', type: 'string', required: false, description: `CC recipients.` },
+      {
+        name: 'flag_status',
+        type: 'string',
+        required: false,
+        description: `Follow-up flag status.`,
+      },
       { name: 'importance', type: 'string', required: false, description: `Importance.` },
       { name: 'schema_version', type: 'string', required: false, description: `Schema version` },
       { name: 'subject', type: 'string', required: false, description: `Email subject.` },
@@ -549,6 +705,18 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'outlook_delete_calendar',
+    description: `Permanently delete a calendar and all of the events it contains. The default calendar cannot be deleted.`,
+    params: [
+      {
+        name: 'calendar_id',
+        type: 'string',
+        required: true,
+        description: `The unique identifier of the calendar to delete. Cannot be the user's default calendar.`,
+      },
+    ],
+  },
+  {
     name: 'outlook_delete_calendar_event',
     description: `Delete a calendar event by ID.`,
     params: [{ name: 'event_id', type: 'string', required: true, description: `No description.` }],
@@ -617,6 +785,24 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'outlook_delete_event_attachment',
+    description: `Delete a single attachment from a calendar event.`,
+    params: [
+      {
+        name: 'attachment_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the attachment to delete.`,
+      },
+      {
+        name: 'event_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the event the attachment belongs to.`,
+      },
+    ],
+  },
+  {
     name: 'outlook_delete_focused_inbox_override',
     description: `Delete a Focused Inbox override rule for the signed-in user. Once deleted, messages from that sender will revert to automatic machine learning classification.`,
     params: [
@@ -647,12 +833,48 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'outlook_delete_message_attachment',
+    description: `Delete a single attachment from a message.`,
+    params: [
+      {
+        name: 'attachment_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the attachment to delete.`,
+      },
+      {
+        name: 'message_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the message the attachment belongs to.`,
+      },
+    ],
+  },
+  {
     name: 'outlook_delete_message_rule',
     description: `Delete an inbox message rule.`,
     params: [
       { name: 'rule_id', type: 'string', required: true, description: `Rule ID.` },
       { name: 'schema_version', type: 'string', required: false, description: `Schema version` },
       { name: 'tool_version', type: 'string', required: false, description: `Tool version` },
+    ],
+  },
+  {
+    name: 'outlook_delete_shared_calendar_event',
+    description: `Delete an event from another user's (delegated/shared) calendar. Targets /users/{id}/events/{event_id}, documented explicitly in Microsoft Graph's Delete Event v1.0 reference alongside /me/events/{id}. Requires Calendars.ReadWrite application permission or delegated access granted by the target user. Create and Update already exist for shared calendar events but there was no Delete.`,
+    params: [
+      {
+        name: 'event_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the calendar event to delete`,
+      },
+      {
+        name: 'user_id',
+        type: 'string',
+        required: true,
+        description: `The user ID or userPrincipalName (email) of the target user whose calendar you are accessing (e.g., colleague@company.com or an object ID). Access must be granted via application permissions or delegated sharing.`,
+      },
     ],
   },
   {
@@ -715,6 +937,30 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'outlook_forward_message',
+    description: `Immediately forward an existing message to new recipients, without creating a draft first. Use Create Forward Draft instead if you want to review or edit before sending.`,
+    params: [
+      {
+        name: 'message_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the message to forward.`,
+      },
+      {
+        name: 'to_recipients',
+        type: 'string',
+        required: true,
+        description: `Comma-separated email addresses to forward the message to.`,
+      },
+      {
+        name: 'comment',
+        type: 'string',
+        required: false,
+        description: `Optional comment to include above the forwarded message content.`,
+      },
+    ],
+  },
+  {
     name: 'outlook_get_attachment',
     description: `Download a specific attachment from an Outlook email message by attachment ID. Returns the full attachment including base64-encoded file content in the contentBytes field. Use List Attachments to get the attachment ID first.`,
     params: [
@@ -733,9 +979,33 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'outlook_get_calendar',
+    description: `Retrieve a single calendar by ID, including its name, color, and owner information.`,
+    params: [
+      {
+        name: 'calendar_id',
+        type: 'string',
+        required: true,
+        description: `The unique identifier of the calendar to retrieve.`,
+      },
+    ],
+  },
+  {
     name: 'outlook_get_calendar_event',
     description: `Retrieve an existing calendar event by ID from the user's Outlook calendar.`,
     params: [{ name: 'event_id', type: 'string', required: true, description: `No description.` }],
+  },
+  {
+    name: 'outlook_get_calendar_group',
+    description: `Retrieve a single calendar group by ID.`,
+    params: [
+      {
+        name: 'group_id',
+        type: 'string',
+        required: true,
+        description: `The unique ID of the calendar group to retrieve.`,
+      },
+    ],
   },
   {
     name: 'outlook_get_calendar_view',
@@ -791,6 +1061,18 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'outlook_get_contact_folder',
+    description: `Retrieve a single contact folder by ID, including its display name and parent folder.`,
+    params: [
+      {
+        name: 'contact_folder_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the contact folder to retrieve.`,
+      },
+    ],
+  },
+  {
     name: 'outlook_get_contact_photo',
     description: `Retrieve the profile photo of a specific contact in the signed-in user's mailbox. Returns binary image data (JPEG). A 404 response indicates no photo is set for this contact.`,
     params: [
@@ -799,6 +1081,24 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `The unique ID of the contact whose photo to retrieve (e.g., 'AAMkAGI2...'). Obtain from List Contacts or Get Contact.`,
+      },
+    ],
+  },
+  {
+    name: 'outlook_get_event_attachment',
+    description: `Download a specific attachment from a calendar event by attachment ID. Returns the full attachment including base64-encoded file content in the contentBytes field.`,
+    params: [
+      {
+        name: 'attachment_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the attachment to download.`,
+      },
+      {
+        name: 'event_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the event containing the attachment.`,
       },
     ],
   },
@@ -839,6 +1139,18 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'outlook_get_mail_folder',
+    description: `Retrieve a single mail folder by ID, including its display name, parent folder, and item/unread counts.`,
+    params: [
+      {
+        name: 'folder_id',
+        type: 'string',
+        required: true,
+        description: `The ID or well-known name of the mail folder to retrieve (e.g., 'inbox', 'drafts', or a folder ID).`,
+      },
+    ],
+  },
+  {
     name: 'outlook_get_mail_tips',
     description: `Get mail tips for a list of recipients before sending an email.`,
     params: [
@@ -862,6 +1174,36 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `The ID of the message to retrieve.`,
+      },
+    ],
+  },
+  {
+    name: 'outlook_get_message_rule',
+    description: `Retrieve a single inbox message rule by ID, including its conditions, actions, exceptions, and enabled state.`,
+    params: [
+      {
+        name: 'rule_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the inbox message rule to retrieve.`,
+      },
+    ],
+  },
+  {
+    name: 'outlook_get_shared_calendar_event',
+    description: `Retrieve a single event by ID from another user's (delegated/shared) calendar. Targets /users/{id}/events/{event_id}. Requires Calendars.Read (or Calendars.ReadWrite) application permission or delegated access granted by the target user. Create and Update already exist for shared calendar events but there was no single-event Get, unlike /me/events/{id} which has one.`,
+    params: [
+      {
+        name: 'event_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the calendar event to retrieve`,
+      },
+      {
+        name: 'user_id',
+        type: 'string',
+        required: true,
+        description: `The user ID or userPrincipalName (email) of the target user whose calendar you are accessing (e.g., colleague@company.com or an object ID). Access must be granted via application permissions or delegated sharing.`,
       },
     ],
   },
@@ -1022,6 +1364,30 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'outlook_list_child_folders',
+    description: `List the immediate child folders nested under a mail folder.`,
+    params: [
+      {
+        name: 'folder_id',
+        type: 'string',
+        required: true,
+        description: `The ID or well-known name of the parent mail folder (e.g., 'inbox' or a folder ID).`,
+      },
+      {
+        name: 'skip',
+        type: 'integer',
+        required: false,
+        description: `Number of child folders to skip for pagination.`,
+      },
+      {
+        name: 'top',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of child folders to return.`,
+      },
+    ],
+  },
+  {
     name: 'outlook_list_contact_folders',
     description: `List all contact folders in the signed-in user's mailbox. Supports OData query parameters for filtering, field selection, and pagination.`,
     params: [
@@ -1078,6 +1444,18 @@ export const tools: Tool[] = [
         type: 'integer',
         required: false,
         description: `Number of contacts to return (default: 10)`,
+      },
+    ],
+  },
+  {
+    name: 'outlook_list_event_attachments',
+    description: `List all attachments on a specific calendar event. Returns attachment metadata including ID, name, size, and content type.`,
+    params: [
+      {
+        name: 'event_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the event to list attachments for.`,
       },
     ],
   },
@@ -1460,6 +1838,24 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'outlook_move_mail_folder',
+    description: `Move a mail folder, along with its contents and any child folders, under another folder.`,
+    params: [
+      {
+        name: 'destination_folder_id',
+        type: 'string',
+        required: true,
+        description: `The ID or well-known name of the folder to move into (e.g., 'inbox' or a folder ID).`,
+      },
+      {
+        name: 'folder_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the mail folder to move.`,
+      },
+    ],
+  },
+  {
     name: 'outlook_move_message',
     description: `Move a message to a different mail folder.`,
     params: [
@@ -1495,6 +1891,36 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `The email address or user object ID of the shared mailbox containing the message (e.g., support@company.com or a GUID). The caller must have read/write permissions on this mailbox.`,
+      },
+    ],
+  },
+  {
+    name: 'outlook_permanently_delete_message',
+    description: `Permanently delete a message, bypassing the Deleted Items folder entirely. Unlike Delete Message, this cannot be recovered from Deleted Items — use with caution.`,
+    params: [
+      {
+        name: 'message_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the message to permanently delete.`,
+      },
+    ],
+  },
+  {
+    name: 'outlook_reply_all_message',
+    description: `Immediately reply to the sender and all recipients of a message, without creating a draft first. Use Create Reply All Draft instead if you want to review or edit before sending.`,
+    params: [
+      {
+        name: 'message_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the message to reply to.`,
+      },
+      {
+        name: 'comment',
+        type: 'string',
+        required: false,
+        description: `Comment to include in the reply body, added above the quoted original message.`,
       },
     ],
   },
@@ -1606,6 +2032,18 @@ export const tools: Tool[] = [
         type: 'integer',
         required: false,
         description: `Maximum number of messages to return (1-1000). Defaults to 10 if omitted.`,
+      },
+    ],
+  },
+  {
+    name: 'outlook_send_draft_message',
+    description: `Send an existing draft message, such as one created with Create Draft Message. The message is delivered to its recipients and moved to Sent Items.`,
+    params: [
+      {
+        name: 'message_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the draft message to send.`,
       },
     ],
   },
@@ -2023,6 +2461,30 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'outlook_update_calendar',
+    description: `Rename or recolor an existing calendar.`,
+    params: [
+      {
+        name: 'calendar_id',
+        type: 'string',
+        required: true,
+        description: `The unique identifier of the calendar to update.`,
+      },
+      {
+        name: 'color',
+        type: 'string',
+        required: false,
+        description: `New color theme for the calendar.`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: false,
+        description: `New display name for the calendar.`,
+      },
+    ],
+  },
+  {
     name: 'outlook_update_calendar_event',
     description: `Update an existing Outlook calendar event. Only provided fields will be updated. Supports time, attendees, location, reminders, online meetings, recurrence, and event properties.`,
     params: [
@@ -2322,7 +2784,7 @@ export const tools: Tool[] = [
   },
   {
     name: 'outlook_update_message',
-    description: `Update properties of an email message (e.g. mark as read, set importance).`,
+    description: `Update properties of an email message (e.g. mark as read, set importance, set a follow-up flag).`,
     params: [
       { name: 'message_id', type: 'string', required: true, description: `Message ID.` },
       { name: 'body', type: 'string', required: false, description: `Message body content.` },
@@ -2333,6 +2795,12 @@ export const tools: Tool[] = [
         description: `Body content type.`,
       },
       { name: 'categories', type: 'array', required: false, description: `Categories.` },
+      {
+        name: 'flag_status',
+        type: 'string',
+        required: false,
+        description: `Follow-up flag status.`,
+      },
       { name: 'importance', type: 'string', required: false, description: `Importance.` },
       {
         name: 'inference_classification',

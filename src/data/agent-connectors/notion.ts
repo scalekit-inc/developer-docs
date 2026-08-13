@@ -26,6 +26,18 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'notion_block_retrieve',
+    description: `Retrieve a single Notion block by its ID. Returns the block object (type, content, and metadata) but not its children — use notion_page_content_get to fetch child blocks.`,
+    params: [
+      {
+        name: 'block_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the block to retrieve`,
+      },
+    ],
+  },
+  {
     name: 'notion_block_update',
     description: `Update the text content of an existing Notion block. Supports paragraph, heading, list item, quote, callout, and code blocks.`,
     params: [
@@ -429,6 +441,18 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'notion_data_source_retrieve',
+    description: `Retrieve a Notion data source (2025-09-03 API) by its ID. A data source is the underlying table/collection of a database; returns its properties schema, title, icon, and parent database. Use notion_database_fetch to look up the data_source_id from a database_id first.`,
+    params: [
+      {
+        name: 'data_source_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the data source to retrieve`,
+      },
+    ],
+  },
+  {
     name: 'notion_data_source_templates_list',
     description: `List the page templates available in a Notion data source. Provide data_source_id (obtain via notion_data_source_fetch). Supports optional name filtering (case-insensitive substring match) and pagination via page_size and start_cursor.`,
     params: [
@@ -741,6 +765,24 @@ Example:
     ],
   },
   {
+    name: 'notion_file_upload_complete',
+    description: `Complete a multi-part Notion file upload after all parts have been sent to the upload_url. Call this once every part from a multi_part file_upload has been uploaded; it finalizes the upload and marks the file_upload status as uploaded so it can be attached to blocks or pages.`,
+    params: [
+      {
+        name: 'file_upload_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the multi-part file upload to complete.`,
+      },
+      {
+        name: 'notion_version',
+        type: 'string',
+        required: false,
+        description: `Optional override for the Notion-Version header (e.g., 2022-06-28).`,
+      },
+    ],
+  },
+  {
     name: 'notion_file_upload_create',
     description: `Create a Notion file upload record. This only creates the file_upload object (returning its id, upload_url, and status) — it does NOT send the file's binary content. Use mode 'single_part' for files under 20MB, 'multi_part' for larger files (requires number_of_parts and filename), or 'external_url' to import a publicly accessible file (requires external_url). After creating a single_part or multi_part upload, send the binary content to upload_url via the generic proxy-request mechanism; this tool does not perform that step.`,
     params: [
@@ -863,6 +905,59 @@ Example:
         type: 'string',
         required: false,
         description: `Internal override for tool implementation version.`,
+      },
+    ],
+  },
+  {
+    name: 'notion_meeting_note_create',
+    description: `Create a Notion meeting note from an audio/video source. Use exactly one source mode: provide file_upload_id (plus required parent_page_id) to transcribe a completed Notion file upload into a new page, OR provide source_block_id to generate a meeting note from an existing audio/video/file block. Notion transcribes the source and can optionally kick off summary generation.
+
+Source rules:
+- Use file_upload_id OR source_block_id (not both)
+- If file_upload_id is provided → parent_page_id is required
+- If source_block_id is provided → parent_page_id is not accepted (the note is attached to the existing block's page)`,
+    params: [
+      {
+        name: 'file_upload_id',
+        type: 'string',
+        required: false,
+        description: `ID of a completed Notion file upload to use as the meeting note's audio/video source. Requires parent_page_id.`,
+      },
+      {
+        name: 'kickoff_summary',
+        type: 'boolean',
+        required: false,
+        description: `Whether to start summary generation immediately after transcription completes.`,
+      },
+      {
+        name: 'language',
+        type: 'string',
+        required: false,
+        description: `Language hint for transcription. Defaults to automatic detection (auto).`,
+      },
+      {
+        name: 'notion_version',
+        type: 'string',
+        required: false,
+        description: `Optional override for the Notion-Version header (e.g., 2022-06-28).`,
+      },
+      {
+        name: 'parent_page_id',
+        type: 'string',
+        required: false,
+        description: `Page under which the new meeting note page is created. Required when file_upload_id is provided; not accepted for source_block_id.`,
+      },
+      {
+        name: 'source_block_id',
+        type: 'string',
+        required: false,
+        description: `ID of an existing audio, video, or file block to use as the meeting note's source, instead of a file upload.`,
+      },
+      {
+        name: 'title',
+        type: 'string',
+        required: false,
+        description: `Title for the meeting note (max 2000 characters).`,
       },
     ],
   },

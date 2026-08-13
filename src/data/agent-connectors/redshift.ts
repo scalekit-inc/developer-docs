@@ -2,6 +2,30 @@ import type { Tool } from '../../types/agent-connectors'
 
 export const tools: Tool[] = [
   {
+    name: 'redshift_batch_execute_sql',
+    description: `Run multiple SQL statements serially in a single call against Amazon Redshift using the Redshift Data API's BatchExecuteStatement action, returning one batch statement ID. Distinct from redshift_execute_sql, which only accepts a single statement. If any statement in the batch fails, remaining statements are not run.`,
+    params: [
+      {
+        name: 'sqls',
+        type: 'array',
+        required: true,
+        description: `The SQL statements to run, in order. Each must be non-empty.`,
+      },
+      {
+        name: 'statement_name',
+        type: 'string',
+        required: false,
+        description: `Optional label for the batch, echoed back by DescribeStatement for tracking purposes.`,
+      },
+      {
+        name: 'with_event',
+        type: 'boolean',
+        required: false,
+        description: `If true, AWS publishes an EventBridge event when the batch completes.`,
+      },
+    ],
+  },
+  {
     name: 'redshift_cancel_query',
     description: `Cancel a running Amazon Redshift SQL statement using its statement ID.`,
     params: [
@@ -10,6 +34,18 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `The ID of the statement to cancel. Must be non-empty.`,
+      },
+    ],
+  },
+  {
+    name: 'redshift_describe_statement',
+    description: `Get the status, duration, and row count of a previously submitted statement without fetching result rows. This is the only way to poll or confirm success/failure of DDL/DML statements (CREATE/INSERT/UPDATE) that cannot be passed to redshift_get_query_result, which requires a statement that returns a result set. redshift_list_statements lists many statements at once but doesn't substitute for checking one specific statement's full status detail (e.g. its error message on failure).`,
+    params: [
+      {
+        name: 'statement_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the statement to describe. Must be non-empty.`,
       },
     ],
   },
@@ -88,6 +124,30 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Pagination token from a prior redshift_get_query_result response when results spanned multiple pages.`,
+      },
+    ],
+  },
+  {
+    name: 'redshift_list_databases',
+    description: `List the databases available in the connected Amazon Redshift cluster or serverless workgroup, using the Redshift Data API. Mirrors redshift_list_schemas / redshift_list_tables one level up the hierarchy.`,
+    params: [
+      {
+        name: 'connected_database',
+        type: 'string',
+        required: false,
+        description: `Override the connected account's default database for this request.`,
+      },
+      {
+        name: 'max_results',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of databases to return.`,
+      },
+      {
+        name: 'next_token',
+        type: 'string',
+        required: false,
+        description: `Pagination cursor from a previous redshift_list_databases response.`,
       },
     ],
   },

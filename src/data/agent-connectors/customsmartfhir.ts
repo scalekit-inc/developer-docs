@@ -392,6 +392,330 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'customsmartfhir_care_plan_create',
+    description: `Create a new FHIR CarePlan resource for a patient with status, intent, title, description, category, and coverage period.`,
+    params: [
+      {
+        name: 'intent',
+        type: 'string',
+        required: true,
+        description: `Care plan intent: proposal, plan, order, option`,
+      },
+      {
+        name: 'patient_id',
+        type: 'string',
+        required: true,
+        description: `The logical ID of the Patient this care plan is for`,
+      },
+      {
+        name: 'status',
+        type: 'string',
+        required: true,
+        description: `Care plan status: draft, active, on-hold, revoked, completed, entered-in-error, unknown`,
+      },
+      {
+        name: 'category',
+        type: 'string',
+        required: false,
+        description: `Category code identifying the type of care plan, e.g. assess-plan`,
+      },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `Free-text summary of what the care plan involves`,
+      },
+      {
+        name: 'period_end',
+        type: 'string',
+        required: false,
+        description: `End date of the care plan period (YYYY-MM-DD)`,
+      },
+      {
+        name: 'period_start',
+        type: 'string',
+        required: false,
+        description: `Start date of the care plan period (YYYY-MM-DD)`,
+      },
+      {
+        name: 'title',
+        type: 'string',
+        required: false,
+        description: `Human-friendly title for the care plan`,
+      },
+    ],
+  },
+  {
+    name: 'customsmartfhir_care_plan_delete',
+    description: `Delete a FHIR CarePlan resource by its logical ID.`,
+    params: [
+      {
+        name: 'care_plan_id',
+        type: 'string',
+        required: true,
+        description: `The logical ID of the CarePlan resource to delete`,
+      },
+    ],
+  },
+  {
+    name: 'customsmartfhir_care_plan_read',
+    description: `Retrieve a single FHIR CarePlan resource by its logical ID.`,
+    params: [
+      {
+        name: 'care_plan_id',
+        type: 'string',
+        required: true,
+        description: `The logical ID of the CarePlan resource`,
+      },
+    ],
+  },
+  {
+    name: 'customsmartfhir_care_plan_search',
+    description: `Search for FHIR CarePlan resources using parameters like patient, status, category, and date.`,
+    params: [
+      {
+        name: '_count',
+        type: 'number',
+        required: false,
+        description: `Maximum number of results to return per page`,
+      },
+      {
+        name: '_offset',
+        type: 'number',
+        required: false,
+        description: `Number of results to skip for pagination`,
+      },
+      {
+        name: 'category',
+        type: 'string',
+        required: false,
+        description: `Category of the care plan, e.g. assess-plan`,
+      },
+      {
+        name: 'date',
+        type: 'string',
+        required: false,
+        description: `Filter by time period the care plan covers (YYYY-MM-DD or range with prefix)`,
+      },
+      {
+        name: 'patient',
+        type: 'string',
+        required: false,
+        description: `Patient ID to filter care plans by`,
+      },
+      {
+        name: 'status',
+        type: 'string',
+        required: false,
+        description: `Care plan status: draft, active, on-hold, revoked, completed, entered-in-error, unknown`,
+      },
+    ],
+  },
+  {
+    name: 'customsmartfhir_care_plan_update',
+    description: `Update an existing FHIR CarePlan resource by its ID. Replaces the resource with the provided data.`,
+    params: [
+      {
+        name: 'care_plan_id',
+        type: 'string',
+        required: true,
+        description: `The logical ID of the CarePlan resource to update`,
+      },
+      {
+        name: 'intent',
+        type: 'string',
+        required: true,
+        description: `Care plan intent: proposal, plan, order, option`,
+      },
+      {
+        name: 'patient_id',
+        type: 'string',
+        required: true,
+        description: `The logical ID of the Patient this care plan is for`,
+      },
+      {
+        name: 'status',
+        type: 'string',
+        required: true,
+        description: `Care plan status: draft, active, on-hold, revoked, completed, entered-in-error, unknown`,
+      },
+      {
+        name: 'category',
+        type: 'string',
+        required: false,
+        description: `Category code identifying the type of care plan, e.g. assess-plan`,
+      },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `Free-text summary of what the care plan involves`,
+      },
+      {
+        name: 'period_end',
+        type: 'string',
+        required: false,
+        description: `End date of the care plan period (YYYY-MM-DD)`,
+      },
+      {
+        name: 'period_start',
+        type: 'string',
+        required: false,
+        description: `Start date of the care plan period (YYYY-MM-DD)`,
+      },
+      {
+        name: 'title',
+        type: 'string',
+        required: false,
+        description: `Human-friendly title for the care plan`,
+      },
+    ],
+  },
+  {
+    name: 'customsmartfhir_care_team_create',
+    description: `Create a new FHIR CareTeam resource for a patient with a name, status, category, and a primary participant member and role.`,
+    params: [
+      {
+        name: 'patient_id',
+        type: 'string',
+        required: true,
+        description: `The logical ID of the Patient this care team is for`,
+      },
+      {
+        name: 'status',
+        type: 'string',
+        required: true,
+        description: `Care team status: proposed, active, suspended, inactive, entered-in-error`,
+      },
+      {
+        name: 'category',
+        type: 'string',
+        required: false,
+        description: `Category code identifying the type of care team`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: false,
+        description: `Human-friendly name for the care team`,
+      },
+      {
+        name: 'participant_member_id',
+        type: 'string',
+        required: false,
+        description: `Practitioner ID of the primary participant on this care team`,
+      },
+      {
+        name: 'participant_role',
+        type: 'string',
+        required: false,
+        description: `Role code of the participant on the care team`,
+      },
+    ],
+  },
+  {
+    name: 'customsmartfhir_care_team_delete',
+    description: `Delete a FHIR CareTeam resource by its logical ID.`,
+    params: [
+      {
+        name: 'care_team_id',
+        type: 'string',
+        required: true,
+        description: `The logical ID of the CareTeam resource to delete`,
+      },
+    ],
+  },
+  {
+    name: 'customsmartfhir_care_team_read',
+    description: `Retrieve a single FHIR CareTeam resource by its logical ID.`,
+    params: [
+      {
+        name: 'care_team_id',
+        type: 'string',
+        required: true,
+        description: `The logical ID of the CareTeam resource`,
+      },
+    ],
+  },
+  {
+    name: 'customsmartfhir_care_team_search',
+    description: `Search for FHIR CareTeam resources using parameters like patient and status.`,
+    params: [
+      {
+        name: '_count',
+        type: 'number',
+        required: false,
+        description: `Maximum number of results to return per page`,
+      },
+      {
+        name: '_offset',
+        type: 'number',
+        required: false,
+        description: `Number of results to skip for pagination`,
+      },
+      {
+        name: 'patient',
+        type: 'string',
+        required: false,
+        description: `Patient ID to filter care teams by`,
+      },
+      {
+        name: 'status',
+        type: 'string',
+        required: false,
+        description: `Care team status: proposed, active, suspended, inactive, entered-in-error`,
+      },
+    ],
+  },
+  {
+    name: 'customsmartfhir_care_team_update',
+    description: `Update an existing FHIR CareTeam resource by its ID. Replaces the resource with the provided data.`,
+    params: [
+      {
+        name: 'care_team_id',
+        type: 'string',
+        required: true,
+        description: `The logical ID of the CareTeam resource to update`,
+      },
+      {
+        name: 'patient_id',
+        type: 'string',
+        required: true,
+        description: `The logical ID of the Patient this care team is for`,
+      },
+      {
+        name: 'status',
+        type: 'string',
+        required: true,
+        description: `Care team status: proposed, active, suspended, inactive, entered-in-error`,
+      },
+      {
+        name: 'category',
+        type: 'string',
+        required: false,
+        description: `Category code identifying the type of care team`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: false,
+        description: `Human-friendly name for the care team`,
+      },
+      {
+        name: 'participant_member_id',
+        type: 'string',
+        required: false,
+        description: `Practitioner ID of the primary participant on this care team`,
+      },
+      {
+        name: 'participant_role',
+        type: 'string',
+        required: false,
+        description: `Role code of the participant on the care team`,
+      },
+    ],
+  },
+  {
     name: 'customsmartfhir_condition_create',
     description: `Create a new FHIR Condition resource representing a diagnosis or health problem for a patient.`,
     params: [
@@ -766,6 +1090,192 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'customsmartfhir_document_reference_create',
+    description: `Create a new FHIR DocumentReference resource pointing to a clinical document, referenced by a URL, for a patient.`,
+    params: [
+      {
+        name: 'content_type',
+        type: 'string',
+        required: true,
+        description: `MIME type of the document content`,
+      },
+      {
+        name: 'content_url',
+        type: 'string',
+        required: true,
+        description: `URL where the document content can be retrieved`,
+      },
+      {
+        name: 'patient_id',
+        type: 'string',
+        required: true,
+        description: `The logical ID of the Patient this document is about`,
+      },
+      {
+        name: 'status',
+        type: 'string',
+        required: true,
+        description: `Document status: current, superseded, entered-in-error`,
+      },
+      {
+        name: 'category',
+        type: 'string',
+        required: false,
+        description: `Category of the document, e.g. clinical-note`,
+      },
+      {
+        name: 'date',
+        type: 'string',
+        required: false,
+        description: `Date the document was created (ISO 8601 datetime)`,
+      },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `Human-readable description of the document`,
+      },
+      {
+        name: 'type_code',
+        type: 'string',
+        required: false,
+        description: `Document type code (LOINC), e.g. 34133-9 for a summary of episode note`,
+      },
+    ],
+  },
+  {
+    name: 'customsmartfhir_document_reference_delete',
+    description: `Delete a FHIR DocumentReference resource by its logical ID.`,
+    params: [
+      {
+        name: 'document_reference_id',
+        type: 'string',
+        required: true,
+        description: `The logical ID of the DocumentReference resource to delete`,
+      },
+    ],
+  },
+  {
+    name: 'customsmartfhir_document_reference_read',
+    description: `Retrieve a single FHIR DocumentReference resource by its logical ID.`,
+    params: [
+      {
+        name: 'document_reference_id',
+        type: 'string',
+        required: true,
+        description: `The logical ID of the DocumentReference resource`,
+      },
+    ],
+  },
+  {
+    name: 'customsmartfhir_document_reference_search',
+    description: `Search for FHIR DocumentReference resources using parameters like patient, status, category, type, and date.`,
+    params: [
+      {
+        name: '_count',
+        type: 'number',
+        required: false,
+        description: `Maximum number of results to return per page`,
+      },
+      {
+        name: '_offset',
+        type: 'number',
+        required: false,
+        description: `Number of results to skip for pagination`,
+      },
+      {
+        name: 'category',
+        type: 'string',
+        required: false,
+        description: `Category of the document, e.g. clinical-note`,
+      },
+      {
+        name: 'date',
+        type: 'string',
+        required: false,
+        description: `Filter by document creation date (YYYY-MM-DD or range with prefix)`,
+      },
+      {
+        name: 'patient',
+        type: 'string',
+        required: false,
+        description: `Patient ID to filter document references by`,
+      },
+      {
+        name: 'status',
+        type: 'string',
+        required: false,
+        description: `Document status: current, superseded, entered-in-error`,
+      },
+      {
+        name: 'type',
+        type: 'string',
+        required: false,
+        description: `Document type code (LOINC), e.g. 34133-9 for a summary of episode note`,
+      },
+    ],
+  },
+  {
+    name: 'customsmartfhir_document_reference_update',
+    description: `Update an existing FHIR DocumentReference resource by its ID. Replaces the resource with the provided data.`,
+    params: [
+      {
+        name: 'content_type',
+        type: 'string',
+        required: true,
+        description: `MIME type of the document content`,
+      },
+      {
+        name: 'content_url',
+        type: 'string',
+        required: true,
+        description: `URL where the document content can be retrieved`,
+      },
+      {
+        name: 'document_reference_id',
+        type: 'string',
+        required: true,
+        description: `The logical ID of the DocumentReference resource to update`,
+      },
+      {
+        name: 'patient_id',
+        type: 'string',
+        required: true,
+        description: `The logical ID of the Patient this document is about`,
+      },
+      {
+        name: 'status',
+        type: 'string',
+        required: true,
+        description: `Document status: current, superseded, entered-in-error`,
+      },
+      {
+        name: 'category',
+        type: 'string',
+        required: false,
+        description: `Category of the document, e.g. clinical-note`,
+      },
+      {
+        name: 'date',
+        type: 'string',
+        required: false,
+        description: `Date the document was created (ISO 8601 datetime)`,
+      },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `Human-readable description of the document`,
+      },
+      {
+        name: 'type_code',
+        type: 'string',
+        required: false,
+        description: `Document type code (LOINC), e.g. 34133-9 for a summary of episode note`,
+      },
+    ],
+  },
+  {
     name: 'customsmartfhir_encounter_create',
     description: `Create a new FHIR Encounter resource representing a patient visit or admission.`,
     params: [
@@ -948,6 +1458,156 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Human-readable display for the encounter type`,
+      },
+    ],
+  },
+  {
+    name: 'customsmartfhir_goal_create',
+    description: `Create a new FHIR Goal resource for a patient describing a target health outcome with a lifecycle status, description, category, and target due date.`,
+    params: [
+      {
+        name: 'description',
+        type: 'string',
+        required: true,
+        description: `Free-text description of what the goal is trying to achieve`,
+      },
+      {
+        name: 'lifecycle_status',
+        type: 'string',
+        required: true,
+        description: `Goal lifecycle status: proposed, planned, accepted, active, on-hold, completed, cancelled, entered-in-error, rejected`,
+      },
+      {
+        name: 'patient_id',
+        type: 'string',
+        required: true,
+        description: `The logical ID of the Patient this goal is for`,
+      },
+      {
+        name: 'category',
+        type: 'string',
+        required: false,
+        description: `Category code identifying the type of goal, e.g. dietary, safety, behavioral`,
+      },
+      {
+        name: 'start_date',
+        type: 'string',
+        required: false,
+        description: `Date the goal starts being pursued (YYYY-MM-DD)`,
+      },
+      {
+        name: 'target_date',
+        type: 'string',
+        required: false,
+        description: `Target date by which the goal should be achieved (YYYY-MM-DD)`,
+      },
+    ],
+  },
+  {
+    name: 'customsmartfhir_goal_delete',
+    description: `Delete a FHIR Goal resource by its logical ID.`,
+    params: [
+      {
+        name: 'goal_id',
+        type: 'string',
+        required: true,
+        description: `The logical ID of the Goal resource to delete`,
+      },
+    ],
+  },
+  {
+    name: 'customsmartfhir_goal_read',
+    description: `Retrieve a single FHIR Goal resource by its logical ID.`,
+    params: [
+      {
+        name: 'goal_id',
+        type: 'string',
+        required: true,
+        description: `The logical ID of the Goal resource`,
+      },
+    ],
+  },
+  {
+    name: 'customsmartfhir_goal_search',
+    description: `Search for FHIR Goal resources using parameters like patient, lifecycle status, and target date.`,
+    params: [
+      {
+        name: '_count',
+        type: 'number',
+        required: false,
+        description: `Maximum number of results to return per page`,
+      },
+      {
+        name: '_offset',
+        type: 'number',
+        required: false,
+        description: `Number of results to skip for pagination`,
+      },
+      {
+        name: 'lifecycle_status',
+        type: 'string',
+        required: false,
+        description: `Goal lifecycle status: proposed, planned, accepted, active, on-hold, completed, cancelled, entered-in-error, rejected`,
+      },
+      {
+        name: 'patient',
+        type: 'string',
+        required: false,
+        description: `Patient ID to filter goals by`,
+      },
+      {
+        name: 'target_date',
+        type: 'string',
+        required: false,
+        description: `Filter by target due date (YYYY-MM-DD or range with prefix)`,
+      },
+    ],
+  },
+  {
+    name: 'customsmartfhir_goal_update',
+    description: `Update an existing FHIR Goal resource by its ID. Replaces the resource with the provided data.`,
+    params: [
+      {
+        name: 'description',
+        type: 'string',
+        required: true,
+        description: `Free-text description of what the goal is trying to achieve`,
+      },
+      {
+        name: 'goal_id',
+        type: 'string',
+        required: true,
+        description: `The logical ID of the Goal resource to update`,
+      },
+      {
+        name: 'lifecycle_status',
+        type: 'string',
+        required: true,
+        description: `Goal lifecycle status: proposed, planned, accepted, active, on-hold, completed, cancelled, entered-in-error, rejected`,
+      },
+      {
+        name: 'patient_id',
+        type: 'string',
+        required: true,
+        description: `The logical ID of the Patient this goal is for`,
+      },
+      {
+        name: 'category',
+        type: 'string',
+        required: false,
+        description: `Category code identifying the type of goal, e.g. dietary, safety, behavioral`,
+      },
+      {
+        name: 'start_date',
+        type: 'string',
+        required: false,
+        description: `Date the goal starts being pursued (YYYY-MM-DD)`,
+      },
+      {
+        name: 'target_date',
+        type: 'string',
+        required: false,
+        description: `Target date by which the goal should be achieved (YYYY-MM-DD)`,
       },
     ],
   },

@@ -2,6 +2,61 @@ import type { Tool } from '../../types/agent-connectors'
 
 export const tools: Tool[] = [
   {
+    name: 'monday_board_activity_logs_list',
+    description: `Query a board's activity log: who changed what column, item, or group and when. Filterable by user, item, column, group, and time range. Maximum 10,000 records; narrow with filters or a date range for large boards.`,
+    params: [
+      {
+        name: 'board_id',
+        type: 'string',
+        required: true,
+        description: `ID of the board to fetch activity logs for`,
+      },
+      {
+        name: 'column_ids',
+        type: 'array',
+        required: false,
+        description: `Filter to activity on these column IDs`,
+      },
+      {
+        name: 'from',
+        type: 'string',
+        required: false,
+        description: `Only return activity at or after this ISO 8601 timestamp`,
+      },
+      {
+        name: 'group_ids',
+        type: 'array',
+        required: false,
+        description: `Filter to activity on these group IDs`,
+      },
+      {
+        name: 'item_ids',
+        type: 'array',
+        required: false,
+        description: `Filter to activity on these item IDs`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of activity log entries to return (default 25)`,
+      },
+      { name: 'page', type: 'integer', required: false, description: `Page number for pagination` },
+      {
+        name: 'to',
+        type: 'string',
+        required: false,
+        description: `Only return activity at or before this ISO 8601 timestamp`,
+      },
+      {
+        name: 'user_ids',
+        type: 'array',
+        required: false,
+        description: `Filter to activity performed by these user IDs`,
+      },
+    ],
+  },
+  {
     name: 'monday_board_archive',
     description: `Archive a board in Monday.com.`,
     params: [
@@ -99,6 +154,60 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'monday_board_hierarchy_update',
+    description: `Move a board to a different workspace, folder, or account product. Provide at least one of workspace_id, folder_id, or account_product_id.`,
+    params: [
+      {
+        name: 'board_id',
+        type: 'string',
+        required: true,
+        description: `ID of the board to relocate`,
+      },
+      {
+        name: 'account_product_id',
+        type: 'string',
+        required: false,
+        description: `ID of the account product (e.g. CRM, work management) to move the board into`,
+      },
+      {
+        name: 'folder_id',
+        type: 'string',
+        required: false,
+        description: `ID of the folder to move the board into`,
+      },
+      {
+        name: 'workspace_id',
+        type: 'string',
+        required: false,
+        description: `ID of the workspace to move the board into`,
+      },
+    ],
+  },
+  {
+    name: 'monday_board_permission_set',
+    description: `Set a board's default access role, controlling what non-owner members can do on the board by default.`,
+    params: [
+      {
+        name: 'basic_role_name',
+        type: 'string',
+        required: true,
+        description: `Default role: contributor, editor, or viewer`,
+      },
+      {
+        name: 'board_id',
+        type: 'string',
+        required: true,
+        description: `ID of the board to set permissions on`,
+      },
+      {
+        name: 'cross_product_collaborative',
+        type: 'boolean',
+        required: false,
+        description: `Whether the board allows cross-product collaboration`,
+      },
+    ],
+  },
+  {
     name: 'monday_board_subscribers_add',
     description: `Subscribe users to a board so they receive notifications.`,
     params: [
@@ -115,6 +224,24 @@ export const tools: Tool[] = [
         description: `Array of user IDs to subscribe`,
       },
       { name: 'kind', type: 'string', required: false, description: `Role: subscriber or owner` },
+    ],
+  },
+  {
+    name: 'monday_board_subscribers_remove',
+    description: `Unsubscribe users from a board so they stop receiving its notifications. Complements monday_board_subscribers_add.`,
+    params: [
+      {
+        name: 'board_id',
+        type: 'string',
+        required: true,
+        description: `ID of the board to remove subscribers from`,
+      },
+      {
+        name: 'user_ids',
+        type: 'array',
+        required: true,
+        description: `IDs of the users to unsubscribe`,
+      },
     ],
   },
   {
@@ -248,6 +375,130 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'monday_column_update',
+    description: `Comprehensively update a board column's title, description, width, or type-specific settings. Requires the column's current revision number for optimistic concurrency control (read it via monday_boards_list or a columns query first).`,
+    params: [
+      {
+        name: 'board_id',
+        type: 'string',
+        required: true,
+        description: `ID of the board the column belongs to`,
+      },
+      {
+        name: 'column_id',
+        type: 'string',
+        required: true,
+        description: `ID of the column to update`,
+      },
+      {
+        name: 'column_type',
+        type: 'string',
+        required: true,
+        description: `The column's type (must match its existing type)`,
+      },
+      {
+        name: 'revision',
+        type: 'string',
+        required: true,
+        description: `Current revision number of the column, for concurrency control`,
+      },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `New description for the column`,
+      },
+      {
+        name: 'settings',
+        type: 'string',
+        required: false,
+        description: `JSON-encoded type-specific settings for the column`,
+      },
+      { name: 'title', type: 'string', required: false, description: `New title for the column` },
+      {
+        name: 'width',
+        type: 'integer',
+        required: false,
+        description: `New width for the column, in pixels`,
+      },
+    ],
+  },
+  {
+    name: 'monday_doc_add_markdown_content',
+    description: `Add markdown content to an existing monday Doc. The markdown is parsed and converted into the doc's native block structure (headings, lists, quotes, bold/italic/code, etc).`,
+    params: [
+      {
+        name: 'doc_id',
+        type: 'string',
+        required: true,
+        description: `ID of the doc to add content to`,
+      },
+      {
+        name: 'markdown',
+        type: 'string',
+        required: true,
+        description: `Markdown content to convert and add to the doc`,
+      },
+      {
+        name: 'after_block_id',
+        type: 'string',
+        required: false,
+        description: `ID of the block to insert the new content after. If omitted, content is added at the end of the doc.`,
+      },
+    ],
+  },
+  {
+    name: 'monday_doc_create',
+    description: `Create a new monday Doc, either attached to an item's doc-type column on a board, or as a standalone doc directly inside a workspace. Provide either (item_id and column_id) for the board placement, or (workspace_id and name) for the workspace placement.`,
+    params: [
+      {
+        name: 'column_id',
+        type: 'string',
+        required: false,
+        description: `ID of the doc-type column on the item (board placement mode). Requires item_id to also be set.`,
+      },
+      {
+        name: 'item_id',
+        type: 'string',
+        required: false,
+        description: `ID of the item containing the doc-type column (board placement mode). Requires column_id to also be set.`,
+      },
+      {
+        name: 'kind',
+        type: 'string',
+        required: false,
+        description: `Visibility kind for the new doc when created in a workspace, e.g. private.`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: false,
+        description: `Name for the new doc (workspace placement mode only).`,
+      },
+      {
+        name: 'workspace_id',
+        type: 'string',
+        required: false,
+        description: `ID of the workspace to create the doc directly in (workspace placement mode). Requires name to also be set.`,
+      },
+    ],
+  },
+  {
+    name: 'monday_doc_delete',
+    description: `Permanently delete a monday Doc.`,
+    params: [
+      { name: 'doc_id', type: 'string', required: true, description: `ID of the doc to delete` },
+    ],
+  },
+  {
+    name: 'monday_doc_update_name',
+    description: `Rename an existing monday Doc.`,
+    params: [
+      { name: 'doc_id', type: 'integer', required: true, description: `ID of the doc to rename` },
+      { name: 'name', type: 'string', required: true, description: `New name for the doc` },
+    ],
+  },
+  {
     name: 'monday_docs_list',
     description: `List documents (monday Docs) in your account.`,
     params: [
@@ -370,6 +621,37 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'monday_item_column_simple_value_change',
+    description: `Update a single column's value on an item using a plain text string, instead of the JSON shape required by monday_item_column_value_change. Simpler for text-like columns, but not all column types support simple string values.`,
+    params: [
+      {
+        name: 'board_id',
+        type: 'string',
+        required: true,
+        description: `ID of the board the item belongs to`,
+      },
+      {
+        name: 'column_id',
+        type: 'string',
+        required: true,
+        description: `ID of the column to update`,
+      },
+      { name: 'item_id', type: 'string', required: true, description: `ID of the item to update` },
+      {
+        name: 'create_labels_if_missing',
+        type: 'boolean',
+        required: false,
+        description: `Auto-create labels if they don't exist (status/dropdown columns)`,
+      },
+      {
+        name: 'value',
+        type: 'string',
+        required: false,
+        description: `Plain text value to set on the column`,
+      },
+    ],
+  },
+  {
     name: 'monday_item_column_value_change',
     description: `Update the value of a single column on an item.`,
     params: [
@@ -469,6 +751,19 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'monday_item_description_set',
+    description: `Set an item's description content, using markdown formatting.`,
+    params: [
+      { name: 'item_id', type: 'string', required: true, description: `ID of the item to update` },
+      {
+        name: 'markdown',
+        type: 'string',
+        required: true,
+        description: `Description content, as markdown`,
+      },
+    ],
+  },
+  {
     name: 'monday_item_duplicate',
     description: `Create a copy of an item on the same board.`,
     params: [
@@ -528,6 +823,85 @@ export const tools: Tool[] = [
         description: `ID of the destination group`,
       },
       { name: 'item_id', type: 'string', required: true, description: `ID of the item to move` },
+    ],
+  },
+  {
+    name: 'monday_item_position_change',
+    description: `Move an item to a new position within the same board -- to the top of a group, or immediately before/after another item.`,
+    params: [
+      {
+        name: 'item_id',
+        type: 'string',
+        required: true,
+        description: `ID of the item to reposition`,
+      },
+      {
+        name: 'group_id',
+        type: 'string',
+        required: false,
+        description: `Move the item to this group before repositioning`,
+      },
+      {
+        name: 'group_top',
+        type: 'boolean',
+        required: false,
+        description: `Move the item to the top of its group`,
+      },
+      {
+        name: 'position_relative_method',
+        type: 'string',
+        required: false,
+        description: `Whether to place the item before or after relative_to`,
+      },
+      {
+        name: 'relative_to',
+        type: 'string',
+        required: false,
+        description: `ID of the item to position relative to`,
+      },
+    ],
+  },
+  {
+    name: 'monday_item_updates_clear',
+    description: `Permanently remove all updates (including replies and likes) from an item. This cannot be undone.`,
+    params: [
+      {
+        name: 'item_id',
+        type: 'string',
+        required: true,
+        description: `ID of the item whose updates should be cleared`,
+      },
+    ],
+  },
+  {
+    name: 'monday_items_get',
+    description: `Fetch one or more items directly by ID, without going through their board. Returns item metadata and column values.`,
+    params: [
+      { name: 'ids', type: 'array', required: true, description: `IDs of the items to fetch` },
+      {
+        name: 'exclude_nonactive',
+        type: 'boolean',
+        required: false,
+        description: `Exclude archived/deleted items`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of items to return (default 25)`,
+      },
+      {
+        name: 'newest_first',
+        type: 'boolean',
+        required: false,
+        description: `Return newest items first`,
+      },
+      {
+        name: 'page',
+        type: 'integer',
+        required: false,
+        description: `Page number to fetch (1-indexed)`,
+      },
     ],
   },
   {
@@ -614,6 +988,24 @@ export const tools: Tool[] = [
       },
       { name: 'text', type: 'string', required: true, description: `Notification message text` },
       { name: 'user_id', type: 'string', required: true, description: `ID of the user to notify` },
+    ],
+  },
+  {
+    name: 'monday_search',
+    description: `Full-text search across your monday.com account: items, boards, docs, users, workspaces, updates, and Emails & Activities timeline items, all in one call via the namespaced \`search\` query. Distinct from monday_items_search, which only filters items on a single board by column value.`,
+    params: [
+      {
+        name: 'query',
+        type: 'string',
+        required: true,
+        description: `Search term to match across items, boards, docs, users, workspaces, updates, and timeline items`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of results to return per entity type (e.g. up to this many boards, up to this many items, etc)`,
+      },
     ],
   },
   {
@@ -743,6 +1135,61 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'monday_update_like',
+    description: `Add a like reaction to an update (comment) from the connected user.`,
+    params: [
+      {
+        name: 'update_id',
+        type: 'string',
+        required: true,
+        description: `ID of the update to like`,
+      },
+    ],
+  },
+  {
+    name: 'monday_update_pin',
+    description: `Pin an update to the top of its item's update thread.`,
+    params: [
+      { name: 'update_id', type: 'string', required: true, description: `ID of the update to pin` },
+      {
+        name: 'item_id',
+        type: 'string',
+        required: false,
+        description: `ID of the item the update belongs to`,
+      },
+    ],
+  },
+  {
+    name: 'monday_update_unlike',
+    description: `Remove the connected user's like reaction from an update (comment).`,
+    params: [
+      {
+        name: 'update_id',
+        type: 'string',
+        required: true,
+        description: `ID of the update to unlike`,
+      },
+    ],
+  },
+  {
+    name: 'monday_update_unpin',
+    description: `Remove an update from the pinned position at the top of its item's update thread.`,
+    params: [
+      {
+        name: 'update_id',
+        type: 'string',
+        required: true,
+        description: `ID of the update to unpin`,
+      },
+      {
+        name: 'item_id',
+        type: 'string',
+        required: false,
+        description: `ID of the item the update belongs to`,
+      },
+    ],
+  },
+  {
     name: 'monday_updates_list',
     description: `Retrieve updates (comments/activity posts) from Monday.com.`,
     params: [
@@ -759,6 +1206,68 @@ export const tools: Tool[] = [
         description: `Number of updates to return`,
       },
       { name: 'page', type: 'integer', required: false, description: `Page number for pagination` },
+    ],
+  },
+  {
+    name: 'monday_user_role_update',
+    description: `Change the account role for up to 200 users at once, using either a default role or a custom role ID.`,
+    params: [
+      {
+        name: 'user_ids',
+        type: 'array',
+        required: true,
+        description: `IDs of the users to update (max 200)`,
+      },
+      { name: 'new_role', type: 'string', required: false, description: `Default role to assign` },
+      {
+        name: 'role_id',
+        type: 'string',
+        required: false,
+        description: `Custom role ID to assign, instead of a default role`,
+      },
+    ],
+  },
+  {
+    name: 'monday_users_activate',
+    description: `Reactivate up to 200 previously deactivated user accounts on the monday.com account.`,
+    params: [
+      {
+        name: 'user_ids',
+        type: 'array',
+        required: true,
+        description: `IDs of the users to reactivate (max 200)`,
+      },
+    ],
+  },
+  {
+    name: 'monday_users_deactivate',
+    description: `Deactivate up to 200 user accounts on the monday.com account, revoking their access.`,
+    params: [
+      {
+        name: 'user_ids',
+        type: 'array',
+        required: true,
+        description: `IDs of the users to deactivate (max 200)`,
+      },
+    ],
+  },
+  {
+    name: 'monday_users_invite',
+    description: `Invite one or more people to join the monday.com account by email. Invitees remain pending until they accept.`,
+    params: [
+      { name: 'emails', type: 'array', required: true, description: `Email addresses to invite` },
+      {
+        name: 'product',
+        type: 'string',
+        required: false,
+        description: `Product area to invite the users into`,
+      },
+      {
+        name: 'user_role',
+        type: 'string',
+        required: false,
+        description: `Role to grant the invited users`,
+      },
     ],
   },
   {
@@ -855,6 +1364,117 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Optional description for the workspace`,
+      },
+    ],
+  },
+  {
+    name: 'monday_workspace_delete',
+    description: `Permanently delete a workspace and remove it from the account. This is a destructive operation.`,
+    params: [
+      {
+        name: 'workspace_id',
+        type: 'string',
+        required: true,
+        description: `ID of the workspace to delete`,
+      },
+    ],
+  },
+  {
+    name: 'monday_workspace_teams_add',
+    description: `Grant one or more teams access to a workspace, as an owner or subscriber.`,
+    params: [
+      { name: 'team_ids', type: 'array', required: true, description: `IDs of the teams to add` },
+      {
+        name: 'workspace_id',
+        type: 'string',
+        required: true,
+        description: `ID of the workspace to add teams to`,
+      },
+      {
+        name: 'kind',
+        type: 'string',
+        required: false,
+        description: `Access level to grant: owner or subscriber`,
+      },
+    ],
+  },
+  {
+    name: 'monday_workspace_teams_remove',
+    description: `Remove one or more teams' access to a workspace.`,
+    params: [
+      {
+        name: 'team_ids',
+        type: 'array',
+        required: true,
+        description: `IDs of the teams to remove`,
+      },
+      {
+        name: 'workspace_id',
+        type: 'string',
+        required: true,
+        description: `ID of the workspace to remove teams from`,
+      },
+    ],
+  },
+  {
+    name: 'monday_workspace_update',
+    description: `Update a workspace's name, description, or account product.`,
+    params: [
+      {
+        name: 'workspace_id',
+        type: 'string',
+        required: true,
+        description: `ID of the workspace to update`,
+      },
+      {
+        name: 'account_product_id',
+        type: 'string',
+        required: false,
+        description: `Account product to associate with the workspace`,
+      },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `New description for the workspace`,
+      },
+      { name: 'name', type: 'string', required: false, description: `New name for the workspace` },
+    ],
+  },
+  {
+    name: 'monday_workspace_users_add',
+    description: `Grant one or more users access to a workspace, as an owner or subscriber.`,
+    params: [
+      { name: 'user_ids', type: 'array', required: true, description: `IDs of the users to add` },
+      {
+        name: 'workspace_id',
+        type: 'string',
+        required: true,
+        description: `ID of the workspace to add users to`,
+      },
+      {
+        name: 'kind',
+        type: 'string',
+        required: false,
+        description: `Access level to grant: owner or subscriber`,
+      },
+    ],
+  },
+  {
+    name: 'monday_workspace_users_remove',
+    description: `Remove one or more users' access to a workspace.`,
+    params: [
+      {
+        name: 'user_ids',
+        type: 'array',
+        required: true,
+        description: `IDs of the users to remove`,
+      },
+      {
+        name: 'workspace_id',
+        type: 'string',
+        required: true,
+        description: `ID of the workspace to remove users from`,
       },
     ],
   },

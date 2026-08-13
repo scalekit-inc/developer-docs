@@ -57,6 +57,54 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'gitlab_branch_protect',
+    description: `Protects a repository branch, restricting who can push to or merge into it (legacy API — prefer Protected Branches for fine-grained access levels).`,
+    params: [
+      {
+        name: 'branch',
+        type: 'string',
+        required: true,
+        description: `The name of the branch to protect.`,
+      },
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The project ID (numeric) or URL-encoded path.`,
+      },
+      {
+        name: 'developers_can_merge',
+        type: 'boolean',
+        required: false,
+        description: `Whether developers are allowed to merge into the protected branch.`,
+      },
+      {
+        name: 'developers_can_push',
+        type: 'boolean',
+        required: false,
+        description: `Whether developers are allowed to push directly to the protected branch.`,
+      },
+    ],
+  },
+  {
+    name: 'gitlab_branch_unprotect',
+    description: `Removes protection from a repository branch, allowing any member with write access to push and merge freely.`,
+    params: [
+      {
+        name: 'branch',
+        type: 'string',
+        required: true,
+        description: `The name of the branch to unprotect.`,
+      },
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The project ID (numeric) or URL-encoded path.`,
+      },
+    ],
+  },
+  {
     name: 'gitlab_branches_list',
     description: `List repository branches for a GitLab project.`,
     params: [
@@ -121,6 +169,54 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'gitlab_commit_create',
+    description: `Creates a new commit on a branch by combining one or more file actions (create, update, delete, move, or chmod) in a single atomic commit. Can also create the target branch from a starting ref.`,
+    params: [
+      {
+        name: 'actions',
+        type: 'array',
+        required: true,
+        description: `List of file actions to include in the commit. Each action has action (create/update/delete/move/chmod), file_path, and content (for create/update).`,
+      },
+      {
+        name: 'branch',
+        type: 'string',
+        required: true,
+        description: `The branch name to commit to. Created from start_branch/start_sha if it does not yet exist.`,
+      },
+      {
+        name: 'commit_message',
+        type: 'string',
+        required: true,
+        description: `The commit message.`,
+      },
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The project ID (numeric) or URL-encoded path.`,
+      },
+      {
+        name: 'author_email',
+        type: 'string',
+        required: false,
+        description: `Email address to attribute the commit to.`,
+      },
+      {
+        name: 'author_name',
+        type: 'string',
+        required: false,
+        description: `Name to attribute the commit to.`,
+      },
+      {
+        name: 'start_branch',
+        type: 'string',
+        required: false,
+        description: `The branch to start the new commit from, if branch does not already exist.`,
+      },
+    ],
+  },
+  {
     name: 'gitlab_commit_diff_get',
     description: `Get the diff of a specific commit.`,
     params: [
@@ -144,6 +240,36 @@ export const tools: Tool[] = [
         description: `The project ID (numeric) or URL-encoded path.`,
       },
       { name: 'sha', type: 'string', required: true, description: `The commit SHA.` },
+    ],
+  },
+  {
+    name: 'gitlab_commit_merge_requests_list',
+    description: `Lists all merge requests associated with a specific commit SHA.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The project ID (numeric) or URL-encoded path.`,
+      },
+      {
+        name: 'sha',
+        type: 'string',
+        required: true,
+        description: `The commit SHA, or a branch/tag name, to find merge requests for.`,
+      },
+      {
+        name: 'page',
+        type: 'integer',
+        required: false,
+        description: `Page number for pagination.`,
+      },
+      {
+        name: 'per_page',
+        type: 'integer',
+        required: false,
+        description: `Number of results per page (max 100).`,
+      },
     ],
   },
   {
@@ -583,6 +709,48 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'gitlab_group_packages_list',
+    description: `Lists all packages published across all projects within a group's package registries.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The ID or URL-encoded path of the group.`,
+      },
+      {
+        name: 'exclude_subgroups',
+        type: 'boolean',
+        required: false,
+        description: `Whether to exclude packages from subgroups.`,
+      },
+      {
+        name: 'package_name',
+        type: 'string',
+        required: false,
+        description: `Filter packages by exact name.`,
+      },
+      {
+        name: 'package_type',
+        type: 'string',
+        required: false,
+        description: `Filter packages by format/type.`,
+      },
+      {
+        name: 'page',
+        type: 'integer',
+        required: false,
+        description: `Page number for pagination.`,
+      },
+      {
+        name: 'per_page',
+        type: 'integer',
+        required: false,
+        description: `Number of results per page (max 100).`,
+      },
+    ],
+  },
+  {
     name: 'gitlab_group_projects_list',
     description: `List projects belonging to a GitLab group.`,
     params: [
@@ -610,6 +778,60 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Filter by visibility level: public, internal, or private.`,
+      },
+    ],
+  },
+  {
+    name: 'gitlab_group_subgroups_list',
+    description: `Lists all subgroups nested directly or indirectly under a specified group.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The ID or URL-encoded path of the parent group.`,
+      },
+      {
+        name: 'all_available',
+        type: 'boolean',
+        required: false,
+        description: `When true, returns all accessible groups; when false, only groups the user is a member of.`,
+      },
+      {
+        name: 'page',
+        type: 'integer',
+        required: false,
+        description: `Page number for pagination.`,
+      },
+      {
+        name: 'per_page',
+        type: 'integer',
+        required: false,
+        description: `Number of results per page (max 100).`,
+      },
+      {
+        name: 'search',
+        type: 'string',
+        required: false,
+        description: `Search for a specific subgroup by name.`,
+      },
+    ],
+  },
+  {
+    name: 'gitlab_group_transfer',
+    description: `Transfers a group to another parent group, or promotes a subgroup to a top-level group when no target is given.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The ID or URL-encoded path of the group to transfer.`,
+      },
+      {
+        name: 'group_id',
+        type: 'integer',
+        required: false,
+        description: `The ID of the destination parent group. Omit to promote this group to top-level.`,
       },
     ],
   },
@@ -773,6 +995,108 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'gitlab_issue_link_create',
+    description: `Creates a two-way relationship (relates_to, blocks, or is_blocked_by) between two issues. The user must be able to update both issues.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The project ID (numeric) or URL-encoded path.`,
+      },
+      {
+        name: 'issue_iid',
+        type: 'integer',
+        required: true,
+        description: `The internal ID of the source issue.`,
+      },
+      {
+        name: 'target_issue_iid',
+        type: 'string',
+        required: true,
+        description: `The internal ID of the target issue to link to.`,
+      },
+      {
+        name: 'target_project_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the project containing the target issue.`,
+      },
+      {
+        name: 'link_type',
+        type: 'string',
+        required: false,
+        description: `The type of relation: relates_to, blocks, or is_blocked_by. Defaults to relates_to.`,
+      },
+    ],
+  },
+  {
+    name: 'gitlab_issue_link_delete',
+    description: `Deletes a specified issue link, removing the two-way relationship between the two issues.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The project ID (numeric) or URL-encoded path.`,
+      },
+      {
+        name: 'issue_iid',
+        type: 'integer',
+        required: true,
+        description: `The internal ID of the issue.`,
+      },
+      {
+        name: 'issue_link_id',
+        type: 'integer',
+        required: true,
+        description: `The ID of the issue link to delete.`,
+      },
+    ],
+  },
+  {
+    name: 'gitlab_issue_links_list',
+    description: `Lists all issues linked to a specified issue, sorted by relationship creation time.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The project ID (numeric) or URL-encoded path.`,
+      },
+      {
+        name: 'issue_iid',
+        type: 'integer',
+        required: true,
+        description: `The internal ID of the issue.`,
+      },
+    ],
+  },
+  {
+    name: 'gitlab_issue_move',
+    description: `Moves an issue to a different project. Fails if the target project is the same as the source, or if the user lacks sufficient permissions.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The project ID (numeric) or URL-encoded path.`,
+      },
+      {
+        name: 'issue_iid',
+        type: 'integer',
+        required: true,
+        description: `The internal ID of the issue to move.`,
+      },
+      {
+        name: 'to_project_id',
+        type: 'integer',
+        required: true,
+        description: `The ID of the destination project.`,
+      },
+    ],
+  },
+  {
     name: 'gitlab_issue_note_create',
     description: `Add a comment to a specific issue.`,
     params: [
@@ -877,6 +1201,84 @@ export const tools: Tool[] = [
         type: 'integer',
         required: false,
         description: `Number of results per page (max 100).`,
+      },
+    ],
+  },
+  {
+    name: 'gitlab_issue_subscribe',
+    description: `Subscribes the currently authenticated user to an issue so they receive notifications on future changes.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The project ID (numeric) or URL-encoded path.`,
+      },
+      {
+        name: 'issue_iid',
+        type: 'integer',
+        required: true,
+        description: `The internal ID of the issue.`,
+      },
+    ],
+  },
+  {
+    name: 'gitlab_issue_time_estimate_set',
+    description: `Sets an estimated amount of work for an issue, using GitLab's human-readable duration format (e.g. 3h30m).`,
+    params: [
+      {
+        name: 'duration',
+        type: 'string',
+        required: true,
+        description: `The estimated duration in human-readable format, e.g. 3h30m.`,
+      },
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The project ID (numeric) or URL-encoded path.`,
+      },
+      {
+        name: 'issue_iid',
+        type: 'integer',
+        required: true,
+        description: `The internal ID of the issue.`,
+      },
+    ],
+  },
+  {
+    name: 'gitlab_issue_time_stats_get',
+    description: `Retrieves time tracking statistics for an issue, including time estimate and total time spent, in both seconds and human-readable format.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The project ID (numeric) or URL-encoded path.`,
+      },
+      {
+        name: 'issue_iid',
+        type: 'integer',
+        required: true,
+        description: `The internal ID of the issue.`,
+      },
+    ],
+  },
+  {
+    name: 'gitlab_issue_unsubscribe',
+    description: `Unsubscribes the currently authenticated user from an issue, stopping future change notifications.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The project ID (numeric) or URL-encoded path.`,
+      },
+      {
+        name: 'issue_iid',
+        type: 'integer',
+        required: true,
+        description: `The internal ID of the issue.`,
       },
     ],
   },
@@ -1003,6 +1405,24 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'gitlab_job_artifacts_keep',
+    description: `Marks a job's artifacts to be retained indefinitely, preventing them from being automatically deleted when they reach their expiration date.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The project ID (numeric) or URL-encoded path.`,
+      },
+      {
+        name: 'job_id',
+        type: 'integer',
+        required: true,
+        description: `The ID of the job whose artifacts should be retained.`,
+      },
+    ],
+  },
+  {
     name: 'gitlab_job_cancel',
     description: `Cancel a specific CI/CD job.`,
     params: [
@@ -1017,6 +1437,24 @@ export const tools: Tool[] = [
         type: 'integer',
         required: true,
         description: `The numeric ID of the job to cancel.`,
+      },
+    ],
+  },
+  {
+    name: 'gitlab_job_erase',
+    description: `Erases a job, permanently removing its artifacts and job log. This cannot be undone.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The project ID (numeric) or URL-encoded path.`,
+      },
+      {
+        name: 'job_id',
+        type: 'integer',
+        required: true,
+        description: `The ID of the job to erase.`,
       },
     ],
   },
@@ -1053,6 +1491,24 @@ export const tools: Tool[] = [
         type: 'integer',
         required: true,
         description: `The numeric ID of the job.`,
+      },
+    ],
+  },
+  {
+    name: 'gitlab_job_play',
+    description: `Triggers a job that is in the manual status, starting its execution.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The project ID (numeric) or URL-encoded path.`,
+      },
+      {
+        name: 'job_id',
+        type: 'integer',
+        required: true,
+        description: `The ID of the manual job to run.`,
       },
     ],
   },
@@ -1166,6 +1622,60 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'gitlab_merge_request_changes_get',
+    description: `Retrieves the file changes (diff) for a merge request.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The project ID (numeric) or URL-encoded path.`,
+      },
+      {
+        name: 'merge_request_iid',
+        type: 'integer',
+        required: true,
+        description: `The internal ID of the merge request.`,
+      },
+      {
+        name: 'unidiff',
+        type: 'boolean',
+        required: false,
+        description: `Return the diff in Unified diff format instead of GitLab's default format.`,
+      },
+    ],
+  },
+  {
+    name: 'gitlab_merge_request_closes_issues_list',
+    description: `Lists all issues that will be closed automatically when a merge request is merged.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The project ID (numeric) or URL-encoded path.`,
+      },
+      {
+        name: 'merge_request_iid',
+        type: 'integer',
+        required: true,
+        description: `The internal ID of the merge request.`,
+      },
+      {
+        name: 'page',
+        type: 'integer',
+        required: false,
+        description: `Page number for pagination.`,
+      },
+      {
+        name: 'per_page',
+        type: 'integer',
+        required: false,
+        description: `Number of results per page (max 100).`,
+      },
+    ],
+  },
+  {
     name: 'gitlab_merge_request_commits_list',
     description: `List commits in a specific merge request.`,
     params: [
@@ -1244,6 +1754,24 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'gitlab_merge_request_delete',
+    description: `Deletes a merge request. Restricted to administrators and project Owners.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The project ID (numeric) or URL-encoded path.`,
+      },
+      {
+        name: 'merge_request_iid',
+        type: 'integer',
+        required: true,
+        description: `The internal ID of the merge request.`,
+      },
+    ],
+  },
+  {
     name: 'gitlab_merge_request_diff_get',
     description: `Get the diffs of a specific merge request.`,
     params: [
@@ -1258,6 +1786,66 @@ export const tools: Tool[] = [
         type: 'integer',
         required: true,
         description: `The internal ID of the merge request.`,
+      },
+    ],
+  },
+  {
+    name: 'gitlab_merge_request_discussion_resolve',
+    description: `Resolve or reopen an entire merge-request review thread — a common code-review action with no equivalent among existing note/approval tools.`,
+    params: [
+      {
+        name: 'discussion_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the discussion (thread) to resolve or reopen.`,
+      },
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The project ID (numeric) or URL-encoded path.`,
+      },
+      {
+        name: 'merge_request_iid',
+        type: 'integer',
+        required: true,
+        description: `The internal ID of the merge request.`,
+      },
+      {
+        name: 'resolved',
+        type: 'boolean',
+        required: true,
+        description: `If true, resolves the discussion. If false, reopens it.`,
+      },
+    ],
+  },
+  {
+    name: 'gitlab_merge_request_discussions_list',
+    description: `List threaded discussions on a merge request via the Discussions API, including each thread's individual_note flag and note-level resolvable/resolved state. Existing tools (gitlab_merge_request_notes_list) only cover flat notes, not this threaded structure.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The project ID (numeric) or URL-encoded path.`,
+      },
+      {
+        name: 'merge_request_iid',
+        type: 'integer',
+        required: true,
+        description: `The internal ID of the merge request.`,
+      },
+      {
+        name: 'page',
+        type: 'integer',
+        required: false,
+        description: `Page number for pagination.`,
+      },
+      {
+        name: 'per_page',
+        type: 'integer',
+        required: false,
+        description: `Number of results per page (max 100).`,
       },
     ],
   },
@@ -1366,6 +1954,162 @@ export const tools: Tool[] = [
         type: 'integer',
         required: false,
         description: `Number of results per page (max 100).`,
+      },
+    ],
+  },
+  {
+    name: 'gitlab_merge_request_pipelines_list',
+    description: `Lists all CI/CD pipelines that have run for a merge request.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The project ID (numeric) or URL-encoded path.`,
+      },
+      {
+        name: 'merge_request_iid',
+        type: 'integer',
+        required: true,
+        description: `The internal ID of the merge request.`,
+      },
+    ],
+  },
+  {
+    name: 'gitlab_merge_request_rebase',
+    description: `Automatically rebases the source branch of a merge request against its target branch. This is an asynchronous operation.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The project ID (numeric) or URL-encoded path.`,
+      },
+      {
+        name: 'merge_request_iid',
+        type: 'integer',
+        required: true,
+        description: `The internal ID of the merge request.`,
+      },
+      {
+        name: 'skip_ci',
+        type: 'boolean',
+        required: false,
+        description: `Set to true to rebase without creating a new CI pipeline.`,
+      },
+    ],
+  },
+  {
+    name: 'gitlab_merge_request_reviewers_list',
+    description: `Retrieves the reviewers assigned to a merge request.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The project ID (numeric) or URL-encoded path.`,
+      },
+      {
+        name: 'merge_request_iid',
+        type: 'integer',
+        required: true,
+        description: `The internal ID of the merge request.`,
+      },
+    ],
+  },
+  {
+    name: 'gitlab_merge_request_subscribe',
+    description: `Subscribes the currently authenticated user to a merge request so they receive notifications on future changes.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The project ID (numeric) or URL-encoded path.`,
+      },
+      {
+        name: 'merge_request_iid',
+        type: 'integer',
+        required: true,
+        description: `The internal ID of the merge request.`,
+      },
+    ],
+  },
+  {
+    name: 'gitlab_merge_request_time_estimate_set',
+    description: `Sets an estimated amount of work for a merge request, using GitLab's human-readable duration format.`,
+    params: [
+      {
+        name: 'duration',
+        type: 'string',
+        required: true,
+        description: `The estimated duration in human-readable format, e.g. 3h30m.`,
+      },
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The project ID (numeric) or URL-encoded path.`,
+      },
+      {
+        name: 'merge_request_iid',
+        type: 'integer',
+        required: true,
+        description: `The internal ID of the merge request.`,
+      },
+    ],
+  },
+  {
+    name: 'gitlab_merge_request_time_stats_get',
+    description: `Retrieves time tracking statistics for a merge request, including time estimate and total time spent.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The project ID (numeric) or URL-encoded path.`,
+      },
+      {
+        name: 'merge_request_iid',
+        type: 'integer',
+        required: true,
+        description: `The internal ID of the merge request.`,
+      },
+    ],
+  },
+  {
+    name: 'gitlab_merge_request_unapprove',
+    description: `Removes the currently authenticated user's approval from a merge request.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The project ID (numeric) or URL-encoded path.`,
+      },
+      {
+        name: 'merge_request_iid',
+        type: 'integer',
+        required: true,
+        description: `The internal ID of the merge request.`,
+      },
+    ],
+  },
+  {
+    name: 'gitlab_merge_request_unsubscribe',
+    description: `Unsubscribes the currently authenticated user from a merge request, stopping future change notifications.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The project ID (numeric) or URL-encoded path.`,
+      },
+      {
+        name: 'merge_request_iid',
+        type: 'integer',
+        required: true,
+        description: `The internal ID of the merge request.`,
       },
     ],
   },
@@ -1654,6 +2398,36 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'gitlab_package_pipelines_list',
+    description: `Lists the CI/CD pipelines that published a specific package, sorted by pipeline ID descending.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The project ID (numeric) or URL-encoded path.`,
+      },
+      {
+        name: 'package_id',
+        type: 'integer',
+        required: true,
+        description: `The ID of the package.`,
+      },
+      {
+        name: 'page',
+        type: 'integer',
+        required: false,
+        description: `Page number for pagination.`,
+      },
+      {
+        name: 'per_page',
+        type: 'integer',
+        required: false,
+        description: `Number of results per page (max 100).`,
+      },
+    ],
+  },
+  {
     name: 'gitlab_pipeline_cancel',
     description: `Cancel a running pipeline.`,
     params: [
@@ -1763,6 +2537,24 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'gitlab_pipeline_latest_get',
+    description: `Retrieves the most recent pipeline for a given ref (branch or tag). Uses the project's default branch if no ref is specified.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The project ID (numeric) or URL-encoded path.`,
+      },
+      {
+        name: 'ref',
+        type: 'string',
+        required: false,
+        description: `The branch or tag to find the latest pipeline for. Defaults to the project's default branch.`,
+      },
+    ],
+  },
+  {
     name: 'gitlab_pipeline_retry',
     description: `Retry a failed pipeline.`,
     params: [
@@ -1777,6 +2569,180 @@ export const tools: Tool[] = [
         type: 'integer',
         required: true,
         description: `The numeric ID of the pipeline to retry.`,
+      },
+    ],
+  },
+  {
+    name: 'gitlab_pipeline_schedule_create',
+    description: `Creates a scheduled pipeline that runs automatically on a cron-style schedule against a given branch or tag.`,
+    params: [
+      {
+        name: 'cron',
+        type: 'string',
+        required: true,
+        description: `A cron expression describing when the pipeline should run.`,
+      },
+      {
+        name: 'description',
+        type: 'string',
+        required: true,
+        description: `A description of the pipeline schedule.`,
+      },
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The project ID (numeric) or URL-encoded path.`,
+      },
+      {
+        name: 'ref',
+        type: 'string',
+        required: true,
+        description: `The branch or tag name the scheduled pipeline runs against.`,
+      },
+      {
+        name: 'active',
+        type: 'boolean',
+        required: false,
+        description: `Whether the pipeline schedule is active.`,
+      },
+      {
+        name: 'cron_timezone',
+        type: 'string',
+        required: false,
+        description: `The timezone the cron expression is evaluated in.`,
+      },
+    ],
+  },
+  {
+    name: 'gitlab_pipeline_schedule_delete',
+    description: `Deletes a pipeline schedule from a project.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The project ID (numeric) or URL-encoded path.`,
+      },
+      {
+        name: 'pipeline_schedule_id',
+        type: 'integer',
+        required: true,
+        description: `The ID of the pipeline schedule to delete.`,
+      },
+    ],
+  },
+  {
+    name: 'gitlab_pipeline_schedule_get',
+    description: `Retrieves the details of a specific pipeline schedule.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The project ID (numeric) or URL-encoded path.`,
+      },
+      {
+        name: 'pipeline_schedule_id',
+        type: 'integer',
+        required: true,
+        description: `The ID of the pipeline schedule.`,
+      },
+    ],
+  },
+  {
+    name: 'gitlab_pipeline_schedule_update',
+    description: `Updates an existing pipeline schedule. The schedule is automatically re-registered with the new cron settings after the update.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The project ID (numeric) or URL-encoded path.`,
+      },
+      {
+        name: 'pipeline_schedule_id',
+        type: 'integer',
+        required: true,
+        description: `The ID of the pipeline schedule to update.`,
+      },
+      {
+        name: 'active',
+        type: 'boolean',
+        required: false,
+        description: `Whether the pipeline schedule is active.`,
+      },
+      {
+        name: 'cron',
+        type: 'string',
+        required: false,
+        description: `A cron expression describing when the pipeline should run.`,
+      },
+      {
+        name: 'cron_timezone',
+        type: 'string',
+        required: false,
+        description: `The timezone the cron expression is evaluated in.`,
+      },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `A description of the pipeline schedule.`,
+      },
+      {
+        name: 'ref',
+        type: 'string',
+        required: false,
+        description: `The branch or tag name the scheduled pipeline runs against.`,
+      },
+    ],
+  },
+  {
+    name: 'gitlab_pipeline_schedules_list',
+    description: `Lists all scheduled (cron-triggered) pipelines configured for a project.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The project ID (numeric) or URL-encoded path.`,
+      },
+    ],
+  },
+  {
+    name: 'gitlab_pipeline_test_report_get',
+    description: `Retrieves the full JUnit test report for a pipeline, including individual test case results.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The project ID (numeric) or URL-encoded path.`,
+      },
+      {
+        name: 'pipeline_id',
+        type: 'integer',
+        required: true,
+        description: `The ID of the pipeline.`,
+      },
+    ],
+  },
+  {
+    name: 'gitlab_pipeline_test_report_summary_get',
+    description: `Retrieves a summarized test report for a pipeline, including pass/fail/error counts without full test case detail.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The project ID (numeric) or URL-encoded path.`,
+      },
+      {
+        name: 'pipeline_id',
+        type: 'integer',
+        required: true,
+        description: `The ID of the pipeline.`,
       },
     ],
   },
@@ -1819,6 +2785,124 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Filter by pipeline status.`,
+      },
+    ],
+  },
+  {
+    name: 'gitlab_project_access_token_create',
+    description: `Create a project access token with specified scopes, access level, and expiry — for provisioning CI or automation credentials. The token secret is only returned once, in the create response.`,
+    params: [
+      {
+        name: 'expires_at',
+        type: 'string',
+        required: true,
+        description: `Expiration date of the token in ISO format (YYYY-MM-DD).`,
+      },
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The project ID (numeric) or URL-encoded path.`,
+      },
+      { name: 'name', type: 'string', required: true, description: `Name of the access token.` },
+      {
+        name: 'scopes',
+        type: 'array',
+        required: true,
+        description: `List of scopes granted to the token.`,
+      },
+      {
+        name: 'access_level',
+        type: 'integer',
+        required: false,
+        description: `Access level for the token. 10=Guest, 15=Planner, 20=Reporter, 25=Reporter+, 30=Developer, 40=Maintainer, 50=Owner. Defaults to 40.`,
+      },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `Optional description for the token, up to 255 characters.`,
+      },
+    ],
+  },
+  {
+    name: 'gitlab_project_access_tokens_list',
+    description: `List existing project access tokens, with filters for state, search, expiry/creation/last-used windows, and sort order. Never returns token secrets — those are only shown once, at creation.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The project ID (numeric) or URL-encoded path.`,
+      },
+      {
+        name: 'created_after',
+        type: 'string',
+        required: false,
+        description: `Only return tokens created after this datetime (ISO 8601).`,
+      },
+      {
+        name: 'created_before',
+        type: 'string',
+        required: false,
+        description: `Only return tokens created before this datetime (ISO 8601).`,
+      },
+      {
+        name: 'expires_after',
+        type: 'string',
+        required: false,
+        description: `Only return tokens expiring after this date (ISO 8601).`,
+      },
+      {
+        name: 'expires_before',
+        type: 'string',
+        required: false,
+        description: `Only return tokens expiring before this date (ISO 8601).`,
+      },
+      {
+        name: 'last_used_after',
+        type: 'string',
+        required: false,
+        description: `Only return tokens last used after this datetime (ISO 8601).`,
+      },
+      {
+        name: 'last_used_before',
+        type: 'string',
+        required: false,
+        description: `Only return tokens last used before this datetime (ISO 8601).`,
+      },
+      {
+        name: 'page',
+        type: 'integer',
+        required: false,
+        description: `Page number for pagination.`,
+      },
+      {
+        name: 'per_page',
+        type: 'integer',
+        required: false,
+        description: `Number of results per page (max 100).`,
+      },
+      {
+        name: 'revoked',
+        type: 'boolean',
+        required: false,
+        description: `Filter by whether the token has been revoked.`,
+      },
+      { name: 'search', type: 'string', required: false, description: `Search by token name.` },
+      { name: 'sort', type: 'string', required: false, description: `Sort order for the results.` },
+      { name: 'state', type: 'string', required: false, description: `Filter tokens by state.` },
+    ],
+  },
+  {
+    name: 'gitlab_project_archive',
+    description: `Archives a project, making it read-only throughout the UI and API. Requires the Owner role or administrator access.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The project ID (numeric) or URL-encoded path.`,
       },
     ],
   },
@@ -1926,6 +3010,18 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'gitlab_project_languages_get',
+    description: `Retrieves the programming languages used in a project's repository, along with the percentage of the codebase each language represents.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The project ID (numeric) or URL-encoded path.`,
+      },
+    ],
+  },
+  {
     name: 'gitlab_project_member_add',
     description: `Add a member to a GitLab project with a specified access level.`,
     params: [
@@ -1990,6 +3086,90 @@ export const tools: Tool[] = [
         description: `Number of results per page (max 100).`,
       },
       { name: 'query', type: 'string', required: false, description: `Filter members by name.` },
+    ],
+  },
+  {
+    name: 'gitlab_project_package_delete',
+    description: `Deletes a package and all of its files from a project's package registry.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The project ID (numeric) or URL-encoded path.`,
+      },
+      {
+        name: 'package_id',
+        type: 'integer',
+        required: true,
+        description: `The ID of the package to delete.`,
+      },
+    ],
+  },
+  {
+    name: 'gitlab_project_package_get',
+    description: `Retrieves a specific package published to a project's package registry.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The project ID (numeric) or URL-encoded path.`,
+      },
+      {
+        name: 'package_id',
+        type: 'integer',
+        required: true,
+        description: `The ID of the package.`,
+      },
+    ],
+  },
+  {
+    name: 'gitlab_project_packages_list',
+    description: `Lists all packages published to a project's package registry, across all package formats.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The project ID (numeric) or URL-encoded path.`,
+      },
+      {
+        name: 'order_by',
+        type: 'string',
+        required: false,
+        description: `Field to order results by: created_at, name, version, or type.`,
+      },
+      {
+        name: 'package_name',
+        type: 'string',
+        required: false,
+        description: `Filter packages by exact name.`,
+      },
+      {
+        name: 'package_type',
+        type: 'string',
+        required: false,
+        description: `Filter packages by format/type.`,
+      },
+      {
+        name: 'page',
+        type: 'integer',
+        required: false,
+        description: `Page number for pagination.`,
+      },
+      {
+        name: 'per_page',
+        type: 'integer',
+        required: false,
+        description: `Number of results per page (max 100).`,
+      },
+      {
+        name: 'sort',
+        type: 'string',
+        required: false,
+        description: `Sort direction: asc or desc.`,
+      },
     ],
   },
   {
@@ -2067,6 +3247,24 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'gitlab_project_snippet_delete',
+    description: `Deletes a project snippet.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The project ID (numeric) or URL-encoded path.`,
+      },
+      {
+        name: 'snippet_id',
+        type: 'integer',
+        required: true,
+        description: `The ID of the project snippet to delete.`,
+      },
+    ],
+  },
+  {
     name: 'gitlab_project_snippet_get',
     description: `Get a specific snippet from a GitLab project.`,
     params: [
@@ -2081,6 +3279,49 @@ export const tools: Tool[] = [
         type: 'integer',
         required: true,
         description: `The numeric ID of the snippet.`,
+      },
+    ],
+  },
+  {
+    name: 'gitlab_project_snippet_update',
+    description: `Updates an existing project snippet's title, description, visibility, or content.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The project ID (numeric) or URL-encoded path.`,
+      },
+      {
+        name: 'snippet_id',
+        type: 'integer',
+        required: true,
+        description: `The ID of the project snippet to update.`,
+      },
+      {
+        name: 'content',
+        type: 'string',
+        required: false,
+        description: `The content of the snippet.`,
+      },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `Optional description for the snippet.`,
+      },
+      {
+        name: 'file_name',
+        type: 'string',
+        required: false,
+        description: `The filename for the snippet.`,
+      },
+      { name: 'title', type: 'string', required: false, description: `The title of the snippet.` },
+      {
+        name: 'visibility',
+        type: 'string',
+        required: false,
+        description: `Visibility level: private, internal, or public.`,
       },
     ],
   },
@@ -2111,6 +3352,36 @@ export const tools: Tool[] = [
   {
     name: 'gitlab_project_star',
     description: `Star a GitLab project.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The project ID (numeric) or URL-encoded path.`,
+      },
+    ],
+  },
+  {
+    name: 'gitlab_project_transfer',
+    description: `Transfers a project to a different namespace (user or group).`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The project ID (numeric) or URL-encoded path.`,
+      },
+      {
+        name: 'namespace',
+        type: 'string',
+        required: true,
+        description: `The ID or path of the destination namespace.`,
+      },
+    ],
+  },
+  {
+    name: 'gitlab_project_unarchive',
+    description: `Unarchives a previously-archived project, restoring normal read/write access. Requires the Owner role or administrator access.`,
     params: [
       {
         name: 'id',
@@ -2473,6 +3744,186 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'gitlab_protected_branch_create',
+    description: `Protect a branch or wildcard pattern via the modern Protected Branches API, with fine-grained push/merge/unprotect access levels. Distinct from gitlab_branch_protect, which only supports the legacy developers_can_push/developers_can_merge toggle.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The project ID (numeric) or URL-encoded path.`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: true,
+        description: `The name or wildcard pattern of the branch to protect.`,
+      },
+      {
+        name: 'allow_force_push',
+        type: 'boolean',
+        required: false,
+        description: `If true, members allowed to push to this branch can also force push. Defaults to false.`,
+      },
+      {
+        name: 'allowed_to_merge',
+        type: 'array',
+        required: false,
+        description: `Array of access descriptors granting merge access, each an object with exactly one of user_id, group_id, member_role_id, or access_level.`,
+      },
+      {
+        name: 'allowed_to_push',
+        type: 'array',
+        required: false,
+        description: `Array of access descriptors granting push access, each an object with exactly one of user_id, group_id, member_role_id, deploy_key_id, or access_level.`,
+      },
+      {
+        name: 'allowed_to_unprotect',
+        type: 'array',
+        required: false,
+        description: `Array of access descriptors granting unprotect access, each an object with exactly one of user_id, group_id, member_role_id, or access_level.`,
+      },
+      {
+        name: 'code_owner_approval_required',
+        type: 'boolean',
+        required: false,
+        description: `If true, merges into this branch require approval from a matching CODEOWNERS entry. Defaults to false.`,
+      },
+      {
+        name: 'merge_access_level',
+        type: 'integer',
+        required: false,
+        description: `Access level allowed to merge into the branch. 0=No access, 30=Developer, 40=Maintainer, 60=Admin. Defaults to 40.`,
+      },
+      {
+        name: 'push_access_level',
+        type: 'integer',
+        required: false,
+        description: `Access level allowed to push to the branch. 0=No access, 30=Developer, 40=Maintainer, 60=Admin. Defaults to 40.`,
+      },
+      {
+        name: 'unprotect_access_level',
+        type: 'integer',
+        required: false,
+        description: `Access level allowed to unprotect the branch. 0=No access, 30=Developer, 40=Maintainer, 60=Admin. Defaults to 40.`,
+      },
+    ],
+  },
+  {
+    name: 'gitlab_protected_branch_delete',
+    description: `Remove a protected-branch rule created via the modern Protected Branches API (unprotects the branch or wildcard pattern entirely).`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The project ID (numeric) or URL-encoded path.`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: true,
+        description: `The name or wildcard pattern of the protected branch rule to remove.`,
+      },
+    ],
+  },
+  {
+    name: 'gitlab_protected_branches_list',
+    description: `List protected branches for a project via the modern Protected Branches API, including each branch's push/merge/unprotect access levels. Distinct from gitlab_branch_protect/gitlab_branch_unprotect, which use the legacy protect toggle and don't expose per-role access levels.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The project ID (numeric) or URL-encoded path.`,
+      },
+      {
+        name: 'page',
+        type: 'integer',
+        required: false,
+        description: `Page number for pagination.`,
+      },
+      {
+        name: 'per_page',
+        type: 'integer',
+        required: false,
+        description: `Number of results per page (max 100).`,
+      },
+      {
+        name: 'search',
+        type: 'string',
+        required: false,
+        description: `Name or part of the name of protected branches to search for.`,
+      },
+    ],
+  },
+  {
+    name: 'gitlab_registry_repositories_list',
+    description: `List container registry repositories for a project. The entire Container Registry API is otherwise uncovered by existing tools.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The project ID (numeric) or URL-encoded path.`,
+      },
+      {
+        name: 'page',
+        type: 'integer',
+        required: false,
+        description: `Page number for pagination.`,
+      },
+      {
+        name: 'per_page',
+        type: 'integer',
+        required: false,
+        description: `Number of results per page (max 100).`,
+      },
+      {
+        name: 'tags',
+        type: 'boolean',
+        required: false,
+        description: `If true, each repository includes an array of its tags in the response.`,
+      },
+      {
+        name: 'tags_count',
+        type: 'boolean',
+        required: false,
+        description: `If true, each repository includes a tags_count field in the response.`,
+      },
+    ],
+  },
+  {
+    name: 'gitlab_registry_repository_tags_list',
+    description: `List image tags in a project's container registry repository. Use gitlab_registry_repositories_list first to find the repository_id.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The project ID (numeric) or URL-encoded path.`,
+      },
+      {
+        name: 'repository_id',
+        type: 'integer',
+        required: true,
+        description: `The ID of the registry repository.`,
+      },
+      {
+        name: 'page',
+        type: 'integer',
+        required: false,
+        description: `Page number for pagination.`,
+      },
+      {
+        name: 'per_page',
+        type: 'integer',
+        required: false,
+        description: `Number of results per page (max 100).`,
+      },
+    ],
+  },
+  {
     name: 'gitlab_release_create',
     description: `Create a new release in a GitLab project.`,
     params: [
@@ -2536,6 +3987,158 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `The tag name for the release.`,
+      },
+    ],
+  },
+  {
+    name: 'gitlab_release_link_create',
+    description: `Creates an asset link (a downloadable file or external URL) attached to a release.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The project ID (numeric) or URL-encoded path.`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: true,
+        description: `The name of the link. Must be unique within the release.`,
+      },
+      {
+        name: 'tag_name',
+        type: 'string',
+        required: true,
+        description: `The tag associated with the release.`,
+      },
+      {
+        name: 'url',
+        type: 'string',
+        required: true,
+        description: `The URL of the link. Must be unique within the release.`,
+      },
+      {
+        name: 'direct_asset_path',
+        type: 'string',
+        required: false,
+        description: `Optional path used to build a direct, permanent asset URL.`,
+      },
+      {
+        name: 'link_type',
+        type: 'string',
+        required: false,
+        description: `The type of the link: other, runbook, image, or package. Defaults to other.`,
+      },
+    ],
+  },
+  {
+    name: 'gitlab_release_link_delete',
+    description: `Deletes an asset link from a release.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The project ID (numeric) or URL-encoded path.`,
+      },
+      {
+        name: 'link_id',
+        type: 'integer',
+        required: true,
+        description: `The ID of the release link to delete.`,
+      },
+      {
+        name: 'tag_name',
+        type: 'string',
+        required: true,
+        description: `The tag associated with the release.`,
+      },
+    ],
+  },
+  {
+    name: 'gitlab_release_link_get',
+    description: `Retrieves a specific asset link from a release.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The project ID (numeric) or URL-encoded path.`,
+      },
+      {
+        name: 'link_id',
+        type: 'integer',
+        required: true,
+        description: `The ID of the release link.`,
+      },
+      {
+        name: 'tag_name',
+        type: 'string',
+        required: true,
+        description: `The tag associated with the release.`,
+      },
+    ],
+  },
+  {
+    name: 'gitlab_release_link_update',
+    description: `Updates the name, URL, or type of an existing release asset link.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The project ID (numeric) or URL-encoded path.`,
+      },
+      {
+        name: 'link_id',
+        type: 'integer',
+        required: true,
+        description: `The ID of the release link to update.`,
+      },
+      {
+        name: 'tag_name',
+        type: 'string',
+        required: true,
+        description: `The tag associated with the release.`,
+      },
+      {
+        name: 'link_type',
+        type: 'string',
+        required: false,
+        description: `The type of the link: other, runbook, image, or package.`,
+      },
+      { name: 'name', type: 'string', required: false, description: `The name of the link.` },
+      { name: 'url', type: 'string', required: false, description: `The URL of the link.` },
+    ],
+  },
+  {
+    name: 'gitlab_release_links_list',
+    description: `Lists all asset links attached to a release.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The project ID (numeric) or URL-encoded path.`,
+      },
+      {
+        name: 'tag_name',
+        type: 'string',
+        required: true,
+        description: `The tag associated with the release.`,
+      },
+      {
+        name: 'page',
+        type: 'integer',
+        required: false,
+        description: `Page number for pagination.`,
+      },
+      {
+        name: 'per_page',
+        type: 'integer',
+        required: false,
+        description: `Number of results per page (max 100).`,
       },
     ],
   },
@@ -2627,6 +4230,128 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `The branch, tag, or commit SHA to list files from.`,
+      },
+    ],
+  },
+  {
+    name: 'gitlab_snippet_create',
+    description: `Creates a personal snippet, not tied to any project, owned by the currently authenticated user.`,
+    params: [
+      {
+        name: 'content',
+        type: 'string',
+        required: true,
+        description: `The content of the snippet.`,
+      },
+      {
+        name: 'file_name',
+        type: 'string',
+        required: true,
+        description: `The filename for the snippet.`,
+      },
+      { name: 'title', type: 'string', required: true, description: `The title of the snippet.` },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `Optional description for the snippet.`,
+      },
+      {
+        name: 'visibility',
+        type: 'string',
+        required: false,
+        description: `Visibility level: private, internal, or public.`,
+      },
+    ],
+  },
+  {
+    name: 'gitlab_snippet_delete',
+    description: `Deletes a personal snippet.`,
+    params: [
+      {
+        name: 'snippet_id',
+        type: 'integer',
+        required: true,
+        description: `The ID of the snippet to delete.`,
+      },
+    ],
+  },
+  {
+    name: 'gitlab_snippet_get',
+    description: `Retrieves a personal snippet by ID.`,
+    params: [
+      {
+        name: 'snippet_id',
+        type: 'integer',
+        required: true,
+        description: `The ID of the snippet to retrieve.`,
+      },
+    ],
+  },
+  {
+    name: 'gitlab_snippet_update',
+    description: `Updates an existing personal snippet's title, description, visibility, or content.`,
+    params: [
+      {
+        name: 'snippet_id',
+        type: 'integer',
+        required: true,
+        description: `The ID of the snippet to update.`,
+      },
+      {
+        name: 'content',
+        type: 'string',
+        required: false,
+        description: `The content of the snippet.`,
+      },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `Optional description for the snippet.`,
+      },
+      {
+        name: 'file_name',
+        type: 'string',
+        required: false,
+        description: `The filename for the snippet.`,
+      },
+      { name: 'title', type: 'string', required: false, description: `The title of the snippet.` },
+      {
+        name: 'visibility',
+        type: 'string',
+        required: false,
+        description: `Visibility level: private, internal, or public.`,
+      },
+    ],
+  },
+  {
+    name: 'gitlab_snippets_list',
+    description: `Lists all personal snippets owned by the currently authenticated user.`,
+    params: [
+      {
+        name: 'created_after',
+        type: 'string',
+        required: false,
+        description: `Only return snippets created after this timestamp.`,
+      },
+      {
+        name: 'created_before',
+        type: 'string',
+        required: false,
+        description: `Only return snippets created before this timestamp.`,
+      },
+      {
+        name: 'page',
+        type: 'integer',
+        required: false,
+        description: `Page number for pagination.`,
+      },
+      {
+        name: 'per_page',
+        type: 'integer',
+        required: false,
+        description: `Number of results per page (max 100).`,
       },
     ],
   },
@@ -2738,6 +4463,169 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'gitlab_todo_mark_done',
+    description: `Mark a single pending to-do item as done.`,
+    params: [
+      {
+        name: 'id',
+        type: 'integer',
+        required: true,
+        description: `The ID of the to-do item to mark as done.`,
+      },
+    ],
+  },
+  {
+    name: 'gitlab_todos_list',
+    description: `List the authenticated user's GitLab to-do items, with filters for action/author/project/group/state/type.`,
+    params: [
+      {
+        name: 'action',
+        type: 'string',
+        required: false,
+        description: `Filter by the action that generated the to-do.`,
+      },
+      {
+        name: 'author_id',
+        type: 'integer',
+        required: false,
+        description: `Filter by the numeric ID of the user who triggered the to-do.`,
+      },
+      {
+        name: 'group_id',
+        type: 'integer',
+        required: false,
+        description: `Filter by the numeric ID of the group associated with the to-do.`,
+      },
+      {
+        name: 'page',
+        type: 'integer',
+        required: false,
+        description: `Page number for pagination.`,
+      },
+      {
+        name: 'per_page',
+        type: 'integer',
+        required: false,
+        description: `Number of results per page (max 100).`,
+      },
+      {
+        name: 'project_id',
+        type: 'integer',
+        required: false,
+        description: `Filter by the numeric ID of the project associated with the to-do.`,
+      },
+      { name: 'state', type: 'string', required: false, description: `Filter by to-do state.` },
+      {
+        name: 'type',
+        type: 'string',
+        required: false,
+        description: `Filter by the type of resource the to-do is about.`,
+      },
+    ],
+  },
+  {
+    name: 'gitlab_user_block',
+    description: `Blocks a user account, preventing them from signing in. Administrators only.`,
+    params: [
+      {
+        name: 'user_id',
+        type: 'integer',
+        required: true,
+        description: `The ID of the user to block.`,
+      },
+    ],
+  },
+  {
+    name: 'gitlab_user_create',
+    description: `Creates a new user account. Administrators only.`,
+    params: [
+      {
+        name: 'email',
+        type: 'string',
+        required: true,
+        description: `The email address of the new user.`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: true,
+        description: `The display name of the new user.`,
+      },
+      {
+        name: 'username',
+        type: 'string',
+        required: true,
+        description: `The username of the new user.`,
+      },
+      {
+        name: 'admin',
+        type: 'boolean',
+        required: false,
+        description: `Whether the new user should be a GitLab administrator.`,
+      },
+      {
+        name: 'bio',
+        type: 'string',
+        required: false,
+        description: `A short biography for the user's profile.`,
+      },
+      {
+        name: 'can_create_group',
+        type: 'boolean',
+        required: false,
+        description: `Whether the user can create top-level groups.`,
+      },
+      {
+        name: 'external',
+        type: 'boolean',
+        required: false,
+        description: `Whether the user is marked as an external user with restricted internal visibility.`,
+      },
+      {
+        name: 'password',
+        type: 'string',
+        required: false,
+        description: `The password for the new user.`,
+      },
+      {
+        name: 'projects_limit',
+        type: 'integer',
+        required: false,
+        description: `The maximum number of projects this user can create.`,
+      },
+      {
+        name: 'reset_password',
+        type: 'boolean',
+        required: false,
+        description: `Whether to send the user a password-reset token by email instead of setting a password.`,
+      },
+      {
+        name: 'skip_confirmation',
+        type: 'boolean',
+        required: false,
+        description: `Whether to mark the account as confirmed immediately, skipping the email confirmation step.`,
+      },
+    ],
+  },
+  {
+    name: 'gitlab_user_delete',
+    description: `Deletes a user account. Administrators only.`,
+    params: [
+      {
+        name: 'user_id',
+        type: 'integer',
+        required: true,
+        description: `The ID of the user to delete.`,
+      },
+      {
+        name: 'hard_delete',
+        type: 'boolean',
+        required: false,
+        description: `Whether to also remove all of the user's contributions (issues, comments, etc).`,
+      },
+    ],
+  },
+  {
     name: 'gitlab_user_get',
     description: `Get a specific user by ID.`,
     params: [{ name: 'id', type: 'integer', required: true, description: `The ID of the user.` }],
@@ -2763,6 +4651,90 @@ export const tools: Tool[] = [
         type: 'integer',
         required: false,
         description: `Number of results per page (max 100).`,
+      },
+    ],
+  },
+  {
+    name: 'gitlab_user_status_get',
+    description: `Retrieves the status message and emoji of a user. Does not require authentication.`,
+    params: [
+      {
+        name: 'user_id',
+        type: 'string',
+        required: true,
+        description: `The ID or username of the user.`,
+      },
+    ],
+  },
+  {
+    name: 'gitlab_user_unblock',
+    description: `Unblocks a previously-blocked user account, restoring their ability to sign in. Administrators only.`,
+    params: [
+      {
+        name: 'user_id',
+        type: 'integer',
+        required: true,
+        description: `The ID of the user to unblock.`,
+      },
+    ],
+  },
+  {
+    name: 'gitlab_user_update',
+    description: `Updates the details of an existing user account. Administrators only.`,
+    params: [
+      {
+        name: 'user_id',
+        type: 'integer',
+        required: true,
+        description: `The ID of the user to update.`,
+      },
+      {
+        name: 'admin',
+        type: 'boolean',
+        required: false,
+        description: `Whether the user should be a GitLab administrator.`,
+      },
+      {
+        name: 'bio',
+        type: 'string',
+        required: false,
+        description: `A short biography for the user's profile.`,
+      },
+      {
+        name: 'can_create_group',
+        type: 'boolean',
+        required: false,
+        description: `Whether the user can create top-level groups.`,
+      },
+      {
+        name: 'email',
+        type: 'string',
+        required: false,
+        description: `The email address of the user.`,
+      },
+      {
+        name: 'external',
+        type: 'boolean',
+        required: false,
+        description: `Whether the user is marked as an external user with restricted internal visibility.`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: false,
+        description: `The display name of the user.`,
+      },
+      {
+        name: 'projects_limit',
+        type: 'integer',
+        required: false,
+        description: `The maximum number of projects this user can create.`,
+      },
+      {
+        name: 'username',
+        type: 'string',
+        required: false,
+        description: `The username of the user.`,
       },
     ],
   },
@@ -2799,6 +4771,133 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Filter by exact username.`,
+      },
+    ],
+  },
+  {
+    name: 'gitlab_wiki_page_create',
+    description: `Creates a new wiki page for a project.`,
+    params: [
+      {
+        name: 'content',
+        type: 'string',
+        required: true,
+        description: `The content of the wiki page.`,
+      },
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The project ID (numeric) or URL-encoded path.`,
+      },
+      { name: 'title', type: 'string', required: true, description: `The title of the wiki page.` },
+      {
+        name: 'format',
+        type: 'string',
+        required: false,
+        description: `The markup format of the wiki page. One of markdown, rdoc, asciidoc, or org.`,
+      },
+    ],
+  },
+  {
+    name: 'gitlab_wiki_page_delete',
+    description: `Deletes a wiki page from a project.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The project ID (numeric) or URL-encoded path.`,
+      },
+      {
+        name: 'slug',
+        type: 'string',
+        required: true,
+        description: `The slug of the wiki page to delete.`,
+      },
+    ],
+  },
+  {
+    name: 'gitlab_wiki_page_get',
+    description: `Retrieves a specific wiki page for a project by its slug.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The project ID (numeric) or URL-encoded path.`,
+      },
+      {
+        name: 'slug',
+        type: 'string',
+        required: true,
+        description: `The slug of the wiki page to retrieve.`,
+      },
+      {
+        name: 'render_html',
+        type: 'boolean',
+        required: false,
+        description: `Whether to render the page content to HTML in the response.`,
+      },
+      {
+        name: 'version',
+        type: 'string',
+        required: false,
+        description: `A specific version hash of the wiki page to retrieve.`,
+      },
+    ],
+  },
+  {
+    name: 'gitlab_wiki_page_update',
+    description: `Updates the title, content, or format of an existing wiki page.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The project ID (numeric) or URL-encoded path.`,
+      },
+      {
+        name: 'slug',
+        type: 'string',
+        required: true,
+        description: `The slug of the wiki page to update.`,
+      },
+      {
+        name: 'content',
+        type: 'string',
+        required: false,
+        description: `The content of the wiki page.`,
+      },
+      {
+        name: 'format',
+        type: 'string',
+        required: false,
+        description: `The markup format of the wiki page.`,
+      },
+      {
+        name: 'title',
+        type: 'string',
+        required: false,
+        description: `The title of the wiki page.`,
+      },
+    ],
+  },
+  {
+    name: 'gitlab_wiki_pages_list',
+    description: `Lists all wiki pages for a project.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The project ID (numeric) or URL-encoded path.`,
+      },
+      {
+        name: 'with_content',
+        type: 'boolean',
+        required: false,
+        description: `Whether to include each page's rendered content in the response.`,
       },
     ],
   },

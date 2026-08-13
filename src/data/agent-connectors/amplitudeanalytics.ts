@@ -496,6 +496,48 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'amplitudeanalytics_get_active_and_new_user_counts',
+    description: `Pull the Active/New User Counts chart from the Amplitude Dashboard REST API: count of active or new users per interval over a date range, with optional segment filters and a single group-by property. Response shape: {"data": {"series": [[number,...]], "seriesMeta": [string,...], "xValues": ["YYYY-MM-DD",...]}}. Rate limits: 5 concurrent requests shared with other Amplitude Dashboard/Cohort API calls, up to 108,000 cost per hour.`,
+    params: [
+      {
+        name: 'end',
+        type: 'string',
+        required: true,
+        description: `End date of the query range, format YYYYMMDD (e.g. 20260131).`,
+      },
+      {
+        name: 'start',
+        type: 'string',
+        required: true,
+        description: `Start date of the query range, format YYYYMMDD (e.g. 20260101).`,
+      },
+      {
+        name: 'group_by',
+        type: 'string',
+        required: false,
+        description: `Property to group results by, e.g. gp:country. This endpoint supports only one group-by property.`,
+      },
+      {
+        name: 'interval',
+        type: 'integer',
+        required: false,
+        description: `Time bucket size for the returned series: 1 (daily), 7 (weekly), or 30 (monthly). Defaults to 1.`,
+      },
+      {
+        name: 'metric',
+        type: 'string',
+        required: false,
+        description: `Which user count to compute: new (users first seen in each interval) or active (users active in each interval). Defaults to active.`,
+      },
+      {
+        name: 'segment_definitions',
+        type: 'string',
+        required: false,
+        description: `JSON-encoded array of segment definitions to split the count by cohort/property segments, e.g. [{"prop":"gp:country","op":"is","values":["US"]}].`,
+      },
+    ],
+  },
+  {
     name: 'amplitudeanalytics_get_annotation',
     description: `Retrieve a single chart annotation by its ID.`,
     params: [
@@ -516,6 +558,54 @@ export const tools: Tool[] = [
         type: 'integer',
         required: true,
         description: `The ID of the annotation category to retrieve.`,
+      },
+    ],
+  },
+  {
+    name: 'amplitudeanalytics_get_average_session_length',
+    description: `Pull the Average Session Length chart from the Amplitude Dashboard REST API: average session length in seconds for each day in the given date range. Response shape: {"data": {"series": [[number,...]], "seriesMeta": [{"segmentIndex": 0}], "xValues": ["YYYY-MM-DD",...]}}. Rate limits: 5 concurrent requests shared with other Amplitude Dashboard/Cohort API calls, up to 108,000 cost per hour.`,
+    params: [
+      {
+        name: 'end',
+        type: 'string',
+        required: true,
+        description: `End date of the query range, format YYYYMMDD (e.g. 20260104).`,
+      },
+      {
+        name: 'start',
+        type: 'string',
+        required: true,
+        description: `Start date of the query range, format YYYYMMDD (e.g. 20260101).`,
+      },
+    ],
+  },
+  {
+    name: 'amplitudeanalytics_get_average_sessions_per_user',
+    description: `Pull the Average Sessions Per User chart from the Amplitude Dashboard REST API: average number of sessions per user for each day in the given date range. Response shape: {"data": {"series": [[number,...]], "seriesMeta": [{"segmentIndex": 0}], "xValues": ["YYYY-MM-DD",...]}}. Rate limits: 5 concurrent requests shared with other Amplitude Dashboard/Cohort API calls, up to 108,000 cost per hour.`,
+    params: [
+      {
+        name: 'end',
+        type: 'string',
+        required: true,
+        description: `End date of the query range, format YYYYMMDD (e.g. 20260104).`,
+      },
+      {
+        name: 'start',
+        type: 'string',
+        required: true,
+        description: `Start date of the query range, format YYYYMMDD (e.g. 20260101).`,
+      },
+    ],
+  },
+  {
+    name: 'amplitudeanalytics_get_chart_results',
+    description: `Get results from any existing saved Amplitude chart by its chart ID, without having to know or replicate the chart's own query definition. Find the chart_id in the chart's URL in the Amplitude web app, e.g. the 'abc123' segment in https://analytics.amplitude.com/yourorg/chart/abc123. Per Amplitude's docs, the response's exact shape varies by the chart's underlying type (event segmentation, funnel, retention, etc.) — expect a shape similar to the corresponding dedicated endpoint (e.g. amplitudeanalytics_get_event_segmentation's response shape for an Event Segmentation chart). Despite the path ending in /csv, Amplitude's own documentation confirms this returns JSON, not a CSV file. Rate limits: 5 concurrent requests shared with other Amplitude Dashboard/Cohort API calls, up to 108,000 cost per hour.`,
+    params: [
+      {
+        name: 'chart_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the saved chart to fetch results for, taken from the chart's URL in the Amplitude web app.`,
       },
     ],
   },
@@ -587,6 +677,24 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `The name of the event category to retrieve.`,
+      },
+    ],
+  },
+  {
+    name: 'amplitudeanalytics_get_event_property',
+    description: `Retrieve a single named event property from Amplitude's taxonomy. Unlike amplitudeanalytics_get_event_type, amplitudeanalytics_get_user_property, and amplitudeanalytics_get_group_property (each keyed by a path parameter), Amplitude's Taxonomy API exposes single-event-property lookup as a query-string filter (event_property) on the same list endpoint used by amplitudeanalytics_list_event_properties, rather than as its own path — this matches Amplitude's documented Taxonomy API and is not an inconsistency to fix. Set event_type to look up an event-specific property override instead of a shared property.`,
+    params: [
+      {
+        name: 'event_property',
+        type: 'string',
+        required: true,
+        description: `The name of the event property to retrieve.`,
+      },
+      {
+        name: 'event_type',
+        type: 'string',
+        required: false,
+        description: `If set, looks up the event-specific property override for this event type instead of the shared property of the same name.`,
       },
     ],
   },
@@ -723,6 +831,11 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'amplitudeanalytics_get_events_summary',
+    description: `List the visible events tracked in this Amplitude project along with the current week's totals, uniques, and DAU percentage for each — the 'Events List' endpoint of the Dashboard REST API. Distinct from amplitudeanalytics_list_event_types (Taxonomy API), which returns taxonomy metadata (descriptions, categories, deletion state) rather than usage totals. Amplitude's docs specify no query parameters for this endpoint and note that hidden events are excluded from the response. Response shape: {"data": [{"value": string, "display": string, "totals": number, "non_active": boolean, "deleted": boolean, "hidden": boolean, "flow_hidden": boolean}, ...]}. Rate limits: 5 concurrent requests shared with other Amplitude Dashboard/Cohort API calls, up to 108,000 cost per hour.`,
+    params: [],
+  },
+  {
     name: 'amplitudeanalytics_get_funnel_results',
     description: `Pull Funnel Analysis chart data from the Amplitude Dashboard REST API: step-by-step conversion and drop-off for an ordered (or unordered/sequential) sequence of two or more events over a date range. Rate limits: 5 concurrent requests shared with other Amplitude Dashboard/Cohort API calls.`,
     params: [
@@ -801,6 +914,162 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'amplitudeanalytics_get_realtime_active_users',
+    description: `Pull the Real-time Active User Count chart from the Amplitude Dashboard REST API: active user numbers with 5-minute granularity for the last two days, compared against the same period the day before. UNCONFIRMED: Amplitude's docs show a raw example URL with an '?i=5' query parameter but do not provide a formal parameter table describing it anywhere on the page — interval_minutes is exposed here defensively for that documented example value; omit it to use Amplitude's default (standard 5-minute) granularity. Response shape: {"data": {"xValues": ["HH:MM",...], "seriesLabels": ["Today","Yesterday"], "series": [[number,...],[number,...]]}}. Rate limits: 5 concurrent requests shared with other Amplitude Dashboard/Cohort API calls, up to 108,000 cost per hour.`,
+    params: [
+      {
+        name: 'interval_minutes',
+        type: 'integer',
+        required: false,
+        description: `Granularity in minutes for the returned series. UNCONFIRMED beyond a raw example in Amplitude's docs showing i=5; the standard behavior is 5-minute granularity for the last two days. Omit to use Amplitude's default.`,
+      },
+    ],
+  },
+  {
+    name: 'amplitudeanalytics_get_retention_analysis',
+    description: `Pull the Retention Analysis chart from the Amplitude Dashboard REST API: what fraction of users who did a 'start' action came back to do a 'return' action, over a date range, with optional bracket/rolling/n-day retention modes, segment filters, and one group-by property. Response shape: {"data": {"series": [{"dates": [string,...], "values": {date: [{"count": number, "outof": number, "incomplete": boolean}]}, "combined": [{"count": number, "outof": number, "incomplete": boolean}]}], "seriesMeta": [{"segmentIndex": number, "eventIndex": number}]}}. Rate limits: 5 concurrent requests shared with other Amplitude Dashboard/Cohort API calls, up to 108,000 cost per hour.`,
+    params: [
+      {
+        name: 'end',
+        type: 'string',
+        required: true,
+        description: `End date of the query range, format YYYYMMDD (e.g. 20260131).`,
+      },
+      {
+        name: 'return_event',
+        type: 'string',
+        required: true,
+        description: `JSON-encoded event object for the 'returning' action. Amplitude documents two special event_type values here: '_all' (all events) or '_active' (all active events). A regular event definition like {"event_type":"opened_app"} is also accepted.`,
+      },
+      {
+        name: 'start',
+        type: 'string',
+        required: true,
+        description: `Start date of the query range, format YYYYMMDD (e.g. 20260101).`,
+      },
+      {
+        name: 'start_event',
+        type: 'string',
+        required: true,
+        description: `JSON-encoded event object for the 'start' action. Amplitude documents two special event_type values here: '_new' (users new in the date range) or '_active' (all active users). A regular event definition like {"event_type":"sign_up"} is also accepted.`,
+      },
+      {
+        name: 'group_by',
+        type: 'string',
+        required: false,
+        description: `Property to group results by, e.g. gp:country. Limited to one property.`,
+      },
+      {
+        name: 'interval',
+        type: 'integer',
+        required: false,
+        description: `Time bucket size: 1 (daily), 7 (weekly), or 30 (monthly). Defaults to 1.`,
+      },
+      {
+        name: 'retention_brackets',
+        type: 'string',
+        required: false,
+        description: `JSON-encoded array of day brackets, required only when retention_mode is 'bracket'. Format: [[0,4]] for a single 0-4 day bracket; multiple brackets can be listed.`,
+      },
+      {
+        name: 'retention_mode',
+        type: 'string',
+        required: false,
+        description: `Retention calculation type: bracket (returning within specific day brackets, requires retention_brackets), rolling (returning at any point after, unbounded), or n-day (returning on exactly day N). Defaults to n-day.`,
+      },
+      {
+        name: 'segment_definitions',
+        type: 'string',
+        required: false,
+        description: `JSON-encoded array of segment definitions to split retention by cohort/property segments, e.g. [{"prop":"gp:country","op":"is","values":["US"]}].`,
+      },
+    ],
+  },
+  {
+    name: 'amplitudeanalytics_get_revenue_ltv',
+    description: `Pull the Revenue LTV (lifetime value) chart from the Amplitude Dashboard REST API: ARPU, ARPPU, total revenue, or paying-user counts for cohorts of new users, tracked over time since each cohort's first day. Response shape: {"data": {"seriesLabels": [string,...], "series": [{"dates": [string,...], "values": {"YYYY-MM-DD": {"r1d": number, "r2d": number, "r90d": number, "count": number, "paid": number, "total_amount": number}}}]}}. Rate limits: 5 concurrent requests shared with other Amplitude Dashboard/Cohort API calls, up to 108,000 cost per hour.`,
+    params: [
+      {
+        name: 'end',
+        type: 'string',
+        required: true,
+        description: `End date of the query range, format YYYYMMDD (e.g. 20260131).`,
+      },
+      {
+        name: 'start',
+        type: 'string',
+        required: true,
+        description: `Start date of the query range, format YYYYMMDD (e.g. 20260101).`,
+      },
+      {
+        name: 'group_by',
+        type: 'string',
+        required: false,
+        description: `Property to group results by, e.g. gp:country. Limited to one property.`,
+      },
+      {
+        name: 'interval',
+        type: 'integer',
+        required: false,
+        description: `Time bucket size for the new-user cohorts: 1 (daily), 7 (weekly), or 30 (monthly). Defaults to 1.`,
+      },
+      {
+        name: 'metric',
+        type: 'integer',
+        required: false,
+        description: `Which revenue metric to compute: 0 = ARPU (average revenue per user), 1 = ARPPU (average revenue per paying user), 2 = Total Revenue, 3 = Paying Users (count). Defaults to 0.`,
+      },
+      {
+        name: 'segment_definitions',
+        type: 'string',
+        required: false,
+        description: `JSON-encoded array of segment definitions to split the metric by cohort/property segments, e.g. [{"prop":"gp:country","op":"is","values":["US"]}].`,
+      },
+    ],
+  },
+  {
+    name: 'amplitudeanalytics_get_session_length_distribution',
+    description: `Pull the Session Length Distribution chart from the Amplitude Dashboard REST API: sessions grouped into time buckets over a date range, with optional custom bucket sizing. Response shape: {"data": {"series": [[number,...]], "xValues": ["lowerBound-upperBound", ...]}}. Rate limits: 5 concurrent requests shared with other Amplitude Dashboard/Cohort API calls, up to 108,000 cost per hour.`,
+    params: [
+      {
+        name: 'end',
+        type: 'string',
+        required: true,
+        description: `End date of the query range, format YYYYMMDD (e.g. 20260131).`,
+      },
+      {
+        name: 'start',
+        type: 'string',
+        required: true,
+        description: `Start date of the query range, format YYYYMMDD (e.g. 20260101).`,
+      },
+      {
+        name: 'bin_max',
+        type: 'number',
+        required: false,
+        description: `Maximum value for bucketing, in units of bin_time_unit. Omit to use Amplitude's own default bucketing.`,
+      },
+      {
+        name: 'bin_min',
+        type: 'number',
+        required: false,
+        description: `Minimum value for bucketing, in units of bin_time_unit. Omit to use Amplitude's own default bucketing.`,
+      },
+      {
+        name: 'bin_size',
+        type: 'number',
+        required: false,
+        description: `Size of each bucket, in units of bin_time_unit. Omit to use Amplitude's own default bucketing.`,
+      },
+      {
+        name: 'bin_time_unit',
+        type: 'string',
+        required: false,
+        description: `Time unit for the histogram bucket sizes: hours, minutes, or seconds. Used together with bin_min/bin_max/bin_size to define custom buckets.`,
+      },
+    ],
+  },
+  {
     name: 'amplitudeanalytics_get_session_replay_files',
     description: `Get download links for a single Amplitude session replay's recorded event files. Returns a files array of presigned S3 URLs — these URLs expire after 15 minutes, so download the files promptly after calling this.`,
     params: [
@@ -827,6 +1096,60 @@ export const tools: Tool[] = [
         type: 'integer',
         required: false,
         description: `Session replay data format version to request.`,
+      },
+    ],
+  },
+  {
+    name: 'amplitudeanalytics_get_user_activity',
+    description: `Get a single user's summary profile and their most recent (or earliest) individual events from the Amplitude Dashboard REST API. Response shape: {"userData": {"user_id", "canonical_amplitude_id", "merged_amplitude_ids", "num_events", "num_sessions", "usage_time", "first_used", "last_used", "purchases", "revenue", "platform", "os", "version", "device", "device_type", "carrier", "country", "region", "city", "dma", "language", "start_version", "device_ids", "last_location", "properties"}, "events": [...]}. Rate limits: this endpoint allows up to 10 concurrent requests and up to 360 queries per hour (higher than the 5-concurrent/108,000-cost-per-hour limit shared by most other Dashboard REST API endpoints).`,
+    params: [
+      {
+        name: 'user',
+        type: 'string',
+        required: true,
+        description: `The Amplitude ID of the user to fetch activity for.`,
+      },
+      {
+        name: 'direction',
+        type: 'string',
+        required: false,
+        description: `Which end of the user's event history to return: earliest (the user's first events) or latest (their most recent events). Defaults to latest.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Number of events to return, up to 1000. Amplitude may return more events than this to avoid returning a partial session. Defaults to 1000.`,
+      },
+      {
+        name: 'offset',
+        type: 'integer',
+        required: false,
+        description: `Zero-indexed offset, from the most recent event, of where to start returning events from.`,
+      },
+    ],
+  },
+  {
+    name: 'amplitudeanalytics_get_user_composition',
+    description: `Pull the User Composition chart from the Amplitude Dashboard REST API: distribution of users across the values of a single user property, over a date range. Response shape: {"data": {"series": [[number,...]], "seriesLabels": [string,...], "xValues": [string,...]}}. Rate limits: 5 concurrent requests shared with other Amplitude Dashboard/Cohort API calls, up to 108,000 cost per hour.`,
+    params: [
+      {
+        name: 'end',
+        type: 'string',
+        required: true,
+        description: `End date of the query range, format YYYYMMDD (e.g. 20260131).`,
+      },
+      {
+        name: 'property',
+        type: 'string',
+        required: true,
+        description: `The user property to show the distribution of. Built-in options documented by Amplitude: version, country, city, region, DMA, language, platform, os, device, start_version, paying. For a custom user property, prefix its name with 'gp:'.`,
+      },
+      {
+        name: 'start',
+        type: 'string',
+        required: true,
+        description: `Start date of the query range, format YYYYMMDD (e.g. 20260101).`,
       },
     ],
   },
@@ -1028,6 +1351,35 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'amplitudeanalytics_lookup_table_delete',
+    description: `Delete a lookup table via the current Lookup Table API 2 (/api/3/lookup_table/{name}). This removes the enrichment mapping; it does not retroactively remove derived property values already computed on past events.`,
+    params: [
+      {
+        name: 'name',
+        type: 'string',
+        required: true,
+        description: `The name of the lookup table to delete.`,
+      },
+    ],
+  },
+  {
+    name: 'amplitudeanalytics_lookup_table_get',
+    description: `Retrieve a single lookup table's metadata by name, via the current Lookup Table API 2 (/api/3/lookup_table/{name}).`,
+    params: [
+      {
+        name: 'name',
+        type: 'string',
+        required: true,
+        description: `The name of the lookup table to retrieve.`,
+      },
+    ],
+  },
+  {
+    name: 'amplitudeanalytics_lookup_tables_list',
+    description: `List all lookup tables configured in the project, via the current Lookup Table API 2 (/api/3/lookup_table). Lookup tables augment user/event properties by mapping an existing property to enrichment columns uploaded as a CSV.`,
+    params: [],
+  },
+  {
     name: 'amplitudeanalytics_remove_user_from_deletion',
     description: `Remove a single user from a pending Amplitude user-deletion job before it locks, preventing their data from being deleted. This is a protective/cancel action, not a destructive one. It only works while the job is still in Staging status (within the roughly 3-day window after amplitudeanalytics_submit_user_deletion); once the job's status has flipped to Submitted, it is too late and this call has no effect. Use amplitudeanalytics_list_user_deletion_jobs to confirm a job's current status and day before calling this.`,
     params: [
@@ -1102,6 +1454,18 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `The name of the previously deleted user property to restore.`,
+      },
+    ],
+  },
+  {
+    name: 'amplitudeanalytics_search_users',
+    description: `Look up a user in Amplitude by Amplitude ID, Device ID, User ID, or a User ID prefix, via the Dashboard REST API's User Search endpoint. Use the matched amplitude_id with amplitudeanalytics_get_user_activity to pull that user's activity. Response shape: {"matches": [{"user_id": string, "amplitude_id": number}, ...], "type": "match_user_or_device_id" | "nomatch"}. Rate limits: this endpoint allows up to 10 concurrent requests and up to 360 queries per hour (higher than the 5-concurrent/108,000-cost-per-hour limit shared by most other Dashboard REST API endpoints).`,
+    params: [
+      {
+        name: 'user',
+        type: 'string',
+        required: true,
+        description: `The Amplitude ID, Device ID, User ID, or User ID prefix to search for.`,
       },
     ],
   },

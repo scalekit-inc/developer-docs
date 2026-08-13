@@ -34,6 +34,18 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'linear_attachment_get',
+    description: `Get a single Linear attachment by ID using the attachment query, including its title, URL, source metadata, and timestamps.`,
+    params: [
+      {
+        name: 'attachmentId',
+        type: 'string',
+        required: true,
+        description: `ID of the attachment to retrieve`,
+      },
+    ],
+  },
+  {
     name: 'linear_attachment_update',
     description: `Update the title or subtitle of an existing attachment on a Linear issue.`,
     params: [
@@ -54,6 +66,30 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `New subtitle or description`,
+      },
+    ],
+  },
+  {
+    name: 'linear_attachments_list',
+    description: `List attachments in the Linear workspace, optionally filtered by issue ID, with pagination support.`,
+    params: [
+      {
+        name: 'after',
+        type: 'string',
+        required: false,
+        description: `Pagination cursor for fetching the next page`,
+      },
+      {
+        name: 'first',
+        type: 'integer',
+        required: false,
+        description: `Number of attachments to return`,
+      },
+      {
+        name: 'issueId',
+        type: 'string',
+        required: false,
+        description: `Filter attachments by issue ID`,
       },
     ],
   },
@@ -128,6 +164,18 @@ export const tools: Tool[] = [
         type: 'integer',
         required: false,
         description: `Number of comments to return`,
+      },
+    ],
+  },
+  {
+    name: 'linear_cycle_archive',
+    description: `Archive a Linear cycle using the cycleArchive mutation. Linear does not support permanently deleting a cycle -- archiving is the standard way to remove one from active use.`,
+    params: [
+      {
+        name: 'cycleId',
+        type: 'string',
+        required: true,
+        description: `ID of the cycle to archive`,
       },
     ],
   },
@@ -518,6 +566,18 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'linear_label_archive',
+    description: `Archive a Linear issue label using the issueLabelArchive mutation. This is the only way to remove a label via the API -- Linear does not support permanently deleting or unarchiving a label once created.`,
+    params: [
+      {
+        name: 'labelId',
+        type: 'string',
+        required: true,
+        description: `ID of the label to archive`,
+      },
+    ],
+  },
+  {
     name: 'linear_label_create',
     description: `Create a new issue label in a Linear team.`,
     params: [
@@ -530,6 +590,38 @@ export const tools: Tool[] = [
       },
       { name: 'color', type: 'string', required: false, description: `Label color as hex code` },
       { name: 'description', type: 'string', required: false, description: `Label description` },
+    ],
+  },
+  {
+    name: 'linear_label_get',
+    description: `Get a single Linear issue label by ID using the issueLabel query, including its color, description, team, and parent label.`,
+    params: [
+      {
+        name: 'labelId',
+        type: 'string',
+        required: true,
+        description: `ID of the label to retrieve`,
+      },
+    ],
+  },
+  {
+    name: 'linear_label_update',
+    description: `Update an existing Linear issue label's name, color, or description using the issueLabelUpdate mutation.`,
+    params: [
+      { name: 'labelId', type: 'string', required: true, description: `ID of the label to update` },
+      {
+        name: 'color',
+        type: 'string',
+        required: false,
+        description: `New color for the label as a hex code`,
+      },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `New description for the label`,
+      },
+      { name: 'name', type: 'string', required: false, description: `New name for the label` },
     ],
   },
   {
@@ -579,6 +671,18 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Target date in YYYY-MM-DD format`,
+      },
+    ],
+  },
+  {
+    name: 'linear_project_delete',
+    description: `Delete (move to trash) a Linear project by ID using the projectDelete mutation.`,
+    params: [
+      {
+        name: 'projectId',
+        type: 'string',
+        required: true,
+        description: `ID of the project to delete`,
       },
     ],
   },
@@ -766,6 +870,13 @@ export const tools: Tool[] = [
         required: false,
         description: `Whether the team is private`,
       },
+    ],
+  },
+  {
+    name: 'linear_team_delete',
+    description: `Permanently delete a Linear team by ID using the teamDelete mutation. This is irreversible and affects all issues, cycles, and projects owned solely by the team.`,
+    params: [
+      { name: 'teamId', type: 'string', required: true, description: `ID of the team to delete` },
     ],
   },
   {
@@ -990,6 +1101,18 @@ export const tools: Tool[] = [
         type: 'integer',
         required: false,
         description: `Number of webhooks to return`,
+      },
+    ],
+  },
+  {
+    name: 'linear_workflow_state_archive',
+    description: `Archive a Linear workflow state using the workflowStateArchive mutation, removing it from the team's active workflow.`,
+    params: [
+      {
+        name: 'stateId',
+        type: 'string',
+        required: true,
+        description: `ID of the workflow state to archive`,
       },
     ],
   },

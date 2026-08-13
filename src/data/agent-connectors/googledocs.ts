@@ -2,6 +2,24 @@ import type { Tool } from '../../types/agent-connectors'
 
 export const tools: Tool[] = [
   {
+    name: 'googledocs_accept_suggestion',
+    description: `Accept a single tracked-change suggestion in a Google Doc by its suggestion ID, permanently applying the suggested edit. Suggestion IDs are found in the document's JSON content when reading with suggestions view mode enabled.`,
+    params: [
+      {
+        name: 'document_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Google Doc to edit`,
+      },
+      {
+        name: 'suggestion_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the suggestion to accept.`,
+      },
+    ],
+  },
+  {
     name: 'googledocs_apply_text_style',
     description: `Apply character formatting (bold, italic, underline, strikethrough, font size) to a range of text in a Google Doc. Only the attributes you set are changed.`,
     params: [
@@ -144,6 +162,60 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Optional tool version to use for execution`,
+      },
+    ],
+  },
+  {
+    name: 'googledocs_create_footer',
+    description: `Create a footer for a Google Doc (or for the section starting at a given section break). Returns the new footer's ID in the response.`,
+    params: [
+      {
+        name: 'document_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Google Doc to edit`,
+      },
+      {
+        name: 'section_break_index',
+        type: 'integer',
+        required: false,
+        description: `Zero-based character index of a section break. If provided, the footer applies from that section onward instead of the whole document.`,
+      },
+    ],
+  },
+  {
+    name: 'googledocs_create_footnote',
+    description: `Insert a footnote reference at a location in a Google Doc, creating an empty footnote segment that can then be filled with text using googledocs_insert_text.`,
+    params: [
+      {
+        name: 'document_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Google Doc to edit`,
+      },
+      {
+        name: 'index',
+        type: 'integer',
+        required: false,
+        description: `Zero-based character index at which to insert the footnote reference. Omit to append at the end of the document body.`,
+      },
+    ],
+  },
+  {
+    name: 'googledocs_create_header',
+    description: `Create a header for a Google Doc (or for the section starting at a given section break). Returns the new header's ID in the response.`,
+    params: [
+      {
+        name: 'document_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Google Doc to edit`,
+      },
+      {
+        name: 'section_break_index',
+        type: 'integer',
+        required: false,
+        description: `Zero-based character index of a section break. If provided, the header applies from that section onward instead of the whole document.`,
       },
     ],
   },
@@ -298,6 +370,42 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'googledocs_delete_footer',
+    description: `Delete a footer from a Google Doc by its footer ID.`,
+    params: [
+      {
+        name: 'document_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Google Doc to edit`,
+      },
+      {
+        name: 'footer_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the footer to delete, as returned by googledocs_create_footer or found in the document's JSON content.`,
+      },
+    ],
+  },
+  {
+    name: 'googledocs_delete_header',
+    description: `Delete a header from a Google Doc by its header ID.`,
+    params: [
+      {
+        name: 'document_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Google Doc to edit`,
+      },
+      {
+        name: 'header_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the header to delete, as returned by googledocs_create_header or found in the document's JSON content.`,
+      },
+    ],
+  },
+  {
     name: 'googledocs_delete_named_range',
     description: `Delete named ranges from a Google Doc. Provide a named range ID to remove one specific range, or a name to remove all ranges sharing that name. The underlying document content is not deleted.`,
     params: [
@@ -366,6 +474,84 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Optional tool version to use for execution`,
+      },
+    ],
+  },
+  {
+    name: 'googledocs_delete_suggestion',
+    description: `Delete a single tracked-change suggestion in a Google Doc by its suggestion ID, removing the suggestion entirely without applying or rejecting it as a reviewed change.`,
+    params: [
+      {
+        name: 'document_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Google Doc to edit`,
+      },
+      {
+        name: 'suggestion_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the suggestion to delete.`,
+      },
+    ],
+  },
+  {
+    name: 'googledocs_delete_table_column',
+    description: `Delete the column spanned by a reference cell in an existing table in a Google Doc, identified by the table's start index and the cell's row/column position.`,
+    params: [
+      {
+        name: 'column_index',
+        type: 'integer',
+        required: true,
+        description: `Zero-based column index of the cell whose column should be deleted.`,
+      },
+      {
+        name: 'document_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Google Doc to edit`,
+      },
+      {
+        name: 'row_index',
+        type: 'integer',
+        required: true,
+        description: `Zero-based row index of the cell whose column should be deleted.`,
+      },
+      {
+        name: 'table_start_index',
+        type: 'integer',
+        required: true,
+        description: `The zero-based character index where the table starts in the document.`,
+      },
+    ],
+  },
+  {
+    name: 'googledocs_delete_table_row',
+    description: `Delete the row spanned by a reference cell in an existing table in a Google Doc, identified by the table's start index and the cell's row/column position.`,
+    params: [
+      {
+        name: 'column_index',
+        type: 'integer',
+        required: true,
+        description: `Zero-based column index of the cell whose row should be deleted.`,
+      },
+      {
+        name: 'document_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Google Doc to edit`,
+      },
+      {
+        name: 'row_index',
+        type: 'integer',
+        required: true,
+        description: `Zero-based row index of the cell whose row should be deleted.`,
+      },
+      {
+        name: 'table_start_index',
+        type: 'integer',
+        required: true,
+        description: `The zero-based character index where the table starts in the document.`,
       },
     ],
   },
@@ -468,6 +654,84 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'googledocs_insert_person',
+    description: `Insert an @-mention 'smart chip' for a person by email address at a location in the document. Provide an index to insert at that position, or omit it to append at the end of the document body.`,
+    params: [
+      {
+        name: 'document_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Google Doc to edit`,
+      },
+      {
+        name: 'email',
+        type: 'string',
+        required: true,
+        description: `Email address of the person to @-mention.`,
+      },
+      {
+        name: 'index',
+        type: 'integer',
+        required: false,
+        description: `Zero-based character index at which to insert the mention. Omit to append at the end of the document body.`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: false,
+        description: `Display name to show in the mention instead of the email address.`,
+      },
+    ],
+  },
+  {
+    name: 'googledocs_insert_rich_link',
+    description: `Insert a rich-link 'smart chip' referencing another Google Drive file (Sheet, Slide, Doc, or other Workspace/Chrome Web Store item) at a location in the document. The chip's displayed title always reflects the linked resource's current title and cannot be overridden. Provide an index to insert at that position, or omit it to append at the end of the document body.`,
+    params: [
+      {
+        name: 'document_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Google Doc to edit`,
+      },
+      {
+        name: 'uri',
+        type: 'string',
+        required: true,
+        description: `URI of the Drive file or resource to render as a rich link. Currently only Google Workspace files (Docs, Sheets, Slides, etc.) and Chrome Web Store items are supported.`,
+      },
+      {
+        name: 'index',
+        type: 'integer',
+        required: false,
+        description: `Zero-based character index at which to insert the rich link. Omit to append at the end of the document body.`,
+      },
+    ],
+  },
+  {
+    name: 'googledocs_insert_section_break',
+    description: `Insert a section break into a Google Doc at a given index, or at the end of the document body if no index is given. Section breaks are required before a section can have its own header, footer, or column layout.`,
+    params: [
+      {
+        name: 'document_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Google Doc to edit`,
+      },
+      {
+        name: 'index',
+        type: 'integer',
+        required: false,
+        description: `Zero-based character index at which to insert the section break. Omit to append at the end of the document body.`,
+      },
+      {
+        name: 'section_type',
+        type: 'string',
+        required: false,
+        description: `The type of section break to insert. CONTINUOUS keeps the section on the same page; NEXT_PAGE starts the section on a new page.`,
+      },
+    ],
+  },
+  {
     name: 'googledocs_insert_table',
     description: `Insert an empty table with the given number of rows and columns into a Google Doc. Provide an index to insert at that position, or omit it to append at the end of the document body.`,
     params: [
@@ -501,6 +765,78 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Optional tool version to use for execution`,
+      },
+    ],
+  },
+  {
+    name: 'googledocs_insert_table_column',
+    description: `Insert a new empty column into an existing table in a Google Doc, to the left or right of a reference cell identified by the table's start index and the cell's row/column position.`,
+    params: [
+      {
+        name: 'column_index',
+        type: 'integer',
+        required: true,
+        description: `Zero-based column index of the reference cell that the new column is inserted relative to.`,
+      },
+      {
+        name: 'document_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Google Doc to edit`,
+      },
+      {
+        name: 'row_index',
+        type: 'integer',
+        required: true,
+        description: `Zero-based row index of the reference cell that the new column is inserted relative to.`,
+      },
+      {
+        name: 'table_start_index',
+        type: 'integer',
+        required: true,
+        description: `The zero-based character index where the table starts in the document.`,
+      },
+      {
+        name: 'insert_right',
+        type: 'boolean',
+        required: false,
+        description: `Whether the new column is inserted to the right (true) or left (false) of the reference cell's column.`,
+      },
+    ],
+  },
+  {
+    name: 'googledocs_insert_table_row',
+    description: `Insert a new empty row into an existing table in a Google Doc, above or below a reference cell identified by the table's start index and the cell's row/column position.`,
+    params: [
+      {
+        name: 'column_index',
+        type: 'integer',
+        required: true,
+        description: `Zero-based column index of the reference cell that the new row is inserted relative to.`,
+      },
+      {
+        name: 'document_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Google Doc to edit`,
+      },
+      {
+        name: 'row_index',
+        type: 'integer',
+        required: true,
+        description: `Zero-based row index of the reference cell that the new row is inserted relative to.`,
+      },
+      {
+        name: 'table_start_index',
+        type: 'integer',
+        required: true,
+        description: `The zero-based character index where the table starts in the document.`,
+      },
+      {
+        name: 'insert_below',
+        type: 'boolean',
+        required: false,
+        description: `Whether the new row is inserted below (true) or above (false) the reference cell's row.`,
       },
     ],
   },
@@ -614,6 +950,72 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'googledocs_merge_table_cells',
+    description: `Merge a rectangular range of cells in an existing Google Doc table into one cell. The range starts at a reference cell and spans the given number of rows and columns.`,
+    params: [
+      {
+        name: 'column_index',
+        type: 'integer',
+        required: true,
+        description: `Zero-based column index of the top-left cell of the range to merge.`,
+      },
+      {
+        name: 'document_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Google Doc to edit`,
+      },
+      {
+        name: 'row_index',
+        type: 'integer',
+        required: true,
+        description: `Zero-based row index of the top-left cell of the range to merge.`,
+      },
+      {
+        name: 'table_start_index',
+        type: 'integer',
+        required: true,
+        description: `The zero-based character index where the table starts in the document.`,
+      },
+      {
+        name: 'column_span',
+        type: 'integer',
+        required: false,
+        description: `Number of columns the merged cell should span, starting from column_index.`,
+      },
+      {
+        name: 'row_span',
+        type: 'integer',
+        required: false,
+        description: `Number of rows the merged cell should span, starting from row_index.`,
+      },
+    ],
+  },
+  {
+    name: 'googledocs_pin_table_header_rows',
+    description: `Pin a number of leading rows in a Google Doc table so they repeat as a header when the table spans multiple pages. Pass 0 to unpin all rows.`,
+    params: [
+      {
+        name: 'document_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Google Doc to edit`,
+      },
+      {
+        name: 'pinned_header_rows_count',
+        type: 'integer',
+        required: true,
+        description: `Number of leading rows to pin as repeating headers. 0 unpins all rows.`,
+      },
+      {
+        name: 'table_start_index',
+        type: 'integer',
+        required: true,
+        description: `The zero-based character index where the table starts in the document.`,
+      },
+    ],
+  },
+  {
     name: 'googledocs_read_document',
     description: `Read the complete content and structure of a Google Doc including text, formatting, tables, and metadata.`,
     params: [
@@ -640,6 +1042,24 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Optional tool version to use for execution`,
+      },
+    ],
+  },
+  {
+    name: 'googledocs_reject_suggestion',
+    description: `Reject a single tracked-change suggestion in a Google Doc by its suggestion ID, discarding the suggested edit. Suggestion IDs are found in the document's JSON content when reading with suggestions view mode enabled.`,
+    params: [
+      {
+        name: 'document_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Google Doc to edit`,
+      },
+      {
+        name: 'suggestion_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the suggestion to reject.`,
       },
     ],
   },
@@ -682,6 +1102,66 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Optional tool version to use for execution`,
+      },
+    ],
+  },
+  {
+    name: 'googledocs_replace_image',
+    description: `Replace an existing image in a Google Doc with a new image fetched from a publicly accessible URL, keeping the same position and size.`,
+    params: [
+      {
+        name: 'document_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Google Doc to edit`,
+      },
+      {
+        name: 'image_object_id',
+        type: 'string',
+        required: true,
+        description: `The object ID of the existing inline image to replace, as found in the document's JSON content.`,
+      },
+      {
+        name: 'uri',
+        type: 'string',
+        required: true,
+        description: `Publicly accessible URI of the new image, max 25 megapixels and 50MB, in a supported format (PNG, JPEG, GIF).`,
+      },
+      {
+        name: 'image_replace_method',
+        type: 'string',
+        required: false,
+        description: `How the new image should be scaled to fit the existing image's bounding box.`,
+      },
+    ],
+  },
+  {
+    name: 'googledocs_replace_named_range_content',
+    description: `Replace the content of a named range (or every range sharing a name) in a Google Doc with new text. Identify the range by its ID or by its name.`,
+    params: [
+      {
+        name: 'document_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Google Doc to edit`,
+      },
+      {
+        name: 'text',
+        type: 'string',
+        required: true,
+        description: `The new text that will replace the current content of the named range(s).`,
+      },
+      {
+        name: 'named_range_id',
+        type: 'string',
+        required: false,
+        description: `The ID of a single named range whose content should be replaced. Provide either this or named_range_name, not both.`,
+      },
+      {
+        name: 'named_range_name',
+        type: 'string',
+        required: false,
+        description: `The name of the named range(s) whose content should be replaced. All ranges sharing this name are replaced. Provide either this or named_range_id, not both.`,
       },
     ],
   },
@@ -758,6 +1238,48 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'googledocs_unmerge_table_cells',
+    description: `Unmerge a previously merged rectangular range of cells in an existing Google Doc table, splitting it back into individual cells.`,
+    params: [
+      {
+        name: 'column_index',
+        type: 'integer',
+        required: true,
+        description: `Zero-based column index of the top-left cell of the merged range to split apart.`,
+      },
+      {
+        name: 'document_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Google Doc to edit`,
+      },
+      {
+        name: 'row_index',
+        type: 'integer',
+        required: true,
+        description: `Zero-based row index of the top-left cell of the merged range to split apart.`,
+      },
+      {
+        name: 'table_start_index',
+        type: 'integer',
+        required: true,
+        description: `The zero-based character index where the table starts in the document.`,
+      },
+      {
+        name: 'column_span',
+        type: 'integer',
+        required: false,
+        description: `Number of columns spanned by the merged cell to unmerge.`,
+      },
+      {
+        name: 'row_span',
+        type: 'integer',
+        required: false,
+        description: `Number of rows spanned by the merged cell to unmerge.`,
+      },
+    ],
+  },
+  {
     name: 'googledocs_update_document',
     description: `Update the content of an existing Google Doc using batch update requests. Supports inserting and deleting text, formatting, tables, and other document elements.`,
     params: [
@@ -790,6 +1312,54 @@ export const tools: Tool[] = [
         type: 'object',
         required: false,
         description: `Optional write control for revision management`,
+      },
+    ],
+  },
+  {
+    name: 'googledocs_update_document_style',
+    description: `Update document-level style properties of a Google Doc, such as page margins and page size. Only the fields you provide are changed.`,
+    params: [
+      {
+        name: 'document_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Google Doc to edit`,
+      },
+      {
+        name: 'margin_bottom_pt',
+        type: 'number',
+        required: false,
+        description: `Bottom page margin in points. Leave blank to keep the current value.`,
+      },
+      {
+        name: 'margin_left_pt',
+        type: 'number',
+        required: false,
+        description: `Left page margin in points. Leave blank to keep the current value.`,
+      },
+      {
+        name: 'margin_right_pt',
+        type: 'number',
+        required: false,
+        description: `Right page margin in points. Leave blank to keep the current value.`,
+      },
+      {
+        name: 'margin_top_pt',
+        type: 'number',
+        required: false,
+        description: `Top page margin in points. Leave blank to keep the current value.`,
+      },
+      {
+        name: 'page_height_pt',
+        type: 'number',
+        required: false,
+        description: `Page height in points. Must be provided together with page_width_pt.`,
+      },
+      {
+        name: 'page_width_pt',
+        type: 'number',
+        required: false,
+        description: `Page width in points. Must be provided together with page_height_pt.`,
       },
     ],
   },
@@ -833,6 +1403,138 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Optional tool version to use for execution`,
+      },
+    ],
+  },
+  {
+    name: 'googledocs_update_table_cell_style',
+    description: `Apply background color and/or padding to a rectangular range of cells in a Google Doc table, starting at a reference cell and spanning the given number of rows and columns.`,
+    params: [
+      {
+        name: 'background_color_hex',
+        type: 'string',
+        required: true,
+        description: `Background color to apply to the cell range, as a 6-digit hex code.`,
+      },
+      {
+        name: 'column_index',
+        type: 'integer',
+        required: true,
+        description: `Zero-based column index of the top-left cell of the range to style.`,
+      },
+      {
+        name: 'document_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Google Doc to edit`,
+      },
+      {
+        name: 'row_index',
+        type: 'integer',
+        required: true,
+        description: `Zero-based row index of the top-left cell of the range to style.`,
+      },
+      {
+        name: 'table_start_index',
+        type: 'integer',
+        required: true,
+        description: `The zero-based character index where the table starts in the document.`,
+      },
+      {
+        name: 'column_span',
+        type: 'integer',
+        required: false,
+        description: `Number of columns the styled range should span, starting from column_index.`,
+      },
+      {
+        name: 'padding_pt',
+        type: 'number',
+        required: false,
+        description: `Optional uniform padding (top, bottom, left, right) to apply to the cell range, in points.`,
+      },
+      {
+        name: 'row_span',
+        type: 'integer',
+        required: false,
+        description: `Number of rows the styled range should span, starting from row_index.`,
+      },
+    ],
+  },
+  {
+    name: 'googledocs_update_table_column_properties',
+    description: `Set a table column's width in points, or make it auto-fit by setting an evenly-distributed width type. Applies to all columns in the table unless column_indices restricts it to specific ones.`,
+    params: [
+      {
+        name: 'document_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Google Doc to edit`,
+      },
+      {
+        name: 'table_start_index',
+        type: 'integer',
+        required: true,
+        description: `The zero-based character index where the table starts in the document.`,
+      },
+      {
+        name: 'width_type',
+        type: 'string',
+        required: true,
+        description: `How the column width is determined. FIXED_WIDTH uses width_pt; EVENLY_DISTRIBUTED auto-fits columns to share the table's width equally.`,
+      },
+      {
+        name: 'column_indices',
+        type: 'string',
+        required: false,
+        description: `Comma-separated zero-based column indices to apply the change to. Omit to apply to every column in the table.`,
+      },
+      {
+        name: 'width_pt',
+        type: 'number',
+        required: false,
+        description: `Column width in points. Required when width_type is FIXED_WIDTH; ignored for EVENLY_DISTRIBUTED. Must be at least 5 points.`,
+      },
+    ],
+  },
+  {
+    name: 'googledocs_update_table_row_style',
+    description: `Set a table row's minimum height, mark it as a header-style row, or prevent it from splitting across pages. Complements update_table_cell_style (per-cell) and pin_table_header_rows (repeating header count). Applies to all rows in the table unless row_indices restricts it to specific ones. Provide at least one of min_row_height_pt, table_header, or prevent_overflow.`,
+    params: [
+      {
+        name: 'document_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Google Doc to edit`,
+      },
+      {
+        name: 'table_start_index',
+        type: 'integer',
+        required: true,
+        description: `The zero-based character index where the table starts in the document.`,
+      },
+      {
+        name: 'min_row_height_pt',
+        type: 'number',
+        required: false,
+        description: `Minimum row height in points. The row grows to fit content taller than this.`,
+      },
+      {
+        name: 'prevent_overflow',
+        type: 'boolean',
+        required: false,
+        description: `Whether the affected rows are prevented from splitting across page or column boundaries.`,
+      },
+      {
+        name: 'row_indices',
+        type: 'string',
+        required: false,
+        description: `Comma-separated zero-based row indices to apply the change to. Omit to apply to every row in the table.`,
+      },
+      {
+        name: 'table_header',
+        type: 'boolean',
+        required: false,
+        description: `Whether the affected rows are styled as header rows.`,
       },
     ],
   },

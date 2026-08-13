@@ -2,6 +2,31 @@ import type { Tool } from '../../types/agent-connectors'
 
 export const tools: Tool[] = [
   {
+    name: 'discordbot_action_guild_join_request',
+    description: `Approve or reject a pending membership screening join request for a guild. Requires MANAGE_GUILD permission. rejection_reason is only used when action is REJECTED. Returns the updated guild join request object on success.`,
+    params: [
+      {
+        name: 'action',
+        type: 'string',
+        required: true,
+        description: `Whether to approve or reject the join request.`,
+      },
+      { name: 'guild_id', type: 'string', required: true, description: `The ID of the guild.` },
+      {
+        name: 'request_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the join request to act on.`,
+      },
+      {
+        name: 'rejection_reason',
+        type: 'string',
+        required: false,
+        description: `Reason for rejection, shown to the applicant. Only used when action is REJECTED (up to 160 characters).`,
+      },
+    ],
+  },
+  {
     name: 'discordbot_add_guild_member',
     description: `Add a user to a guild using their OAuth2 access token with the guilds.join scope. Returns 201 if the user was added, or 204 if already a member.`,
     params: [
@@ -961,6 +986,43 @@ export const tools: Tool[] = [
         type: 'number',
         required: false,
         description: `The volume of the soundboard sound, from 0 to 1. Defaults to 1.`,
+      },
+    ],
+  },
+  {
+    name: 'discordbot_create_guild_sticker',
+    description: `Create a new sticker for the guild. Requires the CREATE_GUILD_EXPRESSIONS permission. Sent as multipart/form-data — the file must be a PNG, APNG, GIF, or Lottie JSON file, 512 KB or smaller (animated stickers are limited to 5 seconds and 320x320 pixels). Fires a Guild Stickers Update Gateway event. Returns the new sticker object on success.`,
+    params: [
+      {
+        name: 'file_content_base64',
+        type: 'string',
+        required: true,
+        description: `Base64-encoded contents of the sticker file (PNG, APNG, GIF, or Lottie JSON, max 512KB).`,
+      },
+      { name: 'guild_id', type: 'string', required: true, description: `The ID of the guild.` },
+      {
+        name: 'name',
+        type: 'string',
+        required: true,
+        description: `Name of the sticker (2-30 characters).`,
+      },
+      {
+        name: 'tags',
+        type: 'string',
+        required: true,
+        description: `Autocomplete/suggestion tags for the sticker (max 200 characters), typically related emoji or keywords separated by commas.`,
+      },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `Description of the sticker. Must be empty or 2-100 characters.`,
+      },
+      {
+        name: 'reason',
+        type: 'string',
+        required: false,
+        description: `Reason for creating the sticker, shown in the guild's audit log.`,
       },
     ],
   },
@@ -2647,6 +2709,25 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'discordbot_get_application_command_permissions',
+    description: `Fetch permissions for a specific application command in a specific guild. Returns a guild application command permissions object describing which roles, users, and channels can (or cannot) use the command. This is a read-only lookup — use Get Guild Application Command Permissions instead to fetch permissions for every command in the guild at once. Note: editing permissions (the corresponding PUT endpoint) requires a Bearer token authorized with the applications.commands.permissions.update scope and cannot be done with a bot token, so no write tool is provided here.`,
+    params: [
+      {
+        name: 'application_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the application.`,
+      },
+      {
+        name: 'command_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the command to get permissions for.`,
+      },
+      { name: 'guild_id', type: 'string', required: true, description: `The ID of the guild.` },
+    ],
+  },
+  {
     name: 'discordbot_get_application_emoji',
     description: `Retrieve a specific emoji owned by a Discord application by its emoji ID.`,
     params: [
@@ -2693,6 +2774,11 @@ export const tools: Tool[] = [
         description: `The ID of the Auto Moderation rule to retrieve.`,
       },
     ],
+  },
+  {
+    name: 'discordbot_get_bot_gateway',
+    description: `Retrieve a valid WebSocket (wss) URL for connecting to the Discord Gateway as this bot, along with the recommended number of shards to use and the bot's current session-start rate limit (total, remaining, reset_after, max_concurrency). Requires a valid bot token. Use this before starting a Gateway connection to avoid exhausting your session start limit.`,
+    params: [],
   },
   {
     name: 'discordbot_get_channel',
@@ -2759,6 +2845,11 @@ export const tools: Tool[] = [
     params: [],
   },
   {
+    name: 'discordbot_get_current_user',
+    description: `Returns the bot user object for the currently authenticated bot token — id, username, avatar, discriminator, and flags. Use this to confirm which bot account a token belongs to, or to fetch its current avatar/username after a change. To update these fields, use Modify Current User.`,
+    params: [],
+  },
+  {
     name: 'discordbot_get_current_user_voice_state',
     description: `Retrieve the current user's (the bot's) voice state in a guild, including the connected voice channel, mute and deafen status, and stage speaking request timestamp.`,
     params: [
@@ -2787,6 +2878,11 @@ export const tools: Tool[] = [
         description: `The ID of the entitlement to retrieve.`,
       },
     ],
+  },
+  {
+    name: 'discordbot_get_gateway',
+    description: `Retrieve a valid WebSocket (wss) URL for connecting to the Discord Gateway. This endpoint does not require authentication and does not return shard or session-limit information — use Get Gateway Bot for that.`,
+    params: [],
   },
   {
     name: 'discordbot_get_global_application_command',
@@ -3026,6 +3122,37 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'discordbot_get_guild_join_requests',
+    description: `List membership screening join requests for a guild that requires applications to join, optionally filtered by status. Requires the bot to have permission to manage membership screening (MANAGE_GUILD). Use Action Guild Join Request to approve or reject a pending request.`,
+    params: [
+      { name: 'guild_id', type: 'string', required: true, description: `The ID of the guild.` },
+      {
+        name: 'after',
+        type: 'string',
+        required: false,
+        description: `Return requests after this request ID, for pagination.`,
+      },
+      {
+        name: 'before',
+        type: 'string',
+        required: false,
+        description: `Return requests before this request ID, for pagination.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of join requests to return (1-100).`,
+      },
+      {
+        name: 'status',
+        type: 'string',
+        required: false,
+        description: `Filter join requests by their application status.`,
+      },
+    ],
+  },
+  {
     name: 'discordbot_get_guild_member',
     description: `Retrieve a specific member of a Discord guild by their user ID. Returns the guild member object including roles, nickname, and join date.`,
     params: [
@@ -3214,6 +3341,18 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'discordbot_get_guild_template',
+    description: `Fetch a guild template by its template code. This is a public lookup — no permissions are required, since it is meant to preview a template before using it to create a new guild. Returns a guild template object. For templates that already belong to one of the bot's guilds, use List Guild Templates instead.`,
+    params: [
+      {
+        name: 'template_code',
+        type: 'string',
+        required: true,
+        description: `The unique code of the guild template.`,
+      },
+    ],
+  },
+  {
     name: 'discordbot_get_guild_vanity_url',
     description: `Get the vanity URL for a guild. Requires MANAGE_GUILD permission. The guild must have the VANITY_URL feature enabled. Returns a partial invite object with code and uses.`,
     params: [
@@ -3259,6 +3398,21 @@ export const tools: Tool[] = [
         required: true,
         description: `The ID of the guild to retrieve the welcome screen for.`,
       },
+    ],
+  },
+  {
+    name: 'discordbot_get_guild_widget',
+    description: `Retrieve the guild widget in JSON format — public information such as the guild's name, instant invite, and currently online members. The widget must be enabled in the guild's server settings (Server Settings > Widget), or this returns an error. This is distinct from Get Guild Widget Settings, which returns the enabled/channel configuration and requires MANAGE_GUILD.`,
+    params: [
+      { name: 'guild_id', type: 'string', required: true, description: `The ID of the guild.` },
+    ],
+  },
+  {
+    name: 'discordbot_get_guild_widget_png',
+    description: `Retrieve a PNG image widget for a Discord guild — a visual banner that can be embedded on external websites to show live member counts and an invite link. The widget must be enabled in the guild's server settings.`,
+    params: [
+      { name: 'guild_id', type: 'string', required: true, description: `The ID of the guild.` },
+      { name: 'style', type: 'string', required: false, description: `Style of the widget image.` },
     ],
   },
   {
@@ -3791,9 +3945,105 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'discordbot_list_current_user_guilds',
+    description: `Lists the guilds the bot is currently a member of, returning partial guild data (id, name, icon, owner, permissions, features, and optionally approximate member/presence counts) for each. Paginated by guild ID. Useful for enumerating every server a bot serves without relying on Gateway cache state.`,
+    params: [
+      {
+        name: 'after',
+        type: 'string',
+        required: false,
+        description: `Get guilds after this guild ID (for pagination).`,
+      },
+      {
+        name: 'before',
+        type: 'string',
+        required: false,
+        description: `Get guilds before this guild ID (for pagination).`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of guilds to return (1-200, default 200).`,
+      },
+      {
+        name: 'with_counts',
+        type: 'boolean',
+        required: false,
+        description: `Whether to include approximate member and presence counts for each guild.`,
+      },
+    ],
+  },
+  {
     name: 'discordbot_list_default_soundboard_sounds',
     description: `Retrieve an array of default soundboard sound objects that can be used by all users.`,
     params: [],
+  },
+  {
+    name: 'discordbot_list_entitlements',
+    description: `Returns all entitlements for a given app, active and expired, optionally filtered by user, guild, or SKU. Use this to check which users or guilds currently have access to your premium offerings. For a single entitlement by ID, use Get Entitlement instead.`,
+    params: [
+      {
+        name: 'application_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the application.`,
+      },
+      {
+        name: 'after',
+        type: 'string',
+        required: false,
+        description: `Retrieve entitlements after this entitlement ID (for pagination).`,
+      },
+      {
+        name: 'before',
+        type: 'string',
+        required: false,
+        description: `Retrieve entitlements before this entitlement ID (for pagination).`,
+      },
+      {
+        name: 'exclude_deleted',
+        type: 'boolean',
+        required: false,
+        description: `Whether to exclude deleted entitlements. Defaults to true.`,
+      },
+      {
+        name: 'exclude_ended',
+        type: 'boolean',
+        required: false,
+        description: `Whether to exclude entitlements that have ended. Defaults to false.`,
+      },
+      {
+        name: 'guild_id',
+        type: 'string',
+        required: false,
+        description: `Filter entitlements granted to this guild.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of entitlements to return (1-100). Defaults to 100.`,
+      },
+      {
+        name: 'only_active',
+        type: 'boolean',
+        required: false,
+        description: `Whether to only return entitlements that are currently active.`,
+      },
+      {
+        name: 'sku_ids',
+        type: 'string',
+        required: false,
+        description: `Comma-delimited list of SKU IDs to filter entitlements by.`,
+      },
+      {
+        name: 'user_id',
+        type: 'string',
+        required: false,
+        description: `Filter entitlements granted to this user.`,
+      },
+    ],
   },
   {
     name: 'discordbot_list_guild_channels',
@@ -4028,6 +4278,11 @@ export const tools: Tool[] = [
         description: `The ID of the application to retrieve SKUs for.`,
       },
     ],
+  },
+  {
+    name: 'discordbot_list_sticker_packs',
+    description: `Retrieve all default Discord sticker packs (the packs available to Nitro subscribers), including each pack's name, description, stickers, cover sticker, and banner asset. For a single pack by ID, use Get Sticker Pack instead.`,
+    params: [],
   },
   {
     name: 'discordbot_list_thread_members',
@@ -5288,6 +5543,42 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'discordbot_resolve_invite',
+    description: `Resolve a Discord invite code to its invite object, including the associated guild, channel, and inviter. Does not require the bot to be a member of the invite's guild. Use Get Guild Invites or Get Channel Invites instead to list invites you manage.`,
+    params: [
+      {
+        name: 'invite_code',
+        type: 'string',
+        required: true,
+        description: `The unique invite code to resolve.`,
+      },
+      {
+        name: 'guild_scheduled_event_id',
+        type: 'string',
+        required: false,
+        description: `Guild scheduled event ID to include event details in the response.`,
+      },
+      {
+        name: 'target_channel_id',
+        type: 'string',
+        required: false,
+        description: `Only return the invite if it targets this channel.`,
+      },
+      {
+        name: 'target_message_id',
+        type: 'string',
+        required: false,
+        description: `Only return the invite if it targets this message (message-link invites).`,
+      },
+      {
+        name: 'with_counts',
+        type: 'boolean',
+        required: false,
+        description: `Whether to include approximate member and presence counts.`,
+      },
+    ],
+  },
+  {
     name: 'discordbot_search_guild_members',
     description: `Search for guild members in a Discord guild whose username or nickname starts with the given query string.`,
     params: [
@@ -5464,6 +5755,79 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `The direction to sort: asc or desc. Defaults to desc.`,
+      },
+    ],
+  },
+  {
+    name: 'discordbot_search_threads',
+    description: `Search for threads in a forum or media channel by name, applied tags, archive state, and other filters. Returns matching threads and their members. May respond with 202 while the channel's threads are still being indexed for search — retry shortly after.`,
+    params: [
+      { name: 'channel_id', type: 'string', required: true, description: `The ID of the channel.` },
+      {
+        name: 'archived',
+        type: 'boolean',
+        required: false,
+        description: `Filter by archive state. Omit to return both archived and active threads.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of threads to return (1-25).`,
+      },
+      {
+        name: 'max_id',
+        type: 'string',
+        required: false,
+        description: `Only return threads with an ID less than this snowflake.`,
+      },
+      {
+        name: 'min_id',
+        type: 'string',
+        required: false,
+        description: `Only return threads with an ID greater than this snowflake.`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: false,
+        description: `Search threads by name (up to 100 characters).`,
+      },
+      {
+        name: 'offset',
+        type: 'integer',
+        required: false,
+        description: `Number of matching threads to skip, for pagination (0-9975).`,
+      },
+      {
+        name: 'slop',
+        type: 'integer',
+        required: false,
+        description: `Fuzzy-match tolerance for the name search — higher values allow more word-order or spelling differences between the query and a thread's name (0-100).`,
+      },
+      {
+        name: 'sort_by',
+        type: 'string',
+        required: false,
+        description: `Field to sort results by.`,
+      },
+      {
+        name: 'sort_order',
+        type: 'string',
+        required: false,
+        description: `Sort direction to apply to sort_by.`,
+      },
+      {
+        name: 'tag',
+        type: 'string',
+        required: false,
+        description: `One forum/media tag ID, or a comma-separated list of tag IDs, to filter by.`,
+      },
+      {
+        name: 'tag_setting',
+        type: 'string',
+        required: false,
+        description: `How multiple tag IDs in 'tag' are combined.`,
       },
     ],
   },
@@ -5740,6 +6104,24 @@ export const tools: Tool[] = [
         type: 'array',
         required: true,
         description: `Full list of application role connection metadata objects (max 5) to replace the existing records. Each object requires type, key, name, and description; name_localizations and description_localizations are optional.`,
+      },
+    ],
+  },
+  {
+    name: 'discordbot_update_invite_target_users',
+    description: `Update the users allowed to see and accept an existing invite. Sent as multipart/form-data with a CSV file (header 'user_id', one user ID per line). Processing happens asynchronously — poll Get Invite Target Users Job Status to see when it completes, then use Get Invite Target Users to confirm the resulting list. Requires the caller to be the inviter, or have MANAGE_GUILD permission. Returns 204 No Content on success.`,
+    params: [
+      {
+        name: 'invite_code',
+        type: 'string',
+        required: true,
+        description: `The invite code to update the target users for.`,
+      },
+      {
+        name: 'target_users_csv_base64',
+        type: 'string',
+        required: true,
+        description: `Base64-encoded CSV file content with header 'user_id' and one target user ID per line.`,
       },
     ],
   },

@@ -14,6 +14,30 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'mailchimp_automation_archive',
+    description: `Archive a Mailchimp classic automation. Archived automations cannot be edited or resumed via the API.`,
+    params: [
+      {
+        name: 'workflow_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the automation to archive. Get it from \`mailchimp_automations_list\`.`,
+      },
+    ],
+  },
+  {
+    name: 'mailchimp_automation_emails_list',
+    description: `Get a list of the individual emails (workflow emails) within a Mailchimp classic automation.`,
+    params: [
+      {
+        name: 'workflow_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the automation. Get it from \`mailchimp_automations_list\`.`,
+      },
+    ],
+  },
+  {
     name: 'mailchimp_automation_get',
     description: `Retrieve details about a specific classic automation in Mailchimp.`,
     params: [
@@ -76,6 +100,18 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Filter by automation status: \`save\`, \`paused\`, \`sending\`.`,
+      },
+    ],
+  },
+  {
+    name: 'mailchimp_batch_create',
+    description: `Submit a batch of up to 500 API operations to run asynchronously in a single call. Poll the result with \`mailchimp_batch_status_get\` using the returned batch id.`,
+    params: [
+      {
+        name: 'operations_json',
+        type: 'string',
+        required: true,
+        description: `JSON array of operation objects, each with method, path, and optionally params/body/operation_id. body must be a JSON-encoded string.`,
       },
     ],
   },
@@ -367,6 +403,403 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'mailchimp_ecommerce_customer_upsert',
+    description: `Add a new customer or update an existing customer in a Mailchimp ecommerce store (idempotent upsert).`,
+    params: [
+      {
+        name: 'customer_id',
+        type: 'string',
+        required: true,
+        description: `A unique identifier for the customer, chosen by you.`,
+      },
+      {
+        name: 'email_address',
+        type: 'string',
+        required: true,
+        description: `The customer's email address.`,
+      },
+      {
+        name: 'opt_in_status',
+        type: 'boolean',
+        required: true,
+        description: `Whether the customer is opted in to marketing (true/false).`,
+      },
+      {
+        name: 'store_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the store. Get it from \`mailchimp_ecommerce_stores_list\`.`,
+      },
+      { name: 'company', type: 'string', required: false, description: `The customer's company.` },
+      {
+        name: 'first_name',
+        type: 'string',
+        required: false,
+        description: `The customer's first name.`,
+      },
+      {
+        name: 'last_name',
+        type: 'string',
+        required: false,
+        description: `The customer's last name.`,
+      },
+    ],
+  },
+  {
+    name: 'mailchimp_ecommerce_order_create',
+    description: `Add an order to a Mailchimp ecommerce store, to drive purchase-based automations and reporting.`,
+    params: [
+      {
+        name: 'currency_code',
+        type: 'string',
+        required: true,
+        description: `Three-letter ISO 4217 currency code for the order.`,
+      },
+      {
+        name: 'customer_json',
+        type: 'string',
+        required: true,
+        description: `JSON object describing the customer who placed the order, e.g. '{"id":"cust-1","email_address":"jane@example.com"}'.`,
+      },
+      {
+        name: 'lines_json',
+        type: 'string',
+        required: true,
+        description: `JSON array of the order's line items, e.g. '[{"id":"line-1","product_id":"prod-001","product_variant_id":"v1","quantity":2,"price":19.99}]'.`,
+      },
+      {
+        name: 'order_id',
+        type: 'string',
+        required: true,
+        description: `A unique identifier for the order, chosen by you.`,
+      },
+      {
+        name: 'order_total',
+        type: 'number',
+        required: true,
+        description: `The total amount for the order.`,
+      },
+      {
+        name: 'store_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the store to add the order to. Get it from \`mailchimp_ecommerce_stores_list\`.`,
+      },
+      {
+        name: 'campaign_id',
+        type: 'string',
+        required: false,
+        description: `The ID of the Mailchimp campaign that drove this order, if any.`,
+      },
+      {
+        name: 'financial_status',
+        type: 'string',
+        required: false,
+        description: `The order's financial status, e.g. 'paid', 'pending', 'refunded'.`,
+      },
+      {
+        name: 'fulfillment_status',
+        type: 'string',
+        required: false,
+        description: `The order's fulfillment status, e.g. 'partial', 'fulfilled'.`,
+      },
+      { name: 'order_url', type: 'string', required: false, description: `The URL for the order.` },
+    ],
+  },
+  {
+    name: 'mailchimp_ecommerce_orders_list',
+    description: `Get a list of orders for a Mailchimp ecommerce store.`,
+    params: [
+      {
+        name: 'store_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the store. Get it from \`mailchimp_ecommerce_stores_list\`.`,
+      },
+      {
+        name: 'count',
+        type: 'integer',
+        required: false,
+        description: `Number of records to return per page (max 1000).`,
+      },
+      {
+        name: 'customer_id',
+        type: 'string',
+        required: false,
+        description: `Filter orders by customer ID.`,
+      },
+      {
+        name: 'offset',
+        type: 'integer',
+        required: false,
+        description: `Number of records to skip.`,
+      },
+    ],
+  },
+  {
+    name: 'mailchimp_ecommerce_product_create',
+    description: `Add a product to a Mailchimp ecommerce store. At least one variant is required.`,
+    params: [
+      {
+        name: 'product_id',
+        type: 'string',
+        required: true,
+        description: `A unique identifier for the product, chosen by you.`,
+      },
+      {
+        name: 'store_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the store to add the product to. Get it from \`mailchimp_ecommerce_stores_list\`.`,
+      },
+      { name: 'title', type: 'string', required: true, description: `The title of the product.` },
+      {
+        name: 'variants_json',
+        type: 'string',
+        required: true,
+        description: `JSON array of variant objects. At least one variant is required, e.g. '[{"id":"v1","title":"Small","price":19.99}]'.`,
+      },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `The description of the product.`,
+      },
+      {
+        name: 'image_url',
+        type: 'string',
+        required: false,
+        description: `The primary image URL for the product.`,
+      },
+      {
+        name: 'url',
+        type: 'string',
+        required: false,
+        description: `The URL for the product page.`,
+      },
+      {
+        name: 'vendor',
+        type: 'string',
+        required: false,
+        description: `The vendor for the product.`,
+      },
+    ],
+  },
+  {
+    name: 'mailchimp_ecommerce_product_get',
+    description: `Get information about a specific product in a Mailchimp ecommerce store.`,
+    params: [
+      {
+        name: 'product_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the product to retrieve.`,
+      },
+      {
+        name: 'store_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the store. Get it from \`mailchimp_ecommerce_stores_list\`.`,
+      },
+    ],
+  },
+  {
+    name: 'mailchimp_ecommerce_products_list',
+    description: `Get a list of products for a Mailchimp ecommerce store.`,
+    params: [
+      {
+        name: 'store_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the store. Get it from \`mailchimp_ecommerce_stores_list\`.`,
+      },
+      {
+        name: 'count',
+        type: 'integer',
+        required: false,
+        description: `Number of records to return per page (max 1000).`,
+      },
+      {
+        name: 'offset',
+        type: 'integer',
+        required: false,
+        description: `Number of records to skip.`,
+      },
+    ],
+  },
+  {
+    name: 'mailchimp_ecommerce_store_create',
+    description: `Add a new ecommerce store to the Mailchimp account, linked to an audience.`,
+    params: [
+      {
+        name: 'currency_code',
+        type: 'string',
+        required: true,
+        description: `Three-letter ISO 4217 currency code the store accepts, e.g. USD.`,
+      },
+      {
+        name: 'list_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the audience associated with the store. Get it from \`mailchimp_lists_list\`.`,
+      },
+      { name: 'name', type: 'string', required: true, description: `The name of the store.` },
+      {
+        name: 'store_id',
+        type: 'string',
+        required: true,
+        description: `A unique identifier for the store, chosen by you (e.g. your platform's store ID).`,
+      },
+      { name: 'domain', type: 'string', required: false, description: `The store's domain.` },
+      {
+        name: 'email_address',
+        type: 'string',
+        required: false,
+        description: `The email address for the store.`,
+      },
+      {
+        name: 'platform',
+        type: 'string',
+        required: false,
+        description: `The ecommerce platform of the store, e.g. Shopify, WooCommerce, Magento.`,
+      },
+    ],
+  },
+  {
+    name: 'mailchimp_ecommerce_store_delete',
+    description: `Permanently delete an ecommerce store, including all of its products, orders, and customers. This action cannot be undone.`,
+    params: [
+      {
+        name: 'store_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the store to delete.`,
+      },
+    ],
+  },
+  {
+    name: 'mailchimp_ecommerce_store_get',
+    description: `Get information about a specific ecommerce store.`,
+    params: [
+      {
+        name: 'store_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the store. Get it from \`mailchimp_ecommerce_stores_list\`.`,
+      },
+    ],
+  },
+  {
+    name: 'mailchimp_ecommerce_store_update',
+    description: `Update an existing ecommerce store's details.`,
+    params: [
+      {
+        name: 'store_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the store to update.`,
+      },
+      {
+        name: 'currency_code',
+        type: 'string',
+        required: false,
+        description: `New three-letter ISO 4217 currency code the store accepts.`,
+      },
+      { name: 'domain', type: 'string', required: false, description: `The new store domain.` },
+      {
+        name: 'email_address',
+        type: 'string',
+        required: false,
+        description: `The new email address for the store.`,
+      },
+      { name: 'name', type: 'string', required: false, description: `The new name of the store.` },
+    ],
+  },
+  {
+    name: 'mailchimp_ecommerce_stores_list',
+    description: `Get information about all ecommerce stores connected to the Mailchimp account.`,
+    params: [
+      {
+        name: 'count',
+        type: 'integer',
+        required: false,
+        description: `Number of records to return per page (max 1000).`,
+      },
+      {
+        name: 'offset',
+        type: 'integer',
+        required: false,
+        description: `Number of records to skip.`,
+      },
+    ],
+  },
+  {
+    name: 'mailchimp_landing_page_create',
+    description: `Create a new unpublished, contentless Mailchimp landing page. Connect it to an audience via list_id, or set use_default_list to use the account's default audience instead. Add content and publish it separately afterward.`,
+    params: [
+      {
+        name: 'name',
+        type: 'string',
+        required: true,
+        description: `Internal name for the landing page, shown in the Mailchimp UI.`,
+      },
+      {
+        name: 'list_id',
+        type: 'string',
+        required: false,
+        description: `The ID of the audience to connect this landing page to. Required unless use_default_list is true.`,
+      },
+      {
+        name: 'title',
+        type: 'string',
+        required: false,
+        description: `Public-facing title of the landing page, shown to visitors.`,
+      },
+      {
+        name: 'use_default_list',
+        type: 'boolean',
+        required: false,
+        description: `Create the landing page using the account's default audience instead of specifying list_id.`,
+      },
+    ],
+  },
+  {
+    name: 'mailchimp_landing_pages_list',
+    description: `List landing pages in the Mailchimp account.`,
+    params: [
+      {
+        name: 'count',
+        type: 'integer',
+        required: false,
+        description: `Number of records to return per page (max 1000).`,
+      },
+      {
+        name: 'fields',
+        type: 'string',
+        required: false,
+        description: `Comma-separated fields to return.`,
+      },
+      {
+        name: 'offset',
+        type: 'integer',
+        required: false,
+        description: `Number of records to skip.`,
+      },
+      {
+        name: 'sort_dir',
+        type: 'string',
+        required: false,
+        description: `Sort direction: \`ASC\` or \`DESC\`.`,
+      },
+      {
+        name: 'sort_field',
+        type: 'string',
+        required: false,
+        description: `Field to sort results by: \`created_at\` or \`updated_at\`.`,
+      },
+    ],
+  },
+  {
     name: 'mailchimp_list_create',
     description: `Create a new Mailchimp audience (list). Requires a contact address and campaign defaults.`,
     params: [
@@ -472,6 +905,60 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Comma-separated fields to return.`,
+      },
+    ],
+  },
+  {
+    name: 'mailchimp_list_interest_categories_list',
+    description: `Get a list of interest categories (groups) for a Mailchimp audience, used for subscriber segmentation and signup form preferences.`,
+    params: [
+      {
+        name: 'list_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the audience. Get it from \`mailchimp_lists_list\`.`,
+      },
+      {
+        name: 'count',
+        type: 'integer',
+        required: false,
+        description: `Number of records to return per page (max 1000).`,
+      },
+      {
+        name: 'offset',
+        type: 'integer',
+        required: false,
+        description: `Number of records to skip.`,
+      },
+    ],
+  },
+  {
+    name: 'mailchimp_list_interest_category_create',
+    description: `Add a new interest category (group) to a Mailchimp audience for subscriber segmentation.`,
+    params: [
+      {
+        name: 'list_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the audience. Get it from \`mailchimp_lists_list\`.`,
+      },
+      {
+        name: 'title',
+        type: 'string',
+        required: true,
+        description: `The name of the interest category, shown on signup forms.`,
+      },
+      {
+        name: 'type',
+        type: 'string',
+        required: true,
+        description: `How the interests in this category appear on signup forms: checkboxes, dropdown, radio, or hidden.`,
+      },
+      {
+        name: 'display_order',
+        type: 'integer',
+        required: false,
+        description: `The display order of this category relative to others. Lower numbers display first.`,
       },
     ],
   },
@@ -758,6 +1245,102 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'mailchimp_list_merge_field_create',
+    description: `Add a new merge field (custom audience field, e.g. PHONE, BIRTHDAY) to a Mailchimp audience.`,
+    params: [
+      {
+        name: 'list_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the audience. Get it from \`mailchimp_lists_list\`.`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: true,
+        description: `The name of the merge field, shown in the Mailchimp UI.`,
+      },
+      {
+        name: 'type',
+        type: 'string',
+        required: true,
+        description: `The field type: text, number, address, phone, date, url, imageurl, radio, dropdown, birthday, zip.`,
+      },
+      {
+        name: 'default_value',
+        type: 'string',
+        required: false,
+        description: `The default value for the merge field if left blank.`,
+      },
+      {
+        name: 'help_text',
+        type: 'string',
+        required: false,
+        description: `Extra text shown to help the subscriber fill out the field on a signup form.`,
+      },
+      {
+        name: 'public',
+        type: 'boolean',
+        required: false,
+        description: `Whether the merge field is displayed on the signup form.`,
+      },
+      {
+        name: 'required',
+        type: 'boolean',
+        required: false,
+        description: `Whether the merge field is required to import a contact.`,
+      },
+      {
+        name: 'tag',
+        type: 'string',
+        required: false,
+        description: `The merge tag used in campaigns, e.g. PHONE. Auto-generated if omitted.`,
+      },
+    ],
+  },
+  {
+    name: 'mailchimp_list_merge_fields_list',
+    description: `Get a list of merge fields (audience fields, e.g. FNAME, PHONE) for a Mailchimp audience.`,
+    params: [
+      {
+        name: 'list_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the audience. Get it from \`mailchimp_lists_list\`.`,
+      },
+      {
+        name: 'count',
+        type: 'integer',
+        required: false,
+        description: `Number of records to return per page (max 1000).`,
+      },
+      {
+        name: 'offset',
+        type: 'integer',
+        required: false,
+        description: `Number of records to skip.`,
+      },
+    ],
+  },
+  {
+    name: 'mailchimp_list_tag_search',
+    description: `Search for tags used in a Mailchimp audience by name prefix. Returns all tags whose name starts with the given search string.`,
+    params: [
+      {
+        name: 'list_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the audience. Get it from \`mailchimp_lists_list\`.`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: false,
+        description: `The search prefix used to filter tags by name.`,
+      },
+    ],
+  },
+  {
     name: 'mailchimp_list_update',
     description: `Update an existing Mailchimp audience's name or settings.`,
     params: [
@@ -785,6 +1368,96 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Updated permission reminder.`,
+      },
+    ],
+  },
+  {
+    name: 'mailchimp_list_webhook_create',
+    description: `Create a webhook on a Mailchimp audience for subscribe/unsubscribe/profile-update/cleaned/email-change/campaign-sent events.`,
+    params: [
+      {
+        name: 'list_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the audience. Get it from \`mailchimp_lists_list\`.`,
+      },
+      {
+        name: 'url',
+        type: 'string',
+        required: true,
+        description: `The URL that Mailchimp will send webhook events to.`,
+      },
+      {
+        name: 'event_campaign',
+        type: 'boolean',
+        required: false,
+        description: `Trigger this webhook when a campaign is sent or cancelled.`,
+      },
+      {
+        name: 'event_cleaned',
+        type: 'boolean',
+        required: false,
+        description: `Trigger this webhook when a member is cleaned (removed for bouncing).`,
+      },
+      {
+        name: 'event_profile',
+        type: 'boolean',
+        required: false,
+        description: `Trigger this webhook when a member updates their profile.`,
+      },
+      {
+        name: 'event_subscribe',
+        type: 'boolean',
+        required: false,
+        description: `Trigger this webhook when a new subscriber is added.`,
+      },
+      {
+        name: 'event_unsubscribe',
+        type: 'boolean',
+        required: false,
+        description: `Trigger this webhook when a member unsubscribes.`,
+      },
+      {
+        name: 'event_upemail',
+        type: 'boolean',
+        required: false,
+        description: `Trigger this webhook when a member changes their email address.`,
+      },
+      {
+        name: 'source_admin',
+        type: 'boolean',
+        required: false,
+        description: `Fire the webhook for changes made by an admin in the Mailchimp dashboard.`,
+      },
+      {
+        name: 'source_api',
+        type: 'boolean',
+        required: false,
+        description: `Fire the webhook for changes made via the API.`,
+      },
+      {
+        name: 'source_user',
+        type: 'boolean',
+        required: false,
+        description: `Fire the webhook for changes made by the subscriber themselves.`,
+      },
+    ],
+  },
+  {
+    name: 'mailchimp_list_webhooks_list',
+    description: `List webhooks configured on a Mailchimp audience (list).`,
+    params: [
+      {
+        name: 'list_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the audience. Get it from \`mailchimp_lists_list\`.`,
+      },
+      {
+        name: 'fields',
+        type: 'string',
+        required: false,
+        description: `Comma-separated fields to return.`,
       },
     ],
   },
@@ -821,6 +1494,36 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Field to sort results by: \`date_created\` or \`campaign_last_sent\`.`,
+      },
+    ],
+  },
+  {
+    name: 'mailchimp_member_search',
+    description: `Search for members by email or name fragment across every audience in the account, or restrict the search to one audience. Use this when you don't already know the list_id and subscriber_hash that the other member tools require.`,
+    params: [
+      {
+        name: 'query',
+        type: 'string',
+        required: true,
+        description: `Search term to match against member email addresses and names.`,
+      },
+      {
+        name: 'exclude_fields',
+        type: 'string',
+        required: false,
+        description: `Comma-separated fields to exclude from the response.`,
+      },
+      {
+        name: 'fields',
+        type: 'string',
+        required: false,
+        description: `Comma-separated fields to return.`,
+      },
+      {
+        name: 'list_id',
+        type: 'string',
+        required: false,
+        description: `Restrict the search to a single audience. Omit to search across all audiences.`,
       },
     ],
   },

@@ -2,6 +2,67 @@ import type { Tool } from '../../types/agent-connectors'
 
 export const tools: Tool[] = [
   {
+    name: 'outreach_account_note_create',
+    description: `Add a note to an account in Outreach, e.g. to log a meeting, call, or general observation.`,
+    params: [
+      {
+        name: 'account_id',
+        type: 'integer',
+        required: true,
+        description: `ID of the account to attach this note to`,
+      },
+      { name: 'message', type: 'string', required: true, description: `Text content of the note` },
+      {
+        name: 'note_type',
+        type: 'string',
+        required: false,
+        description: `Context of the note. One of 'note', 'call', 'coffee', 'beer', 'meeting'`,
+      },
+      {
+        name: 'opportunity_id',
+        type: 'integer',
+        required: false,
+        description: `ID of an opportunity to associate this note with`,
+      },
+      {
+        name: 'pinned',
+        type: 'boolean',
+        required: false,
+        description: `Whether to pin this note to the top of the account's note list`,
+      },
+    ],
+  },
+  {
+    name: 'outreach_account_notes_list',
+    description: `List notes logged against an account in Outreach, with pagination.`,
+    params: [
+      {
+        name: 'filter_account_id',
+        type: 'integer',
+        required: false,
+        description: `Filter notes by account ID`,
+      },
+      {
+        name: 'page_offset',
+        type: 'integer',
+        required: false,
+        description: `Offset for pagination`,
+      },
+      {
+        name: 'page_size',
+        type: 'integer',
+        required: false,
+        description: `Number of results per page (max 1000)`,
+      },
+      {
+        name: 'sort',
+        type: 'string',
+        required: false,
+        description: `Sort field. Prefix with '-' for descending order (e.g., '-createdAt')`,
+      },
+    ],
+  },
+  {
     name: 'outreach_accounts_create',
     description: `Create a new account (company) in Outreach.`,
     params: [
@@ -158,6 +219,66 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'outreach_call_delete',
+    description: `Permanently delete a logged call record from Outreach by ID. This action cannot be undone.`,
+    params: [
+      {
+        name: 'call_id',
+        type: 'integer',
+        required: true,
+        description: `The unique identifier of the call to delete`,
+      },
+    ],
+  },
+  {
+    name: 'outreach_call_dispositions_list',
+    description: `List available call dispositions (outcome categories, e.g. 'Meeting Scheduled') configured in Outreach. Use the returned IDs with outreach_calls_create's call_disposition_id field.`,
+    params: [
+      {
+        name: 'filter_name',
+        type: 'string',
+        required: false,
+        description: `Filter call dispositions by name`,
+      },
+      {
+        name: 'page_offset',
+        type: 'integer',
+        required: false,
+        description: `Offset for pagination`,
+      },
+      {
+        name: 'page_size',
+        type: 'integer',
+        required: false,
+        description: `Number of results per page (max 1000)`,
+      },
+    ],
+  },
+  {
+    name: 'outreach_call_purposes_list',
+    description: `List available call purposes (e.g. 'Initial Contact') configured in Outreach. Use the returned IDs with outreach_calls_create's call_purpose_id field.`,
+    params: [
+      {
+        name: 'filter_name',
+        type: 'string',
+        required: false,
+        description: `Filter call purposes by name`,
+      },
+      {
+        name: 'page_offset',
+        type: 'integer',
+        required: false,
+        description: `Offset for pagination`,
+      },
+      {
+        name: 'page_size',
+        type: 'integer',
+        required: false,
+        description: `Number of results per page (max 1000)`,
+      },
+    ],
+  },
+  {
     name: 'outreach_calls_create',
     description: `Log a call record in Outreach. Used to track inbound or outbound call activity against a prospect.`,
     params: [
@@ -256,6 +377,127 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Sort field. Prefix with '-' for descending order`,
+      },
+    ],
+  },
+  {
+    name: 'outreach_email_address_create',
+    description: `Add a new email address to an existing prospect in Outreach.`,
+    params: [
+      { name: 'email', type: 'string', required: true, description: `The raw email address value` },
+      {
+        name: 'prospect_id',
+        type: 'integer',
+        required: true,
+        description: `ID of the prospect that owns this email address`,
+      },
+      {
+        name: 'email_type',
+        type: 'string',
+        required: false,
+        description: `Type of email address, e.g. 'work' or 'personal'`,
+      },
+      {
+        name: 'order',
+        type: 'integer',
+        required: false,
+        description: `Ordered position of this email address in the prospect's list of emails`,
+      },
+    ],
+  },
+  {
+    name: 'outreach_email_address_delete',
+    description: `Permanently delete a prospect email address from Outreach by ID. This action cannot be undone.`,
+    params: [
+      {
+        name: 'email_address_id',
+        type: 'integer',
+        required: true,
+        description: `The unique identifier of the email address to delete`,
+      },
+    ],
+  },
+  {
+    name: 'outreach_email_address_get',
+    description: `Get a single prospect email address from Outreach by ID.`,
+    params: [
+      {
+        name: 'email_address_id',
+        type: 'integer',
+        required: true,
+        description: `The unique identifier of the email address to retrieve`,
+      },
+    ],
+  },
+  {
+    name: 'outreach_email_address_update',
+    description: `Update an existing prospect email address in Outreach. Only provided fields will be changed.`,
+    params: [
+      {
+        name: 'email_address_id',
+        type: 'integer',
+        required: true,
+        description: `The unique identifier of the email address to update`,
+      },
+      {
+        name: 'email',
+        type: 'string',
+        required: false,
+        description: `Updated raw email address value`,
+      },
+      {
+        name: 'email_type',
+        type: 'string',
+        required: false,
+        description: `Updated type of email address, e.g. 'work' or 'personal'`,
+      },
+      {
+        name: 'order',
+        type: 'integer',
+        required: false,
+        description: `Updated ordered position of this email address`,
+      },
+      {
+        name: 'status',
+        type: 'string',
+        required: false,
+        description: `Updated status of the email address`,
+      },
+    ],
+  },
+  {
+    name: 'outreach_email_addresses_list',
+    description: `List prospect email addresses in Outreach, with optional filtering by email, prospect ID, or status, and pagination.`,
+    params: [
+      {
+        name: 'filter_email',
+        type: 'string',
+        required: false,
+        description: `Filter by the raw email address value`,
+      },
+      {
+        name: 'filter_prospect_id',
+        type: 'integer',
+        required: false,
+        description: `Filter email addresses by owning prospect ID`,
+      },
+      {
+        name: 'filter_status',
+        type: 'string',
+        required: false,
+        description: `Filter email addresses by status`,
+      },
+      {
+        name: 'page_offset',
+        type: 'integer',
+        required: false,
+        description: `Offset for pagination (number of records to skip)`,
+      },
+      {
+        name: 'page_size',
+        type: 'integer',
+        required: false,
+        description: `Number of results per page (max 1000)`,
       },
     ],
   },
@@ -497,6 +739,115 @@ export const tools: Tool[] = [
         type: 'integer',
         required: false,
         description: `Updated opportunity stage ID`,
+      },
+    ],
+  },
+  {
+    name: 'outreach_opportunity_prospect_roles_list',
+    description: `List OpportunityProspectRole records in Outreach, which link a prospect to an opportunity with a role (e.g. Decision Maker, Champion).`,
+    params: [
+      {
+        name: 'filter_opportunity_id',
+        type: 'integer',
+        required: false,
+        description: `Filter by opportunity ID`,
+      },
+      {
+        name: 'filter_prospect_id',
+        type: 'integer',
+        required: false,
+        description: `Filter by prospect ID`,
+      },
+      {
+        name: 'page_offset',
+        type: 'integer',
+        required: false,
+        description: `Offset for pagination`,
+      },
+      {
+        name: 'page_size',
+        type: 'integer',
+        required: false,
+        description: `Number of results per page (max 1000)`,
+      },
+      {
+        name: 'sort',
+        type: 'string',
+        required: false,
+        description: `Sort field. Prefix with '-' for descending order (e.g., '-createdAt')`,
+      },
+    ],
+  },
+  {
+    name: 'outreach_prospect_note_create',
+    description: `Add a note to a prospect in Outreach, e.g. to log a meeting, call, or general observation.`,
+    params: [
+      { name: 'message', type: 'string', required: true, description: `Text content of the note` },
+      {
+        name: 'prospect_id',
+        type: 'integer',
+        required: true,
+        description: `ID of the prospect to attach this note to`,
+      },
+      {
+        name: 'note_type',
+        type: 'string',
+        required: false,
+        description: `Context of the note. One of 'note', 'call', 'coffee', 'beer', 'meeting'`,
+      },
+      {
+        name: 'opportunity_id',
+        type: 'integer',
+        required: false,
+        description: `ID of an opportunity to associate this note with`,
+      },
+      {
+        name: 'pinned',
+        type: 'boolean',
+        required: false,
+        description: `Whether to pin this note to the top of the prospect's note list`,
+      },
+    ],
+  },
+  {
+    name: 'outreach_prospect_note_delete',
+    description: `Delete a prospect note from Outreach by ID. This action cannot be undone.`,
+    params: [
+      {
+        name: 'prospect_note_id',
+        type: 'integer',
+        required: true,
+        description: `The unique identifier of the prospect note to delete`,
+      },
+    ],
+  },
+  {
+    name: 'outreach_prospect_notes_list',
+    description: `List notes logged against a prospect in Outreach, with pagination.`,
+    params: [
+      {
+        name: 'filter_prospect_id',
+        type: 'integer',
+        required: false,
+        description: `Filter notes by prospect ID`,
+      },
+      {
+        name: 'page_offset',
+        type: 'integer',
+        required: false,
+        description: `Offset for pagination`,
+      },
+      {
+        name: 'page_size',
+        type: 'integer',
+        required: false,
+        description: `Number of results per page (max 1000)`,
+      },
+      {
+        name: 'sort',
+        type: 'string',
+        required: false,
+        description: `Sort field. Prefix with '-' for descending order (e.g., '-createdAt')`,
       },
     ],
   },
@@ -749,6 +1100,54 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'outreach_sequence_activate',
+    description: `Activate a sequence in Outreach so enrolled prospects begin receiving its steps.`,
+    params: [
+      {
+        name: 'sequence_id',
+        type: 'integer',
+        required: true,
+        description: `The unique identifier of the sequence to activate`,
+      },
+    ],
+  },
+  {
+    name: 'outreach_sequence_deactivate',
+    description: `Deactivate a live sequence in Outreach, stopping it from sending any further steps to enrolled prospects.`,
+    params: [
+      {
+        name: 'sequence_id',
+        type: 'integer',
+        required: true,
+        description: `The unique identifier of the sequence to deactivate`,
+      },
+    ],
+  },
+  {
+    name: 'outreach_sequence_state_pause',
+    description: `Pause a prospect's enrollment in a sequence without deleting the enrollment record, stopping further steps until resumed.`,
+    params: [
+      {
+        name: 'sequence_state_id',
+        type: 'integer',
+        required: true,
+        description: `The unique identifier of the sequence state (enrollment record) to pause`,
+      },
+    ],
+  },
+  {
+    name: 'outreach_sequence_state_resume',
+    description: `Resume a previously paused prospect sequence enrollment in Outreach so remaining steps resume sending.`,
+    params: [
+      {
+        name: 'sequence_state_id',
+        type: 'integer',
+        required: true,
+        description: `The unique identifier of the sequence state (enrollment record) to resume`,
+      },
+    ],
+  },
+  {
     name: 'outreach_sequence_states_create',
     description: `Enroll a prospect in a sequence by creating a sequence state. Requires a prospect ID, sequence ID, and mailbox ID.`,
     params: [
@@ -829,6 +1228,108 @@ export const tools: Tool[] = [
         type: 'integer',
         required: false,
         description: `Number of results per page (max 1000)`,
+      },
+    ],
+  },
+  {
+    name: 'outreach_sequence_step_create',
+    description: `Create a new step within an Outreach sequence. Provide 'interval' (seconds) for interval-based sequences or 'date' for date-based sequences, matching the target sequence's type.`,
+    params: [
+      {
+        name: 'sequence_id',
+        type: 'integer',
+        required: true,
+        description: `ID of the sequence this step belongs to`,
+      },
+      {
+        name: 'step_type',
+        type: 'string',
+        required: true,
+        description: `Type of the step. Must be 'auto_email', 'manual_email', 'call', or 'task'`,
+      },
+      {
+        name: 'call_purpose_id',
+        type: 'integer',
+        required: false,
+        description: `ID of the default call purpose for this step`,
+      },
+      {
+        name: 'date',
+        type: 'string',
+        required: false,
+        description: `Calendar date this step activates. Only for date-based sequences. Format YYYY-MM-DD`,
+      },
+      {
+        name: 'interval',
+        type: 'integer',
+        required: false,
+        description: `Seconds until this step activates. Only for interval-based sequences`,
+      },
+      {
+        name: 'order',
+        type: 'integer',
+        required: false,
+        description: `Display order of this step within the sequence`,
+      },
+      {
+        name: 'task_autoskip_delay',
+        type: 'integer',
+        required: false,
+        description: `Seconds after which an overdue task created by this step is automatically skipped`,
+      },
+      {
+        name: 'task_note',
+        type: 'string',
+        required: false,
+        description: `Note to associate with tasks created by this step`,
+      },
+      {
+        name: 'task_priority_id',
+        type: 'integer',
+        required: false,
+        description: `ID of the task priority for this step`,
+      },
+    ],
+  },
+  {
+    name: 'outreach_sequence_step_update',
+    description: `Update an existing step within an Outreach sequence. Only provided fields will be changed.`,
+    params: [
+      {
+        name: 'sequence_step_id',
+        type: 'integer',
+        required: true,
+        description: `The unique identifier of the sequence step to update`,
+      },
+      {
+        name: 'date',
+        type: 'string',
+        required: false,
+        description: `Updated calendar date this step activates. Format YYYY-MM-DD`,
+      },
+      {
+        name: 'interval',
+        type: 'integer',
+        required: false,
+        description: `Updated seconds until this step activates. Only for interval-based sequences`,
+      },
+      {
+        name: 'order',
+        type: 'integer',
+        required: false,
+        description: `Updated display order of this step within the sequence`,
+      },
+      {
+        name: 'task_autoskip_delay',
+        type: 'integer',
+        required: false,
+        description: `Updated seconds after which an overdue task from this step is auto-skipped`,
+      },
+      {
+        name: 'task_note',
+        type: 'string',
+        required: false,
+        description: `Updated note to associate with tasks created by this step`,
       },
     ],
   },
@@ -996,6 +1497,129 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'outreach_snippet_create',
+    description: `Create a new reusable email snippet in Outreach. Snippets are commonly used HTML passages that can be inserted into templates and manual emails.`,
+    params: [
+      { name: 'name', type: 'string', required: true, description: `Name of the snippet` },
+      {
+        name: 'body_html',
+        type: 'string',
+        required: false,
+        description: `HTML content of the snippet`,
+      },
+      {
+        name: 'owner_id',
+        type: 'integer',
+        required: false,
+        description: `ID of the user who owns this snippet`,
+      },
+      {
+        name: 'share_type',
+        type: 'string',
+        required: false,
+        description: `Sharing permission for the snippet. Must be 'private' or 'shared'`,
+      },
+      {
+        name: 'tags',
+        type: 'array',
+        required: false,
+        description: `Array of tags to apply to the snippet`,
+      },
+    ],
+  },
+  {
+    name: 'outreach_snippet_delete',
+    description: `Permanently delete a reusable email snippet from Outreach by ID. This action cannot be undone.`,
+    params: [
+      {
+        name: 'snippet_id',
+        type: 'integer',
+        required: true,
+        description: `The unique identifier of the snippet to delete`,
+      },
+    ],
+  },
+  {
+    name: 'outreach_snippet_get',
+    description: `Get a single reusable email snippet from Outreach by ID.`,
+    params: [
+      {
+        name: 'snippet_id',
+        type: 'integer',
+        required: true,
+        description: `The unique identifier of the snippet to retrieve`,
+      },
+    ],
+  },
+  {
+    name: 'outreach_snippet_update',
+    description: `Update an existing reusable email snippet in Outreach. Only provided fields will be changed.`,
+    params: [
+      {
+        name: 'snippet_id',
+        type: 'integer',
+        required: true,
+        description: `The unique identifier of the snippet to update`,
+      },
+      {
+        name: 'body_html',
+        type: 'string',
+        required: false,
+        description: `Updated HTML content of the snippet`,
+      },
+      { name: 'name', type: 'string', required: false, description: `Updated name of the snippet` },
+      {
+        name: 'share_type',
+        type: 'string',
+        required: false,
+        description: `Updated sharing permission. Must be 'private' or 'shared'`,
+      },
+      { name: 'tags', type: 'array', required: false, description: `Updated array of tags` },
+    ],
+  },
+  {
+    name: 'outreach_snippets_list',
+    description: `List reusable email snippets in Outreach, with optional filtering by name, share type, or owner, and pagination.`,
+    params: [
+      {
+        name: 'filter_name',
+        type: 'string',
+        required: false,
+        description: `Filter snippets by name`,
+      },
+      {
+        name: 'filter_owner_id',
+        type: 'integer',
+        required: false,
+        description: `Filter snippets by owner user ID`,
+      },
+      {
+        name: 'filter_share_type',
+        type: 'string',
+        required: false,
+        description: `Filter snippets by share type. One of 'private' or 'shared'`,
+      },
+      {
+        name: 'page_offset',
+        type: 'integer',
+        required: false,
+        description: `Offset for pagination (number of records to skip)`,
+      },
+      {
+        name: 'page_size',
+        type: 'integer',
+        required: false,
+        description: `Number of results per page (max 1000)`,
+      },
+      {
+        name: 'sort',
+        type: 'string',
+        required: false,
+        description: `Sort field. Prefix with '-' for descending order (e.g., '-createdAt')`,
+      },
+    ],
+  },
+  {
     name: 'outreach_stages_get',
     description: `Retrieve a single opportunity stage by ID from Outreach, including its name, color, and order.`,
     params: [
@@ -1041,6 +1665,24 @@ export const tools: Tool[] = [
         type: 'integer',
         required: false,
         description: `Number of results per page (max 1000)`,
+      },
+    ],
+  },
+  {
+    name: 'outreach_task_reschedule',
+    description: `Reschedule a task's due date in Outreach. Use this instead of outreach_tasks_update when the intent is specifically to move a task's due date.`,
+    params: [
+      {
+        name: 'due_at',
+        type: 'string',
+        required: true,
+        description: `New due date/time for the task, in ISO 8601 format`,
+      },
+      {
+        name: 'task_id',
+        type: 'integer',
+        required: true,
+        description: `The unique identifier of the task to reschedule`,
       },
     ],
   },
@@ -1349,6 +1991,42 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Sort field. Prefix with '-' for descending order`,
+      },
+    ],
+  },
+  {
+    name: 'outreach_webhook_update',
+    description: `Update an existing webhook's URL, subscribed event type, resource type, or signing secret in Outreach.`,
+    params: [
+      {
+        name: 'webhook_id',
+        type: 'integer',
+        required: true,
+        description: `The unique identifier of the webhook to update`,
+      },
+      {
+        name: 'action',
+        type: 'string',
+        required: false,
+        description: `New event action to subscribe to (e.g., created, updated, deleted)`,
+      },
+      {
+        name: 'resource_type',
+        type: 'string',
+        required: false,
+        description: `New resource type to subscribe to events for (e.g., prospect, account, sequenceState)`,
+      },
+      {
+        name: 'secret',
+        type: 'string',
+        required: false,
+        description: `New secret string used to sign webhook payloads for verification`,
+      },
+      {
+        name: 'url',
+        type: 'string',
+        required: false,
+        description: `New HTTPS URL to receive webhook event payloads`,
       },
     ],
   },

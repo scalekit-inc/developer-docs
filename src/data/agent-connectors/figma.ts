@@ -44,6 +44,42 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'figma_ai_usage_daily_get',
+    description: `Return per-user, per-day AI credit usage for the plan associated with the calling token (Enterprise orgs). Requires a plan access token with the org:ai_metering_usage_read scope.`,
+    params: [
+      {
+        name: 'end_date',
+        type: 'string',
+        required: true,
+        description: `End of the date range (YYYY-MM-DD), required`,
+      },
+      {
+        name: 'start_date',
+        type: 'string',
+        required: true,
+        description: `Start of the date range (YYYY-MM-DD), required`,
+      },
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Pagination cursor from a previous response`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of results to return (1-1000, default 1000)`,
+      },
+      {
+        name: 'user_email',
+        type: 'string',
+        required: false,
+        description: `Filter results to a single user's email`,
+      },
+    ],
+  },
+  {
     name: 'figma_comment_reaction_create',
     description: `Adds an emoji reaction to a comment in a Figma file.`,
     params: [
@@ -226,6 +262,48 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Comma-separated node IDs to filter by. Omit to return all dev resources in the file.`,
+      },
+    ],
+  },
+  {
+    name: 'figma_developer_logs_list',
+    description: `Return developer log entries for REST API and MCP server requests made within the organization, optionally filtered by token type/value, user email, IP address, or event source. Requires a plan access token with the org:developer_log_read scope. Complements figma_activity_logs_list, which covers design/file activity rather than API usage.`,
+    params: [
+      {
+        name: 'event_source',
+        type: 'string',
+        required: false,
+        description: `Filter by event source`,
+      },
+      {
+        name: 'ip_address',
+        type: 'string',
+        required: false,
+        description: `Filter by IP address prefix(es), comma-separated`,
+      },
+      {
+        name: 'token',
+        type: 'string',
+        required: false,
+        description: `Filter by token value(s), comma-separated`,
+      },
+      {
+        name: 'token_name',
+        type: 'string',
+        required: false,
+        description: `Filter by token name prefix(es), comma-separated`,
+      },
+      {
+        name: 'token_type',
+        type: 'string',
+        required: false,
+        description: `Filter by the type of token used for authentication`,
+      },
+      {
+        name: 'user_email',
+        type: 'string',
+        required: false,
+        description: `Filter by user email prefix(es), comma-separated`,
       },
     ],
   },
@@ -452,6 +530,18 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'figma_file_meta_get',
+    description: `Get lightweight metadata for a Figma file (name, last modified time, thumbnail, editor type, folder/project info) without fetching the full document tree. Use figma_file_get when you need the actual design content.`,
+    params: [
+      {
+        name: 'file_key',
+        type: 'string',
+        required: true,
+        description: `The key of the file to retrieve metadata for`,
+      },
+    ],
+  },
+  {
     name: 'figma_file_nodes_get',
     description: `Returns specific nodes from a Figma file by their node IDs, along with their children and associated styles and components.`,
     params: [
@@ -604,6 +694,36 @@ export const tools: Tool[] = [
         type: 'integer',
         required: false,
         description: `Number of versions to return per page.`,
+      },
+    ],
+  },
+  {
+    name: 'figma_folder_files_list',
+    description: `Returns all files directly within a Figma folder, including file keys, names, thumbnails, and last modified timestamps, using Figma's newer Folders API (the successor to project files).`,
+    params: [
+      {
+        name: 'folder_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Figma folder.`,
+      },
+      {
+        name: 'branch_data',
+        type: 'boolean',
+        required: false,
+        description: `If true, includes branch metadata for each main file with branches.`,
+      },
+    ],
+  },
+  {
+    name: 'figma_folder_meta_get',
+    description: `Returns basic metadata about a Figma folder — its name, thumbnail, file count, and timestamps — without enumerating its files, using Figma's newer Folders API (the successor to project meta).`,
+    params: [
+      {
+        name: 'folder_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Figma folder.`,
       },
     ],
   },
@@ -793,6 +913,30 @@ export const tools: Tool[] = [
     params: [],
   },
   {
+    name: 'figma_oembed_get',
+    description: `Return oEmbed data (per the oEmbed spec) for a Figma file or published Figma Make site URL -- useful for generating rich embeds/previews on external pages.`,
+    params: [
+      {
+        name: 'url',
+        type: 'string',
+        required: true,
+        description: `The Figma file or Figma Make site URL to generate oEmbed data for`,
+      },
+      {
+        name: 'maxheight',
+        type: 'integer',
+        required: false,
+        description: `Maximum height of the embed in pixels (default 450)`,
+      },
+      {
+        name: 'maxwidth',
+        type: 'integer',
+        required: false,
+        description: `Maximum width of the embed in pixels (default 800)`,
+      },
+    ],
+  },
+  {
     name: 'figma_payments_get',
     description: `Returns payment and plan information for a Figma user or resource, including subscription status and plan type.`,
     params: [
@@ -908,6 +1052,13 @@ export const tools: Tool[] = [
         required: false,
         description: `Number of components to return per page.`,
       },
+    ],
+  },
+  {
+    name: 'figma_team_folders_list',
+    description: `Returns the top-level folders within a Figma team that the authenticated user has access to, using Figma's newer Folders API (the successor to team projects).`,
+    params: [
+      { name: 'team_id', type: 'string', required: true, description: `The ID of the Figma team.` },
     ],
   },
   {
@@ -1057,6 +1208,36 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Webhook status: ACTIVE or PAUSED.`,
+      },
+    ],
+  },
+  {
+    name: 'figma_webhooks_list',
+    description: `Return webhooks for a given context (team, project, or file) or for an entire plan, if they exist. When plan_api_id is used, webhooks for every context you can access on that plan are returned, paginated via cursor. Use figma_team_webhooks_list for the simpler team-only case.`,
+    params: [
+      {
+        name: 'context',
+        type: 'string',
+        required: false,
+        description: `The context type to filter by: TEAM, PROJECT, or FILE`,
+      },
+      {
+        name: 'context_id',
+        type: 'string',
+        required: false,
+        description: `The ID of the team/project/file matching context`,
+      },
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Pagination cursor from a previous response`,
+      },
+      {
+        name: 'plan_api_id',
+        type: 'string',
+        required: false,
+        description: `Return webhooks for this entire plan instead of a single context`,
       },
     ],
   },

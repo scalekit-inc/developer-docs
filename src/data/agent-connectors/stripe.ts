@@ -14,6 +14,30 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'stripe_attach_invoice_payment_dahlia',
+    description: `Attaches a PaymentIntent to an invoice, crediting the invoice's amount_paid when the PaymentIntent succeeds. Use this to record an out-of-band or externally-processed payment against an invoice.`,
+    params: [
+      {
+        name: 'invoice_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the invoice to attach the payment to.`,
+      },
+      {
+        name: 'expand',
+        type: 'array',
+        required: false,
+        description: `List of fields to expand in the response.`,
+      },
+      {
+        name: 'payment_intent',
+        type: 'string',
+        required: false,
+        description: `The ID of the PaymentIntent to attach to the invoice.`,
+      },
+    ],
+  },
+  {
     name: 'stripe_attach_payment_method_dahlia',
     description: `Attach a PaymentMethod to a Customer.`,
     params: [
@@ -74,6 +98,24 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'stripe_cancel_refund_dahlia',
+    description: `Cancels a refund that has a status of requires_action. Only refunds for payment methods that require customer action can enter that state; refunds in other states cannot be canceled.`,
+    params: [
+      {
+        name: 'refund_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the refund to cancel.`,
+      },
+      {
+        name: 'expand',
+        type: 'array',
+        required: false,
+        description: `List of fields to expand in the response.`,
+      },
+    ],
+  },
+  {
     name: 'stripe_cancel_setup_intent_dahlia',
     description: `Cancel a SetupIntent that has not been confirmed.`,
     params: [
@@ -118,6 +160,66 @@ export const tools: Tool[] = [
         type: 'boolean',
         required: false,
         description: `Will generate a proration invoice item that credits remaining unused time until the subscription period end.`,
+      },
+    ],
+  },
+  {
+    name: 'stripe_cancel_subscription_schedule',
+    description: `Cancels a subscription schedule and its associated subscription immediately (if the schedule has an active subscription). A subscription schedule can only be canceled if its status is 'not_started' or 'active'.`,
+    params: [
+      {
+        name: 'subscription_schedule_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the subscription schedule to cancel.`,
+      },
+      {
+        name: 'invoice_now',
+        type: 'boolean',
+        required: false,
+        description: `If the subscription schedule is active, indicates whether a final invoice will be generated for any un-invoiced metered usage and pending proration items. Defaults to true.`,
+      },
+      {
+        name: 'prorate',
+        type: 'boolean',
+        required: false,
+        description: `If the subscription schedule is active, indicates whether the cancellation should be prorated. Defaults to true.`,
+      },
+    ],
+  },
+  {
+    name: 'stripe_capture_charge_dahlia',
+    description: `Captures the payment of an existing, uncaptured charge that was created with capture set to false. Uncaptured charges expire (7 days by default) after which capture attempts fail.`,
+    params: [
+      {
+        name: 'charge_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the uncaptured charge to capture.`,
+      },
+      {
+        name: 'amount',
+        type: 'integer',
+        required: false,
+        description: `The amount to capture, which must be less than or equal to the original charge amount.`,
+      },
+      {
+        name: 'expand',
+        type: 'array',
+        required: false,
+        description: `List of fields to expand in the response.`,
+      },
+      {
+        name: 'receipt_email',
+        type: 'string',
+        required: false,
+        description: `The email address to send the receipt to, overriding any previously-specified email.`,
+      },
+      {
+        name: 'statement_descriptor',
+        type: 'string',
+        required: false,
+        description: `Text that appears on the customer's statement as the statement descriptor for a non-card charge.`,
       },
     ],
   },
@@ -178,6 +280,381 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `The URL to redirect to after the SetupIntent is confirmed.`,
+      },
+    ],
+  },
+  {
+    name: 'stripe_create_account_dahlia',
+    description: `Creates a new connected account for use with Stripe Connect. Platforms use this to onboard sellers, service providers, or other businesses to accept payments and receive payouts.`,
+    params: [
+      {
+        name: 'business_profile',
+        type: 'object',
+        required: false,
+        description: `Business information shown to customers, such as the business's URL and MCC.`,
+      },
+      {
+        name: 'business_type',
+        type: 'string',
+        required: false,
+        description: `The business type: individual, company, government_entity, or non_profit.`,
+      },
+      {
+        name: 'capabilities',
+        type: 'object',
+        required: false,
+        description: `Capabilities to request for the account, e.g. card_payments and transfers.`,
+      },
+      {
+        name: 'company',
+        type: 'object',
+        required: false,
+        description: `Information about the company, used when business_type is 'company'.`,
+      },
+      {
+        name: 'controller',
+        type: 'object',
+        required: false,
+        description: `Configuration describing who is responsible for pricing, fee collection, and dashboard access on this account.`,
+      },
+      {
+        name: 'country',
+        type: 'string',
+        required: false,
+        description: `Two-letter country code for the account holder's country.`,
+      },
+      {
+        name: 'default_currency',
+        type: 'string',
+        required: false,
+        description: `Three-letter ISO currency code representing the default currency for the account.`,
+      },
+      {
+        name: 'email',
+        type: 'string',
+        required: false,
+        description: `The email address of the account holder.`,
+      },
+      {
+        name: 'expand',
+        type: 'array',
+        required: false,
+        description: `List of fields to expand in the response.`,
+      },
+      {
+        name: 'individual',
+        type: 'object',
+        required: false,
+        description: `Information about the individual represented by the account, used when business_type is 'individual'.`,
+      },
+      {
+        name: 'metadata',
+        type: 'object',
+        required: false,
+        description: `Set of key-value pairs to attach to the account.`,
+      },
+      {
+        name: 'tos_acceptance',
+        type: 'object',
+        required: false,
+        description: `Details on the account's acceptance of the Stripe Services Agreement.`,
+      },
+    ],
+  },
+  {
+    name: 'stripe_create_account_external_account_dahlia',
+    description: `Adds an external account (a bank account or debit card) to a connected account for receiving payouts.`,
+    params: [
+      {
+        name: 'account',
+        type: 'string',
+        required: true,
+        description: `The ID of the connected account.`,
+      },
+      {
+        name: 'external_account',
+        type: 'string',
+        required: true,
+        description: `A token (from Stripe.js) representing the bank account or card to attach, or a dictionary of external account details.`,
+      },
+      {
+        name: 'default_for_currency',
+        type: 'boolean',
+        required: false,
+        description: `Whether this external account should become the default for its currency.`,
+      },
+      {
+        name: 'expand',
+        type: 'array',
+        required: false,
+        description: `List of fields to expand in the response.`,
+      },
+      {
+        name: 'metadata',
+        type: 'object',
+        required: false,
+        description: `Set of key-value pairs to attach to the external account.`,
+      },
+    ],
+  },
+  {
+    name: 'stripe_create_account_login_link_dahlia',
+    description: `Creates a single-use login link for a connected account that uses the Express Dashboard, letting the account holder access their dashboard without a separate Stripe login.`,
+    params: [
+      {
+        name: 'account',
+        type: 'string',
+        required: true,
+        description: `The ID of the Express-dashboard connected account.`,
+      },
+      {
+        name: 'expand',
+        type: 'array',
+        required: false,
+        description: `List of fields to expand in the response.`,
+      },
+    ],
+  },
+  {
+    name: 'stripe_create_account_person_dahlia',
+    description: `Creates a new person associated with a connected account's legal entity, such as an owner, director, executive, or representative.`,
+    params: [
+      {
+        name: 'account',
+        type: 'string',
+        required: true,
+        description: `The ID of the connected account.`,
+      },
+      { name: 'address', type: 'object', required: false, description: `The person's address.` },
+      { name: 'dob', type: 'object', required: false, description: `The person's date of birth.` },
+      {
+        name: 'email',
+        type: 'string',
+        required: false,
+        description: `The person's email address.`,
+      },
+      {
+        name: 'expand',
+        type: 'array',
+        required: false,
+        description: `List of fields to expand in the response.`,
+      },
+      {
+        name: 'first_name',
+        type: 'string',
+        required: false,
+        description: `The person's first name.`,
+      },
+      {
+        name: 'last_name',
+        type: 'string',
+        required: false,
+        description: `The person's last name.`,
+      },
+      {
+        name: 'metadata',
+        type: 'object',
+        required: false,
+        description: `Set of key-value pairs to attach to the person.`,
+      },
+      { name: 'phone', type: 'string', required: false, description: `The person's phone number.` },
+      {
+        name: 'relationship',
+        type: 'object',
+        required: false,
+        description: `The relationship that this person has with the account's legal entity (e.g. owner, director, representative).`,
+      },
+      {
+        name: 'ssn_last_4',
+        type: 'string',
+        required: false,
+        description: `The last four digits of the person's Social Security number (U.S. only).`,
+      },
+    ],
+  },
+  {
+    name: 'stripe_create_application_fee_refund',
+    description: `Refunds an application fee previously collected via Stripe Connect but not yet fully refunded. Funds are refunded to the Stripe account from which the fee was originally collected. Can be called multiple times to partially refund a fee until it is entirely refunded.`,
+    params: [
+      {
+        name: 'application_fee_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the application fee to refund.`,
+      },
+      {
+        name: 'amount',
+        type: 'integer',
+        required: false,
+        description: `A positive integer, in the smallest currency unit, representing how much of this fee to refund. Can refund only up to the remaining unrefunded amount of the fee. Omit to refund the full remaining amount.`,
+      },
+      {
+        name: 'metadata',
+        type: 'object',
+        required: false,
+        description: `Set of key-value pairs to attach to the fee refund.`,
+      },
+    ],
+  },
+  {
+    name: 'stripe_create_billing_meter',
+    description: `Creates a billing meter that defines how to aggregate usage events for usage-based billing prices.`,
+    params: [
+      {
+        name: 'default_aggregation',
+        type: 'object',
+        required: true,
+        description: `The default settings used to aggregate this meter's events.`,
+      },
+      {
+        name: 'display_name',
+        type: 'string',
+        required: true,
+        description: `The meter's name. Not visible to the customer. Max 250 characters.`,
+      },
+      {
+        name: 'event_name',
+        type: 'string',
+        required: true,
+        description: `The name of the meter event to record usage for. Corresponds with the event_name field on meter events. Max 100 characters.`,
+      },
+      {
+        name: 'customer_mapping',
+        type: 'object',
+        required: false,
+        description: `Fields that specify how to map a meter event to a customer.`,
+      },
+      {
+        name: 'event_time_window',
+        type: 'string',
+        required: false,
+        description: `The time window which meter events have been pre-aggregated for, if any.`,
+      },
+      {
+        name: 'value_settings',
+        type: 'object',
+        required: false,
+        description: `Fields that specify how to calculate a meter event's value.`,
+      },
+    ],
+  },
+  {
+    name: 'stripe_create_billing_meter_event',
+    description: `Submits a usage event (e.g. API calls, minutes used) against a billing meter to drive usage-based billing.`,
+    params: [
+      {
+        name: 'event_name',
+        type: 'string',
+        required: true,
+        description: `The name of the meter event. Must match the event_name configured on a billing meter. Max 100 characters.`,
+      },
+      {
+        name: 'payload',
+        type: 'object',
+        required: true,
+        description: `The payload of the event. Must contain the fields corresponding to the meter's customer_mapping.event_payload_key (default 'stripe_customer_id') and value_settings.event_payload_key (default 'value').`,
+      },
+      {
+        name: 'identifier',
+        type: 'string',
+        required: false,
+        description: `A unique identifier for the event. If not provided, one is generated. Stripe enforces uniqueness within a rolling period of at least 24 hours. Max 100 characters.`,
+      },
+      {
+        name: 'timestamp',
+        type: 'integer',
+        required: false,
+        description: `The time of the event, in Unix seconds. Must be within the past 35 calendar days or up to 5 minutes in the future. Defaults to the current time if not specified.`,
+      },
+    ],
+  },
+  {
+    name: 'stripe_create_billing_portal_configuration_dahlia',
+    description: `Creates a configuration that describes the functionality and behavior of the customer self-service billing portal, such as which features (subscription updates, cancellation, invoice history) are enabled.`,
+    params: [
+      {
+        name: 'features',
+        type: 'object',
+        required: true,
+        description: `Information about the features available in the portal, such as invoice_history, subscription_cancel, and payment_method_update.`,
+      },
+      {
+        name: 'business_profile',
+        type: 'object',
+        required: false,
+        description: `The business information shown to customers in the portal.`,
+      },
+      {
+        name: 'default_return_url',
+        type: 'string',
+        required: false,
+        description: `The default URL to redirect customers to when they click the portal's return-to-site link.`,
+      },
+      {
+        name: 'expand',
+        type: 'array',
+        required: false,
+        description: `List of fields to expand in the response.`,
+      },
+      {
+        name: 'metadata',
+        type: 'object',
+        required: false,
+        description: `Set of key-value pairs to attach to the configuration.`,
+      },
+    ],
+  },
+  {
+    name: 'stripe_create_charge_dahlia',
+    description: `Creates a direct charge against a card or other payment source. Stripe recommends using the Payment Intents API for new integrations; this legacy endpoint remains useful for simple, immediate card charges.`,
+    params: [
+      {
+        name: 'amount',
+        type: 'integer',
+        required: true,
+        description: `Amount to be collected, in the smallest currency unit (e.g. cents for USD).`,
+      },
+      {
+        name: 'currency',
+        type: 'string',
+        required: true,
+        description: `Three-letter ISO currency code for the charge.`,
+      },
+      {
+        name: 'capture',
+        type: 'boolean',
+        required: false,
+        description: `Whether to immediately capture the charge. Defaults to true; pass false to create an authorization only.`,
+      },
+      {
+        name: 'customer',
+        type: 'string',
+        required: false,
+        description: `The ID of an existing customer to charge.`,
+      },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `An arbitrary string attached to the charge, shown in the dashboard.`,
+      },
+      {
+        name: 'expand',
+        type: 'array',
+        required: false,
+        description: `List of fields to expand in the response.`,
+      },
+      {
+        name: 'metadata',
+        type: 'object',
+        required: false,
+        description: `Set of key-value pairs to attach to the charge.`,
+      },
+      {
+        name: 'receipt_email',
+        type: 'string',
+        required: false,
+        description: `The email address to which the receipt for this charge will be sent.`,
       },
     ],
   },
@@ -302,6 +779,114 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'stripe_create_credit_note',
+    description: `Issues a credit note to adjust the amount of a finalized invoice (e.g. to refund or credit a customer against that invoice). One of amount, lines, or shipping_cost must be provided.`,
+    params: [
+      {
+        name: 'invoice',
+        type: 'string',
+        required: true,
+        description: `The ID of the invoice to credit.`,
+      },
+      {
+        name: 'amount',
+        type: 'integer',
+        required: false,
+        description: `The integer amount in the smallest currency unit representing the total amount of the credit note. One of amount, lines, or shipping_cost must be provided.`,
+      },
+      {
+        name: 'credit_amount',
+        type: 'integer',
+        required: false,
+        description: `The integer amount in the smallest currency unit to credit to the customer's balance, automatically applied to their next invoice.`,
+      },
+      {
+        name: 'email_type',
+        type: 'string',
+        required: false,
+        description: `Type of email to send to the customer.`,
+      },
+      {
+        name: 'lines',
+        type: 'array',
+        required: false,
+        description: `Line items that make up the credit note. One of amount, lines, or shipping_cost must be provided.`,
+      },
+      {
+        name: 'memo',
+        type: 'string',
+        required: false,
+        description: `The credit note's memo, which appears on the credit note PDF.`,
+      },
+      {
+        name: 'metadata',
+        type: 'object',
+        required: false,
+        description: `Set of key-value pairs to attach to the credit note.`,
+      },
+      {
+        name: 'out_of_band_amount',
+        type: 'integer',
+        required: false,
+        description: `The integer amount in the smallest currency unit that is or will be credited outside of Stripe.`,
+      },
+      {
+        name: 'reason',
+        type: 'string',
+        required: false,
+        description: `Reason for issuing this credit note.`,
+      },
+      {
+        name: 'refund_amount',
+        type: 'integer',
+        required: false,
+        description: `The integer amount in the smallest currency unit to refund. If set, a refund is created for the charge associated with the invoice.`,
+      },
+    ],
+  },
+  {
+    name: 'stripe_create_customer_balance_transaction_dahlia',
+    description: `Creates an immutable transaction that adjusts a customer's credit balance, which is automatically applied to the customer's next invoices.`,
+    params: [
+      {
+        name: 'amount',
+        type: 'integer',
+        required: true,
+        description: `The signed integer amount, in the smallest currency unit, to apply to the customer's credit balance. A negative amount is a credit; a positive amount is a debit.`,
+      },
+      {
+        name: 'currency',
+        type: 'string',
+        required: true,
+        description: `Three-letter ISO currency code for the balance transaction.`,
+      },
+      {
+        name: 'customer_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the customer whose balance to adjust.`,
+      },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `An arbitrary string attached to the object, useful for displaying to users.`,
+      },
+      {
+        name: 'expand',
+        type: 'array',
+        required: false,
+        description: `List of fields to expand in the response.`,
+      },
+      {
+        name: 'metadata',
+        type: 'object',
+        required: false,
+        description: `Set of key-value pairs to attach to the balance transaction.`,
+      },
+    ],
+  },
+  {
     name: 'stripe_create_customer_dahlia',
     description: `Creates a new customer object. Use this to store a customer's payment and billing details. The customer object allows you to perform recurring charges and track multiple charges associated with the same customer.`,
     params: [
@@ -394,6 +979,31 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `The default URL to redirect customers to when they click on the portal's link to return to your website`,
+      },
+    ],
+  },
+  {
+    name: 'stripe_create_customer_tax_id_dahlia',
+    description: `Creates a new tax ID (such as a VAT or GST number) for a customer, for use on invoices and tax reporting.`,
+    params: [
+      {
+        name: 'customer_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the customer to add the tax ID to.`,
+      },
+      {
+        name: 'type',
+        type: 'string',
+        required: true,
+        description: `The type of tax ID, e.g. eu_vat, us_ein, gb_vat.`,
+      },
+      { name: 'value', type: 'string', required: true, description: `The value of the tax ID.` },
+      {
+        name: 'expand',
+        type: 'array',
+        required: false,
+        description: `List of fields to expand in the response.`,
       },
     ],
   },
@@ -514,6 +1124,54 @@ export const tools: Tool[] = [
         type: 'integer',
         required: false,
         description: `Non-negative integer quantity of units for this invoice item.`,
+      },
+    ],
+  },
+  {
+    name: 'stripe_create_invoice_preview_dahlia',
+    description: `Previews the upcoming invoice for a customer or subscription without creating it, showing pending charges, renewal amounts, invoice item charges, and any applicable discounts or prorations.`,
+    params: [
+      {
+        name: 'currency',
+        type: 'string',
+        required: false,
+        description: `The currency to preview this invoice in. Defaults to the customer's currency if not specified.`,
+      },
+      {
+        name: 'customer',
+        type: 'string',
+        required: false,
+        description: `The ID of the customer whose upcoming invoice you're previewing.`,
+      },
+      {
+        name: 'expand',
+        type: 'array',
+        required: false,
+        description: `List of fields to expand in the response.`,
+      },
+      {
+        name: 'invoice_items',
+        type: 'array',
+        required: false,
+        description: `List of ad-hoc invoice items to add to the preview (up to 250).`,
+      },
+      {
+        name: 'preview_mode',
+        type: 'string',
+        required: false,
+        description: `Whether to preview only the next invoice, or a full recurring schedule. Defaults to 'next'.`,
+      },
+      {
+        name: 'subscription',
+        type: 'string',
+        required: false,
+        description: `The ID of the subscription to preview, e.g. to preview the effect of a plan change.`,
+      },
+      {
+        name: 'subscription_details',
+        type: 'object',
+        required: false,
+        description: `Overrides used to preview a subscription update, such as new items or a proration date.`,
       },
     ],
   },
@@ -1130,6 +1788,60 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'stripe_create_subscription_schedule',
+    description: `Creates a subscription schedule that predefines future phases/changes to a subscription (upgrades, downgrades, trial-to-paid transitions) on a fixed timeline. Provide either 'customer' with 'phases', or 'from_subscription' to migrate an existing subscription onto a schedule.`,
+    params: [
+      {
+        name: 'customer',
+        type: 'string',
+        required: false,
+        description: `The identifier of the customer to create the subscription schedule for. Required unless from_subscription is set.`,
+      },
+      {
+        name: 'default_settings',
+        type: 'object',
+        required: false,
+        description: `Default settings for the subscription schedule, applied to phases that don't override them (e.g. default_payment_method, collection_method, application_fee_percent).`,
+      },
+      {
+        name: 'end_behavior',
+        type: 'string',
+        required: false,
+        description: `Behavior when the schedule ends: 'release' (default, keeps the underlying subscription running as-is) or 'cancel' (cancels the underlying subscription).`,
+      },
+      {
+        name: 'expand',
+        type: 'array',
+        required: false,
+        description: `List of fields to expand in the response.`,
+      },
+      {
+        name: 'from_subscription',
+        type: 'string',
+        required: false,
+        description: `Migrate an existing subscription to be managed by a subscription schedule, using the subscription's item(s), set to auto-renew using the subscription's interval. When set, phase values cannot also be set.`,
+      },
+      {
+        name: 'metadata',
+        type: 'object',
+        required: false,
+        description: `Set of key-value pairs to attach to the subscription schedule.`,
+      },
+      {
+        name: 'phases',
+        type: 'array',
+        required: false,
+        description: `List of phases for the subscription schedule. Each phase can have different prices/quantities and duration. The end_date of one phase equals the start_date of the next.`,
+      },
+      {
+        name: 'start_date',
+        type: 'string',
+        required: false,
+        description: `When the subscription schedule starts. Use 'now' to start immediately, or a Unix timestamp to backdate/postdate the start.`,
+      },
+    ],
+  },
+  {
     name: 'stripe_create_tax_rate_dahlia',
     description: `Create a tax rate that can be applied to invoices and subscriptions.`,
     params: [
@@ -1220,6 +1932,48 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'stripe_create_transfer_reversal_dahlia',
+    description: `Reverses a transfer, in full or in part. Multiple partial reversals are allowed until the entire transfer amount has been reversed. A fully-reversed transfer cannot be reversed again.`,
+    params: [
+      {
+        name: 'transfer_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the transfer to reverse.`,
+      },
+      {
+        name: 'amount',
+        type: 'integer',
+        required: false,
+        description: `The amount in the smallest currency unit to reverse. Omit to reverse the entire remaining transfer amount.`,
+      },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `An arbitrary string attached to the reversal object.`,
+      },
+      {
+        name: 'expand',
+        type: 'array',
+        required: false,
+        description: `List of fields to expand in the response.`,
+      },
+      {
+        name: 'metadata',
+        type: 'object',
+        required: false,
+        description: `Set of key-value pairs to attach to the reversal.`,
+      },
+      {
+        name: 'refund_application_fee',
+        type: 'boolean',
+        required: false,
+        description: `Whether the application fee should be refunded when reversing this transfer.`,
+      },
+    ],
+  },
+  {
     name: 'stripe_create_webhook_endpoint_dahlia',
     description: `Create a webhook endpoint to receive Stripe event notifications at your HTTPS URL. Supports subscribing to any number of event types (or use * to receive all events).`,
     params: [
@@ -1240,6 +1994,54 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `An optional description of the webhook endpoint.`,
+      },
+    ],
+  },
+  {
+    name: 'stripe_delete_account_dahlia',
+    description: `Deletes a connected account you manage. Test-mode accounts can be deleted at any time; live-mode accounts can only be deleted once all balances are zero and the account does not use the standard Stripe dashboard.`,
+    params: [
+      {
+        name: 'account',
+        type: 'string',
+        required: true,
+        description: `The ID of the connected account to delete.`,
+      },
+    ],
+  },
+  {
+    name: 'stripe_delete_account_external_account_dahlia',
+    description: `Deletes a specified external account (bank account or card) from a connected account.`,
+    params: [
+      {
+        name: 'account',
+        type: 'string',
+        required: true,
+        description: `The ID of the connected account.`,
+      },
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `Unique identifier for the external account to delete.`,
+      },
+    ],
+  },
+  {
+    name: 'stripe_delete_account_person_dahlia',
+    description: `Deletes an existing person's relationship to a connected account's legal entity. The representative cannot be deleted through this endpoint.`,
+    params: [
+      {
+        name: 'account',
+        type: 'string',
+        required: true,
+        description: `The ID of the connected account.`,
+      },
+      {
+        name: 'person',
+        type: 'string',
+        required: true,
+        description: `The ID of the person to delete.`,
       },
     ],
   },
@@ -1268,6 +2070,48 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'stripe_delete_customer_discount_dahlia',
+    description: `Removes the currently applied discount (coupon) from a customer.`,
+    params: [
+      {
+        name: 'customer_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the customer to remove the discount from.`,
+      },
+    ],
+  },
+  {
+    name: 'stripe_delete_customer_tax_id_dahlia',
+    description: `Deletes an existing tax ID object from a customer.`,
+    params: [
+      {
+        name: 'customer_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the customer the tax ID belongs to.`,
+      },
+      {
+        name: 'tax_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the tax ID object to delete.`,
+      },
+    ],
+  },
+  {
+    name: 'stripe_delete_invoice_dahlia',
+    description: `Permanently deletes a one-off invoice that is still in draft status. This cannot be undone. Finalized invoices, or invoices tied to a subscription, must be voided instead.`,
+    params: [
+      {
+        name: 'invoice_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the draft invoice to delete.`,
+      },
+    ],
+  },
+  {
     name: 'stripe_delete_invoice_item_dahlia',
     description: `Delete an invoice item. Can only delete items that have not been finalized in an invoice.`,
     params: [
@@ -1288,6 +2132,30 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `The ID of the plan to delete.`,
+      },
+    ],
+  },
+  {
+    name: 'stripe_delete_product_dahlia',
+    description: `Deletes a product. This is only possible if the product has no prices associated with it.`,
+    params: [
+      {
+        name: 'product_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the product to delete.`,
+      },
+    ],
+  },
+  {
+    name: 'stripe_delete_subscription_discount_dahlia',
+    description: `Removes the currently applied discount (coupon) from a subscription.`,
+    params: [
+      {
+        name: 'subscription_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the subscription to remove the discount from.`,
       },
     ],
   },
@@ -1387,6 +2255,30 @@ export const tools: Tool[] = [
     params: [],
   },
   {
+    name: 'stripe_get_account_person_dahlia',
+    description: `Retrieves an existing person associated with a connected account's legal entity.`,
+    params: [
+      {
+        name: 'account',
+        type: 'string',
+        required: true,
+        description: `The ID of the connected account.`,
+      },
+      {
+        name: 'person',
+        type: 'string',
+        required: true,
+        description: `The ID of the person to retrieve.`,
+      },
+      {
+        name: 'expand',
+        type: 'array',
+        required: false,
+        description: `List of fields to expand in the response.`,
+      },
+    ],
+  },
+  {
     name: 'stripe_get_balance_dahlia',
     description: `Retrieve the current balance of the Stripe account, showing available and pending amounts by currency.`,
     params: [],
@@ -1434,6 +2326,60 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'stripe_get_checkout_session_line_items_dahlia',
+    description: `Retrieves the full, paginated list of line items for a Checkout Session.`,
+    params: [
+      {
+        name: 'session_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Checkout Session.`,
+      },
+      {
+        name: 'ending_before',
+        type: 'string',
+        required: false,
+        description: `Line item ID to end pagination before.`,
+      },
+      {
+        name: 'expand',
+        type: 'array',
+        required: false,
+        description: `List of fields to expand in the response.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Number of line items to return (1-100, default 10).`,
+      },
+      {
+        name: 'starting_after',
+        type: 'string',
+        required: false,
+        description: `Line item ID to start pagination after.`,
+      },
+    ],
+  },
+  {
+    name: 'stripe_get_connected_account_dahlia',
+    description: `Retrieves the details of a connected account by ID. Use this to check onboarding status, requirements, and capabilities for a specific Connect account, as opposed to the platform's own account.`,
+    params: [
+      {
+        name: 'account',
+        type: 'string',
+        required: true,
+        description: `The ID of the connected account to retrieve.`,
+      },
+      {
+        name: 'expand',
+        type: 'array',
+        required: false,
+        description: `List of fields to expand in the response.`,
+      },
+    ],
+  },
+  {
     name: 'stripe_get_coupon_dahlia',
     description: `Retrieve a coupon by its ID.`,
     params: [
@@ -1454,6 +2400,54 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `The ID of the customer to retrieve`,
+      },
+      {
+        name: 'expand',
+        type: 'array',
+        required: false,
+        description: `List of fields to expand in the response.`,
+      },
+    ],
+  },
+  {
+    name: 'stripe_get_customer_payment_method_dahlia',
+    description: `Retrieves a specific PaymentMethod that is attached to a given customer.`,
+    params: [
+      {
+        name: 'customer_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the customer the payment method is attached to.`,
+      },
+      {
+        name: 'payment_method_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the payment method to retrieve.`,
+      },
+      {
+        name: 'expand',
+        type: 'array',
+        required: false,
+        description: `List of fields to expand in the response.`,
+      },
+    ],
+  },
+  {
+    name: 'stripe_get_customer_tax_id_dahlia',
+    description: `Retrieves the tax ID object with the given identifier for a customer.`,
+    params: [
+      {
+        name: 'customer_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the customer the tax ID belongs to.`,
+      },
+      {
+        name: 'tax_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the tax ID object to retrieve.`,
       },
       {
         name: 'expand',
@@ -1698,6 +2692,24 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'stripe_get_subscription_schedule',
+    description: `Retrieves the subscription schedule with the given ID.`,
+    params: [
+      {
+        name: 'subscription_schedule_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the subscription schedule to retrieve.`,
+      },
+      {
+        name: 'expand',
+        type: 'array',
+        required: false,
+        description: `List of fields to expand in the response.`,
+      },
+    ],
+  },
+  {
     name: 'stripe_get_tax_rate_dahlia',
     description: `Retrieve a tax rate by ID.`,
     params: [
@@ -1722,6 +2734,30 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'stripe_get_transfer_reversal_dahlia',
+    description: `Retrieves the details of a specific reversal stored on a transfer. By default only the 10 most recent reversals are stored directly on the transfer object; use this to retrieve any reversal by ID.`,
+    params: [
+      {
+        name: 'reversal_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the reversal to retrieve.`,
+      },
+      {
+        name: 'transfer_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the transfer the reversal belongs to.`,
+      },
+      {
+        name: 'expand',
+        type: 'array',
+        required: false,
+        description: `List of fields to expand in the response.`,
+      },
+    ],
+  },
+  {
     name: 'stripe_get_webhook_endpoint_dahlia',
     description: `Retrieve a webhook endpoint by ID.`,
     params: [
@@ -1730,6 +2766,108 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `The ID of the webhook endpoint to retrieve.`,
+      },
+    ],
+  },
+  {
+    name: 'stripe_list_account_capabilities_dahlia',
+    description: `Returns a list of capabilities (such as card_payments or transfers) associated with a connected account, along with each capability's current status.`,
+    params: [
+      {
+        name: 'account',
+        type: 'string',
+        required: true,
+        description: `The ID of the connected account.`,
+      },
+      {
+        name: 'expand',
+        type: 'array',
+        required: false,
+        description: `List of fields to expand in the response.`,
+      },
+    ],
+  },
+  {
+    name: 'stripe_list_account_external_accounts_dahlia',
+    description: `Lists the external accounts (bank accounts and cards) attached to a connected account for receiving payouts.`,
+    params: [
+      {
+        name: 'account',
+        type: 'string',
+        required: true,
+        description: `The ID of the connected account.`,
+      },
+      {
+        name: 'ending_before',
+        type: 'string',
+        required: false,
+        description: `External account ID to end pagination before.`,
+      },
+      {
+        name: 'expand',
+        type: 'array',
+        required: false,
+        description: `List of fields to expand in the response.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Number of external accounts to return (1-100, default 10).`,
+      },
+      {
+        name: 'object',
+        type: 'string',
+        required: false,
+        description: `Filter external accounts by object type.`,
+      },
+      {
+        name: 'starting_after',
+        type: 'string',
+        required: false,
+        description: `External account ID to start pagination after.`,
+      },
+    ],
+  },
+  {
+    name: 'stripe_list_account_persons_dahlia',
+    description: `Returns a list of people associated with a connected account's legal entity, sorted by creation date with the most recent first.`,
+    params: [
+      {
+        name: 'account',
+        type: 'string',
+        required: true,
+        description: `The ID of the connected account.`,
+      },
+      {
+        name: 'ending_before',
+        type: 'string',
+        required: false,
+        description: `Person ID to end pagination before.`,
+      },
+      {
+        name: 'expand',
+        type: 'array',
+        required: false,
+        description: `List of fields to expand in the response.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Number of persons to return (1-100, default 10).`,
+      },
+      {
+        name: 'relationship',
+        type: 'object',
+        required: false,
+        description: `Filter people by their relationship to the account's company (e.g. representative, owner, director, executive).`,
+      },
+      {
+        name: 'starting_after',
+        type: 'string',
+        required: false,
+        description: `Person ID to start pagination after.`,
       },
     ],
   },
@@ -1754,6 +2892,72 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Cursor for pagination: return results after this account ID.`,
+      },
+    ],
+  },
+  {
+    name: 'stripe_list_application_fees',
+    description: `Returns a list of application fees previously collected on charges made for connected accounts via Stripe Connect, most recent first.`,
+    params: [
+      {
+        name: 'charge',
+        type: 'string',
+        required: false,
+        description: `Only return application fees for the charge specified by this charge ID.`,
+      },
+      {
+        name: 'created',
+        type: 'integer',
+        required: false,
+        description: `Filter by exact creation timestamp (Unix seconds). For a range filter, use created_gt/created_gte/created_lt/created_lte instead.`,
+      },
+      {
+        name: 'created_gt',
+        type: 'integer',
+        required: false,
+        description: `Filter by creation date, strictly after this Unix timestamp.`,
+      },
+      {
+        name: 'created_gte',
+        type: 'integer',
+        required: false,
+        description: `Filter by creation date, at or after this Unix timestamp.`,
+      },
+      {
+        name: 'created_lt',
+        type: 'integer',
+        required: false,
+        description: `Filter by creation date, strictly before this Unix timestamp.`,
+      },
+      {
+        name: 'created_lte',
+        type: 'integer',
+        required: false,
+        description: `Filter by creation date, at or before this Unix timestamp.`,
+      },
+      {
+        name: 'ending_before',
+        type: 'string',
+        required: false,
+        description: `Application fee ID to end pagination before.`,
+      },
+      {
+        name: 'expand',
+        type: 'array',
+        required: false,
+        description: `List of fields to expand in the response.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Number of application fees to return (1-100, default 10).`,
+      },
+      {
+        name: 'starting_after',
+        type: 'string',
+        required: false,
+        description: `Application fee ID to start pagination after.`,
       },
     ],
   },
@@ -1792,6 +2996,48 @@ export const tools: Tool[] = [
         description: `Balance transaction ID to start pagination after.`,
       },
       { name: 'type', type: 'string', required: false, description: `Filter by transaction type.` },
+    ],
+  },
+  {
+    name: 'stripe_list_billing_portal_configurations_dahlia',
+    description: `Returns a list of configurations that describe the functionality of the customer self-service billing portal.`,
+    params: [
+      {
+        name: 'active',
+        type: 'boolean',
+        required: false,
+        description: `Only return configurations that are active (true) or inactive (false).`,
+      },
+      {
+        name: 'ending_before',
+        type: 'string',
+        required: false,
+        description: `Configuration ID to end pagination before.`,
+      },
+      {
+        name: 'expand',
+        type: 'array',
+        required: false,
+        description: `List of fields to expand in the response.`,
+      },
+      {
+        name: 'is_default',
+        type: 'boolean',
+        required: false,
+        description: `Only return the default (true) or non-default (false) configuration.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Number of configurations to return (1-100, default 10).`,
+      },
+      {
+        name: 'starting_after',
+        type: 'string',
+        required: false,
+        description: `Configuration ID to start pagination after.`,
+      },
     ],
   },
   {
@@ -1927,6 +3173,114 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'stripe_list_credit_notes',
+    description: `Returns a list of credit notes, with the most recent appearing first.`,
+    params: [
+      {
+        name: 'created',
+        type: 'integer',
+        required: false,
+        description: `Filter by exact creation timestamp (Unix seconds). For a range filter, use created_gt/created_gte/created_lt/created_lte instead.`,
+      },
+      {
+        name: 'created_gt',
+        type: 'integer',
+        required: false,
+        description: `Filter by creation date, strictly after this Unix timestamp.`,
+      },
+      {
+        name: 'created_gte',
+        type: 'integer',
+        required: false,
+        description: `Filter by creation date, at or after this Unix timestamp.`,
+      },
+      {
+        name: 'created_lt',
+        type: 'integer',
+        required: false,
+        description: `Filter by creation date, strictly before this Unix timestamp.`,
+      },
+      {
+        name: 'created_lte',
+        type: 'integer',
+        required: false,
+        description: `Filter by creation date, at or before this Unix timestamp.`,
+      },
+      {
+        name: 'customer',
+        type: 'string',
+        required: false,
+        description: `Only return credit notes for the customer specified by this customer ID.`,
+      },
+      {
+        name: 'ending_before',
+        type: 'string',
+        required: false,
+        description: `Credit note ID to end pagination before.`,
+      },
+      {
+        name: 'expand',
+        type: 'array',
+        required: false,
+        description: `List of fields to expand in the response.`,
+      },
+      {
+        name: 'invoice',
+        type: 'string',
+        required: false,
+        description: `Only return credit notes for the invoice specified by this invoice ID.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Number of credit notes to return (1-100, default 10).`,
+      },
+      {
+        name: 'starting_after',
+        type: 'string',
+        required: false,
+        description: `Credit note ID to start pagination after.`,
+      },
+    ],
+  },
+  {
+    name: 'stripe_list_customer_balance_transactions_dahlia',
+    description: `Returns a list of transactions that have updated a customer's credit balance.`,
+    params: [
+      {
+        name: 'customer_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the customer whose balance transactions you want to list.`,
+      },
+      {
+        name: 'ending_before',
+        type: 'string',
+        required: false,
+        description: `Balance transaction ID to end pagination before.`,
+      },
+      {
+        name: 'expand',
+        type: 'array',
+        required: false,
+        description: `List of fields to expand in the response.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Number of balance transactions to return (1-100, default 10).`,
+      },
+      {
+        name: 'starting_after',
+        type: 'string',
+        required: false,
+        description: `Balance transaction ID to start pagination after.`,
+      },
+    ],
+  },
+  {
     name: 'stripe_list_customer_payment_methods_dahlia',
     description: `List all PaymentMethods attached to a specific customer.`,
     params: [
@@ -1959,6 +3313,42 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Filter payment methods by type.`,
+      },
+    ],
+  },
+  {
+    name: 'stripe_list_customer_tax_ids_dahlia',
+    description: `Returns a list of tax IDs registered for a customer.`,
+    params: [
+      {
+        name: 'customer_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the customer whose tax IDs you want to list.`,
+      },
+      {
+        name: 'ending_before',
+        type: 'string',
+        required: false,
+        description: `Tax ID to end pagination before.`,
+      },
+      {
+        name: 'expand',
+        type: 'array',
+        required: false,
+        description: `List of fields to expand in the response.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Number of tax IDs to return (1-100, default 10).`,
+      },
+      {
+        name: 'starting_after',
+        type: 'string',
+        required: false,
+        description: `Tax ID to start pagination after.`,
       },
     ],
   },
@@ -2761,6 +4151,78 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'stripe_list_subscription_schedules',
+    description: `Retrieves the list of your subscription schedules, sorted by creation date with the most recent first.`,
+    params: [
+      {
+        name: 'created',
+        type: 'integer',
+        required: false,
+        description: `Filter by exact creation timestamp (Unix seconds). For a range filter, use created_gt/created_gte/created_lt/created_lte instead.`,
+      },
+      {
+        name: 'created_gt',
+        type: 'integer',
+        required: false,
+        description: `Filter by creation date, strictly after this Unix timestamp.`,
+      },
+      {
+        name: 'created_gte',
+        type: 'integer',
+        required: false,
+        description: `Filter by creation date, at or after this Unix timestamp.`,
+      },
+      {
+        name: 'created_lt',
+        type: 'integer',
+        required: false,
+        description: `Filter by creation date, strictly before this Unix timestamp.`,
+      },
+      {
+        name: 'created_lte',
+        type: 'integer',
+        required: false,
+        description: `Filter by creation date, at or before this Unix timestamp.`,
+      },
+      {
+        name: 'customer',
+        type: 'string',
+        required: false,
+        description: `Only return subscription schedules for the given customer.`,
+      },
+      {
+        name: 'ending_before',
+        type: 'string',
+        required: false,
+        description: `Subscription schedule ID to end pagination before.`,
+      },
+      {
+        name: 'expand',
+        type: 'array',
+        required: false,
+        description: `List of fields to expand in the response.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Number of subscription schedules to return (1-100, default 10).`,
+      },
+      {
+        name: 'scheduled',
+        type: 'boolean',
+        required: false,
+        description: `Only return subscription schedules that have not started yet.`,
+      },
+      {
+        name: 'starting_after',
+        type: 'string',
+        required: false,
+        description: `Subscription schedule ID to start pagination after.`,
+      },
+    ],
+  },
+  {
     name: 'stripe_list_subscriptions_dahlia',
     description: `Returns a list of your subscriptions. The subscriptions are returned sorted by creation date, with the most recent subscriptions appearing first.`,
     params: [
@@ -2875,6 +4337,42 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'stripe_list_transfer_reversals_dahlia',
+    description: `Lists the reversals belonging to a specific transfer. The 10 most recent reversals are always available directly on the transfer object; use this to page through additional ones.`,
+    params: [
+      {
+        name: 'transfer_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the transfer whose reversals you want to list.`,
+      },
+      {
+        name: 'ending_before',
+        type: 'string',
+        required: false,
+        description: `Reversal ID to end pagination before.`,
+      },
+      {
+        name: 'expand',
+        type: 'array',
+        required: false,
+        description: `List of fields to expand in the response.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Number of reversals to return (1-100, default 10).`,
+      },
+      {
+        name: 'starting_after',
+        type: 'string',
+        required: false,
+        description: `Reversal ID to start pagination after.`,
+      },
+    ],
+  },
+  {
     name: 'stripe_list_transfers_dahlia',
     description: `List all transfers to connected accounts.`,
     params: [
@@ -2929,6 +4427,24 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'stripe_mark_invoice_uncollectible_dahlia',
+    description: `Marks an invoice as uncollectible, which is useful for tracking bad debt that will be written off for accounting purposes.`,
+    params: [
+      {
+        name: 'invoice_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the invoice to mark as uncollectible.`,
+      },
+      {
+        name: 'expand',
+        type: 'array',
+        required: false,
+        description: `List of fields to expand in the response.`,
+      },
+    ],
+  },
+  {
     name: 'stripe_pay_invoice_dahlia',
     description: `Stripe automatically creates and then attempts to collect payment on invoices for customers on subscriptions according to your subscriptions settings. However, if you'd like to attempt payment on an invoice out of the normal collection schedule or for some other reason, you use this endpoint.`,
     params: [
@@ -2949,6 +4465,464 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `ID of the payment method to use for this invoice payment.`,
+      },
+    ],
+  },
+  {
+    name: 'stripe_resume_subscription_dahlia',
+    description: `Initiates resumption of a paused subscription, optionally resetting the billing cycle anchor and creating prorations. Only available for subscriptions using the charge_automatically collection method.`,
+    params: [
+      {
+        name: 'subscription_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the paused subscription to resume.`,
+      },
+      {
+        name: 'billing_cycle_anchor',
+        type: 'string',
+        required: false,
+        description: `The billing cycle anchor to apply when resuming: 'now' or 'unchanged'. Defaults to 'now'.`,
+      },
+      {
+        name: 'expand',
+        type: 'array',
+        required: false,
+        description: `List of fields to expand in the response.`,
+      },
+      {
+        name: 'proration_behavior',
+        type: 'string',
+        required: false,
+        description: `How to handle prorations resulting from the billing_cycle_anchor being 'unchanged'.`,
+      },
+    ],
+  },
+  {
+    name: 'stripe_reverse_payout_dahlia',
+    description: `Reverses a payout by debiting the destination bank account. Only available for payouts to US and Canadian bank accounts. For a pending manual payout, cancel it instead of reversing it.`,
+    params: [
+      {
+        name: 'payout_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the payout to reverse.`,
+      },
+      {
+        name: 'expand',
+        type: 'array',
+        required: false,
+        description: `List of fields to expand in the response.`,
+      },
+      {
+        name: 'metadata',
+        type: 'object',
+        required: false,
+        description: `Set of key-value pairs to attach to the reversal.`,
+      },
+    ],
+  },
+  {
+    name: 'stripe_search_charges_dahlia',
+    description: `Search for charges using Stripe's Search Query Language. Data is typically searchable within a minute of being written; do not use this in read-after-write flows requiring strict consistency.`,
+    params: [
+      {
+        name: 'query',
+        type: 'string',
+        required: true,
+        description: `The search query string using Stripe's Search Query Language.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Number of results to return (1-100, default 10).`,
+      },
+      {
+        name: 'page',
+        type: 'string',
+        required: false,
+        description: `Cursor for pagination across multiple pages of search results.`,
+      },
+    ],
+  },
+  {
+    name: 'stripe_search_customers_dahlia',
+    description: `Search for customers using Stripe's Search Query Language. Data is typically searchable within a minute of being written; do not use this in read-after-write flows requiring strict consistency.`,
+    params: [
+      {
+        name: 'query',
+        type: 'string',
+        required: true,
+        description: `The search query string using Stripe's Search Query Language.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Number of results to return (1-100, default 10).`,
+      },
+      {
+        name: 'page',
+        type: 'string',
+        required: false,
+        description: `Cursor for pagination across multiple pages of search results.`,
+      },
+    ],
+  },
+  {
+    name: 'stripe_search_invoices_dahlia',
+    description: `Search for invoices using Stripe's Search Query Language. Data is typically searchable within a minute of being written; do not use this in read-after-write flows requiring strict consistency.`,
+    params: [
+      {
+        name: 'query',
+        type: 'string',
+        required: true,
+        description: `The search query string using Stripe's Search Query Language.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Number of results to return (1-100, default 10).`,
+      },
+      {
+        name: 'page',
+        type: 'string',
+        required: false,
+        description: `Cursor for pagination across multiple pages of search results.`,
+      },
+    ],
+  },
+  {
+    name: 'stripe_search_payment_intents_dahlia',
+    description: `Search for payment intents using Stripe's Search Query Language. Data is typically searchable within a minute of being written; do not use this in read-after-write flows requiring strict consistency.`,
+    params: [
+      {
+        name: 'query',
+        type: 'string',
+        required: true,
+        description: `The search query string using Stripe's Search Query Language.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Number of results to return (1-100, default 10).`,
+      },
+      {
+        name: 'page',
+        type: 'string',
+        required: false,
+        description: `Cursor for pagination across multiple pages of search results.`,
+      },
+    ],
+  },
+  {
+    name: 'stripe_search_prices_dahlia',
+    description: `Search for prices using Stripe's Search Query Language. Data is typically searchable within a minute of being written; do not use this in read-after-write flows requiring strict consistency.`,
+    params: [
+      {
+        name: 'query',
+        type: 'string',
+        required: true,
+        description: `The search query string using Stripe's Search Query Language.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Number of results to return (1-100, default 10).`,
+      },
+      {
+        name: 'page',
+        type: 'string',
+        required: false,
+        description: `Cursor for pagination across multiple pages of search results.`,
+      },
+    ],
+  },
+  {
+    name: 'stripe_search_products_dahlia',
+    description: `Search for products using Stripe's Search Query Language. Data is typically searchable within a minute of being written; do not use this in read-after-write flows requiring strict consistency.`,
+    params: [
+      {
+        name: 'query',
+        type: 'string',
+        required: true,
+        description: `The search query string using Stripe's Search Query Language.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Number of results to return (1-100, default 10).`,
+      },
+      {
+        name: 'page',
+        type: 'string',
+        required: false,
+        description: `Cursor for pagination across multiple pages of search results.`,
+      },
+    ],
+  },
+  {
+    name: 'stripe_search_subscriptions_dahlia',
+    description: `Search for subscriptions using Stripe's Search Query Language. Data is typically searchable within a minute of being written; do not use this in read-after-write flows requiring strict consistency.`,
+    params: [
+      {
+        name: 'query',
+        type: 'string',
+        required: true,
+        description: `The search query string using Stripe's Search Query Language.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Number of results to return (1-100, default 10).`,
+      },
+      {
+        name: 'page',
+        type: 'string',
+        required: false,
+        description: `Cursor for pagination across multiple pages of search results.`,
+      },
+    ],
+  },
+  {
+    name: 'stripe_send_invoice_dahlia',
+    description: `Manually sends an invoice to the customer's email out of the normal automatic billing schedule. In test mode, no email is actually sent even though an invoice.sent event fires.`,
+    params: [
+      {
+        name: 'invoice_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the finalized invoice to send.`,
+      },
+      {
+        name: 'expand',
+        type: 'array',
+        required: false,
+        description: `List of fields to expand in the response.`,
+      },
+    ],
+  },
+  {
+    name: 'stripe_update_account_capability_dahlia',
+    description: `Updates an existing account capability by requesting it or removing a previous request. Request or remove a capability by updating its 'requested' parameter.`,
+    params: [
+      {
+        name: 'account',
+        type: 'string',
+        required: true,
+        description: `The ID of the connected account.`,
+      },
+      {
+        name: 'capability',
+        type: 'string',
+        required: true,
+        description: `The capability identifier, e.g. card_payments or transfers.`,
+      },
+      {
+        name: 'expand',
+        type: 'array',
+        required: false,
+        description: `List of fields to expand in the response.`,
+      },
+      {
+        name: 'requested',
+        type: 'boolean',
+        required: false,
+        description: `Whether to request the capability. Pass true to request it; pass false to remove a previous request.`,
+      },
+    ],
+  },
+  {
+    name: 'stripe_update_account_dahlia',
+    description: `Updates a connected account by setting the values of the parameters passed. Any parameters not provided are left unchanged.`,
+    params: [
+      {
+        name: 'account',
+        type: 'string',
+        required: true,
+        description: `The ID of the connected account to update.`,
+      },
+      {
+        name: 'business_profile',
+        type: 'object',
+        required: false,
+        description: `Business information shown to customers, such as the business's URL and MCC.`,
+      },
+      {
+        name: 'company',
+        type: 'object',
+        required: false,
+        description: `Information about the company, used when business_type is 'company'.`,
+      },
+      {
+        name: 'default_currency',
+        type: 'string',
+        required: false,
+        description: `Three-letter ISO currency code representing the default currency for the account.`,
+      },
+      {
+        name: 'email',
+        type: 'string',
+        required: false,
+        description: `The email address of the account holder.`,
+      },
+      {
+        name: 'expand',
+        type: 'array',
+        required: false,
+        description: `List of fields to expand in the response.`,
+      },
+      {
+        name: 'individual',
+        type: 'object',
+        required: false,
+        description: `Information about the individual represented by the account.`,
+      },
+      {
+        name: 'metadata',
+        type: 'object',
+        required: false,
+        description: `Set of key-value pairs to attach to the account.`,
+      },
+      {
+        name: 'tos_acceptance',
+        type: 'object',
+        required: false,
+        description: `Details on the account's acceptance of the Stripe Services Agreement.`,
+      },
+    ],
+  },
+  {
+    name: 'stripe_update_account_person_dahlia',
+    description: `Updates an existing person associated with a connected account's legal entity.`,
+    params: [
+      {
+        name: 'account',
+        type: 'string',
+        required: true,
+        description: `The ID of the connected account.`,
+      },
+      {
+        name: 'person',
+        type: 'string',
+        required: true,
+        description: `The ID of the person to update.`,
+      },
+      { name: 'address', type: 'object', required: false, description: `The person's address.` },
+      {
+        name: 'email',
+        type: 'string',
+        required: false,
+        description: `The person's email address.`,
+      },
+      {
+        name: 'expand',
+        type: 'array',
+        required: false,
+        description: `List of fields to expand in the response.`,
+      },
+      {
+        name: 'first_name',
+        type: 'string',
+        required: false,
+        description: `The person's first name.`,
+      },
+      {
+        name: 'last_name',
+        type: 'string',
+        required: false,
+        description: `The person's last name.`,
+      },
+      {
+        name: 'metadata',
+        type: 'object',
+        required: false,
+        description: `Set of key-value pairs to attach to the person.`,
+      },
+      { name: 'phone', type: 'string', required: false, description: `The person's phone number.` },
+      {
+        name: 'relationship',
+        type: 'object',
+        required: false,
+        description: `The relationship that this person has with the account's legal entity.`,
+      },
+    ],
+  },
+  {
+    name: 'stripe_update_charge_dahlia',
+    description: `Updates the specified charge by setting the values of the parameters passed. Any parameters not provided are left unchanged.`,
+    params: [
+      {
+        name: 'charge_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the charge to update.`,
+      },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `An arbitrary string attached to the charge.`,
+      },
+      {
+        name: 'expand',
+        type: 'array',
+        required: false,
+        description: `List of fields to expand in the response.`,
+      },
+      {
+        name: 'fraud_details',
+        type: 'object',
+        required: false,
+        description: `Information about the charge's riskiness, e.g. marking it as fraudulent or safe.`,
+      },
+      {
+        name: 'metadata',
+        type: 'object',
+        required: false,
+        description: `Set of key-value pairs to attach to the charge.`,
+      },
+      {
+        name: 'receipt_email',
+        type: 'string',
+        required: false,
+        description: `This is the email address that the receipt for this charge will be sent to.`,
+      },
+    ],
+  },
+  {
+    name: 'stripe_update_checkout_session_dahlia',
+    description: `Updates an open Checkout Session, such as extending its expiration or changing its line items. Related guide: dynamically updating a Checkout Session.`,
+    params: [
+      {
+        name: 'session_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Checkout Session to update.`,
+      },
+      {
+        name: 'collected_information',
+        type: 'object',
+        required: false,
+        description: `Information about the customer collected within the session. Can only be set when updating embedded or custom sessions.`,
+      },
+      {
+        name: 'expand',
+        type: 'array',
+        required: false,
+        description: `List of fields to expand in the response.`,
+      },
+      {
+        name: 'line_items',
+        type: 'array',
+        required: false,
+        description: `The full list of items the customer is purchasing. When updating, you must retransmit the entire array; include an existing item's id to retain it.`,
       },
     ],
   },
@@ -3098,6 +5072,120 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'stripe_update_payment_intent_dahlia',
+    description: `Updates properties on a PaymentIntent object without confirming it. Updating certain properties, such as payment_method, requires confirming the PaymentIntent again afterward.`,
+    params: [
+      {
+        name: 'payment_intent_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the PaymentIntent to update.`,
+      },
+      {
+        name: 'amount',
+        type: 'integer',
+        required: false,
+        description: `Amount intended to be collected, in the smallest currency unit.`,
+      },
+      {
+        name: 'currency',
+        type: 'string',
+        required: false,
+        description: `Three-letter ISO currency code.`,
+      },
+      {
+        name: 'customer',
+        type: 'string',
+        required: false,
+        description: `ID of the customer this PaymentIntent belongs to.`,
+      },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `An arbitrary string attached to the object, useful for displaying to users.`,
+      },
+      {
+        name: 'expand',
+        type: 'array',
+        required: false,
+        description: `List of fields to expand in the response.`,
+      },
+      {
+        name: 'metadata',
+        type: 'object',
+        required: false,
+        description: `Set of key-value pairs to attach to the PaymentIntent.`,
+      },
+      {
+        name: 'receipt_email',
+        type: 'string',
+        required: false,
+        description: `Email address the receipt for the resulting payment will be sent to.`,
+      },
+    ],
+  },
+  {
+    name: 'stripe_update_payment_method_dahlia',
+    description: `Updates a PaymentMethod object. The PaymentMethod must already be attached to a customer to be updated.`,
+    params: [
+      {
+        name: 'payment_method_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the payment method to update.`,
+      },
+      {
+        name: 'billing_details',
+        type: 'object',
+        required: false,
+        description: `Billing information associated with the payment method.`,
+      },
+      {
+        name: 'card',
+        type: 'object',
+        required: false,
+        description: `If this is a card PaymentMethod, a hash of updatable card fields (currently only exp_month and exp_year).`,
+      },
+      {
+        name: 'expand',
+        type: 'array',
+        required: false,
+        description: `List of fields to expand in the response.`,
+      },
+      {
+        name: 'metadata',
+        type: 'object',
+        required: false,
+        description: `Set of key-value pairs to attach to the payment method.`,
+      },
+    ],
+  },
+  {
+    name: 'stripe_update_payout_dahlia',
+    description: `Updates the specified payout by setting the values of the parameters passed. This request only accepts metadata as an argument.`,
+    params: [
+      {
+        name: 'payout_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the payout to update.`,
+      },
+      {
+        name: 'expand',
+        type: 'array',
+        required: false,
+        description: `List of fields to expand in the response.`,
+      },
+      {
+        name: 'metadata',
+        type: 'object',
+        required: false,
+        description: `Set of key-value pairs to attach to the payout.`,
+      },
+    ],
+  },
+  {
     name: 'stripe_update_plan_dahlia',
     description: `Update a Plan's nickname, active status, or metadata.`,
     params: [
@@ -3130,6 +5218,54 @@ export const tools: Tool[] = [
         type: 'integer',
         required: false,
         description: `Default number of trial days for subscriptions created using this plan.`,
+      },
+    ],
+  },
+  {
+    name: 'stripe_update_price_dahlia',
+    description: `Updates the specified price by setting the values of the parameters passed. Any parameters not provided are left unchanged. Core pricing fields like unit_amount and currency are immutable once a price is created.`,
+    params: [
+      {
+        name: 'price_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the price to update.`,
+      },
+      {
+        name: 'active',
+        type: 'boolean',
+        required: false,
+        description: `Whether the price can be used for new purchases. Defaults to true.`,
+      },
+      {
+        name: 'expand',
+        type: 'array',
+        required: false,
+        description: `List of fields to expand in the response.`,
+      },
+      {
+        name: 'lookup_key',
+        type: 'string',
+        required: false,
+        description: `A lookup key used to retrieve this price dynamically from a static string.`,
+      },
+      {
+        name: 'metadata',
+        type: 'object',
+        required: false,
+        description: `Set of key-value pairs to attach to the price.`,
+      },
+      {
+        name: 'nickname',
+        type: 'string',
+        required: false,
+        description: `A brief description of the price, hidden from customers.`,
+      },
+      {
+        name: 'tax_behavior',
+        type: 'string',
+        required: false,
+        description: `Whether the price is considered inclusive or exclusive of tax.`,
       },
     ],
   },
@@ -3273,6 +5409,48 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'stripe_update_setup_intent_dahlia',
+    description: `Updates a SetupIntent object prior to confirmation, such as changing the associated customer, payment method types, or description.`,
+    params: [
+      {
+        name: 'setup_intent_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the SetupIntent to update.`,
+      },
+      {
+        name: 'customer',
+        type: 'string',
+        required: false,
+        description: `The ID of the Customer this SetupIntent belongs to.`,
+      },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `An arbitrary string attached to the object, useful for displaying to users.`,
+      },
+      {
+        name: 'expand',
+        type: 'array',
+        required: false,
+        description: `List of fields to expand in the response.`,
+      },
+      {
+        name: 'metadata',
+        type: 'object',
+        required: false,
+        description: `Set of key-value pairs to attach to the SetupIntent.`,
+      },
+      {
+        name: 'payment_method',
+        type: 'string',
+        required: false,
+        description: `ID of the payment method to attach to this SetupIntent.`,
+      },
+    ],
+  },
+  {
     name: 'stripe_update_subscription_dahlia',
     description: `Updates an existing subscription to match the specified parameters. When updating a subscription, any parameters not provided will be left unchanged.`,
     params: [
@@ -3353,6 +5531,48 @@ export const tools: Tool[] = [
         type: 'integer',
         required: false,
         description: `The updated quantity of the subscription item.`,
+      },
+    ],
+  },
+  {
+    name: 'stripe_update_subscription_schedule',
+    description: `Updates an existing subscription schedule, e.g. to change its phases, end behavior, or default settings. Past phases can be omitted when specifying phases.`,
+    params: [
+      {
+        name: 'subscription_schedule_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the subscription schedule to update.`,
+      },
+      {
+        name: 'default_settings',
+        type: 'object',
+        required: false,
+        description: `Default settings for the subscription schedule, applied to phases that don't override them.`,
+      },
+      {
+        name: 'end_behavior',
+        type: 'string',
+        required: false,
+        description: `Behavior when the schedule ends: 'release' (default, keeps the underlying subscription running as-is) or 'cancel' (cancels the underlying subscription).`,
+      },
+      {
+        name: 'metadata',
+        type: 'object',
+        required: false,
+        description: `Set of key-value pairs to attach to the subscription schedule. Individual keys can be unset by posting an empty value.`,
+      },
+      {
+        name: 'phases',
+        type: 'array',
+        required: false,
+        description: `List of phases for the subscription schedule. Note that past phases can be omitted; the end_date of one phase equals the start_date of the next.`,
+      },
+      {
+        name: 'proration_behavior',
+        type: 'string',
+        required: false,
+        description: `If the update changes the billing configuration of the current phase, indicates how prorations should be handled. Defaults to 'create_prorations'.`,
       },
     ],
   },
@@ -3447,6 +5667,18 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'stripe_void_credit_note',
+    description: `Marks a previously issued credit note as void. This cannot be undone.`,
+    params: [
+      {
+        name: 'credit_note_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the credit note to void.`,
+      },
+    ],
+  },
+  {
     name: 'stripe_void_invoice_dahlia',
     description: `Mark a finalized invoice as void. This cannot be undone. Voiding an invoice is similar to deletion, however it only applies to finalized invoices and maintains a papertrail where the invoice can still be found.`,
     params: [
@@ -3456,6 +5688,20 @@ export const tools: Tool[] = [
         required: true,
         description: `The ID of the invoice to void.`,
       },
+    ],
+  },
+  {
+    name: 'stripe_zz_test_echo_probe_dahlia',
+    description: `Temporary throwaway tool for verifying raw wire bytes against an echo service. Not for real use — delete after testing.`,
+    params: [
+      {
+        name: 'big_id',
+        type: 'string',
+        required: false,
+        description: `Body-spread large ID field, typed as string to avoid protobuf Struct's double-precision ceiling on NumberValue.`,
+      },
+      { name: 'customer', type: 'string', required: false, description: `Body-spread field.` },
+      { name: 'expand', type: 'string', required: false, description: `Query-mapped field.` },
     ],
   },
 ]

@@ -2,6 +2,48 @@ import type { Tool } from '../../types/agent-connectors'
 
 export const tools: Tool[] = [
   {
+    name: 'googledwd_add_group_member',
+    description: `Add a member to a Google Workspace group using the Admin Directory API. Uses DWD service account credentials.`,
+    params: [
+      {
+        name: 'group_key',
+        type: 'string',
+        required: true,
+        description: `Email address or unique ID of the group.`,
+      },
+      {
+        name: 'member_email',
+        type: 'string',
+        required: true,
+        description: `Email address of the user or group to add as a member.`,
+      },
+      {
+        name: 'role',
+        type: 'string',
+        required: false,
+        description: `Role to assign the member: OWNER, MANAGER, or MEMBER.`,
+      },
+    ],
+  },
+  {
+    name: 'googledwd_add_user_alias',
+    description: `Add an email alias to a Google Workspace user using the Admin Directory API (users.aliases.insert). The connector already has full user CRUD (Create/Get/Update/Delete Admin User) but no alias management. Uses DWD service account credentials.`,
+    params: [
+      {
+        name: 'alias',
+        type: 'string',
+        required: true,
+        description: `The new alias email address to add for the user.`,
+      },
+      {
+        name: 'user_key',
+        type: 'string',
+        required: true,
+        description: `Identifier for the user to add the alias to. Can be the user's primary email address, alias email address, or unique user ID.`,
+      },
+    ],
+  },
+  {
     name: 'googledwd_append_values',
     description: `Append rows of data to a Google Sheets spreadsheet. Data is added after the last row with existing content in the specified range.`,
     params: [
@@ -119,6 +161,67 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Optional tool version to use for execution`,
+      },
+    ],
+  },
+  {
+    name: 'googledwd_create_admin_group',
+    description: `Create a new Google Workspace group using the Admin Directory API. Uses DWD service account credentials.`,
+    params: [
+      {
+        name: 'email',
+        type: 'string',
+        required: true,
+        description: `Email address for the new group (e.g., 'engineering@example.com').`,
+      },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `Description of the group's purpose.`,
+      },
+      { name: 'name', type: 'string', required: false, description: `Display name for the group.` },
+    ],
+  },
+  {
+    name: 'googledwd_create_admin_user',
+    description: `Create a new Google Workspace user using the Admin Directory API. Uses DWD service account credentials.`,
+    params: [
+      {
+        name: 'family_name',
+        type: 'string',
+        required: true,
+        description: `Last name of the user.`,
+      },
+      {
+        name: 'given_name',
+        type: 'string',
+        required: true,
+        description: `First name of the user.`,
+      },
+      {
+        name: 'primary_email',
+        type: 'string',
+        required: true,
+        description: `Primary email address for the new user (e.g., 'jane@example.com').`,
+      },
+      {
+        name: 'change_password_at_next_login',
+        type: 'boolean',
+        required: false,
+        description: `Whether the user must change their password at next login.`,
+      },
+      {
+        name: 'org_unit_path',
+        type: 'string',
+        required: false,
+        description: `Organizational unit path to place the user in (e.g., '/Engineering').`,
+      },
+      {
+        name: 'password',
+        type: 'string',
+        required: false,
+        description: `Initial password for the user. Required unless the domain provisions users via SSO only.`,
       },
     ],
   },
@@ -760,6 +863,30 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'googledwd_delete_admin_group',
+    description: `Delete a Google Workspace group using the Admin Directory API. Uses DWD service account credentials.`,
+    params: [
+      {
+        name: 'group_key',
+        type: 'string',
+        required: true,
+        description: `Email address or unique ID of the group to delete.`,
+      },
+    ],
+  },
+  {
+    name: 'googledwd_delete_admin_user',
+    description: `Delete a Google Workspace user using the Admin Directory API. The user is moved to a recoverable deleted state for a limited time. Uses DWD service account credentials.`,
+    params: [
+      {
+        name: 'user_key',
+        type: 'string',
+        required: true,
+        description: `Primary email address or unique user ID of the user to delete.`,
+      },
+    ],
+  },
+  {
     name: 'googledwd_delete_contact',
     description: `Permanently delete a contact from Google People using its resource name (e.g., 'people/c12345'). This action cannot be undone. Uses DWD service account credentials.`,
     params: [
@@ -1255,6 +1382,24 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `The ID of the Google Form to retrieve`,
+      },
+    ],
+  },
+  {
+    name: 'googledwd_get_group_member',
+    description: `Retrieve a single member of a Google Workspace group using the Admin Directory API. Uses DWD service account credentials.`,
+    params: [
+      {
+        name: 'group_key',
+        type: 'string',
+        required: true,
+        description: `Email address or unique ID of the group.`,
+      },
+      {
+        name: 'member_key',
+        type: 'string',
+        required: true,
+        description: `Email address or unique ID of the member to retrieve.`,
       },
     ],
   },
@@ -2210,6 +2355,11 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'googledwd_list_labels',
+    description: `List all Gmail labels (system labels like INBOX/UNREAD/STARRED and any user-created labels) for the impersonated mailbox, including each label's ID, name, type, and visibility settings. Modify Gmail Message Labels can apply label IDs to a message, but this is the only way to discover which label IDs exist. Uses DWD service account credentials.`,
+    params: [],
+  },
+  {
     name: 'googledwd_list_org_units',
     description: `List organizational units (OUs) in a Google Workspace customer account using the Admin Directory API. Supports filtering by parent OU path and retrieval type. Uses DWD service account credentials.`,
     params: [
@@ -2462,6 +2612,24 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'googledwd_make_admin_user',
+    description: `Grant or revoke super administrator privileges for a Google Workspace user using the Admin Directory API. Uses DWD service account credentials.`,
+    params: [
+      {
+        name: 'status',
+        type: 'boolean',
+        required: true,
+        description: `true to grant super admin privileges, false to revoke them.`,
+      },
+      {
+        name: 'user_key',
+        type: 'string',
+        required: true,
+        description: `Primary email address or unique user ID of the user.`,
+      },
+    ],
+  },
+  {
     name: 'googledwd_modify_message_labels',
     description: `Add or remove labels on a Gmail message. Use label IDs such as 'INBOX', 'UNREAD', 'STARRED', 'IMPORTANT', 'TRASH', 'SPAM', or custom label IDs. At least one of add_label_ids or remove_label_ids should be provided. Uses DWD service account credentials.`,
     params: [
@@ -2690,6 +2858,24 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'googledwd_remove_group_member',
+    description: `Remove a member from a Google Workspace group using the Admin Directory API. Uses DWD service account credentials.`,
+    params: [
+      {
+        name: 'group_key',
+        type: 'string',
+        required: true,
+        description: `Email address or unique ID of the group.`,
+      },
+      {
+        name: 'member_key',
+        type: 'string',
+        required: true,
+        description: `Email address or unique ID of the member to remove.`,
+      },
+    ],
+  },
+  {
     name: 'googledwd_search_content',
     description: `Search inside the content of files stored in Google Drive using full-text search. Finds files where the body text matches the search term.`,
     params: [
@@ -2830,6 +3016,54 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'googledwd_send_message',
+    description: `Send an email immediately via the impersonated mailbox's Gmail account (users.messages.send). Constructs a MIME message and sends it right away. This connector can create drafts (Create Gmail Draft) but that only saves a draft; use this tool to actually deliver mail. Uses DWD service account credentials.`,
+    params: [
+      {
+        name: 'body',
+        type: 'string',
+        required: true,
+        description: `The body content of the email. Provide plain text or HTML depending on the content_type field. Example: 'Hello, this email was sent via the API.'`,
+      },
+      {
+        name: 'subject',
+        type: 'string',
+        required: true,
+        description: `The subject line of the email. Example: 'Meeting Follow-up'. ASCII/Latin-1 text is recommended; extended Unicode subjects are sent as-is without RFC 2047 encoding.`,
+      },
+      {
+        name: 'to',
+        type: 'string',
+        required: true,
+        description: `The recipient email address(es). Provide a single address or comma-separated list. Example: 'recipient@example.com' or 'a@example.com,b@example.com'.`,
+      },
+      {
+        name: 'bcc',
+        type: 'string',
+        required: false,
+        description: `BCC recipients for the email. Provide a comma-separated list of email addresses, e.g., bcc1@example.com,bcc2@example.com. Optional.`,
+      },
+      {
+        name: 'cc',
+        type: 'string',
+        required: false,
+        description: `CC recipients for the email. Provide a comma-separated list of email addresses, e.g., cc1@example.com,cc2@example.com. Optional.`,
+      },
+      {
+        name: 'content_type',
+        type: 'string',
+        required: false,
+        description: `The MIME content type for the email body. Use 'text/plain' for plain text or 'text/html' for HTML content. Defaults to 'text/plain'.`,
+      },
+      {
+        name: 'thread_id',
+        type: 'string',
+        required: false,
+        description: `The Gmail thread ID to associate this message with an existing conversation. If provided, the message will be added to that thread. Example: '17a1b2c3d4e5f6g7'.`,
+      },
+    ],
+  },
+  {
     name: 'googledwd_share_file',
     description: `Share a file or folder in Google Drive by creating a new permission for a user, group, domain, or anyone. Supports sending notification emails. Uses DWD service account credentials.`,
     params: [
@@ -2896,6 +3130,18 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'googledwd_signout_admin_user',
+    description: `Sign a Google Workspace user out of all web and device sessions and reset their sign-in cookies using the Admin Directory API. Commonly used to immediately revoke access. Uses DWD service account credentials.`,
+    params: [
+      {
+        name: 'user_key',
+        type: 'string',
+        required: true,
+        description: `Primary email address or unique user ID of the user to sign out.`,
+      },
+    ],
+  },
+  {
     name: 'googledwd_trash_message',
     description: `Move a Gmail message to the Trash. The message is not permanently deleted and can be recovered from Trash within 30 days. This operation is idempotent — trashing an already-trashed message is a no-op. Uses DWD service account credentials.`,
     params: [
@@ -2916,6 +3162,90 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Optional tool version to use for execution`,
+      },
+    ],
+  },
+  {
+    name: 'googledwd_undelete_admin_user',
+    description: `Restore a recently deleted Google Workspace user using the Admin Directory API. Only works within the recovery window after deletion. Uses DWD service account credentials.`,
+    params: [
+      {
+        name: 'user_key',
+        type: 'string',
+        required: true,
+        description: `The unique ID of the deleted user to restore (immutable ID, not email).`,
+      },
+      {
+        name: 'org_unit_path',
+        type: 'string',
+        required: false,
+        description: `Organizational unit path to restore the user into.`,
+      },
+    ],
+  },
+  {
+    name: 'googledwd_update_admin_group',
+    description: `Update an existing Google Workspace group's profile using the Admin Directory API. Uses DWD service account credentials.`,
+    params: [
+      {
+        name: 'group_key',
+        type: 'string',
+        required: true,
+        description: `Email address or unique ID of the group to update.`,
+      },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `Updated description of the group's purpose.`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: false,
+        description: `Updated display name for the group.`,
+      },
+    ],
+  },
+  {
+    name: 'googledwd_update_admin_user',
+    description: `Update an existing Google Workspace user's profile using the Admin Directory API. Uses DWD service account credentials.`,
+    params: [
+      {
+        name: 'user_key',
+        type: 'string',
+        required: true,
+        description: `Primary email address or unique user ID of the user to update.`,
+      },
+      {
+        name: 'family_name',
+        type: 'string',
+        required: false,
+        description: `Updated last name of the user.`,
+      },
+      {
+        name: 'given_name',
+        type: 'string',
+        required: false,
+        description: `Updated first name of the user.`,
+      },
+      {
+        name: 'org_unit_path',
+        type: 'string',
+        required: false,
+        description: `New organizational unit path for the user (e.g., '/Sales').`,
+      },
+      {
+        name: 'password',
+        type: 'string',
+        required: false,
+        description: `New password for the user.`,
+      },
+      {
+        name: 'suspended',
+        type: 'boolean',
+        required: false,
+        description: `Whether the user's account is suspended.`,
       },
     ],
   },

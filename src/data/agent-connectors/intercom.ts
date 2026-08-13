@@ -354,6 +354,38 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'intercom_create_content_import_source',
+    description: `Create a new AI content import source, the entity that owns the External Pages ingested from one external content source into the Fin Content Library. Set sync_behavior to 'api' when you intend to create or update External Pages via the API.`,
+    params: [
+      {
+        name: 'sync_behavior',
+        type: 'string',
+        required: true,
+        description: `How pages from this source are synced. Use 'api' if you intend to create or update External Pages via the API.`,
+      },
+      {
+        name: 'url',
+        type: 'string',
+        required: true,
+        description: `The root URL of the external source these pages come from.`,
+      },
+      {
+        name: 'audience_ids',
+        type: 'array',
+        required: false,
+        description: `JSON array of audience IDs that determine who can see pages from this source.`,
+      },
+      { name: 'schema_version', type: 'string', required: false, description: `Schema version` },
+      {
+        name: 'status',
+        type: 'string',
+        required: false,
+        description: `Status of the content import source. Defaults to active.`,
+      },
+      { name: 'tool_version', type: 'string', required: false, description: `Tool version` },
+    ],
+  },
+  {
     name: 'intercom_create_conversation',
     description: `Create a new conversation initiated from an admin to a contact.`,
     params: [
@@ -460,6 +492,74 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Your unique identifier for the contact.`,
+      },
+    ],
+  },
+  {
+    name: 'intercom_create_data_event_summaries',
+    description: `Create an event summary for a user, tracking the number of times an event has occurred along with the first and last time it occurred. Use this to record aggregated event counts instead of submitting one data event per occurrence.`,
+    params: [
+      {
+        name: 'event_summaries',
+        type: 'object',
+        required: true,
+        description: `A summary of an event for the user, containing the event name, the number of times it occurred, and the first and last time it occurred. The event name should be a past tense 'verb-noun' combination, e.g. 'updated-plan'.`,
+      },
+      {
+        name: 'user_id',
+        type: 'string',
+        required: true,
+        description: `Your identifier for the user.`,
+      },
+    ],
+  },
+  {
+    name: 'intercom_create_external_page',
+    description: `Create an external page as AI/Fin knowledge content. If a page already exists with the given source_id and external_id, it is updated instead of duplicated.`,
+    params: [
+      {
+        name: 'external_id',
+        type: 'string',
+        required: true,
+        description: `The identifier for this page given by the source. Must be unique for the source.`,
+      },
+      {
+        name: 'html',
+        type: 'string',
+        required: true,
+        description: `The body of the external page in HTML.`,
+      },
+      {
+        name: 'source_id',
+        type: 'integer',
+        required: true,
+        description: `The unique identifier for the content import source this page belongs to, as returned by Create Content Import Source.`,
+      },
+      {
+        name: 'title',
+        type: 'string',
+        required: true,
+        description: `The title of the external page.`,
+      },
+      {
+        name: 'ai_agent_availability',
+        type: 'boolean',
+        required: false,
+        description: `Whether Fin (the AI Agent) may use this page to answer questions.`,
+      },
+      {
+        name: 'ai_copilot_availability',
+        type: 'boolean',
+        required: false,
+        description: `Whether AI Copilot may use this page to answer questions.`,
+      },
+      { name: 'schema_version', type: 'string', required: false, description: `Schema version` },
+      { name: 'tool_version', type: 'string', required: false, description: `Tool version` },
+      {
+        name: 'url',
+        type: 'string',
+        required: false,
+        description: `The URL of the external page. Used by Fin to link end users to the page.`,
       },
     ],
   },
@@ -576,6 +676,32 @@ export const tools: Tool[] = [
         required: false,
         description: `State of the news item: 'draft' or 'live'.`,
       },
+      { name: 'tool_version', type: 'string', required: false, description: `Tool version` },
+    ],
+  },
+  {
+    name: 'intercom_create_office_hours_schedule',
+    description: `Create a new office-hours schedule defining the recurring weekly hours the workspace (or a team) is open. Requires the read_write_office_hours OAuth scope.`,
+    params: [
+      {
+        name: 'name',
+        type: 'string',
+        required: true,
+        description: `The name of the office hours schedule.`,
+      },
+      {
+        name: 'time_intervals',
+        type: 'array',
+        required: true,
+        description: `JSON array of open intervals for the schedule. Each item is an object with start_minute and end_minute — minute offsets from Monday 00:00, aligned to 15-minute boundaries.`,
+      },
+      {
+        name: 'time_zone_name',
+        type: 'string',
+        required: true,
+        description: `The IANA time zone the schedule's hours are evaluated in.`,
+      },
+      { name: 'schema_version', type: 'string', required: false, description: `Schema version` },
       { name: 'tool_version', type: 'string', required: false, description: `Tool version` },
     ],
   },
@@ -984,8 +1110,30 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'intercom_get_macro',
+    description: `Retrieve a single macro (saved reply) by its ID, subject to the same team-visibility rules as the Intercom inbox.`,
+    params: [
+      {
+        name: 'macro_id',
+        type: 'string',
+        required: true,
+        description: `The Intercom ID of the macro to retrieve.`,
+      },
+      { name: 'schema_version', type: 'string', required: false, description: `Schema version` },
+      { name: 'tool_version', type: 'string', required: false, description: `Tool version` },
+    ],
+  },
+  {
     name: 'intercom_identify_admin',
     description: `Retrieve the currently authenticated admin's details.`,
+    params: [
+      { name: 'schema_version', type: 'string', required: false, description: `Schema version` },
+      { name: 'tool_version', type: 'string', required: false, description: `Tool version` },
+    ],
+  },
+  {
+    name: 'intercom_list_activity_log_event_types',
+    description: `List the event types that can appear in admin activity logs, for use as filters with Search Activity Logs.`,
     params: [
       { name: 'schema_version', type: 'string', required: false, description: `Schema version` },
       { name: 'tool_version', type: 'string', required: false, description: `Tool version` },
@@ -1023,6 +1171,30 @@ export const tools: Tool[] = [
       },
       { name: 'schema_version', type: 'string', required: false, description: `Schema version` },
       { name: 'tool_version', type: 'string', required: false, description: `Tool version` },
+    ],
+  },
+  {
+    name: 'intercom_list_all_companies',
+    description: `List all companies via Intercom's dedicated companies list endpoint (POST /companies/list), sorted by last_request_at descending by default. Distinct from the GET /companies filter endpoint; use the Scroll API instead when iterating over more than 10,000 companies.`,
+    params: [
+      {
+        name: 'order',
+        type: 'string',
+        required: false,
+        description: `asc or desc. Return the companies in ascending or descending order. Defaults to desc.`,
+      },
+      {
+        name: 'page',
+        type: 'integer',
+        required: false,
+        description: `The page of results to fetch. Defaults to first page.`,
+      },
+      {
+        name: 'per_page',
+        type: 'integer',
+        required: false,
+        description: `How many results to return per page. Defaults to 15.`,
+      },
     ],
   },
   {
@@ -1181,6 +1353,18 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'intercom_list_contact_tags',
+    description: `List all tags that are attached to a specific contact.`,
+    params: [
+      {
+        name: 'contact_id',
+        type: 'string',
+        required: true,
+        description: `The unique identifier for the contact which is given by Intercom.`,
+      },
+    ],
+  },
+  {
     name: 'intercom_list_contacts',
     description: `List all contacts (users and leads) in the Intercom workspace with optional pagination.`,
     params: [
@@ -1203,6 +1387,14 @@ export const tools: Tool[] = [
         required: false,
         description: `Cursor for pagination. Use the value from the previous response to get the next page.`,
       },
+      { name: 'tool_version', type: 'string', required: false, description: `Tool version` },
+    ],
+  },
+  {
+    name: 'intercom_list_content_import_sources',
+    description: `List the AI content import sources configured to feed Fin/Help Center content ingestion. Each source determines the default audience for the external pages ingested from it.`,
+    params: [
+      { name: 'schema_version', type: 'string', required: false, description: `Schema version` },
       { name: 'tool_version', type: 'string', required: false, description: `Tool version` },
     ],
   },
@@ -1285,6 +1477,14 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'intercom_list_external_pages',
+    description: `List external pages registered as AI/Fin knowledge content in the Fin Content Library.`,
+    params: [
+      { name: 'schema_version', type: 'string', required: false, description: `Schema version` },
+      { name: 'tool_version', type: 'string', required: false, description: `Tool version` },
+    ],
+  },
+  {
     name: 'intercom_list_help_center_collections',
     description: `List all Help Center collections in the Intercom workspace.`,
     params: [
@@ -1297,6 +1497,20 @@ export const tools: Tool[] = [
     description: `List all Help Centers in the Intercom workspace.`,
     params: [
       { name: 'schema_version', type: 'string', required: false, description: `Schema version` },
+      { name: 'tool_version', type: 'string', required: false, description: `Tool version` },
+    ],
+  },
+  {
+    name: 'intercom_list_macros',
+    description: `List all macros (saved replies) configured in the Intercom workspace, in descending order by last updated. Supports cursor-based pagination.`,
+    params: [
+      { name: 'schema_version', type: 'string', required: false, description: `Schema version` },
+      {
+        name: 'starting_after',
+        type: 'string',
+        required: false,
+        description: `Base64-encoded pagination cursor from a previous response, to fetch the next page.`,
+      },
       { name: 'tool_version', type: 'string', required: false, description: `Tool version` },
     ],
   },
@@ -1325,6 +1539,14 @@ export const tools: Tool[] = [
   {
     name: 'intercom_list_newsfeeds',
     description: `List all newsfeeds in the workspace.`,
+    params: [
+      { name: 'schema_version', type: 'string', required: false, description: `Schema version` },
+      { name: 'tool_version', type: 'string', required: false, description: `Tool version` },
+    ],
+  },
+  {
+    name: 'intercom_list_office_hours_schedules',
+    description: `List all office-hours schedules configured for the workspace. Schedules define the recurring weekly hours the workspace is open. Requires the read_write_office_hours OAuth scope.`,
     params: [
       { name: 'schema_version', type: 'string', required: false, description: `Schema version` },
       { name: 'tool_version', type: 'string', required: false, description: `Tool version` },
@@ -1770,6 +1992,56 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'intercom_scroll_companies',
+    description: `Scroll over all companies in the workspace using Intercom's Scroll API, an efficient mechanism for iterating over large company datasets without the 10,000-record limit of the standard list endpoints. Call once with no scroll_param to get the first page, then pass the scroll_param returned in each response to fetch the next page. Each app can only have one scroll open at a time, and an idle scroll expires after 1 minute.`,
+    params: [
+      {
+        name: 'scroll_param',
+        type: 'string',
+        required: false,
+        description: `Cursor for the next page, taken from the scroll_param field of the previous response. Omit this on the first call to start a new scroll.`,
+      },
+    ],
+  },
+  {
+    name: 'intercom_search_activity_logs',
+    description: `Search admin activity logs with structured filters (date range, event types, pagination), distinct from the existing plain date-range list tool.`,
+    params: [
+      {
+        name: 'created_at_after',
+        type: 'integer',
+        required: true,
+        description: `Start date as a Unix timestamp. Only logs after this date are returned.`,
+      },
+      {
+        name: 'created_at_before',
+        type: 'integer',
+        required: false,
+        description: `End date as a Unix timestamp. Only logs before this date are returned.`,
+      },
+      {
+        name: 'event_types',
+        type: 'array',
+        required: false,
+        description: `JSON array of event type strings to filter by. See List Activity Log Event Types for valid values.`,
+      },
+      {
+        name: 'page',
+        type: 'integer',
+        required: false,
+        description: `Result page number to retrieve.`,
+      },
+      {
+        name: 'per_page',
+        type: 'integer',
+        required: false,
+        description: `Number of results per page (1-250).`,
+      },
+      { name: 'schema_version', type: 'string', required: false, description: `Schema version` },
+      { name: 'tool_version', type: 'string', required: false, description: `Tool version` },
+    ],
+  },
+  {
     name: 'intercom_search_articles',
     description: `Search Help Center articles by phrase, state, or help center ID.`,
     params: [
@@ -1933,6 +2205,61 @@ export const tools: Tool[] = [
         description: `Updated title of the article.`,
       },
       { name: 'tool_version', type: 'string', required: false, description: `Tool version` },
+    ],
+  },
+  {
+    name: 'intercom_update_company',
+    description: `Update a single company using its Intercom-provisioned ID. The company's external company_id cannot be changed once set; this endpoint is for updating other company attributes such as name, plan, or custom_attributes.`,
+    params: [
+      {
+        name: 'company_id',
+        type: 'string',
+        required: true,
+        description: `The unique identifier for the company which is given by Intercom.`,
+      },
+      {
+        name: 'custom_attributes',
+        type: 'object',
+        required: false,
+        description: `A hash of key/value pairs containing any other data about the company you want Intercom to store.`,
+      },
+      {
+        name: 'industry',
+        type: 'string',
+        required: false,
+        description: `The industry that this company operates in.`,
+      },
+      {
+        name: 'monthly_spend',
+        type: 'integer',
+        required: false,
+        description: `How much revenue the company generates for your business. Truncates floats to whole integers.`,
+      },
+      { name: 'name', type: 'string', required: false, description: `The name of the Company.` },
+      {
+        name: 'plan',
+        type: 'string',
+        required: false,
+        description: `The name of the plan you have associated with the company.`,
+      },
+      {
+        name: 'remote_created_at',
+        type: 'integer',
+        required: false,
+        description: `The time the company was created by you.`,
+      },
+      {
+        name: 'size',
+        type: 'integer',
+        required: false,
+        description: `The number of employees in this company.`,
+      },
+      {
+        name: 'website',
+        type: 'string',
+        required: false,
+        description: `The URL for this company's website. Not validated; accepts any string.`,
+      },
     ],
   },
   {

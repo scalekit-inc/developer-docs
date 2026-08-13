@@ -141,6 +141,13 @@ export const tools: Tool[] = [
     params: [],
   },
   {
+    name: 'leadiq_get_company',
+    description: `Retrieve a single company record by its LeadIQ company ID, returning full firmographic details: industry, employee count, headquarters location, funding, and known email domains. Use Search Company, or the company objects embedded in People Search / Advanced Search results, to find a company ID first.`,
+    params: [
+      { name: 'id', type: 'string', required: true, description: `LeadIQ company ID to retrieve` },
+    ],
+  },
+  {
     name: 'leadiq_get_list',
     description: `Retrieve a specific prospect list by ID, including its contacts with name, title, company, email, and LinkedIn URL. Use Get Prospect Lists first to find the list ID.`,
     params: [

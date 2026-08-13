@@ -19,10 +19,12 @@ head:
       }
 ---
 
+import ToolList from '@/components/ToolList.astro'
+import { tools } from '@/data/agent-connectors/onenote'
 import { Steps, Tabs, TabItem } from '@astrojs/starlight/components'
 import { AgentKitCredentials } from '@components/templates'
 import { SetupOnenoteSection } from '@components/templates'
-import { QuickstartGenericOauthNotoolsSection } from '@components/templates'
+import { QuickstartGenericOauthSection } from '@components/templates'
 import { SectionAfterSetupOnenoteCommonWorkflows } from '@components/templates'
 
 <Steps>
@@ -61,10 +63,27 @@ import { SectionAfterSetupOnenoteCommonWorkflows } from '@components/templates'
 
 4. ### Authorize and make your first call
 
-   <QuickstartGenericOauthNotoolsSection connector="onenote" providerName="OneNote" verifyPath="/v1.0/me/onenote/notebooks" verifyMethod="GET" />
+   <QuickstartGenericOauthSection connector="onenote" toolName="onenote_list_notebooks" providerName="OneNote" />
 
 </Steps>
+
+## What you can do
+
+Connect this agent connector to let your agent:
+
+- **Update page content** — Apply a single patchContentCommand to an existing OneNote page's content, per the Graph OneNote page-update semantics (a JSON array containing one command object with target/action/position/content)
+- **Search pages** — Search all of the signed-in user's OneNote pages (across every notebook and section) for pages whose title contains the given text
+- **List sections, section groups, pages** — List the OneNote sections (onenoteSection objects) inside a specific notebook
+- **Get page content** — Retrieve the full HTML content of a OneNote page by page ID
+- **Delete page** — Permanently delete a OneNote page by page ID
+- **Create section group, section, page** — Create a new section group directly inside the specified notebook
 
 ## Common workflows
 
 <SectionAfterSetupOnenoteCommonWorkflows />
+
+## Tool list
+
+Use the exact tool names from the **Tool list** below when you call `execute_tool`. If you're not sure which name to use, list the tools available for the current user first.
+
+<ToolList tools={tools} />

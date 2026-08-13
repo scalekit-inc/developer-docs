@@ -237,6 +237,18 @@ export const tools: Tool[] = [
         description: `The workspace slug or UUID.`,
       },
       {
+        name: 'page',
+        type: 'integer',
+        required: false,
+        description: `Page number for pagination (starts at 1).`,
+      },
+      {
+        name: 'pagelen',
+        type: 'integer',
+        required: false,
+        description: `Number of items to return per page.`,
+      },
+      {
         name: 'q',
         type: 'string',
         required: false,
@@ -593,6 +605,37 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'bitbucket_commit_pull_requests_list',
+    description: `Returns a paginated list of all pull requests that include the given commit. Requires the Pull Request Commit Links app, which is automatically installed the first time 'Go to pull request' is clicked from a commit's details in the Bitbucket web interface.`,
+    params: [
+      { name: 'commit', type: 'string', required: true, description: `The SHA1 of the commit.` },
+      {
+        name: 'repo_slug',
+        type: 'string',
+        required: true,
+        description: `The repository slug or UUID.`,
+      },
+      {
+        name: 'workspace',
+        type: 'string',
+        required: true,
+        description: `The workspace slug or UUID.`,
+      },
+      {
+        name: 'page',
+        type: 'integer',
+        required: false,
+        description: `Page number for pagination.`,
+      },
+      {
+        name: 'pagelen',
+        type: 'integer',
+        required: false,
+        description: `Number of pull requests to retrieve per page.`,
+      },
+    ],
+  },
+  {
     name: 'bitbucket_commit_statuses_list',
     description: `Lists all statuses (build results) for a specific commit.`,
     params: [
@@ -651,6 +694,18 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Branch or tag name to list commits for.`,
+      },
+      {
+        name: 'page',
+        type: 'integer',
+        required: false,
+        description: `Page number for pagination (starts at 1).`,
+      },
+      {
+        name: 'pagelen',
+        type: 'integer',
+        required: false,
+        description: `Number of items to return per page.`,
       },
     ],
   },
@@ -1050,6 +1105,48 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'bitbucket_diff_raw_get',
+    description: `Returns the raw unified diff (text/plain) between two commits or branches for a repository. Distinct from diffstat, which returns only per-file change stats as JSON. Note: the existing bitbucket_diff_get tool is mislabeled and actually calls the diffstat endpoint -- this tool calls the real /diff/{spec} endpoint.`,
+    params: [
+      {
+        name: 'repo_slug',
+        type: 'string',
+        required: true,
+        description: `The repository slug or UUID.`,
+      },
+      {
+        name: 'spec',
+        type: 'string',
+        required: true,
+        description: `Diff spec in the form of 'hash1..hash2' or 'branch1..branch2'.`,
+      },
+      {
+        name: 'workspace',
+        type: 'string',
+        required: true,
+        description: `The workspace slug or UUID.`,
+      },
+      {
+        name: 'context',
+        type: 'integer',
+        required: false,
+        description: `Number of context lines to show around each change.`,
+      },
+      {
+        name: 'ignore_whitespace',
+        type: 'boolean',
+        required: false,
+        description: `Whether to ignore whitespace-only changes in the diff.`,
+      },
+      {
+        name: 'path',
+        type: 'string',
+        required: false,
+        description: `Limit the diff to a specific file path.`,
+      },
+    ],
+  },
+  {
     name: 'bitbucket_diffstat_get',
     description: `Returns the diff stats between two commits or a branch/commit spec in a repository.`,
     params: [
@@ -1082,6 +1179,60 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `The filename of the download artifact.`,
+      },
+      {
+        name: 'repo_slug',
+        type: 'string',
+        required: true,
+        description: `The repository slug or UUID.`,
+      },
+      {
+        name: 'workspace',
+        type: 'string',
+        required: true,
+        description: `The workspace slug or UUID.`,
+      },
+    ],
+  },
+  {
+    name: 'bitbucket_download_get',
+    description: `Returns a redirect to the contents of a download artifact in a Bitbucket repository. This resolves to the actual file contents, not the artifact's metadata — use List Downloads to retrieve metadata such as size and creation date instead.`,
+    params: [
+      {
+        name: 'filename',
+        type: 'string',
+        required: true,
+        description: `The filename of the download artifact.`,
+      },
+      {
+        name: 'repo_slug',
+        type: 'string',
+        required: true,
+        description: `The repository slug or UUID.`,
+      },
+      {
+        name: 'workspace',
+        type: 'string',
+        required: true,
+        description: `The workspace slug or UUID.`,
+      },
+    ],
+  },
+  {
+    name: 'bitbucket_download_upload',
+    description: `Upload a new download artifact to a Bitbucket repository's Downloads section. The file content must be supplied as a base64-encoded string along with its filename; it is uploaded as multipart/form-data. If a file with the same name already exists, it is replaced.`,
+    params: [
+      {
+        name: 'file_content_base64',
+        type: 'string',
+        required: true,
+        description: `Base64-encoded contents of the file to upload.`,
+      },
+      {
+        name: 'filename',
+        type: 'string',
+        required: true,
+        description: `Name of the file to upload, including extension.`,
       },
       {
         name: 'repo_slug',
@@ -1237,6 +1388,81 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'bitbucket_issue_attachment_delete',
+    description: `Deletes a specific attachment from a Bitbucket issue.`,
+    params: [
+      { name: 'issue_id', type: 'integer', required: true, description: `The issue ID.` },
+      {
+        name: 'path',
+        type: 'string',
+        required: true,
+        description: `The filename (path) of the attachment to delete.`,
+      },
+      {
+        name: 'repo_slug',
+        type: 'string',
+        required: true,
+        description: `The repository slug or UUID.`,
+      },
+      {
+        name: 'workspace',
+        type: 'string',
+        required: true,
+        description: `The workspace slug or UUID.`,
+      },
+    ],
+  },
+  {
+    name: 'bitbucket_issue_attachment_upload',
+    description: `Upload a new attachment to a Bitbucket issue. The file content must be supplied as a base64-encoded string along with its filename; it is uploaded as multipart/form-data. If a file with the same name already exists on the issue, it is replaced.`,
+    params: [
+      {
+        name: 'file_content_base64',
+        type: 'string',
+        required: true,
+        description: `Base64-encoded contents of the file to upload.`,
+      },
+      {
+        name: 'filename',
+        type: 'string',
+        required: true,
+        description: `Name of the file to upload, including extension.`,
+      },
+      { name: 'issue_id', type: 'integer', required: true, description: `The issue ID.` },
+      {
+        name: 'repo_slug',
+        type: 'string',
+        required: true,
+        description: `The repository slug or UUID.`,
+      },
+      {
+        name: 'workspace',
+        type: 'string',
+        required: true,
+        description: `The workspace slug or UUID.`,
+      },
+    ],
+  },
+  {
+    name: 'bitbucket_issue_attachments_list',
+    description: `Returns metadata for all attachments on a Bitbucket issue, ordered by upload date. This returns the files' metadata only, not their contents.`,
+    params: [
+      { name: 'issue_id', type: 'integer', required: true, description: `The issue ID.` },
+      {
+        name: 'repo_slug',
+        type: 'string',
+        required: true,
+        description: `The repository slug or UUID.`,
+      },
+      {
+        name: 'workspace',
+        type: 'string',
+        required: true,
+        description: `The workspace slug or UUID.`,
+      },
+    ],
+  },
+  {
     name: 'bitbucket_issue_comment_create',
     description: `Posts a new comment on a Bitbucket issue.`,
     params: [
@@ -1338,6 +1564,12 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `The workspace slug or UUID.`,
+      },
+      {
+        name: 'page',
+        type: 'integer',
+        required: false,
+        description: `Page number for pagination (starts at 1).`,
       },
     ],
   },
@@ -1595,6 +1827,18 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `The workspace slug or UUID.`,
+      },
+      {
+        name: 'page',
+        type: 'integer',
+        required: false,
+        description: `Page number for pagination (starts at 1).`,
+      },
+      {
+        name: 'pagelen',
+        type: 'integer',
+        required: false,
+        description: `Number of items to return per page.`,
       },
       {
         name: 'q',
@@ -2051,6 +2295,18 @@ export const tools: Tool[] = [
         required: true,
         description: `The workspace slug or UUID.`,
       },
+      {
+        name: 'page',
+        type: 'integer',
+        required: false,
+        description: `Page number for pagination (starts at 1).`,
+      },
+      {
+        name: 'pagelen',
+        type: 'integer',
+        required: false,
+        description: `Number of items to return per page.`,
+      },
     ],
   },
   {
@@ -2068,6 +2324,18 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `The workspace slug or UUID.`,
+      },
+      {
+        name: 'page',
+        type: 'integer',
+        required: false,
+        description: `Page number for pagination (starts at 1).`,
+      },
+      {
+        name: 'pagelen',
+        type: 'integer',
+        required: false,
+        description: `Number of items to return per page.`,
       },
       {
         name: 'sort',
@@ -2207,6 +2475,18 @@ export const tools: Tool[] = [
         required: true,
         description: `The workspace slug or UUID.`,
       },
+      {
+        name: 'page',
+        type: 'integer',
+        required: false,
+        description: `Page number for pagination (starts at 1).`,
+      },
+      {
+        name: 'pagelen',
+        type: 'integer',
+        required: false,
+        description: `Number of items to return per page.`,
+      },
     ],
   },
   {
@@ -2286,6 +2566,30 @@ export const tools: Tool[] = [
         type: 'integer',
         required: true,
         description: `The pull request ID to decline.`,
+      },
+      {
+        name: 'repo_slug',
+        type: 'string',
+        required: true,
+        description: `The repository slug or UUID.`,
+      },
+      {
+        name: 'workspace',
+        type: 'string',
+        required: true,
+        description: `The workspace slug or UUID.`,
+      },
+    ],
+  },
+  {
+    name: 'bitbucket_pull_request_diff_get',
+    description: `Returns the diff (list of changes) for a pull request as raw diff text. Bitbucket implements this as a redirect to the equivalent repository diff for the pull request's revision spec.`,
+    params: [
+      {
+        name: 'pull_request_id',
+        type: 'integer',
+        required: true,
+        description: `The pull request ID.`,
       },
       {
         name: 'repo_slug',
@@ -2400,6 +2704,30 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Custom commit message for the merge commit.`,
+      },
+    ],
+  },
+  {
+    name: 'bitbucket_pull_request_patch_get',
+    description: `Returns the patch for a pull request as raw patch text, suitable for applying with 'git apply'. Bitbucket implements this as a redirect to the equivalent repository patch for the pull request's revision spec.`,
+    params: [
+      {
+        name: 'pull_request_id',
+        type: 'integer',
+        required: true,
+        description: `The pull request ID.`,
+      },
+      {
+        name: 'repo_slug',
+        type: 'string',
+        required: true,
+        description: `The repository slug or UUID.`,
+      },
+      {
+        name: 'workspace',
+        type: 'string',
+        required: true,
+        description: `The workspace slug or UUID.`,
       },
     ],
   },
@@ -2717,6 +3045,18 @@ export const tools: Tool[] = [
         required: true,
         description: `The workspace slug or UUID.`,
       },
+      {
+        name: 'page',
+        type: 'integer',
+        required: false,
+        description: `Page number for pagination (starts at 1).`,
+      },
+      {
+        name: 'pagelen',
+        type: 'integer',
+        required: false,
+        description: `Number of items to return per page.`,
+      },
       { name: 'q', type: 'string', required: false, description: `Query to filter pull requests.` },
       {
         name: 'sort',
@@ -2751,6 +3091,190 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'bitbucket_report_annotations_create',
+    description: `Bulk creates or updates up to 100 Code Insights annotations (inline vulnerability, bug, or code-smell findings tied to a file and line) under a report. Reusing the same external_id on a later call updates that annotation instead of creating a duplicate. Sends the annotations as a raw JSON array request body, per Bitbucket's API.`,
+    params: [
+      {
+        name: 'annotations',
+        type: 'array',
+        required: true,
+        description: `Up to 100 annotation objects to create or update. Each object's only mandatory fields are annotation_type (VULNERABILITY, CODE_SMELL, or BUG) and summary. Optional fields per annotation: external_id (a client-chosen unique ID -- reusing it updates that annotation instead of creating a new one), title, severity (CRITICAL, HIGH, MEDIUM, or LOW), path (file path the finding applies to), line (line number), result (PASSED, FAILED, IGNORED, or SKIPPED), link, details.`,
+      },
+      {
+        name: 'commit',
+        type: 'string',
+        required: true,
+        description: `The commit hash the report is attached to.`,
+      },
+      {
+        name: 'repo_slug',
+        type: 'string',
+        required: true,
+        description: `The repository slug or UUID.`,
+      },
+      {
+        name: 'report_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the report to attach these annotations to. The report must already exist (create it first).`,
+      },
+      {
+        name: 'workspace',
+        type: 'string',
+        required: true,
+        description: `The workspace slug or UUID.`,
+      },
+    ],
+  },
+  {
+    name: 'bitbucket_report_annotations_list',
+    description: `Lists the annotations (inline vulnerability, bug, or code-smell findings tied to a file and line) attached to a Code Insights report.`,
+    params: [
+      { name: 'commit', type: 'string', required: true, description: `The commit hash.` },
+      {
+        name: 'repo_slug',
+        type: 'string',
+        required: true,
+        description: `The repository slug or UUID.`,
+      },
+      {
+        name: 'report_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the report whose annotations should be listed.`,
+      },
+      {
+        name: 'workspace',
+        type: 'string',
+        required: true,
+        description: `The workspace slug or UUID.`,
+      },
+    ],
+  },
+  {
+    name: 'bitbucket_report_create',
+    description: `Creates or updates a Code Insights report (test results, security scan, coverage, etc.) on a commit, so CI/CD tool output shows up in the Bitbucket UI. Calling this again with the same report_id updates the existing report instead of creating a duplicate.`,
+    params: [
+      {
+        name: 'commit',
+        type: 'string',
+        required: true,
+        description: `The commit hash to attach the report to.`,
+      },
+      {
+        name: 'details',
+        type: 'string',
+        required: true,
+        description: `A longer description of the report.`,
+      },
+      {
+        name: 'repo_slug',
+        type: 'string',
+        required: true,
+        description: `The repository slug or UUID.`,
+      },
+      {
+        name: 'report_id',
+        type: 'string',
+        required: true,
+        description: `A unique ID for this report, chosen by the reporting tool. Calling this endpoint again with the same report_id updates that report instead of creating a new one.`,
+      },
+      {
+        name: 'report_type',
+        type: 'string',
+        required: true,
+        description: `The type of report. Accepted values: SECURITY, COVERAGE, TEST, BUG, BUILD.`,
+      },
+      { name: 'title', type: 'string', required: true, description: `Title of the report.` },
+      {
+        name: 'workspace',
+        type: 'string',
+        required: true,
+        description: `The workspace slug or UUID.`,
+      },
+      {
+        name: 'data',
+        type: 'array',
+        required: false,
+        description: `Up to 10 custom data points to display on the report, each shaped as {title, type, value}. type accepts: BOOLEAN, DATE, DURATION, LINK, NUMBER, PERCENTAGE, TEXT.`,
+      },
+      {
+        name: 'link',
+        type: 'string',
+        required: false,
+        description: `A URL linking to the full report on the reporting tool's own site.`,
+      },
+      {
+        name: 'logo_url',
+        type: 'string',
+        required: false,
+        description: `A URL to a logo image shown next to the report in the Bitbucket UI.`,
+      },
+      {
+        name: 'remote_link_enabled',
+        type: 'boolean',
+        required: false,
+        description: `Whether the link field should be shown as a clickable link in the Bitbucket UI.`,
+      },
+      {
+        name: 'reporter',
+        type: 'string',
+        required: false,
+        description: `The name of the tool or system that generated this report.`,
+      },
+      {
+        name: 'result',
+        type: 'string',
+        required: false,
+        description: `The overall result of the report. Accepted values: PASSED, FAILED, PENDING.`,
+      },
+    ],
+  },
+  {
+    name: 'bitbucket_report_delete',
+    description: `Deletes a Code Insights report (and its annotations) from a commit.`,
+    params: [
+      { name: 'commit', type: 'string', required: true, description: `The commit hash.` },
+      {
+        name: 'repo_slug',
+        type: 'string',
+        required: true,
+        description: `The repository slug or UUID.`,
+      },
+      {
+        name: 'report_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the report to delete.`,
+      },
+      {
+        name: 'workspace',
+        type: 'string',
+        required: true,
+        description: `The workspace slug or UUID.`,
+      },
+    ],
+  },
+  {
+    name: 'bitbucket_reports_list',
+    description: `Lists the Code Insights reports (test results, security scans, coverage, etc.) attached to a specific commit.`,
+    params: [
+      { name: 'commit', type: 'string', required: true, description: `The commit hash.` },
+      {
+        name: 'repo_slug',
+        type: 'string',
+        required: true,
+        description: `The repository slug or UUID.`,
+      },
+      {
+        name: 'workspace',
+        type: 'string',
+        required: true,
+        description: `The workspace slug or UUID.`,
+      },
+    ],
+  },
+  {
     name: 'bitbucket_repositories_list',
     description: `Returns all repositories in a Bitbucket workspace.`,
     params: [
@@ -2759,6 +3283,18 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `The workspace slug or UUID.`,
+      },
+      {
+        name: 'page',
+        type: 'integer',
+        required: false,
+        description: `Page number for pagination (starts at 1).`,
+      },
+      {
+        name: 'pagelen',
+        type: 'integer',
+        required: false,
+        description: `Number of items to return per page.`,
       },
       {
         name: 'q',
@@ -2879,6 +3415,54 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Workspace to fork into. Defaults to the authenticated user's workspace.`,
+      },
+    ],
+  },
+  {
+    name: 'bitbucket_repository_forks_list',
+    description: `Returns a paginated list of all forks of a Bitbucket repository. Distinct from Fork Repository, which creates a new fork rather than listing existing ones.`,
+    params: [
+      {
+        name: 'repo_slug',
+        type: 'string',
+        required: true,
+        description: `The repository slug or UUID.`,
+      },
+      {
+        name: 'workspace',
+        type: 'string',
+        required: true,
+        description: `The workspace slug or UUID.`,
+      },
+      {
+        name: 'page',
+        type: 'integer',
+        required: false,
+        description: `Page number for pagination.`,
+      },
+      {
+        name: 'pagelen',
+        type: 'integer',
+        required: false,
+        description: `Number of results per page.`,
+      },
+      {
+        name: 'q',
+        type: 'string',
+        required: false,
+        description: `Query to filter forks, e.g. name~"my-fork".`,
+      },
+      {
+        name: 'role',
+        type: 'string',
+        required: false,
+        description: `Filter by the authenticated user's role on each fork: member, contributor, admin, or owner.`,
+      },
+      {
+        name: 'sort',
+        type: 'string',
+        required: false,
+        description: `Sort field, e.g. -updated_on for newest first.`,
       },
     ],
   },
@@ -3138,6 +3722,103 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'bitbucket_snippet_create',
+    description: `Create a new Bitbucket snippet in a workspace from a single file. The file content must be supplied as a base64-encoded string along with its filename; it is uploaded as multipart/form-data. Optionally set a title and whether the snippet is private (defaults to private).`,
+    params: [
+      {
+        name: 'file_content_base64',
+        type: 'string',
+        required: true,
+        description: `Base64-encoded contents of the snippet file.`,
+      },
+      {
+        name: 'filename',
+        type: 'string',
+        required: true,
+        description: `Name of the file to include in the snippet, including extension.`,
+      },
+      {
+        name: 'workspace',
+        type: 'string',
+        required: true,
+        description: `The workspace slug or UUID.`,
+      },
+      {
+        name: 'is_private',
+        type: 'boolean',
+        required: false,
+        description: `Whether the snippet is private. Defaults to true.`,
+      },
+      { name: 'title', type: 'string', required: false, description: `Title of the snippet.` },
+    ],
+  },
+  {
+    name: 'bitbucket_snippet_delete',
+    description: `Permanently delete a Bitbucket snippet. This action cannot be undone.`,
+    params: [
+      {
+        name: 'encoded_id',
+        type: 'string',
+        required: true,
+        description: `The encoded ID of the snippet to delete.`,
+      },
+      {
+        name: 'workspace',
+        type: 'string',
+        required: true,
+        description: `The workspace slug or UUID.`,
+      },
+    ],
+  },
+  {
+    name: 'bitbucket_snippet_get',
+    description: `Retrieve a single Bitbucket snippet by its encoded ID, including its title, files, and owner metadata.`,
+    params: [
+      {
+        name: 'encoded_id',
+        type: 'string',
+        required: true,
+        description: `The encoded ID of the snippet to retrieve.`,
+      },
+      {
+        name: 'workspace',
+        type: 'string',
+        required: true,
+        description: `The workspace slug or UUID.`,
+      },
+    ],
+  },
+  {
+    name: 'bitbucket_snippets_list',
+    description: `List code snippets owned by a Bitbucket workspace. Snippets are small, shareable pieces of code or text, similar to a lightweight Gist. Supports filtering by the authenticated user's role and pagination.`,
+    params: [
+      {
+        name: 'workspace',
+        type: 'string',
+        required: true,
+        description: `The workspace slug or UUID.`,
+      },
+      {
+        name: 'page',
+        type: 'integer',
+        required: false,
+        description: `Page number for pagination.`,
+      },
+      {
+        name: 'pagelen',
+        type: 'integer',
+        required: false,
+        description: `Number of results per page.`,
+      },
+      {
+        name: 'role',
+        type: 'string',
+        required: false,
+        description: `Filter by the authenticated user's role: owner, contributor, or member.`,
+      },
+    ],
+  },
+  {
     name: 'bitbucket_src_get',
     description: `Retrieves metadata (size, type, mimetype, last commit) for a file or directory in a Bitbucket repository at a specific commit. Returns JSON metadata via format=meta.`,
     params: [
@@ -3232,6 +3913,18 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `The workspace slug or UUID.`,
+      },
+      {
+        name: 'page',
+        type: 'integer',
+        required: false,
+        description: `Page number for pagination (starts at 1).`,
+      },
+      {
+        name: 'pagelen',
+        type: 'integer',
+        required: false,
+        description: `Number of items to return per page.`,
       },
       { name: 'q', type: 'string', required: false, description: `Filter query for tags.` },
       { name: 'sort', type: 'string', required: false, description: `Sort field.` },
@@ -3444,6 +4137,18 @@ export const tools: Tool[] = [
         required: true,
         description: `The workspace slug or UUID.`,
       },
+      {
+        name: 'page',
+        type: 'integer',
+        required: false,
+        description: `Page number for pagination (starts at 1).`,
+      },
+      {
+        name: 'pagelen',
+        type: 'integer',
+        required: false,
+        description: `Number of items to return per page.`,
+      },
     ],
   },
   {
@@ -3467,6 +4172,18 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `The workspace slug or UUID.`,
+      },
+      {
+        name: 'page',
+        type: 'integer',
+        required: false,
+        description: `Page number for pagination (starts at 1).`,
+      },
+      {
+        name: 'pagelen',
+        type: 'integer',
+        required: false,
+        description: `Number of items to return per page.`,
       },
     ],
   },
@@ -3697,6 +4414,150 @@ export const tools: Tool[] = [
         type: 'integer',
         required: false,
         description: `Number of results per page (max 100).`,
+      },
+    ],
+  },
+  {
+    name: 'bitbucket_workspace_webhook_create',
+    description: `Creates a new webhook on a Bitbucket workspace. Workspace webhooks fire for events from every repository contained in that workspace, unlike repository webhooks which only fire for one repository. Only workspace owners can install workspace webhooks.`,
+    params: [
+      {
+        name: 'events',
+        type: 'string',
+        required: true,
+        description: `JSON array of event types to subscribe to, e.g. ["repo:push","issue:created"].`,
+      },
+      {
+        name: 'url',
+        type: 'string',
+        required: true,
+        description: `The URL to receive webhook payloads.`,
+      },
+      {
+        name: 'workspace',
+        type: 'string',
+        required: true,
+        description: `The workspace slug or UUID.`,
+      },
+      {
+        name: 'active',
+        type: 'boolean',
+        required: false,
+        description: `Whether the webhook is active.`,
+      },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `A human-readable description of the webhook.`,
+      },
+      {
+        name: 'secret',
+        type: 'string',
+        required: false,
+        description: `Secret string used to compute the HMAC signature of webhook payloads.`,
+      },
+    ],
+  },
+  {
+    name: 'bitbucket_workspace_webhook_delete',
+    description: `Deletes a webhook from a Bitbucket workspace.`,
+    params: [
+      {
+        name: 'uid',
+        type: 'string',
+        required: true,
+        description: `The UID of the workspace webhook.`,
+      },
+      {
+        name: 'workspace',
+        type: 'string',
+        required: true,
+        description: `The workspace slug or UUID.`,
+      },
+    ],
+  },
+  {
+    name: 'bitbucket_workspace_webhook_get',
+    description: `Returns the details of a specific webhook installed on a Bitbucket workspace.`,
+    params: [
+      {
+        name: 'uid',
+        type: 'string',
+        required: true,
+        description: `The UID of the workspace webhook.`,
+      },
+      {
+        name: 'workspace',
+        type: 'string',
+        required: true,
+        description: `The workspace slug or UUID.`,
+      },
+    ],
+  },
+  {
+    name: 'bitbucket_workspace_webhook_update',
+    description: `Updates an existing webhook on a Bitbucket workspace, including its URL, events, and active status.`,
+    params: [
+      {
+        name: 'events',
+        type: 'string',
+        required: true,
+        description: `JSON array of event types to subscribe to, e.g. ["repo:push","issue:created"].`,
+      },
+      {
+        name: 'uid',
+        type: 'string',
+        required: true,
+        description: `The UID of the workspace webhook to update.`,
+      },
+      {
+        name: 'url',
+        type: 'string',
+        required: true,
+        description: `The URL to receive webhook payloads.`,
+      },
+      {
+        name: 'workspace',
+        type: 'string',
+        required: true,
+        description: `The workspace slug or UUID.`,
+      },
+      {
+        name: 'active',
+        type: 'boolean',
+        required: false,
+        description: `Whether the webhook is active.`,
+      },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `A human-readable description of the webhook.`,
+      },
+    ],
+  },
+  {
+    name: 'bitbucket_workspace_webhooks_list',
+    description: `Returns a paginated list of webhooks installed on a Bitbucket workspace.`,
+    params: [
+      {
+        name: 'workspace',
+        type: 'string',
+        required: true,
+        description: `The workspace slug or UUID.`,
+      },
+      {
+        name: 'page',
+        type: 'integer',
+        required: false,
+        description: `Page number for pagination.`,
+      },
+      {
+        name: 'pagelen',
+        type: 'integer',
+        required: false,
+        description: `Number of results per page.`,
       },
     ],
   },

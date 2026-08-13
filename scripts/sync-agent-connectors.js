@@ -193,6 +193,15 @@ function escapeCurlyBraces(text) {
   return text.replace(/\{/g, '&#123;').replace(/\}/g, '&#125;')
 }
 
+/**
+ * Make free-form tool text safe to embed in MDX prose (capability bullets, etc.).
+ * - `{name}` → HTML entities (MDX would otherwise evaluate as a JS expression)
+ * - `<role_name>` → inline code (MDX would otherwise parse as a JSX tag)
+ */
+function escapeMdxProse(text) {
+  return escapeCurlyBraces(String(text || '')).replace(/<[^>\n]+>/g, (match) => '`' + match + '`')
+}
+
 function pushTextNode(nodes, value) {
   if (!value) return
   const last = nodes[nodes.length - 1]
@@ -916,7 +925,9 @@ function generateCapabilityBullets(tools, providerName) {
       .join(', ')
 
     const desc = groupTools[0].description || ''
-    const firstSentence = desc.split(/\.\s/)[0].replace(/\.$/, '').trim()
+    // MDX treats bare <ident> as JSX tags and {ident} as expressions.
+    // Escape both so tool-description placeholders stay literal prose.
+    const firstSentence = escapeMdxProse(desc.split(/\.\s/)[0].replace(/\.$/, '').trim())
     const label = objects
       ? `**${action.charAt(0).toUpperCase() + action.slice(1)} ${objects}**`
       : `**${action.charAt(0).toUpperCase() + action.slice(1)} records**`
@@ -1356,7 +1367,7 @@ function generateMdxContent(provider, tools) {
     const overrideBullets = CAPABILITY_OVERRIDES[providerSlug]
     const bullets =
       Array.isArray(overrideBullets) && overrideBullets.length > 0
-        ? overrideBullets.map((b) => `- ${b}`)
+        ? overrideBullets.map((b) => `- ${escapeMdxProse(b)}`)
         : generateCapabilityBullets(tools, providerName)
 
     lines.push('## What you can do')

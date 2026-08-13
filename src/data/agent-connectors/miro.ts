@@ -762,6 +762,84 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'miro_doc_item_create',
+    description: `Creates a doc format item (a native markdown text block) on a Miro board.`,
+    params: [
+      {
+        name: 'board_id',
+        type: 'string',
+        required: true,
+        description: `Unique identifier of the board.`,
+      },
+      {
+        name: 'content',
+        type: 'string',
+        required: true,
+        description: `Markdown text content of the doc item.`,
+      },
+      {
+        name: 'parent_id',
+        type: 'string',
+        required: false,
+        description: `ID of a parent frame to place the doc item inside.`,
+      },
+      {
+        name: 'position_x',
+        type: 'number',
+        required: false,
+        description: `X coordinate on the board (0 = center).`,
+      },
+      {
+        name: 'position_y',
+        type: 'number',
+        required: false,
+        description: `Y coordinate on the board (0 = center).`,
+      },
+    ],
+  },
+  {
+    name: 'miro_doc_item_delete',
+    description: `Deletes a doc format item from a Miro board.`,
+    params: [
+      {
+        name: 'board_id',
+        type: 'string',
+        required: true,
+        description: `Unique identifier of the board.`,
+      },
+      {
+        name: 'item_id',
+        type: 'string',
+        required: true,
+        description: `Unique identifier of the doc item to delete.`,
+      },
+    ],
+  },
+  {
+    name: 'miro_doc_item_get',
+    description: `Retrieves a specific doc format item from a Miro board.`,
+    params: [
+      {
+        name: 'board_id',
+        type: 'string',
+        required: true,
+        description: `Unique identifier of the board.`,
+      },
+      {
+        name: 'item_id',
+        type: 'string',
+        required: true,
+        description: `Unique identifier of the doc item to retrieve.`,
+      },
+      {
+        name: 'text_content_type',
+        type: 'string',
+        required: false,
+        description: `Controls the content type of the returned doc's content: html or markdown.`,
+      },
+    ],
+  },
+  {
     name: 'miro_document_create',
     description: `Creates a document item on a Miro board from a publicly accessible URL.`,
     params: [
@@ -1197,6 +1275,60 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `Unique identifier of the group.`,
+      },
+    ],
+  },
+  {
+    name: 'miro_group_items_lookup',
+    description: `Given the ID of any item that belongs to a group, returns all items that are part of that same group on the board.`,
+    params: [
+      {
+        name: 'board_id',
+        type: 'string',
+        required: true,
+        description: `Unique identifier of the board.`,
+      },
+      {
+        name: 'group_item_id',
+        type: 'string',
+        required: true,
+        description: `The ID of any item that belongs to the group you want to look up.`,
+      },
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Cursor from a previous response, used to fetch the next page of results.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of items to return (default 10, max 50).`,
+      },
+    ],
+  },
+  {
+    name: 'miro_group_update',
+    description: `Replaces the membership of an existing item group with a new set of items. The original group is replaced entirely and is assigned a new group ID.`,
+    params: [
+      {
+        name: 'board_id',
+        type: 'string',
+        required: true,
+        description: `Unique identifier of the board.`,
+      },
+      {
+        name: 'group_id',
+        type: 'string',
+        required: true,
+        description: `Unique identifier of the group to update.`,
+      },
+      {
+        name: 'item_ids',
+        type: 'array',
+        required: true,
+        description: `Array of item IDs that should make up the group after the update.`,
       },
     ],
   },
@@ -1687,6 +1819,52 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'miro_project_member_get',
+    description: `Retrieves information about a specific member of a project. Enterprise plan only.`,
+    params: [
+      {
+        name: 'member_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the member to retrieve.`,
+      },
+      {
+        name: 'org_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the organization.`,
+      },
+      { name: 'project_id', type: 'string', required: true, description: `The ID of the project.` },
+      { name: 'team_id', type: 'string', required: true, description: `The ID of the team.` },
+    ],
+  },
+  {
+    name: 'miro_project_member_update',
+    description: `Updates the role of an existing project member. Enterprise plan only.`,
+    params: [
+      {
+        name: 'member_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the member to update.`,
+      },
+      {
+        name: 'org_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the organization.`,
+      },
+      { name: 'project_id', type: 'string', required: true, description: `The ID of the project.` },
+      { name: 'team_id', type: 'string', required: true, description: `The ID of the team.` },
+      {
+        name: 'role',
+        type: 'string',
+        required: false,
+        description: `The new role for the member: owner, coowner, editor, commentator, or viewer.`,
+      },
+    ],
+  },
+  {
     name: 'miro_project_members_list',
     description: `Lists members of a project (Enterprise only).`,
     params: [
@@ -1695,6 +1873,60 @@ export const tools: Tool[] = [
       { name: 'team_id', type: 'string', required: true, description: `Team ID.` },
       { name: 'cursor', type: 'string', required: false, description: `Pagination cursor.` },
       { name: 'limit', type: 'integer', required: false, description: `Max results.` },
+    ],
+  },
+  {
+    name: 'miro_project_settings_get',
+    description: `Retrieves the sharing and access settings for a project. Enterprise plan only.`,
+    params: [
+      {
+        name: 'org_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the organization.`,
+      },
+      { name: 'project_id', type: 'string', required: true, description: `The ID of the project.` },
+      { name: 'team_id', type: 'string', required: true, description: `The ID of the team.` },
+    ],
+  },
+  {
+    name: 'miro_project_settings_update',
+    description: `Updates the sharing and access settings for a project, such as who can view or edit its boards by default. Enterprise plan only.`,
+    params: [
+      {
+        name: 'org_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the organization.`,
+      },
+      { name: 'project_id', type: 'string', required: true, description: `The ID of the project.` },
+      { name: 'team_id', type: 'string', required: true, description: `The ID of the team.` },
+      {
+        name: 'team_access',
+        type: 'string',
+        required: false,
+        description: `Default access level for team members: private, view, edit, or comment.`,
+      },
+    ],
+  },
+  {
+    name: 'miro_project_update',
+    description: `Updates a project's (space's) name. Enterprise plan only; requires Company Admin or Team Admin permissions.`,
+    params: [
+      { name: 'name', type: 'string', required: true, description: `The new name of the project.` },
+      {
+        name: 'org_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the organization.`,
+      },
+      {
+        name: 'project_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the project to update.`,
+      },
+      { name: 'team_id', type: 'string', required: true, description: `The ID of the team.` },
     ],
   },
   {

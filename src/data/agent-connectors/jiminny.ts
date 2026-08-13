@@ -56,6 +56,18 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'jiminny_activity_get',
+    description: `Retrieve a single completed and processed activity by its ID, including tracks, participants, transcription summary, topic triggers, and CRM data.`,
+    params: [
+      {
+        name: 'activityId',
+        type: 'string',
+        required: true,
+        description: `The UUID of the activity to retrieve.`,
+      },
+    ],
+  },
+  {
     name: 'jiminny_activity_upload',
     description: `Upload a call or meeting recording file to Jiminny for transcription and analysis, returning the new activity ID on success.`,
     params: [
@@ -122,6 +134,42 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'jiminny_ai_scorecard_get',
+    description: `Retrieve the AI-generated scorecard results for a given activity, returning the conversation intelligence scoring breakdown.`,
+    params: [
+      {
+        name: 'activityId',
+        type: 'string',
+        required: true,
+        description: `The UUID of the activity to retrieve scorecard results for.`,
+      },
+    ],
+  },
+  {
+    name: 'jiminny_ai_scorecards_list',
+    description: `Retrieve a paginated list of AI scorecard results completed within a required date range. Filtered by the date scoring completed, not the call date.`,
+    params: [
+      {
+        name: 'fromDate',
+        type: 'string',
+        required: true,
+        description: `Return scorecards completed on or after this UTC date-time (e.g. 2024-10-01 00:00:00). Must be before toDate.`,
+      },
+      {
+        name: 'toDate',
+        type: 'string',
+        required: true,
+        description: `Return scorecards completed on or before this UTC date-time (e.g. 2024-11-01 00:00:00). Must be after fromDate.`,
+      },
+      {
+        name: 'page',
+        type: 'integer',
+        required: false,
+        description: `Page number to retrieve. Default is 1.`,
+      },
+    ],
+  },
+  {
     name: 'jiminny_automated_call_scoring_list',
     description: `Retrieve automated call scoring records with optional filters by user and date range, returning scores, activity types, and user details.`,
     params: [
@@ -142,6 +190,84 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Optional UUID of the user to filter automated call scoring results by.`,
+      },
+    ],
+  },
+  {
+    name: 'jiminny_automated_report_download_get',
+    description: `Retrieve a short-lived presigned download URL (expires after 15 minutes) for an artifact of an automated report's latest result.`,
+    params: [
+      {
+        name: 'reportId',
+        type: 'string',
+        required: true,
+        description: `The UUID of the automated report to download.`,
+      },
+      {
+        name: 'format',
+        type: 'string',
+        required: false,
+        description: `Which artifact of the report to download.`,
+      },
+    ],
+  },
+  {
+    name: 'jiminny_automated_report_get',
+    description: `Retrieve a single automated report, including its latest result. Returns 404 for reports outside your organization, soft-deleted reports, or reports not shared with any team.`,
+    params: [
+      {
+        name: 'reportId',
+        type: 'string',
+        required: true,
+        description: `The UUID of the automated report to retrieve.`,
+      },
+    ],
+  },
+  {
+    name: 'jiminny_automated_report_status_get',
+    description: `Lightweight poll endpoint that returns the generation status of an automated report's latest result, without the full report payload.`,
+    params: [
+      {
+        name: 'reportId',
+        type: 'string',
+        required: true,
+        description: `The UUID of the automated report to check.`,
+      },
+    ],
+  },
+  {
+    name: 'jiminny_automated_reports_list',
+    description: `Retrieve a paginated list of the authenticated organization's automated (exec) reports. A report is only returned if it has been shared with at least one team; reports shared only with individuals, or not shared at all, are never returned.`,
+    params: [
+      {
+        name: 'frequency',
+        type: 'string',
+        required: false,
+        description: `Filter by report frequency.`,
+      },
+      {
+        name: 'fromDate',
+        type: 'string',
+        required: false,
+        description: `Only return reports created on or after this UTC date-time.`,
+      },
+      {
+        name: 'page',
+        type: 'integer',
+        required: false,
+        description: `Page number to return (page size is 100 reports). Default is 1.`,
+      },
+      {
+        name: 'reportType',
+        type: 'array',
+        required: false,
+        description: `Filter by one or more report types.`,
+      },
+      {
+        name: 'toDate',
+        type: 'string',
+        required: false,
+        description: `Only return reports created on or before this UTC date-time.`,
       },
     ],
   },
@@ -331,6 +457,77 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `The webhook trigger event type to get a sample payload for.`,
+      },
+    ],
+  },
+  {
+    name: 'jiminny_webhooks_list',
+    description: `Retrieve all webhook subscriptions registered for the authenticated organization, including their trigger, destination URL, and external ID.`,
+    params: [],
+  },
+  {
+    name: 'jiminny_zapier_activity_upload',
+    description: `Upload a call or meeting activity to Jiminny by providing a publicly accessible recording URL instead of a file upload, returning the new or existing activity ID. If externalId is provided and already exists for the host user, the existing activity is returned instead of creating a duplicate.`,
+    params: [
+      {
+        name: 'hostUserEmail',
+        type: 'string',
+        required: true,
+        description: `The email address of the host user. Must belong to the authenticated team.`,
+      },
+      {
+        name: 'language',
+        type: 'string',
+        required: true,
+        description: `The language locale of the activity. Accepts BCP 47 format (e.g. en-US, en_US, en); bare language codes are expanded to the first known dialect.`,
+      },
+      {
+        name: 'recordingUrl',
+        type: 'string',
+        required: true,
+        description: `A publicly accessible URL to the recording file (audio or video).`,
+      },
+      {
+        name: 'title',
+        type: 'string',
+        required: true,
+        description: `The title of the activity (max 250 characters).`,
+      },
+      {
+        name: 'accountId',
+        type: 'string',
+        required: false,
+        description: `An optional CRM Account ID to associate with this activity (max 100 characters).`,
+      },
+      {
+        name: 'completedAt',
+        type: 'string',
+        required: false,
+        description: `The date and time the call was completed (ISO 8601).`,
+      },
+      {
+        name: 'externalId',
+        type: 'string',
+        required: false,
+        description: `An optional external identifier for this activity (max 191 characters), used for idempotency. Must be unique per host user.`,
+      },
+      {
+        name: 'leadId',
+        type: 'string',
+        required: false,
+        description: `An optional CRM Lead ID to associate with this activity (max 180 characters).`,
+      },
+      {
+        name: 'notifyForUploadCompletionByEmail',
+        type: 'boolean',
+        required: false,
+        description: `Whether to notify the host user via email when processing is complete.`,
+      },
+      {
+        name: 'opportunityId',
+        type: 'string',
+        required: false,
+        description: `An optional CRM Opportunity ID to associate with this activity (max 100 characters).`,
       },
     ],
   },

@@ -117,6 +117,60 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'phantombuster_agent_launch_sync',
+    description: `Launch a PhantomBuster agent and stream its execution status until the container finishes. Unlike Launch Agent (which queues the run and returns immediately with a container ID), this call blocks and returns the full execution outcome (start info, and a final summary with exit code and duration) in one response.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The unique identifier of the agent to launch.`,
+      },
+      {
+        name: 'argument',
+        type: 'object',
+        required: false,
+        description: `JSON object of input arguments to pass to the agent for this execution. Overrides saved arguments.`,
+      },
+      {
+        name: 'bonusArgument',
+        type: 'object',
+        required: false,
+        description: `Single-use argument merged with the primary argument for this launch only (not persisted).`,
+      },
+      {
+        name: 'includeLogs',
+        type: 'boolean',
+        required: false,
+        description: `Whether to include the agent's console logs in the streamed response. Defaults to false.`,
+      },
+      {
+        name: 'manualLaunch',
+        type: 'boolean',
+        required: false,
+        description: `Marks this execution as manually triggered rather than scheduled.`,
+      },
+      {
+        name: 'maxInstanceCount',
+        type: 'integer',
+        required: false,
+        description: `Only launch if the number of currently running instances of this agent is below this threshold.`,
+      },
+      {
+        name: 'persistedVolumeKey',
+        type: 'string',
+        required: false,
+        description: `Identifies a persisted volume to attach to this run (max 256 chars, alphanumeric with . _ -).`,
+      },
+      {
+        name: 'saveArgument',
+        type: 'boolean',
+        required: false,
+        description: `Whether to persist the provided argument as the agent's default for future launches.`,
+      },
+    ],
+  },
+  {
     name: 'phantombuster_agent_save',
     description: `Create a new PhantomBuster agent or update an existing one. Supports configuring the script, schedule, proxy, notifications, execution limits, and launch arguments. Pass an ID to update; omit to create.`,
     params: [
@@ -223,6 +277,30 @@ export const tools: Tool[] = [
     params: [],
   },
   {
+    name: 'phantombuster_ai_advice',
+    description: `Get a recommendation from PhantomBuster's AI service based on a conversation history.`,
+    params: [
+      {
+        name: 'messages',
+        type: 'array',
+        required: true,
+        description: `Array of conversation messages. Each must have a role (assistant or user) and content string.`,
+      },
+      {
+        name: 'model',
+        type: 'string',
+        required: false,
+        description: `AI model to use for the advice.`,
+      },
+      {
+        name: 'temperature',
+        type: 'number',
+        required: false,
+        description: `Sampling temperature (0-2). Lower is more deterministic, higher is more creative.`,
+      },
+    ],
+  },
+  {
     name: 'phantombuster_ai_completions',
     description: `Get an AI text completion from PhantomBuster's AI service. Supports multiple models including GPT-4o and GPT-4.1-mini. Optionally request structured JSON output via a response schema.`,
     params: [
@@ -247,6 +325,30 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'phantombuster_ai_task',
+    description: `Run a task through PhantomBuster's AI task provider (e.g., a Hugging Face inference task).`,
+    params: [
+      {
+        name: 'data',
+        type: 'object',
+        required: true,
+        description: `The data to use to perform the task. Must include an 'inputs' field (string or array) and may include a 'parameters' object.`,
+      },
+      {
+        name: 'task',
+        type: 'string',
+        required: true,
+        description: `The task to perform, e.g. a Hugging Face pipeline task name.`,
+      },
+      {
+        name: 'provider',
+        type: 'string',
+        required: false,
+        description: `The provider to use to perform the task.`,
+      },
+    ],
+  },
+  {
     name: 'phantombuster_branch_create',
     description: `Create a new script branch in the current PhantomBuster organization.`,
     params: [
@@ -263,6 +365,18 @@ export const tools: Tool[] = [
     description: `Permanently delete a branch by ID from the current PhantomBuster organization.`,
     params: [
       { name: 'id', type: 'string', required: true, description: `ID of the branch to delete.` },
+    ],
+  },
+  {
+    name: 'phantombuster_branch_diff',
+    description: `Get the length difference between the staging and release branch of all scripts in the current organization.`,
+    params: [
+      {
+        name: 'name',
+        type: 'string',
+        required: false,
+        description: `Name of a specific branch to diff. Omit to diff all branches.`,
+      },
     ],
   },
   {
@@ -287,6 +401,96 @@ export const tools: Tool[] = [
     name: 'phantombuster_branches_fetch_all',
     description: `Retrieve all branches associated with the current PhantomBuster organization.`,
     params: [],
+  },
+  {
+    name: 'phantombuster_buyers_personas_fetch_all',
+    description: `Retrieve all buyer personas configured for the current PhantomBuster organization, including each persona's linked Ideal Customer Profile, target job titles, countries, pain points, and goals.`,
+    params: [],
+  },
+  {
+    name: 'phantombuster_companies_save',
+    description: `Save a single company object to PhantomBuster organization storage.`,
+    params: [
+      {
+        name: 'linkedinCompanyId',
+        type: 'string',
+        required: true,
+        description: `The external LinkedIn ID of the scraped company.`,
+      },
+      {
+        name: 'properties',
+        type: 'object',
+        required: true,
+        description: `Key-value pairs of company properties.`,
+      },
+      {
+        name: 'slug',
+        type: 'string',
+        required: true,
+        description: `The slug of the company object.`,
+      },
+      { name: 'type', type: 'string', required: true, description: `The type of company object.` },
+      {
+        name: 'id',
+        type: 'string',
+        required: false,
+        description: `The internal id of the company object, if updating an existing one.`,
+      },
+      {
+        name: 'orgId',
+        type: 'string',
+        required: false,
+        description: `The organization id associated with the company object.`,
+      },
+    ],
+  },
+  {
+    name: 'phantombuster_companies_save_many',
+    description: `Save multiple company objects at once to PhantomBuster organization storage. Accepts between 1 and 20 companies per call.`,
+    params: [
+      {
+        name: 'companies',
+        type: 'array',
+        required: true,
+        description: `Array of company objects to save (1-20 items). Each requires linkedinCompanyId, type, slug, and properties.`,
+      },
+    ],
+  },
+  {
+    name: 'phantombuster_companies_search',
+    description: `Search company objects stored in PhantomBuster organization storage, optionally filtered by field criteria. Returns matching company objects and, when requested, a total count.`,
+    params: [
+      {
+        name: 'filter',
+        type: 'object',
+        required: false,
+        description: `Filter criteria as a JSON object keyed by field name, e.g. {"properties.industry": {"operator": "equals", "valueToCompare": "Software"}}. Supports "and"/"or" composition and a "__global_search__" key for a global keyword search. Omit to return all company objects.`,
+      },
+      {
+        name: 'includeTotalCount',
+        type: 'boolean',
+        required: false,
+        description: `Include the total count of matching company objects in the response.`,
+      },
+      {
+        name: 'paginationOffset',
+        type: 'integer',
+        required: false,
+        description: `Offset for pagination.`,
+      },
+      {
+        name: 'paginationOrder',
+        type: 'string',
+        required: false,
+        description: `Sort order for pagination.`,
+      },
+      {
+        name: 'paginationSize',
+        type: 'integer',
+        required: false,
+        description: `Number of company objects per page.`,
+      },
+    ],
   },
   {
     name: 'phantombuster_container_attach',
@@ -368,6 +572,41 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'phantombuster_icps_fetch_all',
+    description: `Retrieve all Ideal Customer Profiles (ICPs) configured for the current PhantomBuster organization, including each ICP's target market and company size criteria.`,
+    params: [],
+  },
+  {
+    name: 'phantombuster_identities_search',
+    description: `Search stored PhantomBuster identities (saved login sessions used by agents to authenticate to platforms like LinkedIn or Google) by ID, session cookie, or profile ID.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: false,
+        description: `ID of the identity to search for.`,
+      },
+      {
+        name: 'profileId',
+        type: 'string',
+        required: false,
+        description: `Profile ID to search for.`,
+      },
+      {
+        name: 'sessionCookie',
+        type: 'string',
+        required: false,
+        description: `Session cookie value to search for.`,
+      },
+      {
+        name: 'type',
+        type: 'string',
+        required: false,
+        description: `Type of identity to search. Defaults to linkedin when omitted.`,
+      },
+    ],
+  },
+  {
     name: 'phantombuster_leads_delete_many',
     description: `Permanently delete multiple leads from PhantomBuster organization storage by their IDs.`,
     params: [
@@ -411,6 +650,42 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'phantombuster_leads_objects_search',
+    description: `Search structured lead objects stored in PhantomBuster organization storage, optionally filtered by field criteria. This is distinct from the simpler leads store used by Save Lead / Get Leads by List — lead objects carry a type/slug/properties structure similar to company objects.`,
+    params: [
+      {
+        name: 'filter',
+        type: 'object',
+        required: false,
+        description: `Filter criteria as a JSON object keyed by field name, e.g. {"lead.jobTitle": {"operator": "contains", "valueToCompare": "Founder"}}. Supports "and"/"or" composition and a "__global_search__" key for a global keyword search. Omit to return all lead objects.`,
+      },
+      {
+        name: 'includeTotalCount',
+        type: 'boolean',
+        required: false,
+        description: `Include the total count of matching lead objects in the response.`,
+      },
+      {
+        name: 'paginationOffset',
+        type: 'integer',
+        required: false,
+        description: `Offset for pagination.`,
+      },
+      {
+        name: 'paginationOrder',
+        type: 'string',
+        required: false,
+        description: `Sort order for pagination.`,
+      },
+      {
+        name: 'paginationSize',
+        type: 'integer',
+        required: false,
+        description: `Number of lead objects per page.`,
+      },
+    ],
+  },
+  {
     name: 'phantombuster_leads_save',
     description: `Save a single lead to PhantomBuster organization storage.`,
     params: [
@@ -441,6 +716,37 @@ export const tools: Tool[] = [
     description: `Retrieve a specific lead list from PhantomBuster organization storage by its ID.`,
     params: [
       { name: 'id', type: 'string', required: true, description: `ID of the lead list to fetch.` },
+    ],
+  },
+  {
+    name: 'phantombuster_list_save',
+    description: `Create or update a lead list in PhantomBuster organization storage, defined by a name and a filter over stored leads. Provide id to update an existing list, or omit it to create a new one.`,
+    params: [
+      {
+        name: 'filter',
+        type: 'object',
+        required: true,
+        description: `Filter criteria defining which stored leads belong to this list, as a JSON object keyed by field name, e.g. {"jobTitle": {"operator": "contains", "valueToCompare": "Founder"}}. Supports "and"/"or" composition and a "__global_search__" key for a global keyword search.`,
+      },
+      { name: 'name', type: 'string', required: true, description: `Name of the lead list.` },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `Description of the lead list.`,
+      },
+      {
+        name: 'id',
+        type: 'string',
+        required: false,
+        description: `ID of an existing lead list to update. Omit to create a new list.`,
+      },
+      {
+        name: 'tags',
+        type: 'array',
+        required: false,
+        description: `Tags to associate with this lead list.`,
+      },
     ],
   },
   {
@@ -526,6 +832,18 @@ export const tools: Tool[] = [
     params: [],
   },
   {
+    name: 'phantombuster_org_fetch_crm_resources',
+    description: `Get the current organization's requested CRM resources, such as available contact lists or contact properties. Requires a CRM integration to be configured.`,
+    params: [
+      {
+        name: 'resourceType',
+        type: 'string',
+        required: true,
+        description: `The type of CRM resource to fetch.`,
+      },
+    ],
+  },
+  {
     name: 'phantombuster_org_fetch_resources',
     description: `Retrieve the current PhantomBuster organization's resource usage and limits. Returns daily and monthly usage for execution time, mail, captcha, AI credits, SERP credits, storage, and agent count.`,
     params: [],
@@ -577,6 +895,49 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'phantombuster_script_code_fetch',
+    description: `Retrieve the JavaScript source code of a PhantomBuster script.`,
+    params: [
+      {
+        name: 'script',
+        type: 'string',
+        required: true,
+        description: `The filename of the script, e.g. my-script.js.`,
+      },
+      {
+        name: 'branch',
+        type: 'string',
+        required: false,
+        description: `Branch of the script to fetch code from.`,
+      },
+      {
+        name: 'environment',
+        type: 'string',
+        required: false,
+        description: `Environment of the script to fetch code from.`,
+      },
+    ],
+  },
+  {
+    name: 'phantombuster_script_delete',
+    description: `Permanently delete a custom PhantomBuster script by its ID. This action is irreversible.`,
+    params: [
+      { name: 'id', type: 'string', required: true, description: `ID of the script to delete.` },
+      {
+        name: 'branch',
+        type: 'string',
+        required: false,
+        description: `Branch of the script to delete.`,
+      },
+      {
+        name: 'environment',
+        type: 'string',
+        required: false,
+        description: `Environment of the script to delete.`,
+      },
+    ],
+  },
+  {
     name: 'phantombuster_script_fetch',
     description: `Retrieve a specific PhantomBuster script by ID including its manifest, argument schema, output types, and optionally the full source code.`,
     params: [
@@ -592,6 +953,48 @@ export const tools: Tool[] = [
         type: 'boolean',
         required: false,
         description: `Set to true to include the script's source code in the response.`,
+      },
+    ],
+  },
+  {
+    name: 'phantombuster_script_save',
+    description: `Create a new custom PhantomBuster script or update an existing one. Pass an id to update; omit to create.`,
+    params: [
+      {
+        name: 'branch',
+        type: 'string',
+        required: false,
+        description: `Name of the branch to associate with the script.`,
+      },
+      {
+        name: 'code',
+        type: 'string',
+        required: false,
+        description: `JavaScript source code of the script.`,
+      },
+      {
+        name: 'id',
+        type: 'string',
+        required: false,
+        description: `ID of the script to update. Omit to create a new script.`,
+      },
+      {
+        name: 'manifest',
+        type: 'object',
+        required: false,
+        description: `JSON script manifest (slug, description, kind, documentation, arguments).`,
+      },
+      {
+        name: 'markdown',
+        type: 'string',
+        required: false,
+        description: `Markdown description of the script.`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: false,
+        description: `Name of the script. Must end in .js or .coffee. Prepend with 'lib-' to define it as a module.`,
       },
     ],
   },
@@ -616,6 +1019,61 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Filter scripts by organization.`,
+      },
+    ],
+  },
+  {
+    name: 'phantombuster_user_fetch_me',
+    description: `Get information about the current PhantomBuster user, including profile details, plan, and organization membership.`,
+    params: [
+      {
+        name: 'withCustomPrompts',
+        type: 'boolean',
+        required: false,
+        description: `Include the user's custom AI prompt configurations in the response.`,
+      },
+    ],
+  },
+  {
+    name: 'phantombuster_user_update_me',
+    description: `Update profile information for the current PhantomBuster user.`,
+    params: [
+      {
+        name: 'company',
+        type: 'string',
+        required: false,
+        description: `New company name for the user.`,
+      },
+      {
+        name: 'developerMode',
+        type: 'boolean',
+        required: false,
+        description: `Whether to enable developer-specific features for the user.`,
+      },
+      {
+        name: 'firstName',
+        type: 'string',
+        required: false,
+        description: `New first name for the user.`,
+      },
+      { name: 'job', type: 'string', required: false, description: `New job title for the user.` },
+      {
+        name: 'lastName',
+        type: 'string',
+        required: false,
+        description: `New last name for the user.`,
+      },
+      {
+        name: 'newsletter',
+        type: 'boolean',
+        required: false,
+        description: `Whether the user consents to subscribe to the newsletter.`,
+      },
+      {
+        name: 'phone',
+        type: 'string',
+        required: false,
+        description: `New phone number for the user.`,
       },
     ],
   },

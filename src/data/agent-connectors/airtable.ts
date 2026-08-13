@@ -170,6 +170,18 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'airtable_delete_base',
+    description: `Permanently delete an Airtable base. The base is moved to Trash and recoverable per your workspace's retention policy, but is otherwise removed immediately. Only available on Enterprise billing plans, and requires Enterprise admin permissions plus the workspacesAndBases:manage scope.`,
+    params: [
+      {
+        name: 'base_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Airtable base to delete. Found in the base URL: airtable.com/{base_id}/...`,
+      },
+    ],
+  },
+  {
     name: 'airtable_delete_comment',
     description: `Delete a comment from an Airtable record. API users can only delete comments they created. Enterprise Admins can delete any comment. Requires the data.recordComments:write scope.`,
     params: [
@@ -248,6 +260,30 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'airtable_delete_view',
+    description: `Permanently delete a view from an Airtable table. This does not delete the underlying records or fields, only the view itself. Requires the workspacesAndBases:write scope.`,
+    params: [
+      {
+        name: 'base_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Airtable base containing the table. Found in the base URL: airtable.com/{base_id}/...`,
+      },
+      {
+        name: 'table_id_or_name',
+        type: 'string',
+        required: true,
+        description: `The ID or name of the table that contains the view. Table IDs start with 'tbl'; names are the display name of the table.`,
+      },
+      {
+        name: 'view_id_or_name',
+        type: 'string',
+        required: true,
+        description: `The ID or name of the view to delete. View IDs start with 'viw'; names are the display name of the view.`,
+      },
+    ],
+  },
+  {
     name: 'airtable_delete_webhook',
     description: `Delete an Airtable webhook. This permanently stops all future notifications from this webhook. Requires the webhook:manage scope.`,
     params: [
@@ -282,6 +318,11 @@ export const tools: Tool[] = [
         description: `Optional array of additional data to include. Pass ["visibleFieldIds"] to include visible field IDs for each grid view in the schema response.`,
       },
     ],
+  },
+  {
+    name: 'airtable_get_current_user',
+    description: `Retrieve information about the currently authenticated Airtable user, including their user ID, and (when the token grants the relevant scopes) their email address and the list of OAuth scopes granted to the token. Useful for verifying which account and permissions a connection is using.`,
+    params: [],
   },
   {
     name: 'airtable_get_record',
@@ -322,6 +363,30 @@ export const tools: Tool[] = [
         type: 'boolean',
         required: false,
         description: `If true, field keys in the response will be field IDs (e.g. fldXXXXXXXXXXXXXX) instead of field names.`,
+      },
+    ],
+  },
+  {
+    name: 'airtable_get_view',
+    description: `Retrieve metadata for a single view in an Airtable table, including its name, type (grid, form, calendar, kanban, gallery, etc), and visible field order. Complements airtable_list_views, which only returns summary info for all views.`,
+    params: [
+      {
+        name: 'base_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Airtable base containing the table. Found in the base URL: airtable.com/{base_id}/...`,
+      },
+      {
+        name: 'table_id_or_name',
+        type: 'string',
+        required: true,
+        description: `The ID or name of the table that contains the view. Table IDs start with 'tbl'; names are the display name of the table.`,
+      },
+      {
+        name: 'view_id_or_name',
+        type: 'string',
+        required: true,
+        description: `The ID or name of the view to retrieve metadata for. View IDs start with 'viw'; names are the display name of the view.`,
       },
     ],
   },
@@ -658,6 +723,48 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `New name for the table. Must be unique within the base. At least one of name or description must be provided.`,
+      },
+    ],
+  },
+  {
+    name: 'airtable_upload_attachment',
+    description: `Upload a file directly to an attachment field on an Airtable record, by sending its base64-encoded content in the request body. The file is appended to any attachments already in that field. Requires the data.records:write scope.`,
+    params: [
+      {
+        name: 'attachment_field_id_or_name',
+        type: 'string',
+        required: true,
+        description: `The ID or name of the attachment field to upload the file into.`,
+      },
+      {
+        name: 'base_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Airtable base containing the record. Found in the base URL: airtable.com/{base_id}/...`,
+      },
+      {
+        name: 'content_type',
+        type: 'string',
+        required: true,
+        description: `MIME type of the file being uploaded.`,
+      },
+      {
+        name: 'file',
+        type: 'string',
+        required: true,
+        description: `Base64-encoded content of the file to upload.`,
+      },
+      {
+        name: 'filename',
+        type: 'string',
+        required: true,
+        description: `Filename to store the attachment as.`,
+      },
+      {
+        name: 'record_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the record to attach the file to. Record IDs start with 'rec'.`,
       },
     ],
   },

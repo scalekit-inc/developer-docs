@@ -98,6 +98,66 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'sharepoint_copy_drive_item',
+    description: `Create a copy of a file or folder (including its children) in a SharePoint document library. This is an asynchronous operation: Microsoft Graph returns 202 Accepted immediately with a monitor URL in the Location response header, and the copy completes in the background.`,
+    params: [
+      {
+        name: 'item_id',
+        type: 'string',
+        required: true,
+        description: `The unique drive item ID of the file or folder to copy. Obtain item IDs from list drive item children or search drive items operations.`,
+      },
+      {
+        name: 'new_parent_id',
+        type: 'string',
+        required: true,
+        description: `Drive item ID of the destination parent folder for the copy. Use 'root' to copy into the document library's root.`,
+      },
+      {
+        name: 'site_id',
+        type: 'string',
+        required: true,
+        description: `ID of the SharePoint site that contains the item to copy. Use a site GUID, 'root', or the format '<hostname>:/sites/<path>'.`,
+      },
+      {
+        name: 'new_name',
+        type: 'string',
+        required: false,
+        description: `Optional name to give the copy. If omitted, the copy keeps the source item's name.`,
+      },
+    ],
+  },
+  {
+    name: 'sharepoint_create_folder',
+    description: `Create a new folder inside a SharePoint document library folder. Use parent_id 'root' to create the folder at the document library's root.`,
+    params: [
+      {
+        name: 'name',
+        type: 'string',
+        required: true,
+        description: `Name of the folder to create.`,
+      },
+      {
+        name: 'parent_id',
+        type: 'string',
+        required: true,
+        description: `Drive item ID of the parent folder in the SharePoint document library where the new folder will be created. Use 'root' to create it at the library root.`,
+      },
+      {
+        name: 'site_id',
+        type: 'string',
+        required: true,
+        description: `ID of the SharePoint site that contains the document library. Use a site GUID, 'root', or the format '<hostname>:/sites/<path>'.`,
+      },
+      {
+        name: 'conflict_behavior',
+        type: 'string',
+        required: false,
+        description: `Behavior when a folder with the same name already exists at the destination. 'fail' returns an error, 'replace' overwrites the existing item, 'rename' creates a new folder with an incremented name.`,
+      },
+    ],
+  },
+  {
     name: 'sharepoint_create_list',
     description: `Create a new list in a SharePoint site. Specify a display name and optionally a template type (e.g., genericList, documentLibrary, events) and description. Returns the newly created list.`,
     params: [
@@ -190,6 +250,36 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `ID of the SharePoint site that contains the list. Use a site GUID, 'root', or the format '<hostname>:/sites/<path>'.`,
+      },
+    ],
+  },
+  {
+    name: 'sharepoint_create_site_page',
+    description: `Create a new modern site page (sitePage) in a SharePoint site's Site Pages library. The page is created as a draft; use the Publish Site Page tool to make it visible to other users.`,
+    params: [
+      {
+        name: 'name',
+        type: 'string',
+        required: true,
+        description: `File name for the new page, including the .aspx extension. Example: 'project-update.aspx'.`,
+      },
+      {
+        name: 'site_id',
+        type: 'string',
+        required: true,
+        description: `ID of the SharePoint site in which to create the page. Use a site GUID, 'root', or the format '<hostname>:/sites/<path>'.`,
+      },
+      {
+        name: 'page_layout',
+        type: 'string',
+        required: false,
+        description: `Layout of the new page. 'article' is a standard content page; 'home' designates it as the site's home page.`,
+      },
+      {
+        name: 'title',
+        type: 'string',
+        required: false,
+        description: `Display title shown at the top of the page. Defaults to the name without its extension if omitted.`,
       },
     ],
   },
@@ -362,6 +452,54 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'sharepoint_get_content_type',
+    description: `Retrieve a single content type defined in a SharePoint site by its ID, including its name, description, group, and whether it is a built-in type.`,
+    params: [
+      {
+        name: 'content_type_id',
+        type: 'string',
+        required: true,
+        description: `ID of the content type to retrieve.`,
+      },
+      {
+        name: 'site_id',
+        type: 'string',
+        required: true,
+        description: `ID of the SharePoint site that contains the content type. Use a site GUID, 'root', or the format '<hostname>:/sites/<path>'.`,
+      },
+      {
+        name: '$select',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of properties to return. Example: 'id,name,description,isBuiltIn'.`,
+      },
+    ],
+  },
+  {
+    name: 'sharepoint_get_drive_item',
+    description: `Get metadata for a file or folder in a SharePoint document library — name, size, the file/folder facet, webUrl, timestamps, and more. Use this for a quick metadata lookup without downloading file content.`,
+    params: [
+      {
+        name: 'item_id',
+        type: 'string',
+        required: true,
+        description: `The unique drive item ID of the file or folder to retrieve. Obtain item IDs from list drive item children or search drive items operations.`,
+      },
+      {
+        name: 'site_id',
+        type: 'string',
+        required: true,
+        description: `ID of the SharePoint site that contains the item. Use a site GUID, 'root', or the format '<hostname>:/sites/<path>'.`,
+      },
+      {
+        name: '$select',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of drive item properties to return. Example: "id,name,size,webUrl" reduces response payload.`,
+      },
+    ],
+  },
+  {
     name: 'sharepoint_get_list',
     description: `Retrieve a specific SharePoint list by its ID within a site. Optionally expand related resources such as columns and items to retrieve list metadata in a single call.`,
     params: [
@@ -446,6 +584,48 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'sharepoint_get_site_page',
+    description: `Retrieve a single modern site page (sitePage) from a SharePoint site by its ID, including its title, layout, and publishing state. Use $expand=canvasLayout to also retrieve its web part content.`,
+    params: [
+      {
+        name: 'page_id',
+        type: 'string',
+        required: true,
+        description: `ID of the site page to retrieve.`,
+      },
+      {
+        name: 'site_id',
+        type: 'string',
+        required: true,
+        description: `ID of the SharePoint site that contains the page. Use a site GUID, 'root', or the format '<hostname>:/sites/<path>'.`,
+      },
+      {
+        name: '$expand',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of relationships to expand inline, e.g. 'canvasLayout' to include the page's web part layout.`,
+      },
+    ],
+  },
+  {
+    name: 'sharepoint_get_site_permission',
+    description: `Retrieve a single permission entry (role assignment) on a SharePoint site by its permission ID, showing the granted roles and the identity they were granted to.`,
+    params: [
+      {
+        name: 'permission_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the permission entry to retrieve. Obtain this from the list permissions tool.`,
+      },
+      {
+        name: 'site_id',
+        type: 'string',
+        required: true,
+        description: `ID of the SharePoint site that the permission belongs to. Use a site GUID, 'root', or the format '<hostname>:/sites/<path>'.`,
+      },
+    ],
+  },
+  {
     name: 'sharepoint_list_content_types',
     description: `List all content types defined in a SharePoint site. Supports OData filtering, field selection, and pagination via $top. Content types define the metadata schema for lists and libraries.`,
     params: [
@@ -472,6 +652,36 @@ export const tools: Tool[] = [
         type: 'integer',
         required: false,
         description: `Maximum number of content types to return per page. Default is determined by the API.`,
+      },
+    ],
+  },
+  {
+    name: 'sharepoint_list_drive_item_children',
+    description: `List the immediate children (files and folders) of a folder in a SharePoint document library. Use item_id 'root' to browse the document library's root folder.`,
+    params: [
+      {
+        name: 'item_id',
+        type: 'string',
+        required: true,
+        description: `The unique drive item ID of the folder to list. Use 'root' to list the document library's root folder.`,
+      },
+      {
+        name: 'site_id',
+        type: 'string',
+        required: true,
+        description: `ID of the SharePoint site that contains the folder. Use a site GUID, 'root', or the format '<hostname>:/sites/<path>'.`,
+      },
+      {
+        name: '$select',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of drive item properties to return per child. Example: "id,name,size,webUrl" reduces response payload.`,
+      },
+      {
+        name: '$top',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of children to return per page. Default is determined by the API.`,
       },
     ],
   },
@@ -673,6 +883,48 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'sharepoint_list_site_pages',
+    description: `List the modern site pages (sitePage objects) in a SharePoint site's Site Pages library, sorted alphabetically by name. Supports OData query options for field selection, expansion, and pagination.`,
+    params: [
+      {
+        name: 'site_id',
+        type: 'string',
+        required: true,
+        description: `ID of the SharePoint site whose pages to list. Use a site GUID, 'root', or the format '<hostname>:/sites/<path>'.`,
+      },
+      {
+        name: '$expand',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of relationships to expand inline, e.g. 'canvasLayout' to include the page's web part layout.`,
+      },
+      {
+        name: '$select',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of properties to return for each page. Example: 'id,name,title,webUrl'.`,
+      },
+      {
+        name: '$top',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of pages to return per page of results.`,
+      },
+    ],
+  },
+  {
+    name: 'sharepoint_list_site_permissions',
+    description: `List the permission entries (role assignments) granted on a SharePoint site, showing which users, groups, or applications have read, write, or owner access.`,
+    params: [
+      {
+        name: 'site_id',
+        type: 'string',
+        required: true,
+        description: `ID of the SharePoint site whose permissions to list. Use a site GUID, 'root', or the format '<hostname>:/sites/<path>'.`,
+      },
+    ],
+  },
+  {
     name: 'sharepoint_list_sites',
     description: `List SharePoint sites accessible to the signed-in user. Use the search parameter to find sites by name or keyword. Defaults to returning all sites (search=*). Supports OData query options for pagination and field selection.`,
     params: [
@@ -693,6 +945,54 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Search keyword to filter sites by name or description. Use '*' to return all accessible sites. Example: 'Marketing' or 'project'.`,
+      },
+    ],
+  },
+  {
+    name: 'sharepoint_move_drive_item',
+    description: `Move a file or folder to a new parent folder in a SharePoint document library, by updating its parentReference. Optionally rename the item in the same call.`,
+    params: [
+      {
+        name: 'item_id',
+        type: 'string',
+        required: true,
+        description: `The unique drive item ID of the file or folder to move. Obtain item IDs from list drive item children or search drive items operations.`,
+      },
+      {
+        name: 'new_parent_id',
+        type: 'string',
+        required: true,
+        description: `Drive item ID of the destination parent folder. Use 'root' to move the item to the document library's root.`,
+      },
+      {
+        name: 'site_id',
+        type: 'string',
+        required: true,
+        description: `ID of the SharePoint site that contains the item. Use a site GUID, 'root', or the format '<hostname>:/sites/<path>'.`,
+      },
+      {
+        name: 'new_name',
+        type: 'string',
+        required: false,
+        description: `Optional new name to give the item as part of the move. If omitted, the item keeps its current name.`,
+      },
+    ],
+  },
+  {
+    name: 'sharepoint_publish_site_page',
+    description: `Publish a draft or checked-out modern site page in a SharePoint site, making its latest changes visible to other users.`,
+    params: [
+      {
+        name: 'page_id',
+        type: 'string',
+        required: true,
+        description: `ID of the site page to publish.`,
+      },
+      {
+        name: 'site_id',
+        type: 'string',
+        required: true,
+        description: `ID of the SharePoint site that contains the page. Use a site GUID, 'root', or the format '<hostname>:/sites/<path>'.`,
       },
     ],
   },

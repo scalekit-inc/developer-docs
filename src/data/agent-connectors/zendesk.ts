@@ -856,7 +856,7 @@ export const tools: Tool[] = [
   },
   {
     name: 'zendesk_search_tickets',
-    description: `Search Zendesk tickets using a query string. Supports Zendesk's search syntax (e.g., 'type:ticket status:open'). Zendesk limits search results to 1,000 total — the maximum valid page is floor(1000 / per_page) (e.g., per_page=100 → max page 10, per_page=25 → max page 40). Stop paginating when next_page is null or you reach the max page; requesting beyond the limit returns a 400 error.`,
+    description: `Search Zendesk tickets using a query string. Supports Zendesk's search syntax (e.g., 'type:ticket status:open'). per_page has a hard ceiling of 100 — setting it higher to try to fetch more results per call fails with 'Requested response size was greater than Search Response Limits'. Separately, Zendesk limits total search results to 1,000 — the maximum valid page is floor(1000 / per_page) (e.g., per_page=100 → max page 10, per_page=25 → max page 40). Stop paginating when next_page is null or you reach the max page; requesting beyond either limit returns a 400 error.`,
     params: [
       {
         name: 'query',

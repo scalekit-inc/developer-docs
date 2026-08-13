@@ -38,6 +38,36 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'exa_cancel_webset',
+    description: `Cancel a running Exa Webset so it stops discovering new items. Already-collected items are preserved and remain accessible via List Webset Items.`,
+    params: [
+      {
+        name: 'webset_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the webset to cancel.`,
+      },
+    ],
+  },
+  {
+    name: 'exa_cancel_webset_enrichment',
+    description: `Cancel a running enrichment on a webset, stopping further per-item research. Already-populated values are kept; a cancelled enrichment cannot be resumed. Existing tools can only create an enrichment, never cancel one.`,
+    params: [
+      {
+        name: 'enrichment_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the enrichment to cancel.`,
+      },
+      {
+        name: 'webset_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the webset the enrichment belongs to.`,
+      },
+    ],
+  },
+  {
     name: 'exa_crawl',
     description: `Crawl one or more web pages by URL and extract their content including full text, highlights, and AI-generated summaries. Useful for reading specific pages discovered via search. Rate limit: 60 requests/minute. Credit consumption depends on number of URLs.`,
     params: [
@@ -82,6 +112,150 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Optional query to focus the AI summary on a specific aspect of the page.`,
+      },
+    ],
+  },
+  {
+    name: 'exa_create_research_task',
+    description: `Start an asynchronous deep-research task: Exa autonomously searches, reads, and synthesizes many web sources into a single well-cited answer, optionally shaped by a JSON output schema. Returns a task ID — poll Get Research Task with it until the task completes. Slower and more thorough than Research Topic. High credit consumption.`,
+    params: [
+      {
+        name: 'instructions',
+        type: 'string',
+        required: true,
+        description: `The research goal or question for Exa to investigate autonomously across the web.`,
+      },
+      {
+        name: 'model',
+        type: 'string',
+        required: false,
+        description: `Which Exa research model to use.`,
+      },
+      {
+        name: 'output_schema',
+        type: 'object',
+        required: false,
+        description: `JSON schema describing the exact shape of the structured output you want back, instead of free-form text.`,
+      },
+    ],
+  },
+  {
+    name: 'exa_create_webset_enrichment',
+    description: `Add an AI enrichment to an Exa Webset that derives an extra structured field for every item (e.g. company employee count, contact email). Exa researches each existing and future item to fill in the field. Additional credit consumption per item.`,
+    params: [
+      {
+        name: 'description',
+        type: 'string',
+        required: true,
+        description: `Natural-language description of the data point to derive for every item.`,
+      },
+      {
+        name: 'webset_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the webset to enrich.`,
+      },
+      {
+        name: 'format',
+        type: 'string',
+        required: false,
+        description: `Expected data type of the enrichment result.`,
+      },
+      {
+        name: 'options',
+        type: 'array',
+        required: false,
+        description: `JSON array of allowed option labels, required when format is 'options'.`,
+      },
+    ],
+  },
+  {
+    name: 'exa_create_webset_monitor',
+    description: `Create a Monitor with a cron cadence and a search-or-refresh behavior for an existing Webset, so it keeps discovering new matching items (or re-verifying existing ones) on a schedule without manual reruns.`,
+    params: [
+      {
+        name: 'behavior_type',
+        type: 'string',
+        required: true,
+        description: `What the monitor does each run: 'search' to discover new items with a fresh search, or 'refresh' to re-verify/update existing items.`,
+      },
+      {
+        name: 'cron',
+        type: 'string',
+        required: true,
+        description: `Cron expression controlling how often the monitor runs, e.g. '0 9 * * 1' for every Monday at 9am.`,
+      },
+      {
+        name: 'timezone',
+        type: 'string',
+        required: true,
+        description: `IANA timezone the cron expression is evaluated in.`,
+      },
+      {
+        name: 'webset_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the webset this monitor keeps refreshed.`,
+      },
+      {
+        name: 'search_behavior',
+        type: 'string',
+        required: false,
+        description: `When behavior_type is 'search', whether new results are 'append'ed to the webset or 'override' its items.`,
+      },
+      {
+        name: 'search_count',
+        type: 'integer',
+        required: false,
+        description: `When behavior_type is 'search', the target number of new items to collect per run.`,
+      },
+      {
+        name: 'search_query',
+        type: 'string',
+        required: false,
+        description: `Required when behavior_type is 'search'. The query describing what new items to find on each run.`,
+      },
+    ],
+  },
+  {
+    name: 'exa_create_webset_search',
+    description: `Run an additional search against an existing Exa Webset to discover more matching items without creating a brand-new webset. Useful for broadening or refining an in-progress or completed webset. High credit consumption.`,
+    params: [
+      {
+        name: 'query',
+        type: 'string',
+        required: true,
+        description: `The search query describing what kinds of pages or entities to find. Be specific and descriptive for best results.`,
+      },
+      {
+        name: 'webset_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the webset to add this search to.`,
+      },
+      {
+        name: 'count',
+        type: 'integer',
+        required: false,
+        description: `Target number of additional URLs to collect with this search.`,
+      },
+      {
+        name: 'entity_type',
+        type: 'string',
+        required: false,
+        description: `The type of entity to search for. Helps Exa understand what constitutes a valid result match.`,
+      },
+      {
+        name: 'exclude_domains',
+        type: 'array',
+        required: false,
+        description: `JSON array of domains to exclude from this search's results.`,
+      },
+      {
+        name: 'include_domains',
+        type: 'array',
+        required: false,
+        description: `JSON array of domains to restrict this search's sources to.`,
       },
     ],
   },
@@ -152,6 +326,18 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'exa_get_research_task',
+    description: `Check the status of a Research Task and retrieve its output once complete. Use the task ID returned by Create Research Task.`,
+    params: [
+      {
+        name: 'task_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the research task to retrieve.`,
+      },
+    ],
+  },
+  {
     name: 'exa_get_webset',
     description: `Get the status and details of an existing Exa Webset by its ID. Use this to poll the status of an async webset created with Create Webset. Returns metadata including status (created, running, completed, cancelled), progress, and configuration.`,
     params: [
@@ -160,6 +346,36 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `The ID of the webset to retrieve.`,
+      },
+    ],
+  },
+  {
+    name: 'exa_get_webset_item',
+    description: `Retrieve a single item from an Exa Webset by its item ID, including its full enrichment data and verification evidence. Use List Webset Items to find item IDs.`,
+    params: [
+      {
+        name: 'item_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the item to retrieve.`,
+      },
+      {
+        name: 'webset_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the webset that contains the item.`,
+      },
+    ],
+  },
+  {
+    name: 'exa_get_webset_monitor',
+    description: `Get a single Monitor's configuration, enabled/disabled status, cadence, and last/next run details.`,
+    params: [
+      {
+        name: 'monitor_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the monitor to retrieve.`,
       },
     ],
   },
@@ -184,6 +400,30 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Pagination cursor from a previous response to fetch the next page of items.`,
+      },
+    ],
+  },
+  {
+    name: 'exa_list_webset_monitors',
+    description: `List Monitors, which keep a Webset continuously refreshed on a schedule via a cron cadence. The entire Monitors resource is uncovered.`,
+    params: [
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Pagination cursor from a previous response to fetch the next page.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `The number of monitors to return per page. Defaults to 25.`,
+      },
+      {
+        name: 'webset_id',
+        type: 'string',
+        required: false,
+        description: `Filter to monitors belonging to this webset only.`,
       },
     ],
   },
@@ -376,6 +616,30 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Two-letter ISO country code of the user, used to localize results. e.g. US, GB, DE.`,
+      },
+    ],
+  },
+  {
+    name: 'exa_update_webset',
+    description: `Update an existing Exa Webset's metadata or external reference ID. Use this to tag a webset for your own bookkeeping without recreating it.`,
+    params: [
+      {
+        name: 'webset_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the webset to update.`,
+      },
+      {
+        name: 'external_id',
+        type: 'string',
+        required: false,
+        description: `New external identifier to tag this webset for reference in your system.`,
+      },
+      {
+        name: 'metadata',
+        type: 'object',
+        required: false,
+        description: `Free-form key-value metadata to attach to the webset. Replaces any existing metadata.`,
       },
     ],
   },
