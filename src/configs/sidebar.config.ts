@@ -238,6 +238,43 @@ export const sidebar = [
       },
     ],
   },
+  // Product guide shelves — dedicated sidebars entered from secondary nav, not journey rails
+  {
+    label: 'AgentKit guides',
+    id: 'agentkit-guides',
+    link: '/agentkit/cookbooks/',
+    icon: 'open-book',
+    items: [
+      {
+        label: 'Cookbooks',
+        collapsed: false,
+        items: [{ autogenerate: { directory: 'agentkit/cookbooks' } }],
+      },
+      {
+        label: 'How-to',
+        collapsed: false,
+        items: [{ autogenerate: { directory: 'agentkit/how-to' } }],
+      },
+    ],
+  },
+  {
+    label: 'Auth for SaaS guides',
+    id: 'saaskit-guides',
+    link: '/saaskit/cookbooks/',
+    icon: 'open-book',
+    items: [
+      {
+        label: 'Cookbooks',
+        collapsed: false,
+        items: [{ autogenerate: { directory: 'saaskit/cookbooks' } }],
+      },
+      {
+        label: 'How-to',
+        collapsed: false,
+        items: [{ autogenerate: { directory: 'saaskit/how-to' } }],
+      },
+    ],
+  },
   {
     label: 'Developer Kit',
     id: 'dev-kit',
@@ -632,6 +669,20 @@ export const topics = {
   // Agent connectors (dedicated connectors sidebar — must come before connect)
   'agent-connectors': ['/agentkit/connectors/**/*'],
 
+  // Product guide shelves (before connect catch-all and resources)
+  'agentkit-guides': [
+    '/agentkit/cookbooks',
+    '/agentkit/cookbooks/**/*',
+    '/agentkit/how-to',
+    '/agentkit/how-to/**/*',
+  ],
+  'saaskit-guides': [
+    '/saaskit/cookbooks',
+    '/saaskit/cookbooks/**/*',
+    '/saaskit/how-to',
+    '/saaskit/how-to/**/*',
+  ],
+
   // Product SDK sidebars (before connect catch-all)
   'agentkit-sdks': ['/agentkit/sdks/**/*'],
   'saaskit-sdks': ['/saaskit/sdks/**/*', '/sdks', '/sdks/', '/sdks/expo/**/*', '/sdks/ios/**/*'],
@@ -651,8 +702,7 @@ export const topics = {
     '/guides/**/*',
     '/browse/**/*',
     '/reference/**/*',
-    '/cookbooks',
-    '/cookbooks/**/*',
+    '/cookbooks', // Cross-product hub only
     '/**/*', // Catch-all: anything not matched above defaults here
   ],
 
@@ -735,6 +785,16 @@ export const sidebarToSecondaryNav: Record<string, SecondaryNavMapping> = {
   // Agent connectors sidebar → AgentKit Connectors tab
   'agent-connectors': 'agentkit-connectors',
 
+  // Product guide shelves → secondary nav entries
+  'agentkit-guides': 'agentkit-guides',
+  'saaskit-guides': {
+    default: 'saaskit-cookbooks',
+    pathOverrides: {
+      '/saaskit/cookbooks': 'saaskit-cookbooks',
+      '/saaskit/how-to': 'saaskit-how-to',
+    },
+  },
+
   // AgentKit sidebar → AgentKit tabs
   connect: {
     default: 'agentkit-quickstart',
@@ -772,7 +832,7 @@ export const sidebarToSecondaryNav: Record<string, SecondaryNavMapping> = {
       '/authenticate/interceptors': 'workflows',
       '/reference/interceptors': 'workflows',
       '/reference/admin-portal': 'workflows',
-      '/cookbooks': 'cookbooks',
+      '/cookbooks': 'saaskit-cookbooks',
     },
   },
 
