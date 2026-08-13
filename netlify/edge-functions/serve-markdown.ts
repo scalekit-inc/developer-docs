@@ -165,6 +165,10 @@ export const config: Config = {
     '/images/*',
     '/fonts/*',
     '/favicon*',
+    // Auth routes serve JSON, never HTML→markdown, and the local edge proxy
+    // mishandles their empty-body POSTs. `/api/*` needs no entry — the handler
+    // only rewrites `text/html` responses, so spec files pass straight through.
+    '/auth/*',
     '/*.js',
     '/*.css',
     '/*.json',
