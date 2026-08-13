@@ -123,12 +123,6 @@ const saasKitItems: NavItem[] = [
     iconComponent: IconApi,
   },
   {
-    id: 'enterprise-deployment',
-    href: '/self-hosted/overview/',
-    label: 'Enterprise Deployment',
-    iconComponent: IconSolarServerPathOutline,
-  },
-  {
     // Opens the dedicated Auth for SaaS guides sidebar (Cookbooks + How-to collapsibles)
     id: 'saaskit-guides',
     href: '/saaskit/cookbooks/',
@@ -197,6 +191,12 @@ const saasKitItems: NavItem[] = [
         columnGroup: 'right',
       },
     ],
+  },
+  {
+    id: 'enterprise-deployment',
+    href: '/self-hosted/overview/',
+    label: 'Enterprise Deployment',
+    iconComponent: IconSolarServerPathOutline,
   },
 ]
 
