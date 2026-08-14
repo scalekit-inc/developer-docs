@@ -87,6 +87,30 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'supabase_apply_project_addon',
+    description: `Apply or update a billing addon on a Supabase project, for example scaling the project's compute instance up or down, enabling point-in-time recovery at a given retention window, or provisioning a dedicated IPv4 address. Selecting a new variant of an addon_type that is already active replaces the existing selection. Compute changes can cause a brief restart. Requires the project ref, the addon_variant to select, and its addon_type.`,
+    params: [
+      {
+        name: 'addon_type',
+        type: 'string',
+        required: true,
+        description: `The category of addon that addon_variant belongs to.`,
+      },
+      {
+        name: 'addon_variant',
+        type: 'string',
+        required: true,
+        description: `The addon variant to apply. Compute addons (ci_micro..ci_48xlarge_high_memory) resize the project's compute instance. cd_default applies the custom domain addon. pitr_7/pitr_14/pitr_28 enable point-in-time-recovery at that retention window. ipv4_default provisions a dedicated IPv4 address. Example: pitr_7.`,
+      },
+      {
+        name: 'ref',
+        type: 'string',
+        required: true,
+        description: `The 20-character project reference ID (lowercase letters only). Found in the project's Supabase dashboard URL or Settings > General.`,
+      },
+    ],
+  },
+  {
     name: 'supabase_authorize_jit_access',
     description: `Authorize a just-in-time (JIT) request to assume a Postgres role in a Supabase project's database from a specific remote host. Requires the project ref, the role name to assume (e.g., postgres), and the requesting host's IP address (rhost). Returns the authorized user_id and the resulting user_role details, including expiry and any allowed network CIDRs.`,
     params: [
@@ -195,6 +219,24 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'supabase_claim_project_for_organization',
+    description: `Complete a project claim, transferring ownership of the project to the specified organization using its claim token. Use Get Organization Project Claim first to preview warnings and errors before completing the claim. Requires the organization slug and the claim token.`,
+    params: [
+      {
+        name: 'slug',
+        type: 'string',
+        required: true,
+        description: `Slug (identifier) of the organization claiming the project.`,
+      },
+      {
+        name: 'token',
+        type: 'string',
+        required: true,
+        description: `The project claim token, obtained from Create Project Claim Token.`,
+      },
+    ],
+  },
+  {
     name: 'supabase_create_branch',
     description: `Create a new database branch (preview environment) from a Supabase project. Requires a unique branch_name. Optionally link a git_branch, mark it persistent, set the region/instance size/Postgres engine/release channel, seed initial secrets, copy production data, or register a notify_url webhook. Returns the created branch object.`,
     params: [
@@ -269,6 +311,18 @@ export const tools: Tool[] = [
         type: 'boolean',
         required: false,
         description: `Whether to copy data from the parent project's production database into the new branch.`,
+      },
+    ],
+  },
+  {
+    name: 'supabase_create_legacy_signing_key',
+    description: `Set up a project's existing (legacy) JWT secret as an in_use signing key, so it appears alongside keys from the new asymmetric signing-keys system. Takes no request body beyond the project ref.`,
+    params: [
+      {
+        name: 'ref',
+        type: 'string',
+        required: true,
+        description: `The 20-character project reference ID (lowercase letters only). Found in the project's Supabase dashboard URL or Settings > General.`,
       },
     ],
   },
@@ -413,6 +467,18 @@ export const tools: Tool[] = [
         type: 'object',
         required: false,
         description: `Optional JSON object defining a custom JWT template for this secret key.`,
+      },
+    ],
+  },
+  {
+    name: 'supabase_create_project_claim_token',
+    description: `Create a project claim token for a Supabase project, so another organization can claim ownership of it via Claim Project For Organization. Requires only the project ref.`,
+    params: [
+      {
+        name: 'ref',
+        type: 'string',
+        required: true,
+        description: `The 20-character project reference ID (lowercase letters only). Found in the project's Supabase dashboard URL or Settings > General.`,
       },
     ],
   },
@@ -735,6 +801,18 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'supabase_delete_project_claim_token',
+    description: `Revoke the project claim token for a Supabase project. Once revoked, the token can no longer be used to claim the project into another organization. Requires only the project ref.`,
+    params: [
+      {
+        name: 'ref',
+        type: 'string',
+        required: true,
+        description: `The 20-character project reference ID (lowercase letters only). Found in the project's Supabase dashboard URL or Settings > General.`,
+      },
+    ],
+  },
+  {
     name: 'supabase_delete_project_tpa_integration',
     description: `Permanently remove a third-party auth (TPA) integration from a Supabase project's Auth config, identified by its UUID. This disconnects the external OIDC/JWKS-based auth integration; existing JWTs issued by it will no longer be trusted. Requires the project ref and the tpa_id. Returns the deleted integration's details.`,
     params: [
@@ -885,6 +963,18 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'supabase_enable_database_webhook',
+    description: `[Beta] Enable the Database Webhooks feature on a Supabase project, so Postgres table changes can trigger HTTP requests. Requires only the project ref.`,
+    params: [
+      {
+        name: 'ref',
+        type: 'string',
+        required: true,
+        description: `The 20-character project reference ID (lowercase letters only). Found in the project's Supabase dashboard URL or Settings > General.`,
+      },
+    ],
+  },
+  {
     name: 'supabase_generate_typescript_types',
     description: `Generate TypeScript type definitions for a Supabase project's database schema, for use with supabase-js. Requires the project ref; optionally scope generation to specific comma-separated schemas (defaults to public). The response is a JSON object with a single 'types' field containing the generated TypeScript source as a string — it is not a general-purpose JSON object with typed fields.`,
     params: [
@@ -1017,6 +1107,18 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'supabase_get_database_disk',
+    description: `Get the current disk attributes for a Supabase project's database, including disk type (gp3 or io2), size in GB, IOPS, throughput (gp3 only), and when it was last modified. Requires only the project ref.`,
+    params: [
+      {
+        name: 'ref',
+        type: 'string',
+        required: true,
+        description: `The 20-character project reference ID (lowercase letters only). Found in the project's Supabase dashboard URL or Settings > General.`,
+      },
+    ],
+  },
+  {
     name: 'supabase_get_database_metadata',
     description: `Get database metadata for a Supabase project, listing each database and its schemas by name. Requires only the project ref. Returns a 'databases' array, where each entry has a name and a nested 'schemas' array of schema names. Note: this is an experimental, deprecated endpoint that may change or be removed in future API versions — use with caution.`,
     params: [
@@ -1043,6 +1145,18 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `The database schema to generate the PostgREST OpenAPI spec for. Defaults to public.`,
+      },
+    ],
+  },
+  {
+    name: 'supabase_get_disk_utilization',
+    description: `Get current disk utilization for a Supabase project's database: total filesystem size, available bytes, and used bytes, as of a timestamp. Requires only the project ref.`,
+    params: [
+      {
+        name: 'ref',
+        type: 'string',
+        required: true,
+        description: `The 20-character project reference ID (lowercase letters only). Found in the project's Supabase dashboard URL or Settings > General.`,
       },
     ],
   },
@@ -1119,6 +1233,30 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'supabase_get_legacy_api_keys',
+    description: `Check whether JWT-based legacy (anon, service_role) API keys are still enabled for a project. Returns {"enabled": bool}. Distinct from the new API keys system already covered by Get Project API Key(s), which returns the actual key objects rather than a single enabled flag. Note: Supabase's docs mark this endpoint as scheduled for future removal (check for HTTP 404).`,
+    params: [
+      {
+        name: 'ref',
+        type: 'string',
+        required: true,
+        description: `The 20-character project reference ID (lowercase letters only). Found in the project's Supabase dashboard URL or Settings > General.`,
+      },
+    ],
+  },
+  {
+    name: 'supabase_get_legacy_signing_key',
+    description: `Get info about the project's original JWT secret when imported as a legacy signing key (id, algorithm, status, public_jwk, timestamps). Distinct from the new asymmetric signing-keys system already covered by List/Create/Get Project Signing Key(s).`,
+    params: [
+      {
+        name: 'ref',
+        type: 'string',
+        required: true,
+        description: `The 20-character project reference ID (lowercase letters only). Found in the project's Supabase dashboard URL or Settings > General.`,
+      },
+    ],
+  },
+  {
     name: 'supabase_get_migration',
     description: `Fetch an existing entry from a Supabase project's database migration history by version. Returns the migration version, name, SQL statements, rollback statements, creator, and idempotency key. Note: this endpoint is only available to selected partner OAuth apps and may return a 403 for other apps. Requires the project ref and migration version.`,
     params: [
@@ -1169,6 +1307,24 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `The organization's slug identifier, as shown in the Supabase dashboard URL (e.g. app.supabase.com/org/<slug>).`,
+      },
+    ],
+  },
+  {
+    name: 'supabase_get_organization_project_claim',
+    description: `Preview a pending project claim for an organization using a claim token: returns the project's ref and name, plus a preview of validation warnings, errors, informational notes, and any members that would exceed the free project limit if the claim is completed. Requires the organization slug and the claim token.`,
+    params: [
+      {
+        name: 'slug',
+        type: 'string',
+        required: true,
+        description: `Slug (identifier) of the organization previewing the claim.`,
+      },
+      {
+        name: 'token',
+        type: 'string',
+        required: true,
+        description: `The project claim token, obtained from Create Project Claim Token.`,
       },
     ],
   },
@@ -1263,6 +1419,11 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'supabase_get_profile',
+    description: `Get the authenticated user's Supabase profile. Returns the user's GoTrue id, primary email, and username. Takes no parameters.`,
+    params: [],
+  },
+  {
     name: 'supabase_get_project',
     description: `Get a specific Supabase project that belongs to the authenticated user or organization, identified by its project ref. Returns the project's id, ref, organization details, name, region, status, and database connection info.`,
     params: [
@@ -1317,6 +1478,54 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'supabase_get_project_claim_token',
+    description: `Get the existing project claim token for a Supabase project, if one has been created. A claim token lets another organization claim ownership of the project. Requires only the project ref.`,
+    params: [
+      {
+        name: 'ref',
+        type: 'string',
+        required: true,
+        description: `The 20-character project reference ID (lowercase letters only). Found in the project's Supabase dashboard URL or Settings > General.`,
+      },
+    ],
+  },
+  {
+    name: 'supabase_get_project_disk_autoscale_config',
+    description: `Get a Supabase project's disk autoscale configuration: the growth percentage applied when scaling, the minimum increment size in GB, and the maximum size the disk is allowed to grow to. Requires only the project ref.`,
+    params: [
+      {
+        name: 'ref',
+        type: 'string',
+        required: true,
+        description: `The 20-character project reference ID (lowercase letters only). Found in the project's Supabase dashboard URL or Settings > General.`,
+      },
+    ],
+  },
+  {
+    name: 'supabase_get_project_function_combined_stats',
+    description: `Get combined invocation statistics for a single Edge Function in a Supabase project, bucketed at the given interval. Requires the project ref, the interval, and the function_id.`,
+    params: [
+      {
+        name: 'function_id',
+        type: 'string',
+        required: true,
+        description: `UUID of the Edge Function to get statistics for.`,
+      },
+      {
+        name: 'interval',
+        type: 'string',
+        required: true,
+        description: `Bucket size for the returned statistics.`,
+      },
+      {
+        name: 'ref',
+        type: 'string',
+        required: true,
+        description: `The 20-character project reference ID (lowercase letters only). Found in the project's Supabase dashboard URL or Settings > General.`,
+      },
+    ],
+  },
+  {
     name: 'supabase_get_project_logs',
     description: `Query a project's unified log stream (edge_logs, postgres_logs, etc.) using ClickHouse SQL. Returns an object with a "result" array of matching log rows and an optional "error" field. If iso_timestamp_start and iso_timestamp_end are omitted, only the last 1 minute of logs is queried. The timestamp range must not exceed 24 hours.`,
     params: [
@@ -1347,6 +1556,36 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'supabase_get_project_pgbouncer_config',
+    description: `Get a Supabase project's legacy PgBouncer connection pooler settings: default pool size, max client connections, pool mode, connection string, and timeout/lifetime settings. For the actively managed Supavisor pooler, see Get Pooler Config instead. Requires only the project ref.`,
+    params: [
+      {
+        name: 'ref',
+        type: 'string',
+        required: true,
+        description: `The 20-character project reference ID (lowercase letters only). Found in the project's Supabase dashboard URL or Settings > General.`,
+      },
+    ],
+  },
+  {
+    name: 'supabase_get_project_signing_key',
+    description: `Get information about a single JWT signing key for a Supabase project by its UUID. Returns the key's algorithm (EdDSA, ES256, RS256, or HS256), status (in_use, previously_used, revoked, or standby), public_jwk, and timestamps. Use List Project Signing Keys to find the id.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `UUID of the signing key to retrieve.`,
+      },
+      {
+        name: 'ref',
+        type: 'string',
+        required: true,
+        description: `The 20-character project reference ID (lowercase letters only). Found in the project's Supabase dashboard URL or Settings > General.`,
+      },
+    ],
+  },
+  {
     name: 'supabase_get_project_signing_keys',
     description: `List all JWT signing keys for a project. Returns an object with a "keys" array; each entry has id, algorithm (EdDSA, ES256, RS256, or HS256), status (in_use, previously_used, revoked, or standby), public_jwk, created_at, and updated_at. Requires only the project ref.`,
     params: [
@@ -1373,6 +1612,36 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `The unique ID (UUID) of the third-party auth integration to retrieve.`,
+      },
+    ],
+  },
+  {
+    name: 'supabase_get_project_usage_api_count',
+    description: `Get a time series of a Supabase project's API request counts broken down by service (auth, realtime, REST, storage), bucketed at the given interval. Requires the project ref; interval defaults to the API's own default if omitted.`,
+    params: [
+      {
+        name: 'ref',
+        type: 'string',
+        required: true,
+        description: `The 20-character project reference ID (lowercase letters only). Found in the project's Supabase dashboard URL or Settings > General.`,
+      },
+      {
+        name: 'interval',
+        type: 'string',
+        required: false,
+        description: `Bucket size for the returned time series.`,
+      },
+    ],
+  },
+  {
+    name: 'supabase_get_project_usage_request_count',
+    description: `Get the total API request count for a Supabase project. Requires only the project ref.`,
+    params: [
+      {
+        name: 'ref',
+        type: 'string',
+        required: true,
+        description: `The 20-character project reference ID (lowercase letters only). Found in the project's Supabase dashboard URL or Settings > General.`,
       },
     ],
   },
@@ -1421,6 +1690,18 @@ export const tools: Tool[] = [
   {
     name: 'supabase_get_readonly_mode_status',
     description: `Return a Supabase project's readonly mode status. Indicates whether readonly mode is currently enabled, whether a temporary override is active, and the timestamp until which the override remains active. Requires the project ref.`,
+    params: [
+      {
+        name: 'ref',
+        type: 'string',
+        required: true,
+        description: `The 20-character project reference ID (lowercase letters only). Found in the project's Supabase dashboard URL or Settings > General.`,
+      },
+    ],
+  },
+  {
+    name: 'supabase_get_realtime_config',
+    description: `Get a Supabase project's Realtime service configuration: whether it is restricted to private channels, connection pool size, and the concurrent user, event, byte, channel, join, presence, and payload-size rate limits. Requires only the project ref.`,
     params: [
       {
         name: 'ref',
@@ -1533,6 +1814,18 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'supabase_get_storage_config',
+    description: `Get a Supabase project's Storage service configuration: the file size limit, and feature flags for image transformation, the S3 protocol, cache purging, the Iceberg catalog, and vector buckets. Requires only the project ref.`,
+    params: [
+      {
+        name: 'ref',
+        type: 'string',
+        required: true,
+        description: `The 20-character project reference ID (lowercase letters only). Found in the project's Supabase dashboard URL or Settings > General.`,
+      },
+    ],
+  },
+  {
     name: 'supabase_get_vanity_subdomain_config',
     description: `[Beta] Get the current vanity subdomain configuration for a Supabase project. Only available on the Pro, Team, or Enterprise organization plan. Requires only the project ref. Returns a status (not-used, custom-domain-used, or active) and the custom_domain if one is configured.`,
     params: [
@@ -1541,6 +1834,30 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `The 20-character project reference ID (lowercase letters only). Found in the project's Supabase dashboard URL or Settings > General.`,
+      },
+    ],
+  },
+  {
+    name: 'supabase_invite_external_jit_access',
+    description: `Invite an external user by email to a Supabase project's database for just-in-time (JIT) access, setting the Postgres roles they can assume, an optional expiry per role, allowed source network CIDRs, and whether the role is limited to database branches. The invited user must accept the invite with Accept Invite External JIT Access before the access becomes active.`,
+    params: [
+      {
+        name: 'email',
+        type: 'string',
+        required: true,
+        description: `Email address of the external user to invite.`,
+      },
+      {
+        name: 'ref',
+        type: 'string',
+        required: true,
+        description: `The 20-character project reference ID (lowercase letters only). Found in the project's Supabase dashboard URL or Settings > General.`,
+      },
+      {
+        name: 'roles',
+        type: 'array',
+        required: true,
+        description: `Array of role objects to grant. Each has a required 'role' name, plus optional 'expires_at' (unix timestamp), 'allowed_networks' ({allowed_cidrs: [{cidr}], allowed_cidrs_v6: [{cidr}]}), and 'branches_only' (boolean).`,
       },
     ],
   },
@@ -1629,6 +1946,18 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'supabase_list_jit_access',
+    description: `List all user-id to role mappings for just-in-time (JIT) database access on a Supabase project, including both direct authorizations and pending or accepted external user invites. Returns each user's id, email (if known), and the Postgres roles they can assume, with expiry and allowed network CIDRs. Requires only the project ref.`,
+    params: [
+      {
+        name: 'ref',
+        type: 'string',
+        required: true,
+        description: `The 20-character project reference ID (lowercase letters only). Found in the project's Supabase dashboard URL or Settings > General.`,
+      },
+    ],
+  },
+  {
     name: 'supabase_list_migration_history',
     description: `List the versions and names of database migrations that have already been applied to a Supabase project, in the order they were recorded. Note: this endpoint is only available to selected partner OAuth apps and may return a 403 for other apps. Requires the project ref.`,
     params: [
@@ -1680,6 +2009,18 @@ export const tools: Tool[] = [
     name: 'supabase_list_organizations',
     description: `List all Supabase organizations that the authenticated user currently belongs to. Returns an array of organization objects, each including id, slug, and name. Takes no parameters.`,
     params: [],
+  },
+  {
+    name: 'supabase_list_project_addons',
+    description: `List the billing addons currently applied to a Supabase project, including the active compute instance size, plus every addon option that can be provisioned along with its pricing metadata. Requires only the project ref.`,
+    params: [
+      {
+        name: 'ref',
+        type: 'string',
+        required: true,
+        description: `The 20-character project reference ID (lowercase letters only). Found in the project's Supabase dashboard URL or Settings > General.`,
+      },
+    ],
   },
   {
     name: 'supabase_list_project_tpa_integrations',
@@ -1773,6 +2114,32 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Optional migration version timestamp (e.g. '20250312000000') to merge up to. If omitted, all pending migrations on the branch are merged into the parent branch.`,
+      },
+    ],
+  },
+  {
+    name: 'supabase_modify_database_disk',
+    description: `Modify a Supabase project's database disk: change its type (gp3 or io2), size in GB, IOPS, or (gp3 only) throughput in MiB/s. Requires the project ref, disk type, size_gb, and iops; throughput_mibps only applies to gp3 disks.`,
+    params: [
+      {
+        name: 'iops',
+        type: 'integer',
+        required: true,
+        description: `Provisioned IOPS for the disk.`,
+      },
+      {
+        name: 'ref',
+        type: 'string',
+        required: true,
+        description: `The 20-character project reference ID (lowercase letters only). Found in the project's Supabase dashboard URL or Settings > General.`,
+      },
+      { name: 'size_gb', type: 'integer', required: true, description: `Size of the disk in GB.` },
+      { name: 'type', type: 'string', required: true, description: `The disk type to use.` },
+      {
+        name: 'throughput_mibps',
+        type: 'integer',
+        required: false,
+        description: `Throughput in MiB/s. Only valid when type is gp3.`,
       },
     ],
   },
@@ -1933,6 +2300,24 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'supabase_remove_read_replica',
+    description: `[Beta] Remove an existing read replica from a Supabase project. Requires the project ref and the database_identifier of the replica to remove. This action is irreversible; a new replica must be set up from scratch if needed again.`,
+    params: [
+      {
+        name: 'database_identifier',
+        type: 'string',
+        required: true,
+        description: `Identifier of the read replica database to remove.`,
+      },
+      {
+        name: 'ref',
+        type: 'string',
+        required: true,
+        description: `The 20-character project reference ID (lowercase letters only). Found in the project's Supabase dashboard URL or Settings > General.`,
+      },
+    ],
+  },
+  {
     name: 'supabase_reset_branch',
     description: `Reset a Supabase database branch, re-running its migrations from scratch and discarding any data or ad-hoc schema changes made on the branch since it was created. Requires branch_id_or_ref. Optionally specify migration_version to reset up to a specific migration only; if omitted, all migrations are replayed. This is a destructive operation that cannot be undone. Returns a workflow_run_id to track progress and a message field with value 'ok'.`,
     params: [
@@ -2067,6 +2452,48 @@ export const tools: Tool[] = [
         type: 'boolean',
         required: false,
         description: `When true, the query is executed against a read-only replica/transaction and any write statement is rejected. Strongly recommended for exploratory queries.`,
+      },
+    ],
+  },
+  {
+    name: 'supabase_scrape_project_metrics',
+    description: `Scrape a project's infrastructure metrics in Prometheus exposition format (plain text, not JSON). Not deprecated, but a lower-priority/edge-case addition since the response cannot be parsed as JSON — treat the result as raw text.`,
+    params: [
+      {
+        name: 'ref',
+        type: 'string',
+        required: true,
+        description: `The 20-character project reference ID (lowercase letters only). Found in the project's Supabase dashboard URL or Settings > General.`,
+      },
+    ],
+  },
+  {
+    name: 'supabase_setup_read_replica',
+    description: `[Beta] Set up a new read replica for a Supabase project in the given region. Requires the project ref and the AWS region the replica should reside in.`,
+    params: [
+      {
+        name: 'read_replica_region',
+        type: 'string',
+        required: true,
+        description: `The region the read replica should reside in.`,
+      },
+      {
+        name: 'ref',
+        type: 'string',
+        required: true,
+        description: `The 20-character project reference ID (lowercase letters only). Found in the project's Supabase dashboard URL or Settings > General.`,
+      },
+    ],
+  },
+  {
+    name: 'supabase_shutdown_realtime',
+    description: `Forcibly shut down all active Realtime connections for a Supabase project. Connected clients are disconnected immediately and must reconnect; use this to clear stuck connections after a configuration change. Requires only the project ref.`,
+    params: [
+      {
+        name: 'ref',
+        type: 'string',
+        required: true,
+        description: `The 20-character project reference ID (lowercase letters only). Found in the project's Supabase dashboard URL or Settings > General.`,
       },
     ],
   },
@@ -3745,6 +4172,24 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'supabase_update_legacy_api_keys',
+    description: `Disable or re-enable JWT-based legacy (anon, service_role) API keys for a project. The enabled flag is passed as a query parameter, not a request body. Note: Supabase's docs mark this endpoint as scheduled for future removal (check for HTTP 404).`,
+    params: [
+      {
+        name: 'enabled',
+        type: 'boolean',
+        required: true,
+        description: `Whether legacy (anon, service_role) API keys should be enabled for this project.`,
+      },
+      {
+        name: 'ref',
+        type: 'string',
+        required: true,
+        description: `The 20-character project reference ID (lowercase letters only). Found in the project's Supabase dashboard URL or Settings > General.`,
+      },
+    ],
+  },
+  {
     name: 'supabase_update_network_restrictions',
     description: `[Beta] Apply network restrictions (database allowed CIDR ranges) to a Supabase project. Replaces the project's current dbAllowedCidrs and dbAllowedCidrsV6 lists with the values provided. Omit a field to leave that list unchanged. Requires the project ref. Returns the applied/pending configuration along with entitlement and status.`,
     params: [
@@ -4183,6 +4628,84 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'supabase_update_realtime_config',
+    description: `Update a Supabase project's Realtime service configuration: restrict to private channels, connection pool size, concurrent user/event/byte/channel/join/presence/payload-size rate limits, presence, or suspend the service entirely. All fields are optional; only the fields provided are changed. Requires the project ref.`,
+    params: [
+      {
+        name: 'ref',
+        type: 'string',
+        required: true,
+        description: `The 20-character project reference ID (lowercase letters only). Found in the project's Supabase dashboard URL or Settings > General.`,
+      },
+      {
+        name: 'connection_pool',
+        type: 'integer',
+        required: false,
+        description: `Connection pool size for Realtime Authorization (1-100).`,
+      },
+      {
+        name: 'max_bytes_per_second',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of bytes per second per channel (1-10000000).`,
+      },
+      {
+        name: 'max_channels_per_client',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of channels per client (1-10000).`,
+      },
+      {
+        name: 'max_concurrent_users',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of concurrent users (1-50000).`,
+      },
+      {
+        name: 'max_events_per_second',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of events per second per channel (1-50000).`,
+      },
+      {
+        name: 'max_joins_per_second',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of channel joins per second (1-5000).`,
+      },
+      {
+        name: 'max_payload_size_in_kb',
+        type: 'integer',
+        required: false,
+        description: `Maximum payload size in KB (1-10000).`,
+      },
+      {
+        name: 'max_presence_events_per_second',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of presence events per second (1-5000).`,
+      },
+      {
+        name: 'presence_enabled',
+        type: 'boolean',
+        required: false,
+        description: `Whether to enable presence.`,
+      },
+      {
+        name: 'private_only',
+        type: 'boolean',
+        required: false,
+        description: `Whether to only allow private channels.`,
+      },
+      {
+        name: 'suspend',
+        type: 'boolean',
+        required: false,
+        description: `Set to true to disable the Realtime service for this project; false to re-enable it.`,
+      },
+    ],
+  },
+  {
     name: 'supabase_update_ssl_enforcement_config',
     description: `[Beta] Update a Supabase project's SSL enforcement configuration for the database. Set database to true to require SSL for all direct Postgres connections. Requires the project ref. Returns the currentConfig after the change and whether it was appliedSuccessfully.`,
     params: [
@@ -4245,6 +4768,42 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `SAML NameID format to use. One of the four standard SAML NameID format URNs. Example: urn:oasis:names:tc:SAML:2.0:nameid-format:persistent.`,
+      },
+    ],
+  },
+  {
+    name: 'supabase_update_storage_config',
+    description: `Update a Supabase project's Storage service configuration: the maximum upload file size in bytes, and feature flags for image transformation, the S3 protocol, and cache purging. All fields are optional; only the fields provided are changed. Requires the project ref.`,
+    params: [
+      {
+        name: 'ref',
+        type: 'string',
+        required: true,
+        description: `The 20-character project reference ID (lowercase letters only). Found in the project's Supabase dashboard URL or Settings > General.`,
+      },
+      {
+        name: 'fileSizeLimit',
+        type: 'integer',
+        required: false,
+        description: `Maximum upload file size in bytes, up to 536870912000 (500GB).`,
+      },
+      {
+        name: 'imageTransformationEnabled',
+        type: 'boolean',
+        required: false,
+        description: `Whether image transformation is enabled.`,
+      },
+      {
+        name: 'purgeCacheEnabled',
+        type: 'boolean',
+        required: false,
+        description: `Whether cache purging is enabled.`,
+      },
+      {
+        name: 's3ProtocolEnabled',
+        type: 'boolean',
+        required: false,
+        description: `Whether the S3-compatible protocol is enabled for this project's storage.`,
       },
     ],
   },

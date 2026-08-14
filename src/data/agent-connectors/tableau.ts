@@ -31,6 +31,60 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'tableau_datasource_permissions_list',
+    description: `Retrieve the capability grants (permissions) defined for a specific Tableau data source, showing which users and groups can view, edit, or manage it.`,
+    params: [
+      {
+        name: 'datasource_id',
+        type: 'string',
+        required: true,
+        description: `The LUID of the data source to list permissions for`,
+      },
+    ],
+  },
+  {
+    name: 'tableau_datasource_update',
+    description: `Update a Tableau published data source's name, owner, project (move it), or certification status. Only the fields you provide are changed.`,
+    params: [
+      {
+        name: 'datasource_id',
+        type: 'string',
+        required: true,
+        description: `The LUID of the data source to update`,
+      },
+      {
+        name: 'certification_note',
+        type: 'string',
+        required: false,
+        description: `Note explaining the certification status, shown to users`,
+      },
+      {
+        name: 'is_certified',
+        type: 'boolean',
+        required: false,
+        description: `Whether the data source is marked as certified`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: false,
+        description: `New name for the data source`,
+      },
+      {
+        name: 'new_owner_id',
+        type: 'string',
+        required: false,
+        description: `LUID of the user to set as the new owner`,
+      },
+      {
+        name: 'new_project_id',
+        type: 'string',
+        required: false,
+        description: `LUID of the project to move the data source into`,
+      },
+    ],
+  },
+  {
     name: 'tableau_datasources_list',
     description: `Retrieve a filtered, sorted list of published data sources on a Tableau site. Supports pagination and filtering by name, type, project, and owner.`,
     params: [
@@ -57,6 +111,48 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Sort expression, e.g. name:asc or updatedAt:desc`,
+      },
+    ],
+  },
+  {
+    name: 'tableau_extract_refresh_task_run',
+    description: `Trigger a scheduled extract refresh task to run immediately instead of waiting for its next scheduled time. Returns the asynchronous job created to perform the refresh.`,
+    params: [
+      {
+        name: 'task_id',
+        type: 'string',
+        required: true,
+        description: `The LUID of the extract refresh task to run now`,
+      },
+    ],
+  },
+  {
+    name: 'tableau_extract_refresh_tasks_list',
+    description: `List the scheduled extract refresh tasks on a Tableau site, including their schedule and the workbook or data source each task refreshes. Use tableau_extract_refresh_task_run to trigger one immediately.`,
+    params: [
+      {
+        name: 'filter',
+        type: 'string',
+        required: false,
+        description: `Filter expression to narrow results, e.g. type:eq:RefreshExtractTask`,
+      },
+      {
+        name: 'page_number',
+        type: 'integer',
+        required: false,
+        description: `Page number for pagination (1-based)`,
+      },
+      {
+        name: 'page_size',
+        type: 'integer',
+        required: false,
+        description: `Number of tasks to return per page (max 1000)`,
+      },
+      {
+        name: 'sort',
+        type: 'string',
+        required: false,
+        description: `Sort expression, e.g. priority:asc`,
       },
     ],
   },
@@ -272,6 +368,48 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'tableau_project_permissions_add',
+    description: `Grant a user or group specific capabilities (permissions) on a Tableau project, such as Read, Write, or ProjectLeader. Capabilities are additive to any existing grants for that grantee.`,
+    params: [
+      {
+        name: 'capabilities',
+        type: 'array',
+        required: true,
+        description: `JSON array of capability grants to apply. Each item has a 'name' (e.g. Read, Write, ProjectLeader) and a 'mode' of Allow or Deny.`,
+      },
+      {
+        name: 'grantee_id',
+        type: 'string',
+        required: true,
+        description: `The LUID of the user or group to grant capabilities to`,
+      },
+      {
+        name: 'grantee_type',
+        type: 'string',
+        required: true,
+        description: `Whether the grantee is a user or a group`,
+      },
+      {
+        name: 'project_id',
+        type: 'string',
+        required: true,
+        description: `The LUID of the project to grant permissions on`,
+      },
+    ],
+  },
+  {
+    name: 'tableau_project_permissions_list',
+    description: `Retrieve the capability grants (permissions) defined for a specific Tableau project, showing which users and groups can view, publish to, or manage its contents.`,
+    params: [
+      {
+        name: 'project_id',
+        type: 'string',
+        required: true,
+        description: `The LUID of the project to list permissions for`,
+      },
+    ],
+  },
+  {
     name: 'tableau_project_update',
     description: `Update an existing project on a Tableau site. You can rename the project, change its description, content permissions, or move it to a different parent project.`,
     params: [
@@ -369,6 +507,121 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'tableau_schedule_create',
+    description: `Create a new server schedule for running extract refreshes, subscriptions, or flow tasks on a recurring basis. Requires server administrator privileges.`,
+    params: [
+      {
+        name: 'frequency',
+        type: 'string',
+        required: true,
+        description: `How often the schedule runs`,
+      },
+      {
+        name: 'frequency_details',
+        type: 'object',
+        required: true,
+        description: `JSON object describing the recurrence details for the chosen frequency, matching Tableau's frequencyDetails shape. Example for Daily: {"start": "23:00:00"}. Example for Hourly: {"start": "07:00:00", "end": "23:00:00", "intervals": {"interval": [{"hours": "4"}]}}. Example for Weekly: {"start": "23:00:00", "intervals": {"interval": [{"weekDay": "Monday"}]}}.`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: true,
+        description: `Name of the schedule to create`,
+      },
+      {
+        name: 'execution_order',
+        type: 'string',
+        required: false,
+        description: `Whether tasks on this schedule run in parallel or one after another`,
+      },
+      {
+        name: 'priority',
+        type: 'integer',
+        required: false,
+        description: `Priority of the schedule relative to others (1-100). Lower numbers run first when resources are constrained.`,
+      },
+      {
+        name: 'schedule_type',
+        type: 'string',
+        required: false,
+        description: `Type of tasks this schedule can run`,
+      },
+    ],
+  },
+  {
+    name: 'tableau_schedule_delete',
+    description: `Permanently delete a server schedule. Any extract refresh, subscription, or flow tasks tied to this schedule are removed. This action is irreversible and requires server administrator privileges.`,
+    params: [
+      {
+        name: 'schedule_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the schedule to delete`,
+      },
+    ],
+  },
+  {
+    name: 'tableau_schedule_update',
+    description: `Update an existing server schedule's name, priority, execution order, state, or recurrence details. Only the fields you provide are changed. Requires server administrator privileges.`,
+    params: [
+      {
+        name: 'schedule_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the schedule to update`,
+      },
+      {
+        name: 'execution_order',
+        type: 'string',
+        required: false,
+        description: `Whether tasks on this schedule run in parallel or one after another`,
+      },
+      {
+        name: 'frequency',
+        type: 'string',
+        required: false,
+        description: `How often the schedule runs`,
+      },
+      {
+        name: 'frequency_details',
+        type: 'object',
+        required: false,
+        description: `JSON object describing the recurrence details for the chosen frequency, matching Tableau's frequencyDetails shape. Example: {"start": "23:00:00"}.`,
+      },
+      { name: 'name', type: 'string', required: false, description: `New name for the schedule` },
+      {
+        name: 'priority',
+        type: 'integer',
+        required: false,
+        description: `New priority for the schedule relative to others (1-100)`,
+      },
+      {
+        name: 'state',
+        type: 'string',
+        required: false,
+        description: `Whether the schedule is active or suspended`,
+      },
+    ],
+  },
+  {
+    name: 'tableau_schedules_list',
+    description: `Retrieve a list of server schedules used to run extract refreshes, subscriptions, and flow tasks on a recurring basis. Requires server administrator privileges.`,
+    params: [
+      {
+        name: 'page_number',
+        type: 'integer',
+        required: false,
+        description: `Page number for pagination (1-based)`,
+      },
+      {
+        name: 'page_size',
+        type: 'integer',
+        required: false,
+        description: `Number of schedules to return per page (max 1000)`,
+      },
+    ],
+  },
+  {
     name: 'tableau_session_get',
     description: `Returns information about the current authenticated session, including the site LUID, site name, and authenticated user details. Call this after tableau_auth_signin to retrieve the site_id needed for the connected account configuration.`,
     params: [],
@@ -382,6 +635,30 @@ export const tools: Tool[] = [
         type: 'boolean',
         required: false,
         description: `If true, include view count and storage usage statistics`,
+      },
+    ],
+  },
+  {
+    name: 'tableau_sites_list',
+    description: `Retrieve a list of all sites on a Tableau Server or Tableau Cloud pod. Requires server administrator privileges. Supports pagination and filtering.`,
+    params: [
+      {
+        name: 'filter',
+        type: 'string',
+        required: false,
+        description: `Filter expression to narrow results, e.g. name:eq:Marketing`,
+      },
+      {
+        name: 'page_number',
+        type: 'integer',
+        required: false,
+        description: `Page number for pagination (1-based)`,
+      },
+      {
+        name: 'page_size',
+        type: 'integer',
+        required: false,
+        description: `Number of sites to return per page (max 1000)`,
       },
     ],
   },
@@ -434,6 +711,36 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'tableau_user_update',
+    description: `Update a Tableau user's site role, full name, email, or authentication setting. Only the fields you provide are changed. Requires site or server administrator privileges.`,
+    params: [
+      {
+        name: 'user_id',
+        type: 'string',
+        required: true,
+        description: `The LUID of the user to update`,
+      },
+      {
+        name: 'email',
+        type: 'string',
+        required: false,
+        description: `New email address for the user`,
+      },
+      {
+        name: 'full_name',
+        type: 'string',
+        required: false,
+        description: `New full name for the user`,
+      },
+      {
+        name: 'site_role',
+        type: 'string',
+        required: false,
+        description: `New site role controlling the user's permission level on the site`,
+      },
+    ],
+  },
+  {
     name: 'tableau_users_list',
     description: `Retrieve a filtered, sorted list of users added to a Tableau site. Supports pagination and filtering by name, site role, and other attributes.`,
     params: [
@@ -464,6 +771,24 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'tableau_view_data_get',
+    description: `Retrieve the underlying summary data of a Tableau view as CSV, exactly as rendered by the view's current fields and filters. For flexible field selection and filtering against a published data source directly, use tableau_query_view instead.`,
+    params: [
+      {
+        name: 'view_id',
+        type: 'string',
+        required: true,
+        description: `The LUID of the view to retrieve underlying data for`,
+      },
+      {
+        name: 'max_age',
+        type: 'integer',
+        required: false,
+        description: `Maximum age in minutes of cached data to accept before forcing a refresh. Minimum 1.`,
+      },
+    ],
+  },
+  {
     name: 'tableau_view_get',
     description: `Retrieve detailed information about a specific Tableau view by its ID, including name, content URL, owner, workbook, project, and optional usage statistics.`,
     params: [
@@ -478,6 +803,73 @@ export const tools: Tool[] = [
         type: 'boolean',
         required: false,
         description: `If true, include view count and high-water-mark usage statistics`,
+      },
+    ],
+  },
+  {
+    name: 'tableau_view_image_get',
+    description: `Render a Tableau view as an image (PNG or SVG). No existing tool can produce a visual snapshot of a view.`,
+    params: [
+      {
+        name: 'view_id',
+        type: 'string',
+        required: true,
+        description: `The LUID of the view to render as an image`,
+      },
+      {
+        name: 'format',
+        type: 'string',
+        required: false,
+        description: `Image format to render. 'svg' requires API version 3.29+.`,
+      },
+      {
+        name: 'max_age',
+        type: 'integer',
+        required: false,
+        description: `Maximum age in minutes of a cached image to accept before forcing a refresh. Minimum 1.`,
+      },
+      {
+        name: 'resolution',
+        type: 'string',
+        required: false,
+        description: `Pixel density of the rendered image. Set to 'high' for a higher-resolution image.`,
+      },
+    ],
+  },
+  {
+    name: 'tableau_view_pdf_get',
+    description: `Render a Tableau view as a PDF document. No existing tool can produce a print-ready export of a view.`,
+    params: [
+      {
+        name: 'view_id',
+        type: 'string',
+        required: true,
+        description: `The LUID of the view to render as a PDF`,
+      },
+      {
+        name: 'max_age',
+        type: 'integer',
+        required: false,
+        description: `Maximum age in minutes of a cached render to accept before forcing a refresh. Minimum 1.`,
+      },
+      {
+        name: 'orientation',
+        type: 'string',
+        required: false,
+        description: `Page orientation for the PDF.`,
+      },
+      { name: 'type', type: 'string', required: false, description: `Page size for the PDF.` },
+      {
+        name: 'viz_height',
+        type: 'integer',
+        required: false,
+        description: `Height in pixels used to render the view before converting to PDF.`,
+      },
+      {
+        name: 'viz_width',
+        type: 'integer',
+        required: false,
+        description: `Width in pixels used to render the view before converting to PDF.`,
       },
     ],
   },
@@ -560,6 +952,84 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'tableau_workbook_permission_delete',
+    description: `Revoke a single capability grant for a user or group on a Tableau workbook. Requires the grantee type, grantee ID, capability name, and its mode as currently granted.`,
+    params: [
+      {
+        name: 'capability_mode',
+        type: 'string',
+        required: true,
+        description: `The mode of the capability grant to revoke, as currently set (Allow or Deny)`,
+      },
+      {
+        name: 'capability_name',
+        type: 'string',
+        required: true,
+        description: `The name of the capability to revoke, e.g. Read, Write, ExportData`,
+      },
+      {
+        name: 'grantee_id',
+        type: 'string',
+        required: true,
+        description: `The LUID of the user or group whose capability is being revoked`,
+      },
+      {
+        name: 'grantee_type',
+        type: 'string',
+        required: true,
+        description: `Whether the grantee is a user or a group`,
+      },
+      {
+        name: 'workbook_id',
+        type: 'string',
+        required: true,
+        description: `The LUID of the workbook to revoke the permission from`,
+      },
+    ],
+  },
+  {
+    name: 'tableau_workbook_permissions_add',
+    description: `Grant a user or group specific capabilities (permissions) on a Tableau workbook, such as Read, Write, or ExportData. Capabilities are additive to any existing grants for that grantee.`,
+    params: [
+      {
+        name: 'capabilities',
+        type: 'array',
+        required: true,
+        description: `JSON array of capability grants to apply. Each item has a 'name' (e.g. Read, Write, Delete, ExportData, ChangePermissions, ExportXml, ViewComments, AddComment, Filter, ViewUnderlyingData, ShareView, WebAuthoring, RunExplainData) and a 'mode' of Allow or Deny.`,
+      },
+      {
+        name: 'grantee_id',
+        type: 'string',
+        required: true,
+        description: `The LUID of the user or group to grant capabilities to`,
+      },
+      {
+        name: 'grantee_type',
+        type: 'string',
+        required: true,
+        description: `Whether the grantee is a user or a group`,
+      },
+      {
+        name: 'workbook_id',
+        type: 'string',
+        required: true,
+        description: `The LUID of the workbook to grant permissions on`,
+      },
+    ],
+  },
+  {
+    name: 'tableau_workbook_permissions_list',
+    description: `Retrieve the capability grants (permissions) defined for a specific Tableau workbook, showing which users and groups can view, edit, or manage it.`,
+    params: [
+      {
+        name: 'workbook_id',
+        type: 'string',
+        required: true,
+        description: `The LUID of the workbook to list permissions for`,
+      },
+    ],
+  },
+  {
     name: 'tableau_workbook_search',
     description: `Search for workbooks on a Tableau site by name. Returns workbooks whose name matches the search term.`,
     params: [
@@ -580,6 +1050,43 @@ export const tools: Tool[] = [
         type: 'integer',
         required: false,
         description: `Number of workbooks to return per page (max 1000)`,
+      },
+    ],
+  },
+  {
+    name: 'tableau_workbook_update',
+    description: `Update a Tableau workbook's name, description, owner, project (move it), tab visibility, or certification status. Only the fields you provide are changed.`,
+    params: [
+      {
+        name: 'workbook_id',
+        type: 'string',
+        required: true,
+        description: `The LUID of the workbook to update`,
+      },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `New description for the workbook`,
+      },
+      { name: 'name', type: 'string', required: false, description: `New name for the workbook` },
+      {
+        name: 'new_owner_id',
+        type: 'string',
+        required: false,
+        description: `LUID of the user to set as the new owner`,
+      },
+      {
+        name: 'new_project_id',
+        type: 'string',
+        required: false,
+        description: `LUID of the project to move the workbook into`,
+      },
+      {
+        name: 'show_tabs',
+        type: 'boolean',
+        required: false,
+        description: `Whether sheet tabs are visible when viewing the workbook`,
       },
     ],
   },

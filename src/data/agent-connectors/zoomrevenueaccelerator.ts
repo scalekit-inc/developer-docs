@@ -486,6 +486,42 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'zoomrevenueaccelerator_grant_team_access_from',
+    description: `Grant the current team access to view conversation recordings hosted and attended by members of the specified source teams. Once granted, managers/members of the current team with team-conversation read permission can view those recordings.`,
+    params: [
+      {
+        name: 'source_team_ids',
+        type: 'array',
+        required: true,
+        description: `List of source team IDs to grant the current team access to (max 200).`,
+      },
+      {
+        name: 'teamId',
+        type: 'string',
+        required: true,
+        description: `The Zoom specific team ID that will receive access. Retrieve by calling the List Account Teams tool.`,
+      },
+    ],
+  },
+  {
+    name: 'zoomrevenueaccelerator_grant_team_access_to',
+    description: `Grant the specified target teams access to view conversation recordings hosted and attended by members of the current team.`,
+    params: [
+      {
+        name: 'target_team_ids',
+        type: 'array',
+        required: true,
+        description: `List of target team IDs to grant access to the current team's recordings (max 200).`,
+      },
+      {
+        name: 'teamId',
+        type: 'string',
+        required: true,
+        description: `The Zoom specific team ID that is granting access. Retrieve by calling the List Account Teams tool.`,
+      },
+    ],
+  },
+  {
     name: 'zoomrevenueaccelerator_import_crm_accounts',
     description: `Bulk import CRM account objects into Zoom Revenue Accelerator asynchronously. We recommend importing in this order: account, then contact, then deal, since CRM account references are validated in advance when importing contacts and deals. Returns a task ID you can poll with Get CRM Task.`,
     params: [
@@ -897,6 +933,60 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'zoomrevenueaccelerator_move_team',
+    description: `Move a Revenue Accelerator team under a new parent team, changing the account's team hierarchy. Requires that your account supports hierarchical structure teams.`,
+    params: [
+      {
+        name: 'new_parent_team_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the team that should become this team's new parent.`,
+      },
+      {
+        name: 'teamId',
+        type: 'string',
+        required: true,
+        description: `The Zoom specific team ID to move. Retrieve by calling the List Account Teams tool.`,
+      },
+    ],
+  },
+  {
+    name: 'zoomrevenueaccelerator_multipart_upload_event',
+    description: `Initiate a multipart file upload (to obtain an upload_context for uploading parts) or complete one after all parts have been uploaded. This only orchestrates the upload session -- sending the actual file bytes for each part is not handled by this tool.`,
+    params: [
+      {
+        name: 'method',
+        type: 'string',
+        required: true,
+        description: `Which upload event to perform.`,
+      },
+      {
+        name: 'file_name',
+        type: 'string',
+        required: false,
+        description: `The file's name. Used when method is CreateMultipartUpload.`,
+      },
+      {
+        name: 'main_file_id',
+        type: 'string',
+        required: false,
+        description: `The main file's unique ID, to upload an attachment file. Used when method is CreateMultipartUpload.`,
+      },
+      {
+        name: 'part_number_etags',
+        type: 'array',
+        required: false,
+        description: `The uploaded parts' number/etag pairs. Used when method is CompleteMultipartUpload.`,
+      },
+      {
+        name: 'upload_context',
+        type: 'string',
+        required: false,
+        description: `Upload context identifying the multipart upload. Used when method is CompleteMultipartUpload.`,
+      },
+    ],
+  },
+  {
     name: 'zoomrevenueaccelerator_register_crm',
     description: `Register a new custom CRM API integration for this Zoom account, defining the CRM type, currency, deal stage pipeline, and optional deep-link URL patterns used before bulk importing CRM accounts, contacts, deals, and leads.`,
     params: [
@@ -947,6 +1037,42 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `URL pattern to open a CRM lead object in a browser. The placeholder {id} is replaced with the actual CRM lead object ID.`,
+      },
+    ],
+  },
+  {
+    name: 'zoomrevenueaccelerator_revoke_team_access_from',
+    description: `Stop the specified source teams from granting the current team access to their conversation recordings.`,
+    params: [
+      {
+        name: 'teamId',
+        type: 'string',
+        required: true,
+        description: `The Zoom specific team ID to revoke access for. Retrieve by calling the List Account Teams tool.`,
+      },
+      {
+        name: 'source_team_ids',
+        type: 'string',
+        required: false,
+        description: `Comma-separated source team IDs to stop granting access. Omit to revoke access from all source teams.`,
+      },
+    ],
+  },
+  {
+    name: 'zoomrevenueaccelerator_revoke_team_access_to',
+    description: `Stop the current team from granting the specified target teams access to its conversation recordings.`,
+    params: [
+      {
+        name: 'teamId',
+        type: 'string',
+        required: true,
+        description: `The Zoom specific team ID that is revoking access. Retrieve by calling the List Account Teams tool.`,
+      },
+      {
+        name: 'target_team_ids',
+        type: 'string',
+        required: false,
+        description: `Comma-separated target team IDs to stop granting access to. Omit to revoke access from all target teams.`,
       },
     ],
   },

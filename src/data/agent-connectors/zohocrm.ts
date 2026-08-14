@@ -339,6 +339,210 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'zohocrm_v8_attachment_upload',
+    description: `Attach a file or a URL link to a single Zoho CRM record. Provide either file_content_base64 (with filename) to upload raw file bytes, or attachment_url to attach a link instead — Zoho accepts only one of the two per call.`,
+    params: [
+      {
+        name: 'module',
+        type: 'string',
+        required: true,
+        description: `API name of the Zoho CRM module the record belongs to`,
+      },
+      {
+        name: 'record_id',
+        type: 'string',
+        required: true,
+        description: `ID of the record to attach the file or link to`,
+      },
+      {
+        name: 'attachment_url',
+        type: 'string',
+        required: false,
+        description: `URL of a hosted file to attach as a link instead of uploading raw bytes. Mutually exclusive with file_content_base64.`,
+      },
+      {
+        name: 'file_content_base64',
+        type: 'string',
+        required: false,
+        description: `Base64-encoded contents of the file to upload. Mutually exclusive with attachment_url.`,
+      },
+      {
+        name: 'filename',
+        type: 'string',
+        required: false,
+        description: `Name the uploaded file will have in Zoho CRM, including extension. Required when file_content_base64 is provided.`,
+      },
+      {
+        name: 'title',
+        type: 'string',
+        required: false,
+        description: `Title for the attachment link. Only used with attachment_url; defaults to the linked page's meta-title if omitted.`,
+      },
+    ],
+  },
+  {
+    name: 'zohocrm_v8_blueprint_get',
+    description: `Get the available blueprint transitions for a Zoho CRM record, including each transition's ID, required fields, and current field values.`,
+    params: [
+      {
+        name: 'module',
+        type: 'string',
+        required: true,
+        description: `API name of the Zoho CRM module the record belongs to`,
+      },
+      {
+        name: 'record_id',
+        type: 'string',
+        required: true,
+        description: `ID of the record whose blueprint state to retrieve`,
+      },
+    ],
+  },
+  {
+    name: 'zohocrm_v8_blueprint_update',
+    description: `Move a Zoho CRM record to its next blueprint state by executing a single transition. Use zohocrm_v8_blueprint_get first to find valid transition_id values and their required fields.`,
+    params: [
+      {
+        name: 'module',
+        type: 'string',
+        required: true,
+        description: `API name of the Zoho CRM module the record belongs to`,
+      },
+      {
+        name: 'record_id',
+        type: 'string',
+        required: true,
+        description: `ID of the record to transition`,
+      },
+      {
+        name: 'transition_id',
+        type: 'string',
+        required: true,
+        description: `ID of the blueprint transition to execute, from zohocrm_v8_blueprint_get.`,
+      },
+      {
+        name: 'data',
+        type: 'object',
+        required: false,
+        description: `Object of field API name to value pairs required by the transition, if any.`,
+      },
+    ],
+  },
+  {
+    name: 'zohocrm_v8_bulk_read_job_create',
+    description: `Create a Zoho CRM Bulk Read job to export a large number of records from a module as a downloadable file. Poll zohocrm_v8_bulk_read_job_get with the returned job_id for status and the download URL.`,
+    params: [
+      {
+        name: 'fields',
+        type: 'array',
+        required: true,
+        description: `Field API names to include in the exported file.`,
+      },
+      {
+        name: 'module',
+        type: 'string',
+        required: true,
+        description: `The Zoho CRM module API name to export records from.`,
+      },
+      {
+        name: 'callback_url',
+        type: 'string',
+        required: false,
+        description: `URL Zoho should notify via POST once the job completes.`,
+      },
+      {
+        name: 'criteria',
+        type: 'object',
+        required: false,
+        description: `Free-form Zoho bulk-read criteria object used to filter which records are exported, e.g. {"field":{"api_name":"Last_Name"},"comparator":"equal","value":"Smith"}. Omit to export all records.`,
+      },
+      {
+        name: 'file_type',
+        type: 'string',
+        required: false,
+        description: `Format of the exported file: csv or ics (ics only for Events/Tasks/Calls).`,
+      },
+      {
+        name: 'page',
+        type: 'integer',
+        required: false,
+        description: `Page of records to export (each page covers up to 200,000 records).`,
+      },
+    ],
+  },
+  {
+    name: 'zohocrm_v8_bulk_read_job_get',
+    description: `Check the status of a Zoho CRM Bulk Read job and get the download URL once it has completed.`,
+    params: [
+      {
+        name: 'job_id',
+        type: 'string',
+        required: true,
+        description: `ID of the bulk read job to check, as returned by zohocrm_v8_bulk_read_job_create.`,
+      },
+    ],
+  },
+  {
+    name: 'zohocrm_v8_bulk_write_job_create',
+    description: `Create a Zoho CRM Bulk Write job to insert, update, or upsert a large number of records from a previously uploaded file. Poll zohocrm_v8_bulk_write_job_get with the returned job_id for status.`,
+    params: [
+      {
+        name: 'field_mappings',
+        type: 'array',
+        required: true,
+        description: `Array of objects mapping each source file column index to a module field API name, e.g. [{"api_name":"Last_Name","index":0}].`,
+      },
+      {
+        name: 'file_id',
+        type: 'string',
+        required: true,
+        description: `ID of the previously uploaded file to import, obtained from Zoho's file upload API.`,
+      },
+      {
+        name: 'module',
+        type: 'string',
+        required: true,
+        description: `The Zoho CRM module API name to write records into.`,
+      },
+      {
+        name: 'operation',
+        type: 'string',
+        required: true,
+        description: `Bulk write operation to perform: insert, update, or upsert.`,
+      },
+      {
+        name: 'callback_url',
+        type: 'string',
+        required: false,
+        description: `URL Zoho should notify via POST once the job completes.`,
+      },
+      {
+        name: 'find_by',
+        type: 'string',
+        required: false,
+        description: `Field API name used to match existing records for update/upsert operations.`,
+      },
+      {
+        name: 'ignore_empty',
+        type: 'boolean',
+        required: false,
+        description: `Whether empty values in the file should be ignored instead of clearing the corresponding field.`,
+      },
+    ],
+  },
+  {
+    name: 'zohocrm_v8_bulk_write_job_get',
+    description: `Check the status and result counts of a Zoho CRM Bulk Write job.`,
+    params: [
+      {
+        name: 'job_id',
+        type: 'string',
+        required: true,
+        description: `ID of the bulk write job to check, as returned by zohocrm_v8_bulk_write_job_create.`,
+      },
+    ],
+  },
+  {
     name: 'zohocrm_v8_call_create',
     description: `Log a new call activity in Zoho CRM. Subject is required by Zoho for every call.`,
     params: [
@@ -1555,6 +1759,60 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'zohocrm_v8_mass_update_create',
+    description: `Update one field (up to three for Deals) across many Zoho CRM records at once, selected either by explicit record IDs or by a custom view ID. Poll zohocrm_v8_mass_update_status_get with the returned job_id for progress.`,
+    params: [
+      {
+        name: 'fields',
+        type: 'object',
+        required: true,
+        description: `Object of field API name to new value pairs to apply to every matched record. Up to three fields for Deals, one field for all other modules. Email, lookup, layout, multi-line, and line-item fields are not supported.`,
+      },
+      {
+        name: 'module',
+        type: 'string',
+        required: true,
+        description: `The Zoho CRM module API name whose records should be mass updated.`,
+      },
+      {
+        name: 'cvid',
+        type: 'string',
+        required: false,
+        description: `Custom view ID whose matching records should all be updated, up to 500 (or 50,000 when scheduled). Mutually exclusive with ids.`,
+      },
+      {
+        name: 'ids',
+        type: 'array',
+        required: false,
+        description: `Explicit record IDs to update, up to 500 per call (50,000 when scheduled). Mutually exclusive with cvid.`,
+      },
+      {
+        name: 'over_write',
+        type: 'boolean',
+        required: false,
+        description: `For multi-select picklist fields, whether to replace existing values instead of appending to them.`,
+      },
+    ],
+  },
+  {
+    name: 'zohocrm_v8_mass_update_status_get',
+    description: `Check the status and progress counts of a Zoho CRM Mass Update job.`,
+    params: [
+      {
+        name: 'job_id',
+        type: 'string',
+        required: true,
+        description: `ID of the mass update job to check, as returned by zohocrm_v8_mass_update_create.`,
+      },
+      {
+        name: 'module',
+        type: 'string',
+        required: true,
+        description: `The Zoho CRM module API name the mass update job was run against.`,
+      },
+    ],
+  },
+  {
     name: 'zohocrm_v8_meeting_cancel',
     description: `Cancel an existing meeting (event) in Zoho CRM, optionally notifying attendees by email.`,
     params: [
@@ -1624,6 +1882,54 @@ export const tools: Tool[] = [
         description: `The API name of the module the note attaches to, e.g. Leads, Deals, Contacts, Accounts`,
       },
       { name: 'Note_Title', type: 'string', required: false, description: `The title of the note` },
+    ],
+  },
+  {
+    name: 'zohocrm_v8_note_delete',
+    description: `Permanently delete a note from Zoho CRM by its record ID. This action cannot be undone.`,
+    params: [
+      {
+        name: 'note_id',
+        type: 'string',
+        required: true,
+        description: `The unique Zoho CRM record ID of the note to delete.`,
+      },
+    ],
+  },
+  {
+    name: 'zohocrm_v8_note_get',
+    description: `Retrieve a single note from Zoho CRM by its record ID.`,
+    params: [
+      {
+        name: 'note_id',
+        type: 'string',
+        required: true,
+        description: `The unique Zoho CRM record ID of the note to retrieve.`,
+      },
+    ],
+  },
+  {
+    name: 'zohocrm_v8_note_update',
+    description: `Update an existing note in Zoho CRM. Only the fields provided are changed.`,
+    params: [
+      {
+        name: 'note_id',
+        type: 'string',
+        required: true,
+        description: `The unique Zoho CRM record ID of the note to update.`,
+      },
+      {
+        name: 'Note_Content',
+        type: 'string',
+        required: false,
+        description: `Updated body text of the note.`,
+      },
+      {
+        name: 'Note_Title',
+        type: 'string',
+        required: false,
+        description: `Updated title of the note.`,
+      },
     ],
   },
   {
@@ -1728,6 +2034,60 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'zohocrm_v8_record_create',
+    description: `Create a new record in any Zoho CRM module, including modules without a dedicated create tool (e.g. Products, Quotes, Sales_Orders, Vendors, Purchase_Orders). Always inserts a new record; use zohocrm_v8_record_upsert instead if you want to update a matching existing record.`,
+    params: [
+      {
+        name: 'module',
+        type: 'string',
+        required: true,
+        description: `The Zoho CRM module API name to operate on`,
+      },
+      {
+        name: 'record',
+        type: 'object',
+        required: true,
+        description: `Free-form object of field API name to value pairs for the record to create.`,
+      },
+    ],
+  },
+  {
+    name: 'zohocrm_v8_record_delete',
+    description: `Delete a record by ID from any Zoho CRM module, including modules without a dedicated delete tool (e.g. Products, Quotes, Sales_Orders, Vendors, Purchase_Orders). Deleted records are moved to Zoho's recycle bin rather than being purged immediately.`,
+    params: [
+      {
+        name: 'module',
+        type: 'string',
+        required: true,
+        description: `The Zoho CRM module API name to operate on`,
+      },
+      {
+        name: 'record_id',
+        type: 'string',
+        required: true,
+        description: `The unique ID of the record`,
+      },
+    ],
+  },
+  {
+    name: 'zohocrm_v8_record_get',
+    description: `Retrieve a single record by ID from any Zoho CRM module, including modules without a dedicated get tool (e.g. Products, Quotes, Sales_Orders, Vendors, Purchase_Orders).`,
+    params: [
+      {
+        name: 'module',
+        type: 'string',
+        required: true,
+        description: `The Zoho CRM module API name to operate on`,
+      },
+      {
+        name: 'record_id',
+        type: 'string',
+        required: true,
+        description: `The unique ID of the record`,
+      },
+    ],
+  },
+  {
     name: 'zohocrm_v8_record_tags_add',
     description: `Apply one or more existing tags to a single Zoho CRM record. The tags must already be defined in the module (see zohocrm_tag_create) — this does not create new tag definitions.`,
     params: [
@@ -1795,6 +2155,48 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'zohocrm_v8_records_list',
+    description: `List records from any Zoho CRM module, including modules without a dedicated list tool (e.g. Products, Quotes, Sales_Orders, Vendors, Purchase_Orders). Supports selecting fields, sorting, and pagination.`,
+    params: [
+      {
+        name: 'fields',
+        type: 'string',
+        required: true,
+        description: `Comma-separated list of field API names to include in each returned record`,
+      },
+      {
+        name: 'module',
+        type: 'string',
+        required: true,
+        description: `The Zoho CRM module API name to operate on`,
+      },
+      {
+        name: 'page',
+        type: 'integer',
+        required: false,
+        description: `Page number of results to fetch`,
+      },
+      {
+        name: 'per_page',
+        type: 'integer',
+        required: false,
+        description: `Number of records to return per page`,
+      },
+      {
+        name: 'sort_by',
+        type: 'string',
+        required: false,
+        description: `API name of the field to sort results by`,
+      },
+      {
+        name: 'sort_order',
+        type: 'string',
+        required: false,
+        description: `Sort direction applied to sort_by`,
+      },
+    ],
+  },
+  {
     name: 'zohocrm_v8_records_query',
     description: `Run a SELECT-only Zoho CRM Object Query Language (COQL) query across one or more modules. Use this for filtering and joins that the standard list APIs cannot express.`,
     params: [
@@ -1852,6 +2254,103 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `API name of the Zoho CRM module to fetch related list metadata for`,
+      },
+    ],
+  },
+  {
+    name: 'zohocrm_v8_related_record_add',
+    description: `Link an existing record into a related list on another record, e.g. associating a Product with a Deal. Use zohocrm_v8_related_list_metadata_get to find valid related_list_api_name values for a module.`,
+    params: [
+      {
+        name: 'module',
+        type: 'string',
+        required: true,
+        description: `API name of the Zoho CRM module the parent record belongs to`,
+      },
+      { name: 'record_id', type: 'string', required: true, description: `ID of the parent record` },
+      {
+        name: 'related_list_api_name',
+        type: 'string',
+        required: true,
+        description: `API name of the related list to add the record to`,
+      },
+      {
+        name: 'related_record_id',
+        type: 'string',
+        required: true,
+        description: `ID of the record to link into the related list`,
+      },
+      {
+        name: 'fields',
+        type: 'object',
+        required: false,
+        description: `Object of extra field API name to value pairs to set on the association itself, e.g. {"Member_Status":"Active"} for a Campaign relation.`,
+      },
+    ],
+  },
+  {
+    name: 'zohocrm_v8_related_record_remove',
+    description: `Delink a related record from another record's related list, e.g. removing a Product from a Deal. This only removes the association, not the record itself.`,
+    params: [
+      {
+        name: 'module',
+        type: 'string',
+        required: true,
+        description: `API name of the Zoho CRM module the parent record belongs to`,
+      },
+      { name: 'record_id', type: 'string', required: true, description: `ID of the parent record` },
+      {
+        name: 'related_list_api_name',
+        type: 'string',
+        required: true,
+        description: `API name of the related list to remove the record from`,
+      },
+      {
+        name: 'related_record_id',
+        type: 'string',
+        required: true,
+        description: `ID of the related record to unlink`,
+      },
+    ],
+  },
+  {
+    name: 'zohocrm_v8_send_mail',
+    description: `Send an email from a Zoho CRM record (e.g. a Lead or Contact) using the record's Send Mail action. Requires the 'ZohoCRM.send_mail.all.CREATE' (or module-specific send_mail) OAuth scope on the connection.`,
+    params: [
+      { name: 'content', type: 'string', required: true, description: `The body of the email` },
+      {
+        name: 'module',
+        type: 'string',
+        required: true,
+        description: `The Zoho CRM module API name the record belongs to`,
+      },
+      {
+        name: 'record_id',
+        type: 'string',
+        required: true,
+        description: `The unique ID of the record to send the email from`,
+      },
+      {
+        name: 'subject',
+        type: 'string',
+        required: true,
+        description: `The subject line of the email`,
+      },
+      { name: 'to', type: 'array', required: true, description: `Recipients of the email` },
+      { name: 'bcc', type: 'array', required: false, description: `Blind carbon-copy recipients` },
+      { name: 'cc', type: 'array', required: false, description: `Carbon-copy recipients` },
+      { name: 'from', type: 'object', required: false, description: `The sender of the email` },
+      {
+        name: 'mail_format',
+        type: 'string',
+        required: false,
+        description: `The format of the email content`,
+      },
+      {
+        name: 'template_id',
+        type: 'string',
+        required: false,
+        description: `ID of an email template to use instead of raw content`,
       },
     ],
   },
@@ -1934,6 +2433,96 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'zohocrm_v8_task_delete',
+    description: `Permanently delete a task from Zoho CRM by its record ID. This action cannot be undone.`,
+    params: [
+      {
+        name: 'record_id',
+        type: 'string',
+        required: true,
+        description: `The unique Zoho CRM record ID of the task to delete.`,
+      },
+    ],
+  },
+  {
+    name: 'zohocrm_v8_task_get',
+    description: `Retrieve a single task from Zoho CRM by its record ID.`,
+    params: [
+      {
+        name: 'record_id',
+        type: 'string',
+        required: true,
+        description: `The unique Zoho CRM record ID of the task to retrieve.`,
+      },
+    ],
+  },
+  {
+    name: 'zohocrm_v8_task_search',
+    description: `Search for tasks in Zoho CRM using Zoho's criteria query syntax.`,
+    params: [
+      {
+        name: 'criteria',
+        type: 'string',
+        required: true,
+        description: `Search criteria using Zoho's query syntax: (fieldname:operator:value). Combine multiple conditions with 'and' or 'or', e.g. (Status:equals:Completed)and(Priority:equals:High).`,
+      },
+      {
+        name: 'page',
+        type: 'integer',
+        required: false,
+        description: `The page number of results to return.`,
+      },
+      {
+        name: 'per_page',
+        type: 'integer',
+        required: false,
+        description: `The number of tasks to return per page.`,
+      },
+    ],
+  },
+  {
+    name: 'zohocrm_v8_task_update',
+    description: `Update an existing task in Zoho CRM. All data fields are optional; only the fields provided are changed.`,
+    params: [
+      {
+        name: 'record_id',
+        type: 'string',
+        required: true,
+        description: `The unique Zoho CRM record ID of the task to update.`,
+      },
+      {
+        name: 'Description',
+        type: 'string',
+        required: false,
+        description: `Updated free-form notes about the task.`,
+      },
+      {
+        name: 'Due_Date',
+        type: 'string',
+        required: false,
+        description: `Updated due date for the task.`,
+      },
+      {
+        name: 'Priority',
+        type: 'string',
+        required: false,
+        description: `Updated priority level of the task.`,
+      },
+      {
+        name: 'Status',
+        type: 'string',
+        required: false,
+        description: `Updated status of the task.`,
+      },
+      {
+        name: 'Subject',
+        type: 'string',
+        required: false,
+        description: `Updated subject or title of the task.`,
+      },
+    ],
+  },
+  {
     name: 'zohocrm_v8_tasks_list',
     description: `List tasks from Zoho CRM. Supports selecting specific fields, pagination, and sorting.`,
     params: [
@@ -1998,6 +2587,72 @@ export const tools: Tool[] = [
         description: `Number of users to return per page`,
       },
       { name: 'type', type: 'string', required: false, description: `Filter users by status type` },
+    ],
+  },
+  {
+    name: 'zohocrm_v8_webhook_create',
+    description: `Create a workflow-triggered webhook that notifies an external URL when records change in a Zoho CRM module. Associate the webhook with a workflow rule in Zoho CRM settings to actually trigger it. Requires the 'ZohoCRM.settings.automation_actions.ALL' OAuth scope on the connection.`,
+    params: [
+      {
+        name: 'http_method',
+        type: 'string',
+        required: true,
+        description: `The HTTP method used to call the URL`,
+      },
+      {
+        name: 'module_api_name',
+        type: 'string',
+        required: true,
+        description: `API name of the module the webhook monitors`,
+      },
+      {
+        name: 'module_id',
+        type: 'string',
+        required: true,
+        description: `Internal ID of the module the webhook monitors`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: true,
+        description: `A unique name for the webhook`,
+      },
+      {
+        name: 'url',
+        type: 'string',
+        required: true,
+        description: `The external URL that receives the webhook request`,
+      },
+      {
+        name: 'authentication_type',
+        type: 'string',
+        required: false,
+        description: `Authentication type for the webhook call`,
+      },
+      {
+        name: 'body',
+        type: 'object',
+        required: false,
+        description: `Custom request body configuration for POST/PUT webhooks`,
+      },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `A description of what the webhook is for`,
+      },
+      {
+        name: 'headers',
+        type: 'object',
+        required: false,
+        description: `Header values to send with the webhook request, mapped from record fields or custom values`,
+      },
+      {
+        name: 'url_parameters',
+        type: 'object',
+        required: false,
+        description: `Custom query parameters to append to the URL for GET webhooks`,
+      },
     ],
   },
 ]
