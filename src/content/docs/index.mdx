@@ -657,28 +657,13 @@ head:
         border: 0;
       }
 
-      .gateway-cli-step-prompt-card {
-        text-align: left;
-        align-items: stretch;
-      }
-
-      .gateway-cli-step-prompt-card .gateway-cli-step-title,
-      .gateway-cli-step-prompt-card .gateway-cli-step-num {
-        align-self: center;
-      }
-
-      .gateway-cli-step-prompt-card .expressive-code {
-        text-align: left;
-      }
-
-      /* Desktop: flow arrow between steps 1 and 2 only */
       .gateway-cli-step:not(:last-child) {
         position: relative;
       }
 
       @media (min-width: 48rem) {
         .gateway-cli-steps {
-          flex-wrap: wrap;
+          flex-wrap: nowrap;
           gap: 1.5rem;
         }
         .gateway-cli-step {
@@ -686,11 +671,7 @@ head:
           min-width: 0;
           max-width: 18rem;
         }
-        .gateway-cli-step-prompt-card {
-          flex: 1 1 100%;
-          max-width: 48rem;
-        }
-        .gateway-cli-step:nth-child(1)::after {
+        .gateway-cli-step:not(:last-child)::after {
           content: '→';
           position: absolute;
           right: -1.15rem;
@@ -727,7 +708,7 @@ import IconCursor from '~icons/simple-icons/cursor'
 import IconCodex from '~icons/simple-icons/openai'
 import agentkitHero from '../../assets/pages/hero/agentkit.svg'
 import authForSaasHero from '../../assets/pages/hero/auth-for-saas.svg'
-import { homepagePrompt } from '../../configs/page-actions.config'
+import CopyAgentPromptLink from '../../components/CopyAgentPromptLink.astro'
 
 
 
@@ -830,16 +811,9 @@ import { homepagePrompt } from '../../configs/page-actions.config'
           </li>
         </ul>
       </li>
-      <li class="gateway-cli-step gateway-cli-step-prompt-card">
+      <li class="gateway-cli-step">
         <span class="gateway-cli-step-num" aria-hidden="true">3</span>
-        <p class="gateway-cli-step-title">Copy for AI agents</p>
-        <Code
-          code={homepagePrompt}
-          lang="txt"
-          frame="none"
-          showLineNumbers={false}
-          wrap
-        />
+        <CopyAgentPromptLink />
       </li>
     </ol>
   </section>

@@ -1,0 +1,114 @@
+---
+import { homepagePrompt } from '../configs/page-actions.config'
+
+const label = 'Copy prompt for agents'
+---
+
+<div class="copy-agent-prompt-wrap">
+  <button type="button" class="copy-agent-prompt" data-idle-label={label} aria-label={label}>
+    <span data-label>{label}</span>
+  </button>
+  <span class="sr-only" data-live aria-live="polite"></span>
+  <script type="application/json" data-homepage-prompt set:html={JSON.stringify(homepagePrompt)} />
+</div>
+
+<style>
+  .copy-agent-prompt-wrap {
+    display: flex;
+    justify-content: center;
+    max-width: 100%;
+  }
+
+  .copy-agent-prompt {
+    appearance: none;
+    margin: 0;
+    padding: 0.45rem 0.15rem;
+    border: 0;
+    background: none;
+    font: inherit;
+    font-size: 0.9rem;
+    font-weight: 600;
+    line-height: 1.35;
+    color: var(--sl-color-accent);
+    text-decoration: underline;
+    text-underline-offset: 0.18em;
+    text-align: center;
+    cursor: pointer;
+    border-radius: var(--sk-radius-sm, 0.25rem);
+  }
+
+  .copy-agent-prompt:hover {
+    color: var(--sl-color-accent-high, var(--sl-color-accent));
+  }
+
+  .copy-agent-prompt:focus-visible {
+    outline: var(--sk-focus-ring, 2px solid var(--sl-color-accent));
+    outline-offset: 3px;
+  }
+
+  .copy-agent-prompt[data-state='copied'] {
+    text-decoration: none;
+    color: var(--sk-color-agent-ink, var(--sl-color-accent));
+  }
+
+  .copy-agent-prompt[data-state='error'] {
+    text-decoration: none;
+    color: var(--sl-color-text);
+  }
+
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+</style>
+
+<script>
+  const RESET_MS = 2000
+
+  function payload(wrap: Element): string {
+    const node = wrap.querySelector('[data-homepage-prompt]')
+    if (!node?.textContent) return ''
+    return JSON.parse(node.textContent) as string
+  }
+
+  function bind(wrap: Element) {
+    const btn = wrap.querySelector<HTMLButtonElement>('.copy-agent-prompt')
+    const labelEl = wrap.querySelector<HTMLElement>('[data-label]')
+    const live = wrap.querySelector<HTMLElement>('[data-live]')
+    if (!btn || !labelEl || btn.dataset.ready === 'true') return
+    btn.dataset.ready = 'true'
+
+    const idle = btn.dataset.idleLabel ?? 'Copy prompt for agents'
+
+    const show = (state: 'idle' | 'copied' | 'error', text: string) => {
+      btn.dataset.state = state
+      labelEl.textContent = text
+      btn.setAttribute('aria-label', state === 'idle' ? idle : text)
+      if (live) live.textContent = state === 'idle' ? '' : text
+    }
+
+    btn.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(payload(wrap))
+        show('copied', 'Copied')
+      } catch {
+        show('error', 'Copy failed')
+      }
+      window.setTimeout(() => show('idle', idle), RESET_MS)
+    })
+  }
+
+  function init() {
+    document.querySelectorAll('.copy-agent-prompt-wrap').forEach(bind)
+  }
+
+  init()
+  document.addEventListener('astro:page-load', init)
+</script>
