@@ -37,13 +37,19 @@ Follow these in order. A step is done only when its check passes.
    SCALEKIT_CLIENT_SECRET
    Done: I have pasted all three.
 
-4. Implement — load the installed skill and run its steps. Use the dashboard Connection Name exactly as written. Gmail needs no extra connection; every other connector is created first under Dashboard → AgentKit → Connections.
+4. Implement — load the installed skill and run its steps. Agent auth only: use the dashboard Connection Name exactly as written. Gmail needs no extra connection; every other connector is created first under Dashboard → AgentKit → Connections.
    Done: the skill's own checklist is complete.
 
-5. Handoff — give me both:
-   - the authorization link if consent is still open, plus the exact command or request that proves the integration
-   - https://app.scalekit.com
-   Done: both are in your reply.`
+5. Handoff — return that product's proof plus https://app.scalekit.com with the path below.
+   Done: both are in your reply.
+
+   - agent auth: authorization link if the connected account is not ACTIVE; after OAuth, status ACTIVE and one successful tool/API call. Path: AgentKit → Connections
+   - full-stack auth: the app login/authorize URL, plus
+     npx @scalekit-sdk/dryrun --env_url=$SCALEKIT_ENVIRONMENT_URL --client_id=$SCALEKIT_CLIENT_ID --mode=fsa
+     Register http://localhost:12456/auth/callback under Authentication → Redirect URIs first. Path: Authentication → Redirect URLs
+   - MCP auth: MCP server URL and https://<your-domain>/.well-known/oauth-protected-resource. Curl the MCP URL for 401 + WWW-Authenticate, and curl the well-known JSON. Path: MCP servers
+   - SSO: authorization URL that opens the SSO simulator — Test Organization organization_id from Organizations → Test Organization, or login_hint on @example.com / @example.org. Path: Organizations → Test Organization
+   - SCIM: no auth link. Public webhook URL, plus the admin portal link (generatePortalLink or Organizations → Generate link) so IT can copy the SCIM Endpoint URL and Bearer token. Path: Webhooks and Organizations`
 
 /**
  * Prompt used when opening documentation pages in coding agents (ChatGPT, Claude, Cursor).
