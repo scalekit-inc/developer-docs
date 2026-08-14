@@ -13,7 +13,7 @@ Load https://docs.scalekit.com/llms.txt before writing any Scalekit code. The in
 
 Follow these in order. A step is done only when its check passes.
 
-0. Ask — offer AgentKit, full-stack auth, MCP auth, SSO, or SCIM. If I am not sure, propose AgentKit with Gmail and proceed unless I pick another.
+0. Ask — offer AgentKit, SaaSKit, MCP auth, SSO, or SCIM. If I am not sure, propose AgentKit with Gmail and proceed unless I pick another.
    Done: I have named a product.
 
 1. Install —
@@ -24,7 +24,7 @@ Follow these in order. A step is done only when its check passes.
    npx --yes skills add scalekit-inc/authstack --yes --skill integrating-agentkit -a cursor -a claude-code -a codex
 
    Other products:
-   - full-stack auth → implementing-saaskit
+   - SaaSKit → implementing-saaskit
    - MCP auth → adding-mcp-oauth
    - SSO → implementing-modular-sso
    - SCIM → implementing-scim-provisioning
@@ -44,7 +44,7 @@ Follow these in order. A step is done only when its check passes.
    Done: both are in your reply.
 
    - AgentKit: authorization link if the connected account is not ACTIVE; after OAuth, status ACTIVE and one successful tool/API call. Path: AgentKit → Connections
-   - full-stack auth: the app login/authorize URL, plus
+   - SaaSKit: the app login/authorize URL, plus
      npx @scalekit-sdk/dryrun --env_url=$SCALEKIT_ENVIRONMENT_URL --client_id=$SCALEKIT_CLIENT_ID --mode=fsa
      Register http://localhost:12456/auth/callback under Authentication → Redirect URIs first. Path: Authentication → Redirect URLs
    - MCP auth: MCP server URL and https://<your-domain>/.well-known/oauth-protected-resource. Curl the MCP URL for 401 + WWW-Authenticate, and curl the well-known JSON. Path: MCP servers
