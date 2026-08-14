@@ -548,25 +548,23 @@ head:
         to   { opacity: 1; transform: translateY(0); }
       }
 
-      .gateway-cli-steps {
-        list-style: none;
-        margin: 0;
-        padding: 0;
+      .gateway-cli-ramps {
         display: flex;
         align-items: stretch;
         justify-content: center;
         gap: 0.75rem;
         flex-wrap: wrap;
+        margin: 0;
       }
 
-      .gateway-cli-step {
+      .gateway-cli-ramp {
         display: flex;
         flex-direction: column;
         align-items: center;
         gap: 0.4rem;
-        flex: 1 1 12rem;
-        min-width: 11rem;
-        max-width: 18rem;
+        flex: 1 1 14rem;
+        min-width: 13rem;
+        max-width: 22rem;
         text-align: center;
         background: var(--sl-color-bg-card);
         border: 1px solid var(--sl-color-hairline);
@@ -576,59 +574,56 @@ head:
         box-shadow: var(--sk-shadow-menu, 0 1px 2px rgba(10, 10, 10, 0.04));
       }
 
+      .gateway-cli-or {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0;
+        padding: 0 0.15rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        color: var(--sl-color-text-muted);
+        flex: 0 0 auto;
+      }
+
       @media (prefers-reduced-motion: no-preference) {
-        .gateway-cli-step {
+        .gateway-cli-ramp {
           opacity: 0;
           animation: gateway-fade-up 280ms ease-out forwards;
         }
-        .gateway-cli-step:nth-child(1) { animation-delay: 0ms; }
-        .gateway-cli-step:nth-child(2) { animation-delay: 70ms; }
-        .gateway-cli-step:nth-child(3) { animation-delay: 140ms; }
+        .gateway-cli-ramp:nth-of-type(1) { animation-delay: 0ms; }
+        .gateway-cli-ramp:nth-of-type(2) { animation-delay: 40ms; }
       }
 
-      .gateway-cli-step-num {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: 1.5rem;
-        height: 1.5rem;
-        border-radius: var(--sk-radius-full, 50%);
-        border: 1px solid var(--sl-color-accent);
-        background: var(--sl-color-bg-card);
-        font-size: 0.75rem;
-        font-weight: 600;
-        color: var(--sl-color-accent);
-        flex-shrink: 0;
-      }
-
-      .gateway-cli-step-title {
+      .gateway-cli-ramp-title {
         font-size: 0.9rem;
         font-weight: 500;
         color: var(--sl-color-text-heading);
         margin: 0;
       }
 
-      .gateway-cli-step-artifact {
+      .gateway-cli-ramp-artifact {
         width: 100%;
-        flex: 1 1 auto;
         display: flex;
         align-items: center;
         justify-content: center;
         min-height: 2.75rem;
       }
 
-      .gateway-cli-step .expressive-code {
+      .gateway-cli-ramp .expressive-code {
         width: 100%;
         max-width: 100%;
       }
 
-      .gateway-cli-step .expressive-code pre {
+      .gateway-cli-ramp .expressive-code pre {
         overflow-x: auto;
       }
 
       .gateway-cli-agent-icons {
         list-style: none;
-        margin: 0;
+        margin: 0.15rem 0 0;
         padding: 0;
         display: flex;
         gap: 0.5rem;
@@ -666,30 +661,10 @@ head:
         border: 0;
       }
 
-      .gateway-cli-step:not(:last-child) {
-        position: relative;
-      }
-
       @media (min-width: 48rem) {
-        .gateway-cli-steps {
+        .gateway-cli-ramps {
           flex-wrap: nowrap;
-          gap: 1.5rem;
-        }
-        .gateway-cli-step {
-          flex: 1 1 12rem;
-          min-width: 0;
-          max-width: 18rem;
-        }
-        .gateway-cli-step:not(:last-child)::after {
-          content: '→';
-          position: absolute;
-          right: -1.15rem;
-          top: 50%;
-          transform: translateY(-50%);
-          font-size: 1.1rem;
-          color: var(--sl-color-gray-3);
-          opacity: 0.55;
-          pointer-events: none;
+          gap: 1rem;
         }
       }
 
@@ -697,13 +672,16 @@ head:
         .gateway-cli {
           padding: 1.25rem 1rem 1.5rem;
         }
-        .gateway-cli-steps {
+        .gateway-cli-ramps {
           flex-direction: column;
           align-items: stretch;
         }
-        .gateway-cli-step {
+        .gateway-cli-ramp {
           max-width: none;
           flex: 1 1 auto;
+        }
+        .gateway-cli-or {
+          padding: 0.15rem 0;
         }
       }
 
@@ -777,12 +755,11 @@ import CopyAgentPromptLink from '../../components/CopyAgentPromptLink.astro'
   </div>
 
   <section class="gateway-cli not-content" aria-labelledby="gateway-cli-heading">
-    <h2 class="gateway-section-label" id="gateway-cli-heading">Try it in 3 steps</h2>
-    <ol class="gateway-cli-steps">
-      <li class="gateway-cli-step">
-        <span class="gateway-cli-step-num" aria-hidden="true">1</span>
-        <p class="gateway-cli-step-title">Run the CLI</p>
-        <div class="gateway-cli-step-artifact">
+    <h2 class="gateway-section-label" id="gateway-cli-heading">Try it</h2>
+    <div class="gateway-cli-ramps">
+      <div class="gateway-cli-ramp">
+        <p class="gateway-cli-ramp-title">Run the CLI</p>
+        <div class="gateway-cli-ramp-artifact">
           <Code
             code="npx @scalekit-inc/cli setup"
             lang="sh"
@@ -791,11 +768,7 @@ import CopyAgentPromptLink from '../../components/CopyAgentPromptLink.astro'
             wrap
           />
         </div>
-      </li>
-      <li class="gateway-cli-step">
-        <span class="gateway-cli-step-num" aria-hidden="true">2</span>
-        <p class="gateway-cli-step-title">Choose your coding agent</p>
-        <ul class="gateway-cli-agent-icons gateway-cli-step-artifact" aria-label="Supported coding agents">
+        <ul class="gateway-cli-agent-icons" aria-label="Supported coding agents">
           <li>
             <span class="gateway-cli-agent-icon" title="Claude Code">
               <IconClaude aria-hidden="true" />
@@ -821,14 +794,14 @@ import CopyAgentPromptLink from '../../components/CopyAgentPromptLink.astro'
             </span>
           </li>
         </ul>
-      </li>
-      <li class="gateway-cli-step">
-        <span class="gateway-cli-step-num" aria-hidden="true">3</span>
-        <p class="gateway-cli-step-title">Quickstart with your agent</p>
-        <div class="gateway-cli-step-artifact">
+      </div>
+      <p class="gateway-cli-or">or</p>
+      <div class="gateway-cli-ramp">
+        <p class="gateway-cli-ramp-title">Quickstart with your agent</p>
+        <div class="gateway-cli-ramp-artifact">
           <CopyAgentPromptLink />
         </div>
-      </li>
-    </ol>
+      </div>
+    </div>
   </section>
 </div>
