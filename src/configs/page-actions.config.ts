@@ -3,38 +3,47 @@ import { AGENT_PLUGIN_INLINE } from './agent-instructions'
 /**
  * Prompt shown (and copied) on homepage step 3.
  * What you see is what you paste into the coding agent.
- * Modeled on the mcp-use / Manufact onboarding prompt (SK-1570 / SK-1635).
- * Commands here are the documented CLI and skills-add surface — do not invent extras.
+ * Manufact-shaped playbook, tightened with writing-for-agents:
+ * one process, a checkable Done on every step, skill as source of truth,
+ * positive wording (no "don't invent"), exact documented commands only.
  */
-export const homepagePrompt = `Build with Scalekit. Read the docs index first: https://docs.scalekit.com/llms.txt
+export const homepagePrompt = `Build with Scalekit.
 
-Follow these in order.
+Load https://docs.scalekit.com/llms.txt before writing any Scalekit code. The installed authstack skill is the source of truth for APIs, SDK calls, and connection names. Credentials come only from values I paste.
 
-0. Ask me what I want to build: agent auth, full-stack auth, MCP auth, SSO, or SCIM. If I am not sure, propose Gmail agent auth so I can see a working connection, and go with that unless I say otherwise. Always use skills from scalekit-inc/authstack. Do not invent Scalekit APIs.
+Follow these in order. A step is done only when its check passes.
 
-1. Install the CLI and authstack plugin:
+0. Ask — offer agent auth, full-stack auth, MCP auth, SSO, or SCIM. If I am not sure, propose Gmail agent auth and proceed unless I pick another.
+   Done: I have named a product.
+
+1. Install —
    npx -y @scalekit-inc/cli setup -y
+   Done: the command exits 0.
 
-2. Install the skill (non-interactive), which will guide you through the rest. For the default (Gmail agent auth):
+2. Skill — install the matching authstack skill, non-interactive. Default (Gmail agent auth):
    npx --yes skills add scalekit-inc/authstack --yes --skill integrating-agentkit -a cursor -a claude-code -a codex
 
-   If I picked a different product, install that skill instead:
+   Other products:
    - full-stack auth → implementing-saaskit
    - MCP auth → adding-mcp-oauth
    - SSO → implementing-modular-sso
    - SCIM → implementing-scim-provisioning
 
-3. Ask me for API credentials from https://app.scalekit.com → Developers → Settings → API Credentials:
+   Done: that skill is installed for cursor, claude-code, and codex.
+
+3. Credentials — ask me to paste these from https://app.scalekit.com → Developers → Settings → API Credentials:
    SCALEKIT_ENVIRONMENT_URL
    SCALEKIT_CLIENT_ID
    SCALEKIT_CLIENT_SECRET
-   Do not invent values or hard-code secrets.
+   Done: I have pasted all three.
 
-4. Implement following the installed skill. Read the skill first. For agent auth, Gmail works without extra dashboard setup; every other connector must exist under Dashboard → AgentKit → Connections, and you must use the exact Connection Name.
+4. Implement — load the installed skill and run its steps. Use the dashboard Connection Name exactly as written. Gmail needs no extra connection; every other connector is created first under Dashboard → AgentKit → Connections.
+   Done: the skill's own checklist is complete.
 
-5. When it works, give me both:
-   - the authorization link (if I still need to consent) and how to verify the integration
-   - the Scalekit dashboard: https://app.scalekit.com — connections, connected accounts, credentials, and logs`
+5. Handoff — give me both:
+   - the authorization link if consent is still open, plus the exact command or request that proves the integration
+   - https://app.scalekit.com
+   Done: both are in your reply.`
 
 /**
  * Prompt used when opening documentation pages in coding agents (ChatGPT, Claude, Cursor).
