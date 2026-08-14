@@ -28,6 +28,7 @@ import Icons from 'unplugin-icons/vite'
 import netlify from '@astrojs/netlify'
 import openapiToMarkdown from './src/integrations/openapi-markdown'
 import { injectAgentHeader } from './src/integrations/inject-agent-header.ts'
+import assignHowToTopic from './src/integrations/assign-how-to-topic'
 
 // https://astro.build/config
 export default defineConfig({
@@ -107,6 +108,7 @@ export default defineConfig({
         starlightImageZoom({
           showCaptions: true,
         }),
+        assignHowToTopic(),
         starlightSidebarTopics(sidebarConfig, { topics, exclude }),
         starlightDocSearch({
           appId: '7554BDRAJD',

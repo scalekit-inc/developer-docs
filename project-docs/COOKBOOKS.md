@@ -2,24 +2,28 @@
 
 Cookbooks are plain Starlight docs pages under product shelves:
 
-| Product       | Path                                   | URL                    |
-| ------------- | -------------------------------------- | ---------------------- |
-| AgentKit      | `src/content/docs/agentkit/cookbooks/` | `/agentkit/cookbooks/` |
-| Auth for SaaS | `src/content/docs/saaskit/cookbooks/`  | `/saaskit/cookbooks/`  |
+| Product       | Path                                   | URL                           |
+| ------------- | -------------------------------------- | ----------------------------- |
+| AgentKit      | `src/content/docs/agentkit/cookbooks/` | `/agentkit/cookbooks/<slug>/` |
+| Auth for SaaS | `src/content/docs/saaskit/cookbooks/`  | `/saaskit/cookbooks/<slug>/`  |
 
 How-to guides (short dashboard answers) live beside them:
 
-| Product       | Path                                | URL                 |
-| ------------- | ----------------------------------- | ------------------- |
-| AgentKit      | `src/content/docs/agentkit/how-to/` | `/agentkit/how-to/` |
-| Auth for SaaS | `src/content/docs/saaskit/how-to/`  | `/saaskit/how-to/`  |
+| Scope                       | Path                                | URL                        |
+| --------------------------- | ----------------------------------- | -------------------------- |
+| Shared (both product rails) | `src/content/docs/how-to/`          | `/how-to/<slug>/`          |
+| AgentKit only               | `src/content/docs/agentkit/how-to/` | `/agentkit/how-to/<slug>/` |
+
+Shared how-tos appear in both Cookbooks sidebars from one file. Product chrome on `/how-to/**` uses the same session/cookie as Enterprise Deployment.
+
+Do not add an `index.mdx` overview unless the shelf is long enough that a hub page helps. The secondary nav lands on the first recipe.
 
 ## How readers find them
 
-Each product has a **dedicated guides sidebar** (not the journey rail):
+Each product has a **dedicated cookbooks sidebar** (not the journey rail):
 
-- **AgentKit** secondary nav → **Guides** → left rail shows **Cookbooks** and **How-to** collapsibles
-- **Auth for SaaS** secondary nav → **Guides** → same pattern (not under Developer Resources)
+- **AgentKit** secondary nav → **Cookbooks** → left rail shows **Cookbooks** and **How-to** collapsibles
+- **Auth for SaaS** secondary nav → **Cookbooks** → same pattern (not under Developer Resources)
 
 New topic IDs in `src/configs/sidebar.config.ts`:
 
@@ -30,8 +34,8 @@ Each uses `autogenerate` on the product directory. Drop a new `.mdx` file in the
 
 A cross-product hub remains at `/cookbooks/` (`src/content/docs/cookbooks.mdx`). It belongs to no
 single product, so it is listed in `exclude` in `src/configs/sidebar.config.ts` — that keeps it from
-inheriting a product journey rail or lighting up a product nav pill. Both product overview pages
-link to it, and it links back to both shelves.
+inheriting a product journey rail or lighting up a product nav pill. The hub links to the first
+recipe on each shelf.
 
 ## What a cookbook is
 
@@ -102,7 +106,8 @@ Use normal Starlight docs frontmatter. Blog-only fields (`date`, `excerpt`, `fea
 title: 'Build a Mastra agent with Scalekit AgentKit tools'
 description: 'Give a Mastra agent access to Gmail and 200+ connectors through Scalekit AgentKit.'
 sidebar:
-  label: 'Mastra AgentKit'
+  label: 'Build a Mastra agent'
+  order: 3
 tableOfContents: true
 ---
 ```
@@ -113,7 +118,8 @@ tableOfContents: true
 | ----------------- | -------- | ------------------------------------ |
 | `title`           | Yes      | ≤60 chars, verb-first, sentence case |
 | `description`     | Yes      | ≤160 chars, problem and outcome      |
-| `sidebar.label`   | Yes      | Short left-rail label (1–5 words)    |
+| `sidebar.label`   | Yes      | Short left-rail label (1–3 words)    |
+| `sidebar.order`   | Yes      | Explicit order in the product shelf  |
 | `tableOfContents` | Optional | Default true for long recipes        |
 
 ## Create a cookbook
@@ -123,7 +129,7 @@ tableOfContents: true
 3. Write the recipe body (problem, steps, working code, failure modes).
 4. Put images under `src/assets/docs/<product>/cookbooks/<slug>/` and reference them as
    `@/assets/docs/<product>/cookbooks/<slug>/<file>.png`.
-5. Run a local build or `pnpm start` and confirm the page appears under the product **Guides** / **Cookbooks** sidebar.
+5. Run a local build or `pnpm start` and confirm the page appears under the product **Cookbooks** sidebar.
 
 **Redirects:** a brand-new cookbook needs none. Only a page whose published URL changes needs an
 entry in `src/configs/redirects.config.ts`, and it must be listed one slug at a time — a

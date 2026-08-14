@@ -1,0 +1,95 @@
+---
+title: 'Add a custom domain on development'
+description: 'Development environments use the assigned Scalekit URL. Custom domains require Production and Customization Pro.'
+tableOfContents: true
+sidebar:
+  label: 'Dev custom domain'
+  order: 5
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 { font-size: var(--sl-text-xl); }
+      .sl-markdown-content h3 { font-size: var(--sl-text-lg); }
+---
+
+import { Steps, Aside } from '@astrojs/starlight/components'
+
+A Development environment cannot use a branded custom domain. **Configure Custom Domain** stays disabled, with the hint: custom domains are available on **Production** after you upgrade to the **Customization Pro** add-on.
+
+Use the assigned Development environment URL for local work. When you need `auth.yourapp.com`, switch to Production and follow [Branded custom domains](/guides/custom-domain/).
+
+## Before you start
+
+- You can open the environment (**Development** or **Production**) from the header switcher
+- For a branded hostname, you can edit DNS for a domain you own
+- Customization Pro is billed at **$99/month** and includes custom domains, watermark removal, custom email provider, and custom email templates
+
+<Aside type="note" title="Development keeps the Scalekit hostname">
+  Each Development environment has a URL such as `yourenv-dev.scalekit.cloud`. Point local redirect URLs at that host. Do not create a production CNAME against a Development environment.
+</Aside>
+
+<Steps>
+
+1. ## Open the Development environment
+
+   In the header, click the **environment name** (right of the workspace name).
+
+   Choose the Development environment you use for local work.
+
+2. ## Open Custom Domain
+
+   In the left nav, under **Customize**, click **Custom Domain**.
+
+   The page shows **Custom Domain Add-on**, the **Environment URL**, and a **Live** badge.
+
+3. ## Copy the Development environment URL
+
+   Copy the **Environment URL** (for example `scalekit-xxxxx-dev.scalekit.cloud`).
+
+   Use that host in Development redirect URLs, SDK `environmentUrl`, and local tests. See [Manage environments](/how-to/environments/).
+
+   **Configure Custom Domain** is disabled on Development. Hover it to read the Production + Customization Pro requirement.
+
+4. ## Configure a branded domain on Production
+
+   Switch the header to a **Production** environment.
+
+   Open **Customize > Custom Domain** and click **Configure Custom Domain**.
+
+   If Customization Pro is not on this environment, Scalekit opens the **Customization Pro Add-on $99/month** dialog. Click **Upgrade**, then continue with the CNAME steps in [Branded custom domains](/guides/custom-domain/).
+
+</Steps>
+
+## Verify
+
+**Development**
+
+1. Open the **Environment URL** in a browser
+2. Confirm the hosted login or admin page loads over HTTPS
+3. Confirm Development redirect URLs use that host, not a production hostname
+
+**Production (after upgrade)**
+
+1. **Configure Custom Domain** is enabled
+2. DNS verifies and the branded host serves HTTPS
+3. Production redirect URLs use the branded host
+
+<Aside type="tip" title="Keep Development redirects on the Scalekit host">
+  After you brand Production, leave Development on `*.scalekit.cloud`. Sharing one hostname across Development and Production collides cookies and redirect URLs.
+</Aside>
+
+## Common questions
+
+<details>
+<summary>Can I attach auth.dev.yourapp.com to Development?</summary>
+
+Not through **Custom Domain**. That page only enables CNAME on Production with Customization Pro. Keep Development on the assigned `*-dev.scalekit.cloud` URL.
+
+</details>
+
+<details>
+<summary>Can I reuse the production hostname in Development?</summary>
+
+No. Use the Development environment URL so cookies and redirect URLs never collide with Production.
+
+</details>

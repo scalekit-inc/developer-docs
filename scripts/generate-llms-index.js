@@ -206,6 +206,7 @@ const OTHER_SECTIONS = [
       p.startsWith('/agentkit/cookbooks/') ||
       p.startsWith('/saaskit/cookbooks/') ||
       p.startsWith('/agentkit/how-to/') ||
+      p.startsWith('/how-to/') ||
       p.startsWith('/saaskit/how-to/') ||
       p.startsWith('/resources/'),
   },
