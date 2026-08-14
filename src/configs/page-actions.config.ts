@@ -1,11 +1,15 @@
 import { AGENT_PLUGIN_INLINE } from './agent-instructions'
 
+/** Human Setup command on the Run the CLI on-ramp. Interactive on purpose. */
+export const setupOneLiner = 'npx @scalekit-inc/cli setup'
+
+/** Same Setup for a coding agent: skip npx and CLI prompts. */
+export const setupForAgent = `npx -y ${setupOneLiner.replace(/^npx\s+/, '')} -y`
+
 /**
- * Prompt shown (and copied) on homepage step 3.
- * What you see is what you paste into the coding agent.
- * Manufact-shaped playbook, tightened with writing-for-agents:
- * one process, a checkable Done on every step, skill as source of truth,
- * positive wording (no "don't invent"), exact documented commands only.
+ * Playbook copied from the Quickstart with your agent on-ramp.
+ * Manufact-shaped, tightened with writing-for-agents:
+ * one process, a checkable Done on every instruction, skill as source of truth.
  */
 export const homepagePrompt = `Build with Scalekit.
 
@@ -17,7 +21,7 @@ Follow these in order. A step is done only when its check passes.
    Done: I have named a product.
 
 1. Install —
-   npx -y @scalekit-inc/cli setup -y
+   ${setupForAgent}
    Done: the command exits 0.
 
 2. Skill — install the matching authstack skill, non-interactive. Default (AgentKit with Gmail):
