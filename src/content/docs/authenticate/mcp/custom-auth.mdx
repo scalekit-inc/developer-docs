@@ -84,7 +84,7 @@ shape: sequence_diagram
    https://<SCALEKIT_ENVIRONMENT_URL>/login?login_request_id=<reqid>&state=<state>
    ```
 
-   The login request and its `state` stay valid for approximately 10 minutes. Complete authentication and redirect the user back to Scalekit within that window. If the request expires, the user lands on an `invalid_state` error page and must restart the connection from their MCP client.
+   The login request and its `state` stay valid for approximately 10 minutes. Complete authentication and send the callback to Scalekit within that window. If the request expires, Scalekit shows an `invalid_state` error page and the connection must be restarted from the MCP client.
 
 
 2. ## Authenticate the user in your system
@@ -189,11 +189,14 @@ Your MCP server now supports federated authentication with your existing auth sy
 ## Troubleshooting
 
 <details>
-<summary>The user lands on an invalid_state error page</summary>
+<summary>`invalid_state` error page after login</summary>
 
-Scalekit redirects the user to a callback with `error=invalid_state` when the login request has expired or the returned `state` does not match the value from step 1. The login request stays valid for approximately 10 minutes.
+Scalekit returns `error=invalid_state` when the login request has expired or the returned `state` does not match the value from step 1. The login request stays valid for approximately 10 minutes.
 
-The error most often appears when a first-time user takes longer than 10 minutes to finish signing up in your system before completing the handshake. Ask the user to start the connection again from their MCP client. The default error page cannot be replaced with a custom page.
+Treat the two causes separately:
+
+- **Expired request:** First-time signup often takes longer than 10 minutes. Restart the connection from the MCP client. The default error page cannot be replaced with a custom page.
+- **Mismatched `state`:** Confirm your application stores the `state` value from step 1 and returns it unchanged. Do not drop, overwrite, or rewrite it. Keep state validation enabled. Restarting the MCP connection does not fix a mismatch.
 
 </details>
 
