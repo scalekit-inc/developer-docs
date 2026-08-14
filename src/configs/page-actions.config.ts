@@ -13,14 +13,14 @@ Load https://docs.scalekit.com/llms.txt before writing any Scalekit code. The in
 
 Follow these in order. A step is done only when its check passes.
 
-0. Ask — offer agent auth, full-stack auth, MCP auth, SSO, or SCIM. If I am not sure, propose Gmail agent auth and proceed unless I pick another.
+0. Ask — offer AgentKit, full-stack auth, MCP auth, SSO, or SCIM. If I am not sure, propose AgentKit with Gmail and proceed unless I pick another.
    Done: I have named a product.
 
 1. Install —
    npx -y @scalekit-inc/cli setup -y
    Done: the command exits 0.
 
-2. Skill — install the matching authstack skill, non-interactive. Default (Gmail agent auth):
+2. Skill — install the matching authstack skill, non-interactive. Default (AgentKit with Gmail):
    npx --yes skills add scalekit-inc/authstack --yes --skill integrating-agentkit -a cursor -a claude-code -a codex
 
    Other products:
@@ -37,13 +37,13 @@ Follow these in order. A step is done only when its check passes.
    SCALEKIT_CLIENT_SECRET
    Done: I have pasted all three.
 
-4. Implement — load the installed skill and run its steps. Agent auth only: use the dashboard Connection Name exactly as written. Gmail needs no extra connection; every other connector is created first under Dashboard → AgentKit → Connections.
+4. Implement — load the installed skill and run its steps. AgentKit only: use the dashboard Connection Name exactly as written. Gmail needs no extra connection; every other connector is created first under Dashboard → AgentKit → Connections.
    Done: the skill's own checklist is complete.
 
 5. Handoff — return that product's proof plus https://app.scalekit.com with the path below.
    Done: both are in your reply.
 
-   - agent auth: authorization link if the connected account is not ACTIVE; after OAuth, status ACTIVE and one successful tool/API call. Path: AgentKit → Connections
+   - AgentKit: authorization link if the connected account is not ACTIVE; after OAuth, status ACTIVE and one successful tool/API call. Path: AgentKit → Connections
    - full-stack auth: the app login/authorize URL, plus
      npx @scalekit-sdk/dryrun --env_url=$SCALEKIT_ENVIRONMENT_URL --client_id=$SCALEKIT_CLIENT_ID --mode=fsa
      Register http://localhost:12456/auth/callback under Authentication → Redirect URIs first. Path: Authentication → Redirect URLs
