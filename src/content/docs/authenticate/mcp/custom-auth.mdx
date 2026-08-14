@@ -84,6 +84,8 @@ shape: sequence_diagram
    https://<SCALEKIT_ENVIRONMENT_URL>/login?login_request_id=<reqid>&state=<state>
    ```
 
+   The login request and its `state` stay valid for approximately 10 minutes. Complete authentication and send the callback to Scalekit within that window. If the request expires, Scalekit shows an `invalid_state` error page and the connection must be restarted from the MCP client.
+
 
 2. ## Authenticate the user in your system
 
@@ -183,3 +185,24 @@ shape: sequence_diagram
 
 
 Your MCP server now supports federated authentication with your existing auth system
+
+## Troubleshooting
+
+<details>
+<summary>`invalid_state` error page after login</summary>
+
+Scalekit returns `error=invalid_state` when the login request has expired or the returned `state` does not match the value from step 1. The login request stays valid for approximately 10 minutes.
+
+Treat the two causes separately:
+
+- **Expired request:** First-time signup often takes longer than 10 minutes. Restart the connection from the MCP client. The default error page cannot be replaced with a custom page.
+- **Mismatched `state`:** Confirm your application stores the `state` value from step 1 and returns it unchanged. Do not drop, overwrite, or rewrite it. Keep state validation enabled. Restarting the MCP connection does not fix a mismatch.
+
+</details>
+
+<details>
+<summary>The handoff request times out with a gateway timeout error</summary>
+
+Create the Scalekit client once at application startup and reuse that single instance across requests. Constructing a new client on every request re-runs the full bootstrap, which opens a fresh connection and fetches a new access token before the request can proceed. That extra work adds latency and can exceed the request deadline, which surfaces as a `deadline_exceeded` gateway timeout on the user-details call. A shared client caches its token and refreshes it internally.
+
+</details>
