@@ -13,7 +13,7 @@ export const setupForAgent = `npx -y ${setupOneLiner.replace(/^npx\s+/, '')} -y`
  */
 export const homepagePrompt = `Build with Scalekit.
 
-Load https://docs.scalekit.com/llms.txt before writing any Scalekit code. The installed authstack skill is the source of truth for APIs, SDK calls, and connection names. Credentials come only from values I paste.
+Load https://docs.scalekit.com/llms.txt before writing any Scalekit code. The installed authstack skill is the source of truth for APIs, SDK calls, and connection names. Credentials live in the environment, never in source.
 
 Follow these in order. A step is done only when its check passes.
 
@@ -35,11 +35,12 @@ Follow these in order. A step is done only when its check passes.
 
    Done: that skill is installed for cursor, claude-code, and codex.
 
-3. Credentials — ask me to paste these from https://app.scalekit.com → Developers → Settings → API Credentials:
+3. Credentials — set these in a local .env for development, from https://app.scalekit.com → Developers → Settings → API Credentials:
    SCALEKIT_ENVIRONMENT_URL
    SCALEKIT_CLIENT_ID
    SCALEKIT_CLIENT_SECRET
-   Done: I have pasted all three.
+   Keep .env out of git. If I paste values into this chat, use them only for that development .env and remind me to rotate them in the dashboard afterward.
+   Done: all three names are set in .env. Code reads them from the environment.
 
 4. Implement — load the installed skill and run its steps. AgentKit only: use the dashboard Connection Name exactly as written. Gmail needs no extra connection; every other connector is created first under Dashboard → AgentKit → Connections.
    Done: the skill's own checklist is complete.
