@@ -104,6 +104,7 @@ export default defineConfig({
         starlightImageZoom({
           showCaptions: true,
         }),
+        // Shared /how-to/** pages have no product folder; assign a topic so Starlight can pick a Cookbooks rail.
         assignHowToTopic(),
         starlightSidebarTopics(sidebarConfig, { topics, exclude }),
         starlightDocSearch({
