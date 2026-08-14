@@ -1,11 +1,12 @@
 ---
 import { homepagePrompt } from '../configs/page-actions.config'
 
-const label = 'Copy prompt for agents'
+const label = 'Quickstart with your agent'
+const actionName = 'Copy a Scalekit quickstart prompt for your coding agent'
 ---
 
 <div class="copy-agent-prompt-wrap">
-  <button type="button" class="copy-agent-prompt" data-idle-label={label} aria-label={label}>
+  <button type="button" class="copy-agent-prompt" data-idle-label={label} aria-label={actionName}>
     <span data-label>{label}</span>
   </button>
   <span class="sr-only" data-live aria-live="polite"></span>
@@ -85,12 +86,14 @@ const label = 'Copy prompt for agents'
     if (!btn || !labelEl || btn.dataset.ready === 'true') return
     btn.dataset.ready = 'true'
 
-    const idle = btn.dataset.idleLabel ?? 'Copy prompt for agents'
+    const idle = btn.dataset.idleLabel ?? 'Quickstart with your agent'
+    const actionName =
+      btn.getAttribute('aria-label') ?? 'Copy a Scalekit quickstart prompt for your coding agent'
 
     const show = (state: 'idle' | 'copied' | 'error', text: string) => {
       btn.dataset.state = state
       labelEl.textContent = text
-      btn.setAttribute('aria-label', state === 'idle' ? idle : text)
+      btn.setAttribute('aria-label', state === 'idle' ? actionName : text)
       if (live) live.textContent = state === 'idle' ? '' : text
     }
 
