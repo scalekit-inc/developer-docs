@@ -1,0 +1,35 @@
+---
+interface Props {
+  short: string
+  full: string
+}
+
+const { short, full } = Astro.props
+---
+
+<button
+  type="button"
+  class="gateway-cli-step-prompt"
+  id="gateway-copy-prompt"
+  aria-label="Copy prompt for AI agents"
+>
+  {short}
+</button>
+
+<script define:vars={{ full }}>
+  const btn = document.getElementById('gateway-copy-prompt')
+  if (btn instanceof HTMLButtonElement) {
+    const original = btn.textContent
+    btn.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(full)
+        btn.textContent = 'Copied'
+        window.setTimeout(() => {
+          btn.textContent = original
+        }, 1500)
+      } catch {
+        btn.textContent = original
+      }
+    })
+  }
+</script>
