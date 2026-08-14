@@ -197,9 +197,23 @@ function escapeCurlyBraces(text) {
  * Make free-form tool text safe to embed in MDX prose (capability bullets, etc.).
  * - `{name}` → HTML entities (MDX would otherwise evaluate as a JS expression)
  * - `<role_name>` → inline code (MDX would otherwise parse as a JSX tag)
+ *
+ * Content already inside a backtick code span (e.g. `request_item=<sys_id>`) is left
+ * untouched: MDX treats code span contents as literal text, so it's already safe, and
+ * wrapping the `<...>` portion again would split the span and leave a bare, unescaped
+ * `<sys_id>` outside any backticks — which is exactly what MDX then fails to parse as
+ * an unclosed JSX tag.
  */
 function escapeMdxProse(text) {
-  return escapeCurlyBraces(String(text || '')).replace(/<[^>\n]+>/g, (match) => '`' + match + '`')
+  const escaped = escapeCurlyBraces(String(text || ''))
+  // Split on existing code spans (`...`) so the `<...>` escape only runs on the prose
+  // outside of them; segments at odd indices are the code spans themselves.
+  return escaped
+    .split(/(`[^`\n]*`)/)
+    .map((segment, i) =>
+      i % 2 === 1 ? segment : segment.replace(/<[^>\n]+>/g, (match) => '`' + match + '`'),
+    )
+    .join('')
 }
 
 function pushTextNode(nodes, value) {
