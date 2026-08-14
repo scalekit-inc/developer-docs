@@ -130,8 +130,20 @@ export default defineConfig({
           actions: {
             markdown: true,
             chatgpt: false,
-            claude: true,
+            // Built-in `claude` opens claude.ai. Claude Code uses custom
+            // schemes the plugin does not know about:
+            //   terminal: claude-cli://open?q=
+            //   VS Code tab: vscode://anthropic.claude-code/open?prompt=
+            claude: false,
             custom: {
+              claudeCode: {
+                label: 'Open in Claude Code',
+                href: 'claude-cli://open?q=',
+              },
+              claudeCodeVsCode: {
+                label: 'Open in VS Code',
+                href: 'vscode://anthropic.claude-code/open?prompt=',
+              },
               cursor: {
                 label: 'Open in Cursor',
                 href: 'https://cursor.com/link/prompt?text=',

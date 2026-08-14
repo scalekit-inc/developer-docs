@@ -23,7 +23,7 @@ Full guide: https://docs.scalekit.com/dev-kit/build-with-ai/ -->
 
 `
 
-/** Plain-text block for the page-actions prompt (injected into "Open in Claude/Cursor" messages). */
+/** Plain-text install block. Not used by the Open-in-agent deep-link prompt (that lives in page-actions.config.ts). */
 export const AGENT_PLUGIN_INLINE = `Building with AI coding agents?
 Install the authstack plugin with one command:
 
