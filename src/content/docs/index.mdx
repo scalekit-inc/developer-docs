@@ -657,56 +657,40 @@ head:
         border: 0;
       }
 
-      .gateway-cli-step-prompt {
-        font: inherit;
-        font-size: 0.82rem;
-        font-style: normal;
-        color: var(--sl-color-text-muted);
-        line-height: 1.45;
-        max-width: 14rem;
-        margin: 0;
-        padding: 0;
-        border: 0;
-        background: transparent;
-        text-align: inherit;
-        cursor: pointer;
-        quotes: '"' '"';
+      .gateway-cli-step-prompt-card {
+        text-align: left;
+        align-items: stretch;
       }
 
-      .gateway-cli-step-prompt:hover,
-      .gateway-cli-step-prompt:focus-visible {
-        color: var(--sl-color-text);
+      .gateway-cli-step-prompt-card .gateway-cli-step-title,
+      .gateway-cli-step-prompt-card .gateway-cli-step-num {
+        align-self: center;
       }
 
-      .gateway-cli-step-prompt:focus-visible {
-        outline: 2px solid var(--sl-color-accent);
-        outline-offset: 2px;
-        border-radius: 2px;
+      .gateway-cli-step-prompt-card .expressive-code {
+        text-align: left;
       }
 
-      .gateway-cli-step-prompt::before {
-        content: open-quote;
-      }
-
-      .gateway-cli-step-prompt::after {
-        content: close-quote;
-      }
-
-      /* Desktop: flow arrows between steps without polluting the ordered list */
+      /* Desktop: flow arrow between steps 1 and 2 only */
       .gateway-cli-step:not(:last-child) {
         position: relative;
       }
 
       @media (min-width: 48rem) {
         .gateway-cli-steps {
-          flex-wrap: nowrap;
+          flex-wrap: wrap;
           gap: 1.5rem;
         }
         .gateway-cli-step {
-          flex: 1 1 0;
+          flex: 1 1 12rem;
           min-width: 0;
+          max-width: 18rem;
         }
-        .gateway-cli-step:not(:last-child)::after {
+        .gateway-cli-step-prompt-card {
+          flex: 1 1 100%;
+          max-width: 36rem;
+        }
+        .gateway-cli-step:nth-child(1)::after {
           content: '→';
           position: absolute;
           right: -1.15rem;
@@ -743,8 +727,7 @@ import IconCursor from '~icons/simple-icons/cursor'
 import IconCodex from '~icons/simple-icons/openai'
 import agentkitHero from '../../assets/pages/hero/agentkit.svg'
 import authForSaasHero from '../../assets/pages/hero/auth-for-saas.svg'
-import CopyPromptButton from '@components/ui/landing/CopyPromptButton.astro'
-import { homepagePrompt, homepagePromptShort } from '../../configs/page-actions.config'
+import { homepagePrompt } from '../../configs/page-actions.config'
 
 
 
@@ -847,10 +830,16 @@ import { homepagePrompt, homepagePromptShort } from '../../configs/page-actions.
           </li>
         </ul>
       </li>
-      <li class="gateway-cli-step">
+      <li class="gateway-cli-step gateway-cli-step-prompt-card">
         <span class="gateway-cli-step-num" aria-hidden="true">3</span>
-        <p class="gateway-cli-step-title">Copy the prompt</p>
-        <CopyPromptButton short={homepagePromptShort} full={homepagePrompt} />
+        <p class="gateway-cli-step-title">Copy for AI agents</p>
+        <Code
+          code={homepagePrompt}
+          lang="txt"
+          frame="none"
+          showLineNumbers={false}
+          wrap
+        />
       </li>
     </ol>
   </section>

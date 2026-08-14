@@ -23,7 +23,7 @@ Full guide: https://docs.scalekit.com/dev-kit/build-with-ai/ -->
 
 `
 
-/** Plain-text block injected into "Open in Claude/Cursor" and homepage copy-for-AI prompts. */
+/** Plain-text block for the page-actions prompt (injected into "Open in Claude/Cursor" messages). */
 export const AGENT_PLUGIN_INLINE = `Building with AI coding agents?
 Install the authstack plugin with one command:
 
