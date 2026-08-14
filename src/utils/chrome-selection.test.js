@@ -128,6 +128,15 @@ test('getActiveProduct: self-hosted cold default is AgentKit', () => {
   assert.equal(getActiveProduct('/self-hosted/quickstart/'), 'agentkit')
 })
 
+test('getActiveProduct: shared how-to cold default is SaaS', () => {
+  const agent = new URLSearchParams('product=agentkit')
+  assert.equal(getActiveProduct('/how-to/'), 'saaskit')
+  assert.equal(getActiveProduct('/how-to/environments/'), 'saaskit')
+  assert.equal(getActiveProduct('/how-to/environments/', undefined, agent), 'agentkit')
+  assert.equal(getActiveProduct('/how-to/environments/', 'agentkit-guides'), 'agentkit')
+  assert.equal(getActiveProduct('/how-to/environments/', 'saaskit-guides'), 'saaskit')
+})
+
 test('getActiveProduct: everything else is saaskit, including cookbooks', () => {
   assert.equal(getActiveProduct('/'), 'saaskit')
   assert.equal(getActiveProduct('/cookbooks/'), 'saaskit')
@@ -200,6 +209,25 @@ test('SSR tab: known product and home fallbacks', () => {
   assert.equal(ssrTab('/sdks/expo'), 'saaskit-sdks')
   assert.equal(ssrTab('/agentkit/sdks'), 'agentkit-sdks')
   assert.equal(ssrTab('/agentkit/not-in-map'), 'agentkit-quickstart')
+})
+
+test('SSR tab: shared how-to follows product, not the first sidebar that lists /how-to', () => {
+  assert.equal(ssrTab('/how-to/'), 'saaskit-guides')
+  assert.equal(ssrTab('/how-to/environments/'), 'saaskit-guides')
+  assert.equal(
+    ssrTab('/how-to/environments/', { data: { topic: 'agentkit-guides' } }),
+    'agentkit-guides',
+  )
+  assert.equal(
+    getActiveSecondaryNavId(
+      '/how-to/environments/',
+      undefined,
+      new URLSearchParams('product=agentkit'),
+      liveMap,
+      liveTable,
+    ),
+    'agentkit-guides',
+  )
 })
 
 test('SSR tab: frontmatter topic uses the mapping table before the path map', () => {

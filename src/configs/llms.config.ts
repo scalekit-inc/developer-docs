@@ -58,7 +58,7 @@ Start with the Quickstart Collection, then follow the developer's question to th
         'guides/user-auth/**',
         'guides/user-management/**',
         'saaskit/cookbooks/**',
-        'saaskit/how-to/**',
+        'how-to/**',
       ],
     },
     {
@@ -124,7 +124,7 @@ Start with the Quickstart Collection, then follow the developer's question to th
         'guides/integrations/index',
         'guides/integrations/*/index',
         'guides/dashboard/**',
-        'saaskit/how-to/**', // Workspace/dashboard how-tos moved here from dev-kit/guides/dashboard
+        'how-to/**', // Workspace/dashboard how-tos (shared by both products)
         'dev-kit/api-collections/**',
       ],
     },
@@ -143,7 +143,7 @@ Start with the Quickstart Collection, then follow the developer's question to th
     '**/quickstart', // All quickstart guides
     'agentkit/examples/**', // Framework examples (high value for agent queries)
     'agentkit/cookbooks/**', // Practical AgentKit cookbooks
-    'saaskit/cookbooks/**', // Practical Auth for SaaS cookbooks
+    'saaskit/cookbooks/**', // Practical SaaSKit cookbooks
     'fsa/data-modelling', // Critical data modeling guide
     'authenticate/set-up-scalekit', // Initial setup
     'authenticate/fsa/complete-login', // Core FSA flow

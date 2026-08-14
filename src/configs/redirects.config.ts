@@ -521,12 +521,27 @@ export const redirects = {
   '/cookbooks/4': '/cookbooks/',
   '/cookbooks/5': '/cookbooks/',
 
+  // Product shelf indexes removed — lists are short enough to land on the first page
+  '/agentkit/cookbooks': '/agentkit/cookbooks/set-up-agentkit-with-your-coding-agent/',
+  '/agentkit/cookbooks/': '/agentkit/cookbooks/set-up-agentkit-with-your-coding-agent/',
+  '/agentkit/how-to': '/agentkit/how-to/inspect-connected-accounts-in-the-dashboard/',
+  '/agentkit/how-to/': '/agentkit/how-to/inspect-connected-accounts-in-the-dashboard/',
+  '/saaskit/cookbooks': '/saaskit/cookbooks/add-hosted-auth-nextjs-app-router/',
+  '/saaskit/cookbooks/': '/saaskit/cookbooks/add-hosted-auth-nextjs-app-router/',
+  '/how-to': '/how-to/environments/',
+  '/how-to/': '/how-to/environments/',
+
   // =============================================================================
   // WORKSPACE HOW-TO REDIRECTS
   // =============================================================================
-  '/dev-kit/guides/dashboard/billing': '/saaskit/how-to/billing/',
-  '/dev-kit/guides/dashboard/environments': '/saaskit/how-to/environments/',
-  '/dev-kit/guides/dashboard/manage-team-members': '/saaskit/how-to/manage-team-members/',
+  '/saaskit/how-to': '/how-to/environments/',
+  '/saaskit/how-to/': '/how-to/environments/',
+  '/saaskit/how-to/billing': '/how-to/billing/',
+  '/saaskit/how-to/environments': '/how-to/environments/',
+  '/saaskit/how-to/manage-team-members': '/how-to/manage-team-members/',
+  '/dev-kit/guides/dashboard/billing': '/how-to/billing/',
+  '/dev-kit/guides/dashboard/environments': '/how-to/environments/',
+  '/dev-kit/guides/dashboard/manage-team-members': '/how-to/manage-team-members/',
 
   // Moving the dashboard how-tos out left `dev-kit/guides/` holding one orphaned
   // page. It now sits with the other testing utilities.

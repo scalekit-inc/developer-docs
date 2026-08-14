@@ -2,7 +2,7 @@
 import {
   getActiveSecondaryNavId,
   getActiveProduct,
-  isSelfHostedPath,
+  isSharedProductPath,
   type SecondaryNavProps,
 } from '../../utils/secondary-nav-utils'
 import { PRODUCT_STORAGE_KEY } from '../../configs/self-hosted'
@@ -18,7 +18,7 @@ const activeProduct = getActiveProduct(Astro.url.pathname, entry?.data?.topic, s
 // Self-hosted routes are shared; product is resolved (cold default AgentKit or
 // ?product=). Client restores SaaS from sessionStorage when needed. Never show
 // a third "Self Hosted" product option in the picker.
-const isSharedPath = isSelfHostedPath(Astro.url.pathname)
+const isSharedPath = isSharedProductPath(Astro.url.pathname)
 
 // activeId !== null means the page is in the doc system with a known nav context.
 // Shared items (rest-apis, sdks, etc.) live in SaasKit nav, so activeProduct covers them.
@@ -135,6 +135,16 @@ const productLinks = [
     return phrase?.getAttribute('data-storage-key') || 'sk-active-product'
   }
 
+  function persistProduct(product: string) {
+    const storageKey = getStorageKey()
+    try {
+      sessionStorage.setItem(storageKey, product)
+    } catch {
+      /* private mode */
+    }
+    document.cookie = `${storageKey}=${product}; path=/; SameSite=Lax`
+  }
+
   /**
    * Resolve product for the current page: ?product= wins, then path signals,
    * then session memory on shared paths, then SSR default baked into the DOM.
@@ -165,11 +175,7 @@ const productLinks = [
     }
 
     if (knownProduct) {
-      try {
-        sessionStorage.setItem(storageKey, knownProduct)
-      } catch {
-        /* private mode */
-      }
+      persistProduct(knownProduct)
     }
 
     if (isShared) {
@@ -231,6 +237,17 @@ const productLinks = [
     })
 
     document.dispatchEvent(new CustomEvent('sk:product-context', { detail: { product } }))
+    tagSharedHowToLinks(product)
+  }
+
+  /** Autogenerate cannot add ?product=; stamp it so the next /how-to/** render keeps this rail. */
+  function tagSharedHowToLinks(product: string) {
+    document.querySelectorAll('a[href^="/how-to/"]').forEach((anchor) => {
+      if (!(anchor instanceof HTMLAnchorElement)) return
+      const url = new URL(anchor.href, location.origin)
+      url.searchParams.set('product', product)
+      anchor.setAttribute('href', `${url.pathname}${url.search}`)
+    })
   }
 
   function restoreProductContext() {
@@ -345,11 +362,7 @@ const productLinks = [
 
         const storageValue = option.getAttribute('data-storage-value')
         if (storageValue === 'agentkit' || storageValue === 'saaskit') {
-          try {
-            sessionStorage.setItem(getStorageKey(), storageValue)
-          } catch {
-            /* private mode */
-          }
+          persistProduct(storageValue)
           applyProductChrome(storageValue)
         }
 

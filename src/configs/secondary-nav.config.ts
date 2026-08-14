@@ -70,10 +70,10 @@ const agentKitItems: NavItem[] = [
     iconComponent: IconApi,
   },
   {
-    // Opens the dedicated AgentKit guides sidebar (Cookbooks + How-to collapsibles)
+    // Opens the dedicated AgentKit cookbooks sidebar (Cookbooks + How-to collapsibles)
     id: 'agentkit-guides',
-    href: '/agentkit/cookbooks/',
-    label: 'Guides',
+    href: '/agentkit/cookbooks/set-up-agentkit-with-your-coding-agent/',
+    label: 'Cookbooks',
     iconComponent: IconLucideBookOpenText,
   },
   {
@@ -123,10 +123,10 @@ const saasKitItems: NavItem[] = [
     iconComponent: IconApi,
   },
   {
-    // Opens the dedicated Auth for SaaS guides sidebar (Cookbooks + How-to collapsibles)
+    // Opens the dedicated SaaSKit cookbooks sidebar (Cookbooks + How-to collapsibles)
     id: 'saaskit-guides',
-    href: '/saaskit/cookbooks/',
-    label: 'Guides',
+    href: '/saaskit/cookbooks/add-hosted-auth-nextjs-app-router/',
+    label: 'Cookbooks',
     iconComponent: IconLucideBookOpenText,
   },
   {
