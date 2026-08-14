@@ -1,13 +1,27 @@
 ---
 import { homepagePrompt } from '../configs/page-actions.config'
 
-const label = 'Copy prompt'
+const previewLines = homepagePrompt
+  .split('\n')
+  .map((line) => line.trim())
+  .filter(Boolean)
+  .slice(0, 2)
+
+const actionIdle = 'Copy'
 const actionName = 'Copy a Scalekit quickstart prompt for your coding agent'
 ---
 
 <div class="copy-agent-prompt-wrap">
-  <button type="button" class="copy-agent-prompt" data-idle-label={label} aria-label={actionName}>
-    <span data-label>{label}</span>
+  <button
+    type="button"
+    class="copy-agent-prompt"
+    data-idle-label={actionIdle}
+    aria-label={actionName}
+  >
+    <span class="copy-agent-prompt__preview" aria-hidden="true">
+      {previewLines.map((line) => <span class="copy-agent-prompt__line">{line}</span>)}
+    </span>
+    <span class="copy-agent-prompt__action" data-label>{actionIdle}</span>
   </button>
   <span class="sr-only" data-live aria-live="polite"></span>
   <script type="application/json" data-homepage-prompt set:html={JSON.stringify(homepagePrompt)} />
@@ -23,20 +37,21 @@ const actionName = 'Copy a Scalekit quickstart prompt for your coding agent'
   .copy-agent-prompt {
     appearance: none;
     position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: start;
+    gap: 0.5rem 0.75rem;
     box-sizing: border-box;
     width: 100%;
-    min-height: 2.5rem;
+    min-height: 2.75rem;
     margin: 0;
-    padding: 0.55rem 0.75rem;
+    padding: 0.55rem 0.65rem 0.55rem 0.75rem;
     border: 1px solid var(--sl-color-hairline);
     border-radius: var(--sk-radius-md, 0.375rem);
     background: var(--sl-color-bg);
     font: inherit;
-    font-size: 0.8125rem;
-    font-weight: 600;
-    line-height: 1.35;
-    color: var(--sl-color-accent);
-    text-align: center;
+    color: var(--sl-color-text);
+    text-align: left;
     cursor: pointer;
   }
 
@@ -46,8 +61,40 @@ const actionName = 'Copy a Scalekit quickstart prompt for your coding agent'
     inset: -0.15rem;
   }
 
+  .copy-agent-prompt__preview {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    min-width: 0;
+    font-family: var(--sl-font-mono, ui-monospace, monospace);
+    font-size: 0.75rem;
+    font-weight: 400;
+    line-height: 1.45;
+    color: var(--sl-color-text);
+  }
+
+  .copy-agent-prompt__line {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .copy-agent-prompt__action {
+    flex-shrink: 0;
+    padding-top: 0.05rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    line-height: 1.35;
+    color: var(--sl-color-accent);
+    white-space: nowrap;
+  }
+
   .copy-agent-prompt:hover {
     border-color: color-mix(in srgb, var(--sl-color-accent) 35%, var(--sl-color-hairline));
+  }
+
+  .copy-agent-prompt:hover .copy-agent-prompt__action {
     color: var(--sl-color-accent-high, var(--sl-color-accent));
   }
 
@@ -66,11 +113,11 @@ const actionName = 'Copy a Scalekit quickstart prompt for your coding agent'
     }
   }
 
-  .copy-agent-prompt[data-state='copied'] {
+  .copy-agent-prompt[data-state='copied'] .copy-agent-prompt__action {
     color: var(--sk-color-agent-ink, var(--sl-color-accent));
   }
 
-  .copy-agent-prompt[data-state='error'] {
+  .copy-agent-prompt[data-state='error'] .copy-agent-prompt__action {
     color: var(--sl-color-text);
   }
 
@@ -103,7 +150,7 @@ const actionName = 'Copy a Scalekit quickstart prompt for your coding agent'
     if (!btn || !labelEl || btn.dataset.ready === 'true') return
     btn.dataset.ready = 'true'
 
-    const idle = btn.dataset.idleLabel ?? 'Copy prompt'
+    const idle = btn.dataset.idleLabel ?? 'Copy'
     const actionName =
       btn.getAttribute('aria-label') ?? 'Copy a Scalekit quickstart prompt for your coding agent'
 
