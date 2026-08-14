@@ -377,18 +377,6 @@ export const tools: Tool[] = [
     ],
   },
   {
-    name: 'googledrive_download_file_content',
-    description: `Download the actual binary content of a file stored in Google Drive (PDF, image, video, zip, etc.) via alt=media. Only works for files with real binary content; Google Workspace native docs (Docs/Sheets/Slides) have no binary content and must instead use Export Drive File. Uses OAuth credentials.`,
-    params: [
-      {
-        name: 'file_id',
-        type: 'string',
-        required: true,
-        description: `ID of the file whose content to download`,
-      },
-    ],
-  },
-  {
     name: 'googledrive_empty_trash',
     description: `Permanently delete all files and folders currently in the trash for the authenticated user's Google Drive. This action cannot be undone. Uses OAuth credentials.`,
     params: [

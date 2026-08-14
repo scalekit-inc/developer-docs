@@ -116,6 +116,120 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'xero_bank_transaction_create',
+    description: `Create a new spend or receive money bank transaction in Xero.`,
+    params: [
+      {
+        name: 'BankAccount',
+        type: 'string',
+        required: true,
+        description: `Bank account object with Code or AccountID e.g. {"Code":"090"}.`,
+      },
+      {
+        name: 'LineItems',
+        type: 'array',
+        required: true,
+        description: `Array of line items. Each needs Description, Quantity, UnitAmount, AccountCode.`,
+      },
+      {
+        name: 'Type',
+        type: 'string',
+        required: true,
+        description: `Bank transaction type: SPEND, RECEIVE, SPEND-OVERPAYMENT, RECEIVE-OVERPAYMENT, SPEND-PREPAYMENT, or RECEIVE-PREPAYMENT.`,
+      },
+      {
+        name: 'Contact',
+        type: 'string',
+        required: false,
+        description: `Contact object with ContactID e.g. {"ContactID":"guid"}.`,
+      },
+      {
+        name: 'CurrencyCode',
+        type: 'string',
+        required: false,
+        description: `Currency (defaults to org default).`,
+      },
+      {
+        name: 'Date',
+        type: 'string',
+        required: false,
+        description: `Date of the transaction in YYYY-MM-DD format.`,
+      },
+      {
+        name: 'Reference',
+        type: 'string',
+        required: false,
+        description: `Reference for the transaction (SPEND/RECEIVE only).`,
+      },
+      {
+        name: 'Status',
+        type: 'string',
+        required: false,
+        description: `Bank transaction status (DRAFT or AUTHORISED).`,
+      },
+    ],
+  },
+  {
+    name: 'xero_bank_transaction_get',
+    description: `Retrieve a single spend or receive money bank transaction by its BankTransactionID.`,
+    params: [
+      {
+        name: 'bank_transaction_id',
+        type: 'string',
+        required: true,
+        description: `Xero bank transaction GUID.`,
+      },
+    ],
+  },
+  {
+    name: 'xero_bank_transaction_history_get',
+    description: `Get the change history and notes trail for a Xero bank transaction.`,
+    params: [
+      {
+        name: 'bank_transaction_id',
+        type: 'string',
+        required: true,
+        description: `Xero bank transaction GUID.`,
+      },
+    ],
+  },
+  {
+    name: 'xero_bank_transaction_update',
+    description: `Update an existing spend or receive money bank transaction in Xero.`,
+    params: [
+      {
+        name: 'bank_transaction_id',
+        type: 'string',
+        required: true,
+        description: `Xero bank transaction GUID to update.`,
+      },
+      {
+        name: 'LineItems',
+        type: 'array',
+        required: false,
+        description: `Updated array of line items. Each needs Description, Quantity, UnitAmount, AccountCode.`,
+      },
+      {
+        name: 'Reference',
+        type: 'string',
+        required: false,
+        description: `Updated reference for the transaction.`,
+      },
+      {
+        name: 'Status',
+        type: 'string',
+        required: false,
+        description: `Updated status (DRAFT, AUTHORISED, or DELETED).`,
+      },
+      {
+        name: 'Url',
+        type: 'string',
+        required: false,
+        description: `Updated URL link to a source document.`,
+      },
+    ],
+  },
+  {
     name: 'xero_bank_transactions_list',
     description: `Retrieve spend or receive money bank transactions from Xero.`,
     params: [
@@ -142,6 +256,60 @@ export const tools: Tool[] = [
       },
       { name: 'order', type: 'string', required: false, description: `Sort order.` },
       { name: 'where', type: 'string', required: false, description: `Filter expression.` },
+    ],
+  },
+  {
+    name: 'xero_batch_payment_create',
+    description: `Create a batch payment covering one or more invoice or credit note payments in Xero.`,
+    params: [
+      {
+        name: 'Account',
+        type: 'string',
+        required: true,
+        description: `Bank account object with AccountID or Code e.g. {"AccountID":"guid"}.`,
+      },
+      {
+        name: 'Date',
+        type: 'string',
+        required: true,
+        description: `Date of the batch payment in YYYY-MM-DD format.`,
+      },
+      {
+        name: 'Payments',
+        type: 'array',
+        required: true,
+        description: `Array of payment objects, each with Invoice, Account, Date, and Amount.`,
+      },
+      {
+        name: 'Details',
+        type: 'string',
+        required: false,
+        description: `Details to appear on the bank statement (max 18 chars, UK/NZ only).`,
+      },
+      {
+        name: 'Particulars',
+        type: 'string',
+        required: false,
+        description: `Particulars to appear on the bank statement (max 12 chars, NZ only).`,
+      },
+      {
+        name: 'Reference',
+        type: 'string',
+        required: false,
+        description: `Reference for the batch payment.`,
+      },
+    ],
+  },
+  {
+    name: 'xero_batch_payment_get',
+    description: `Retrieve a specific batch payment using a unique batch payment ID.`,
+    params: [
+      {
+        name: 'batch_payment_id',
+        type: 'string',
+        required: true,
+        description: `Xero batch payment GUID.`,
+      },
     ],
   },
   {
@@ -360,6 +528,36 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'xero_credit_note_allocation_create',
+    description: `Allocate a specific credit note to an invoice in Xero.`,
+    params: [
+      {
+        name: 'Amount',
+        type: 'number',
+        required: true,
+        description: `Amount of the credit note to allocate.`,
+      },
+      {
+        name: 'credit_note_id',
+        type: 'string',
+        required: true,
+        description: `Xero credit note GUID to allocate from.`,
+      },
+      {
+        name: 'Date',
+        type: 'string',
+        required: true,
+        description: `Date the allocation is made in YYYY-MM-DD format.`,
+      },
+      {
+        name: 'Invoice',
+        type: 'string',
+        required: true,
+        description: `Invoice object with InvoiceID e.g. {"InvoiceID":"guid"}.`,
+      },
+    ],
+  },
+  {
     name: 'xero_credit_note_create',
     description: `Create a new credit note in Xero.`,
     params: [
@@ -518,6 +716,13 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'xero_invoice_attachments_list',
+    description: `List attachments (receipts, supporting PDFs or images) on a Xero invoice.`,
+    params: [
+      { name: 'invoice_id', type: 'string', required: true, description: `Xero invoice GUID.` },
+    ],
+  },
+  {
     name: 'xero_invoice_create',
     description: `Create a new invoice (ACCREC) or bill (ACCPAY) in Xero.`,
     params: [
@@ -584,8 +789,27 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'xero_invoice_email_send',
+    description: `Send a copy of a specific Xero invoice to its related contact via email.`,
+    params: [
+      {
+        name: 'invoice_id',
+        type: 'string',
+        required: true,
+        description: `Xero invoice GUID to email.`,
+      },
+    ],
+  },
+  {
     name: 'xero_invoice_get',
     description: `Retrieve a single invoice or bill by its InvoiceID.`,
+    params: [
+      { name: 'invoice_id', type: 'string', required: true, description: `Xero invoice GUID.` },
+    ],
+  },
+  {
+    name: 'xero_invoice_online_url_get',
+    description: `Retrieve the shareable online invoice URL for a specific Xero invoice.`,
     params: [
       { name: 'invoice_id', type: 'string', required: true, description: `Xero invoice GUID.` },
     ],
@@ -770,6 +994,31 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'xero_journal_get',
+    description: `Retrieve a specific system-generated accounting journal using a unique journal ID.`,
+    params: [
+      { name: 'journal_id', type: 'string', required: true, description: `Xero journal GUID.` },
+    ],
+  },
+  {
+    name: 'xero_journals_list',
+    description: `Retrieve the system-generated accounting journals for a Xero organisation.`,
+    params: [
+      {
+        name: 'offset',
+        type: 'integer',
+        required: false,
+        description: `Offset by a specific journal number to fetch journals after that point (max 100 returned per call).`,
+      },
+      {
+        name: 'paymentsOnly',
+        type: 'boolean',
+        required: false,
+        description: `Filter to journals from payments only.`,
+      },
+    ],
+  },
+  {
     name: 'xero_manual_journal_create',
     description: `Create a new manual journal entry in Xero.`,
     params: [
@@ -843,6 +1092,18 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'xero_overpayment_get',
+    description: `Retrieve a specific overpayment using a unique overpayment ID.`,
+    params: [
+      {
+        name: 'overpayment_id',
+        type: 'string',
+        required: true,
+        description: `Xero overpayment GUID.`,
+      },
+    ],
+  },
+  {
     name: 'xero_overpayments_list',
     description: `Retrieve overpayments from a Xero organisation.`,
     params: [
@@ -858,6 +1119,44 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'xero_payment_create',
+    description: `Create a new payment against an invoice, bill, or credit note in Xero.`,
+    params: [
+      {
+        name: 'Account',
+        type: 'string',
+        required: true,
+        description: `Account object with Code or AccountID e.g. {"Code":"970"}.`,
+      },
+      { name: 'Amount', type: 'number', required: true, description: `Amount of the payment.` },
+      {
+        name: 'Date',
+        type: 'string',
+        required: true,
+        description: `Date the payment is being made in YYYY-MM-DD format.`,
+      },
+      {
+        name: 'Invoice',
+        type: 'string',
+        required: true,
+        description: `Invoice object with InvoiceID e.g. {"InvoiceID":"guid"}.`,
+      },
+      {
+        name: 'Reference',
+        type: 'string',
+        required: false,
+        description: `Reference for the payment.`,
+      },
+    ],
+  },
+  {
+    name: 'xero_payment_get',
+    description: `Retrieve a specific payment for invoices and credit notes using a unique payment ID.`,
+    params: [
+      { name: 'payment_id', type: 'string', required: true, description: `Xero payment GUID.` },
+    ],
+  },
+  {
     name: 'xero_payments_list',
     description: `Retrieve payments applied to invoices, credit notes, or prepayments in Xero.`,
     params: [
@@ -870,6 +1169,18 @@ export const tools: Tool[] = [
       { name: 'order', type: 'string', required: false, description: `Sort order.` },
       { name: 'page', type: 'number', required: false, description: `Page number.` },
       { name: 'where', type: 'string', required: false, description: `Filter expression.` },
+    ],
+  },
+  {
+    name: 'xero_prepayment_get',
+    description: `Retrieve a specific prepayment using a unique prepayment ID.`,
+    params: [
+      {
+        name: 'prepayment_id',
+        type: 'string',
+        required: true,
+        description: `Xero prepayment GUID.`,
+      },
     ],
   },
   {
@@ -1092,6 +1403,60 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'xero_repeating_invoice_create',
+    description: `Create a new repeating invoice template in Xero.`,
+    params: [
+      {
+        name: 'Contact',
+        type: 'string',
+        required: true,
+        description: `Contact object with ContactID e.g. {"ContactID":"guid"}.`,
+      },
+      {
+        name: 'LineItems',
+        type: 'array',
+        required: true,
+        description: `Array of line items. Each needs Description, Quantity, UnitAmount, AccountCode.`,
+      },
+      {
+        name: 'Schedule',
+        type: 'string',
+        required: true,
+        description: `Schedule object describing recurrence e.g. {"Period":1,"Unit":"MONTHLY","DueDate":10,"DueDateType":"OFFOLLOWINGMONTH","StartDate":"2024-07-01"}.`,
+      },
+      {
+        name: 'Type',
+        type: 'string',
+        required: true,
+        description: `Invoice type: ACCREC (sales invoice) or ACCPAY (bill/purchase invoice).`,
+      },
+      {
+        name: 'Reference',
+        type: 'string',
+        required: false,
+        description: `Reference for the generated invoices. Supports placeholders such as [Week] or [Month].`,
+      },
+      {
+        name: 'Status',
+        type: 'string',
+        required: false,
+        description: `Status of the repeating invoice template (DRAFT or AUTHORISED).`,
+      },
+    ],
+  },
+  {
+    name: 'xero_repeating_invoice_get',
+    description: `Retrieve a specific repeating invoice template using a unique repeating invoice ID.`,
+    params: [
+      {
+        name: 'repeating_invoice_id',
+        type: 'string',
+        required: true,
+        description: `Xero repeating invoice GUID.`,
+      },
+    ],
+  },
+  {
     name: 'xero_repeating_invoices_list',
     description: `Retrieve repeating invoice templates from a Xero organisation.`,
     params: [
@@ -1199,6 +1564,42 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'xero_report_budget_summary',
+    description: `Retrieve the Budget Summary report for a Xero organisation.`,
+    params: [
+      {
+        name: 'date',
+        type: 'string',
+        required: false,
+        description: `Report date (YYYY-MM-DD). Defaults to today.`,
+      },
+      {
+        name: 'periods',
+        type: 'integer',
+        required: false,
+        description: `Number of periods to compare (integer from 1 to 12).`,
+      },
+      {
+        name: 'timeframe',
+        type: 'integer',
+        required: false,
+        description: `Period size to compare to: 1=month, 3=quarter, 12=year.`,
+      },
+    ],
+  },
+  {
+    name: 'xero_report_by_id_get',
+    description: `Retrieve a specific ad-hoc report using a unique ReportID, e.g. one returned by List Available Reports.`,
+    params: [
+      {
+        name: 'report_id',
+        type: 'string',
+        required: true,
+        description: `Xero ReportID to retrieve.`,
+      },
+    ],
+  },
+  {
     name: 'xero_report_executive_summary',
     description: `Retrieve the Executive Summary report for a Xero organisation.`,
     params: [
@@ -1266,6 +1667,11 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'xero_reports_list',
+    description: `Retrieve a list of the organisation's available ad-hoc reports, each with a unique ReportID needed to fetch its contents.`,
+    params: [],
+  },
+  {
     name: 'xero_tax_rate_create',
     description: `Create a new tax rate in Xero.`,
     params: [
@@ -1275,6 +1681,18 @@ export const tools: Tool[] = [
         type: 'array',
         required: true,
         description: `Array of tax components e.g. [{"Name":"GST","Rate":15,"IsCompound":false}].`,
+      },
+    ],
+  },
+  {
+    name: 'xero_tax_rate_get',
+    description: `Retrieve a specific tax rate according to a given TaxType code.`,
+    params: [
+      {
+        name: 'tax_type',
+        type: 'string',
+        required: true,
+        description: `Xero TaxType code to look up.`,
       },
     ],
   },
@@ -1326,6 +1744,18 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'xero_tracking_category_create',
+    description: `Create a new tracking category in Xero.`,
+    params: [
+      {
+        name: 'Name',
+        type: 'string',
+        required: true,
+        description: `Name of the tracking category.`,
+      },
+    ],
+  },
+  {
     name: 'xero_tracking_category_delete',
     description: `Delete a tracking category from Xero.`,
     params: [
@@ -1334,6 +1764,18 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `Xero tracking category GUID to delete.`,
+      },
+    ],
+  },
+  {
+    name: 'xero_tracking_category_get',
+    description: `Retrieve a specific tracking category and its options using a unique tracking category ID.`,
+    params: [
+      {
+        name: 'tracking_category_id',
+        type: 'string',
+        required: true,
+        description: `Xero tracking category GUID.`,
       },
     ],
   },
@@ -1366,6 +1808,48 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `Xero tracking category GUID.`,
+      },
+    ],
+  },
+  {
+    name: 'xero_tracking_option_delete',
+    description: `Delete a specific option for a specific tracking category in Xero.`,
+    params: [
+      {
+        name: 'tracking_category_id',
+        type: 'string',
+        required: true,
+        description: `Xero tracking category GUID.`,
+      },
+      {
+        name: 'tracking_option_id',
+        type: 'string',
+        required: true,
+        description: `Xero tracking option GUID to delete.`,
+      },
+    ],
+  },
+  {
+    name: 'xero_tracking_option_update',
+    description: `Update a specific option for a specific tracking category in Xero.`,
+    params: [
+      {
+        name: 'Name',
+        type: 'string',
+        required: true,
+        description: `Updated name of the tracking option.`,
+      },
+      {
+        name: 'tracking_category_id',
+        type: 'string',
+        required: true,
+        description: `Xero tracking category GUID.`,
+      },
+      {
+        name: 'tracking_option_id',
+        type: 'string',
+        required: true,
+        description: `Xero tracking option GUID to update.`,
       },
     ],
   },

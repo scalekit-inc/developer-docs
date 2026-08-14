@@ -7,6 +7,16 @@ export interface ProviderMeta {
 }
 
 export const catalog: Record<string, ProviderMeta> = {
+  twitteroauth: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/X.svg',
+    authType: 'OAuth 2.0',
+    categories: ['Communication', 'Marketing'],
+  },
+  twitterbearer: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/X.svg',
+    authType: 'Bearer Token',
+    categories: ['Communication', 'Marketing'],
+  },
   amplemarket: {
     iconUrl:
       'https://docs.amplemarket.com/mintlify-assets/_mintlify/favicons/amplemarket-50/mca-0KUOMtPMXsSB/_generated/favicon-dark/favicon-32x32.png',

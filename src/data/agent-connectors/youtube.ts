@@ -360,6 +360,31 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'youtube_comments_delete',
+    description: `Permanently delete a YouTube comment or reply that you have permission to remove. Requires youtube.force-ssl scope.`,
+    params: [
+      {
+        name: 'comment_id',
+        type: 'string',
+        required: true,
+        description: `ID of the comment to delete`,
+      },
+    ],
+  },
+  {
+    name: 'youtube_comments_insert',
+    description: `Post a reply to an existing top-level YouTube comment thread. Requires youtube.force-ssl scope.`,
+    params: [
+      {
+        name: 'parent_id',
+        type: 'string',
+        required: true,
+        description: `ID of the top-level comment to reply to`,
+      },
+      { name: 'text', type: 'string', required: true, description: `Text of the reply` },
+    ],
+  },
+  {
     name: 'youtube_comments_list',
     description: `Retrieve a list of replies to a specific YouTube comment thread. You must provide exactly one filter: parent_id or id. The part parameter is fixed to 'snippet'. Requires youtube.readonly scope.`,
     params: [
@@ -393,6 +418,249 @@ export const tools: Tool[] = [
         required: false,
         description: `Format of the comment text in the response`,
       },
+    ],
+  },
+  {
+    name: 'youtube_comments_set_moderation_status',
+    description: `Set the moderation status of a comment on a video or channel you own or moderate — approve it, reject it, or hold it for review. Requires youtube.force-ssl scope.`,
+    params: [
+      {
+        name: 'comment_id',
+        type: 'string',
+        required: true,
+        description: `Comma-separated list of comment IDs to moderate`,
+      },
+      {
+        name: 'moderation_status',
+        type: 'string',
+        required: true,
+        description: `The new moderation status to apply`,
+      },
+      {
+        name: 'ban_author',
+        type: 'boolean',
+        required: false,
+        description: `Whether to additionally ban the comment's author from the channel. Only valid when moderation_status is rejected.`,
+      },
+    ],
+  },
+  {
+    name: 'youtube_comments_update',
+    description: `Edit the text of an existing YouTube comment or reply that you have permission to modify. Requires youtube.force-ssl scope.`,
+    params: [
+      {
+        name: 'comment_id',
+        type: 'string',
+        required: true,
+        description: `ID of the comment to update`,
+      },
+      { name: 'text', type: 'string', required: true, description: `New text for the comment` },
+    ],
+  },
+  {
+    name: 'youtube_live_broadcasts_bind',
+    description: `Bind a YouTube live broadcast to a video stream so the broadcast will show that stream's video once it goes live, or remove an existing binding by omitting stream_id. A broadcast can be bound to only one stream at a time, though a stream can be bound to multiple broadcasts. Requires youtube scope.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The unique ID of the broadcast to bind.`,
+      },
+      {
+        name: 'part',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of liveBroadcast resource parts to include in the response.`,
+      },
+      {
+        name: 'stream_id',
+        type: 'string',
+        required: false,
+        description: `The unique ID of the stream to bind the broadcast to. Omit to remove any existing binding.`,
+      },
+    ],
+  },
+  {
+    name: 'youtube_live_broadcasts_insert',
+    description: `Create a new YouTube live broadcast (an event with metadata, a schedule, and a monitor stream) on the authenticated user's channel. After creating both a broadcast and a stream (see live_streams_insert), bind them together with live_broadcasts_bind before going live. Requires youtube scope.`,
+    params: [
+      {
+        name: 'privacy_status',
+        type: 'string',
+        required: true,
+        description: `Privacy setting for the broadcast.`,
+      },
+      {
+        name: 'scheduled_start_time',
+        type: 'string',
+        required: true,
+        description: `The scheduled start time for the broadcast, in ISO 8601 format.`,
+      },
+      {
+        name: 'title',
+        type: 'string',
+        required: true,
+        description: `Title of the broadcast (1-100 characters).`,
+      },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `Description of the broadcast (up to 5000 characters).`,
+      },
+      {
+        name: 'enable_auto_start',
+        type: 'boolean',
+        required: false,
+        description: `Whether the broadcast automatically transitions to live status when YouTube receives stream data.`,
+      },
+      {
+        name: 'enable_auto_stop',
+        type: 'boolean',
+        required: false,
+        description: `Whether the broadcast automatically transitions to complete status after a period of inactivity.`,
+      },
+      {
+        name: 'enable_dvr',
+        type: 'boolean',
+        required: false,
+        description: `Whether viewers can access DVR controls (pause/rewind) while watching the broadcast.`,
+      },
+      {
+        name: 'scheduled_end_time',
+        type: 'string',
+        required: false,
+        description: `The scheduled end time for the broadcast, in ISO 8601 format.`,
+      },
+    ],
+  },
+  {
+    name: 'youtube_live_broadcasts_list',
+    description: `List live broadcasts owned by the authenticated user's YouTube channel. Filter by broadcast status (active, upcoming, completed) or by specific broadcast IDs. Requires youtube or youtube.readonly scope.`,
+    params: [
+      {
+        name: 'part',
+        type: 'string',
+        required: true,
+        description: `Comma-separated list of liveBroadcast resource parts to include in the response. Valid values: id, snippet, contentDetails, status.`,
+      },
+      {
+        name: 'broadcast_status',
+        type: 'string',
+        required: false,
+        description: `Filter broadcasts by their current status.`,
+      },
+      {
+        name: 'id',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of specific YouTube live broadcast IDs to retrieve. Use instead of broadcast_status.`,
+      },
+      {
+        name: 'max_results',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of results to return (1-50, default 5).`,
+      },
+      { name: 'page_token', type: 'string', required: false, description: `Token for pagination.` },
+    ],
+  },
+  {
+    name: 'youtube_live_broadcasts_transition',
+    description: `Change the status of a YouTube live broadcast, driving it through its lifecycle. Transitioning to 'testing' starts sending video to the monitor stream, 'live' makes the broadcast visible to the audience, and 'complete' ends the broadcast. Requires youtube scope.`,
+    params: [
+      {
+        name: 'broadcast_status',
+        type: 'string',
+        required: true,
+        description: `The target status for the broadcast.`,
+      },
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The unique ID of the broadcast to transition.`,
+      },
+      {
+        name: 'part',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of liveBroadcast resource parts to include in the response.`,
+      },
+    ],
+  },
+  {
+    name: 'youtube_live_streams_insert',
+    description: `Create a new YouTube live stream, representing the ingestion endpoint that receives encoder video/audio data. Bind the resulting stream to a broadcast with live_broadcasts_bind before going live. Requires youtube or youtube.force-ssl scope.`,
+    params: [
+      {
+        name: 'frame_rate',
+        type: 'string',
+        required: true,
+        description: `The frame rate of the encoded video stream.`,
+      },
+      {
+        name: 'ingestion_type',
+        type: 'string',
+        required: true,
+        description: `The method used to transmit video to YouTube.`,
+      },
+      {
+        name: 'resolution',
+        type: 'string',
+        required: true,
+        description: `The resolution of the encoded video stream.`,
+      },
+      {
+        name: 'title',
+        type: 'string',
+        required: true,
+        description: `Title of the stream (1-128 characters).`,
+      },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `Description of the stream (up to 10000 characters).`,
+      },
+      {
+        name: 'is_reusable',
+        type: 'boolean',
+        required: false,
+        description: `Whether this stream can be bound to multiple broadcasts, one at a time, and reused across events.`,
+      },
+    ],
+  },
+  {
+    name: 'youtube_live_streams_list',
+    description: `List video streams owned by the authenticated user's YouTube channel. A stream carries the actual ingested video/audio and is bound to one or more live broadcasts. Requires youtube or youtube.readonly scope.`,
+    params: [
+      {
+        name: 'part',
+        type: 'string',
+        required: true,
+        description: `Comma-separated list of liveStream resource parts to include in the response. Valid values: id, snippet, cdn, contentDetails, status.`,
+      },
+      {
+        name: 'id',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of specific YouTube live stream IDs to retrieve. Use instead of mine.`,
+      },
+      {
+        name: 'max_results',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of results to return (1-50, default 5).`,
+      },
+      {
+        name: 'mine',
+        type: 'boolean',
+        required: false,
+        description: `Restrict results to streams owned by the authenticated user. Use instead of id.`,
+      },
+      { name: 'page_token', type: 'string', required: false, description: `Token for pagination.` },
     ],
   },
   {

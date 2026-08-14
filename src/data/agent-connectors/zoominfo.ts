@@ -1003,6 +1003,24 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'zoominfo_execute_workflow',
+    description: `Execute a ZoomInfo workflow that supports on-demand runs. Optionally provide a callback URL to be notified with the execution results. Returns the execution record; poll Get Workflow Execution Status with its id to track progress.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `Unique identifier of the workflow to execute.`,
+      },
+      {
+        name: 'callback_url',
+        type: 'string',
+        required: false,
+        description: `Optional URL to call back with the execution results once the workflow finishes.`,
+      },
+    ],
+  },
+  {
     name: 'zoominfo_get_account_summary',
     description: `Get an AI-generated account summary for a specific company including recent news, intent signals, key contacts, and strategic priorities. Requires a ZoomInfo company ID.`,
     params: [
@@ -1384,6 +1402,24 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'zoominfo_get_entitlements',
+    description: `Retrieve the authenticated user's entitlements filtered by admin status and role type. Use this to check which features, integrations, or data sets the account has access to.`,
+    params: [
+      {
+        name: 'filter_admin',
+        type: 'boolean',
+        required: true,
+        description: `Whether to retrieve admin entitlements. Admin entitlements are only available to users with admin privileges and are keyed like adm:roleCode, e.g. adm:fea:api.`,
+      },
+      {
+        name: 'filter_roleType',
+        type: 'string',
+        required: true,
+        description: `The role type to filter entitlements by.`,
+      },
+    ],
+  },
+  {
     name: 'zoominfo_get_folder',
     description: `Retrieve a single folder by its UUID. Returns all attributes including name, starred status, description, notes, timestamps, and the list of audience IDs in the folder. Returns 404 if not found.`,
     params: [
@@ -1399,6 +1435,18 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Schema version override`,
+      },
+    ],
+  },
+  {
+    name: 'zoominfo_get_gtm_entity_fields',
+    description: `Retrieve detailed metadata and field definitions for a specific GTM data model entity, including each field's data type, whether it is required, its classification, and any pick-list values. Use List GTM Entities first to discover valid entity names.`,
+    params: [
+      {
+        name: 'entityName',
+        type: 'string',
+        required: true,
+        description: `The unique identifier of the GTM entity to fetch field definitions for.`,
       },
     ],
   },
@@ -1562,6 +1610,18 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Tool version override`,
+      },
+    ],
+  },
+  {
+    name: 'zoominfo_get_workflow_execution_status',
+    description: `Get the status of a workflow execution previously triggered with Execute Workflow.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `Unique identifier of the workflow execution.`,
       },
     ],
   },
@@ -1831,6 +1891,11 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'zoominfo_list_gtm_entities',
+    description: `Retrieve a list of all GTM data model entities available to your organization (e.g. account, contact, user). Use this to discover which entities you can inspect with Get GTM Entity Fields or write to with Upsert GTM Entity Records. Takes no parameters.`,
+    params: [],
+  },
+  {
     name: 'zoominfo_list_marketing_audiences',
     description: `List all ZoomInfo marketing audiences with optional pagination.`,
     params: [
@@ -1927,6 +1992,48 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Tool version override`,
+      },
+    ],
+  },
+  {
+    name: 'zoominfo_list_workflows',
+    description: `Get a list of ZoomInfo workflows with optional filtering and pagination. Filter by whether a workflow is runnable on demand, whether it is active, or by name. Use Execute Workflow to trigger a workflow that supports on-demand runs.`,
+    params: [
+      {
+        name: 'filter_active',
+        type: 'boolean',
+        required: false,
+        description: `Filter by active workflows.`,
+      },
+      {
+        name: 'filter_name',
+        type: 'string',
+        required: false,
+        description: `Filter by a workflow's name.`,
+      },
+      {
+        name: 'filter_runnableOnDemand',
+        type: 'boolean',
+        required: false,
+        description: `Filter by workflows that can be run on demand.`,
+      },
+      {
+        name: 'pageNumber',
+        type: 'integer',
+        required: false,
+        description: `Page number for pagination.`,
+      },
+      {
+        name: 'pageSize',
+        type: 'integer',
+        required: false,
+        description: `Number of items per page.`,
+      },
+      {
+        name: 'sort',
+        type: 'string',
+        required: false,
+        description: `Sort field. Valid values: name, createdAt, updatedAt. Prefix with - for descending order.`,
       },
     ],
   },
@@ -3205,6 +3312,43 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'zoominfo_upsert_audience_rows_sync',
+    description: `Synchronously create and/or update up to 50 rows in an audience in one call, returning results immediately in the response. Include id (rowId) to update; omit it to create. Distinct from zoominfo_upsert_audience_rows, which hits the async bulk endpoint (up to 500 rows, requires polling zoominfo_get_audience_job_status) — use this small/fast endpoint when you need an immediate result for 50 rows or fewer.`,
+    params: [
+      { name: 'audienceId', type: 'string', required: true, description: `UUID of the audience.` },
+      {
+        name: 'rows',
+        type: 'array',
+        required: true,
+        description: `Array of row objects to create or update (max 50).`,
+      },
+      {
+        name: 'columns',
+        type: 'array',
+        required: false,
+        description: `Column IDs to enrich (only used when runEnrichment=true).`,
+      },
+      {
+        name: 'runEnrichment',
+        type: 'boolean',
+        required: false,
+        description: `Whether to run enrichment after upsert.`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution`,
+      },
+    ],
+  },
+  {
     name: 'zoominfo_upsert_buyer_persona',
     description: `Create a new buyer persona or update an existing one. Include id to update; omit it to create. Only name is required for creation. Buyer personas capture buyer role, objectives, priorities, and engagement insights for GTM alignment.`,
     params: [
@@ -3463,6 +3607,24 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Schema version override`,
+      },
+    ],
+  },
+  {
+    name: 'zoominfo_upsert_gtm_entity_records',
+    description: `Create or update records for a GTM data model entity (account, contact, or user). Provide an array of records, each with an optional id (include to update an existing record, omit to create) and an attributes object of field name/value pairs matching the entity's field definitions from Get GTM Entity Fields. Returns counts of records processed, successful, and failed.`,
+    params: [
+      {
+        name: 'entityName',
+        type: 'string',
+        required: true,
+        description: `The GTM entity type the records belong to.`,
+      },
+      {
+        name: 'records',
+        type: 'array',
+        required: true,
+        description: `Array of records to create or update. Each record is an object with an optional 'id' (to update) and a required 'attributes' object of field values, e.g. [{"id": "rec_123", "attributes": {"firstName": "Jane"}}, {"attributes": {"firstName": "John"}}].`,
       },
     ],
   },
