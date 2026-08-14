@@ -233,11 +233,11 @@ export const sidebar = [
       },
     ],
   },
-  // Product guide shelves — dedicated sidebars entered from secondary nav, not journey rails
+  // Product cookbook shelves — dedicated sidebars entered from secondary nav, not journey rails
   {
-    label: 'AgentKit guides',
+    label: 'AgentKit cookbooks',
     id: 'agentkit-guides',
-    link: '/agentkit/cookbooks/',
+    link: '/agentkit/cookbooks/set-up-agentkit-with-your-coding-agent/',
     icon: 'open-book',
     items: [
       {
@@ -248,14 +248,17 @@ export const sidebar = [
       {
         label: 'How-to',
         collapsed: false,
-        items: [{ autogenerate: { directory: 'agentkit/how-to' } }],
+        items: [
+          { autogenerate: { directory: 'agentkit/how-to' } },
+          { autogenerate: { directory: 'how-to' } },
+        ],
       },
     ],
   },
   {
-    label: 'Auth for SaaS guides',
+    label: 'SaaSKit cookbooks',
     id: 'saaskit-guides',
-    link: '/saaskit/cookbooks/',
+    link: '/saaskit/cookbooks/add-hosted-auth-nextjs-app-router/',
     icon: 'open-book',
     items: [
       {
@@ -266,7 +269,7 @@ export const sidebar = [
       {
         label: 'How-to',
         collapsed: false,
-        items: [{ autogenerate: { directory: 'saaskit/how-to' } }],
+        items: [{ autogenerate: { directory: 'how-to' } }],
       },
     ],
   },
@@ -669,13 +672,10 @@ export const topics = {
     '/agentkit/cookbooks/**/*',
     '/agentkit/how-to',
     '/agentkit/how-to/**/*',
+    '/how-to',
+    '/how-to/**/*',
   ],
-  'saaskit-guides': [
-    '/saaskit/cookbooks',
-    '/saaskit/cookbooks/**/*',
-    '/saaskit/how-to',
-    '/saaskit/how-to/**/*',
-  ],
+  'saaskit-guides': ['/saaskit/cookbooks', '/saaskit/cookbooks/**/*', '/how-to', '/how-to/**/*'],
 
   // Product SDK sidebars (before connect catch-all)
   'agentkit-sdks': ['/agentkit/sdks/**/*'],
@@ -778,7 +778,7 @@ export const sidebarToSecondaryNav: Record<string, SecondaryNavMapping> = {
   // Agent connectors sidebar → AgentKit Connectors tab
   'agent-connectors': 'agentkit-connectors',
 
-  // Product guide shelves → top-level Guides secondary nav (not Developer Resources)
+  // Product cookbook shelves → top-level Cookbooks secondary nav (not Developer Resources)
   'agentkit-guides': 'agentkit-guides',
   'saaskit-guides': 'saaskit-guides',
 

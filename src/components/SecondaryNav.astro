@@ -3,7 +3,7 @@ import { secondaryNavConfig, IconLucideCheck } from '../configs/secondary-nav.co
 import {
   getActiveProduct,
   isCurrentPage,
-  isSelfHostedPath,
+  isSharedProductPath,
   getDisplayLabel,
   type SecondaryNavProps,
 } from '../utils/secondary-nav-utils'
@@ -16,7 +16,7 @@ const { entry } = Astro.props satisfies SecondaryNavProps
 
 const searchParams = Astro.url.searchParams
 const activeProduct = getActiveProduct(Astro.url.pathname, entry?.data?.topic, searchParams)
-const isSharedPath = isSelfHostedPath(Astro.url.pathname)
+const isSharedPath = isSharedProductPath(Astro.url.pathname)
 
 // Shared self-hosted pages: render both product rows so the client can swap without
 // a full rebuild. SSR shows AgentKit (cold default). Unambiguous pages render one row.
@@ -992,6 +992,15 @@ function groupNavItems(items: NavItem[]): NavItem[][] {
       if (row.getAttribute('data-product') === product) row.removeAttribute('hidden')
       else row.setAttribute('hidden', '')
     })
+    if (location.pathname === '/how-to' || location.pathname.startsWith('/how-to/')) {
+      document.querySelectorAll('.secondary-nav-product .nav-item').forEach((el) => {
+        el.classList.toggle(
+          'current',
+          el.closest('[data-product]')?.getAttribute('data-product') === product &&
+            el.textContent.trim() === 'Cookbooks',
+        )
+      })
+    }
   }
 
   function initSecondaryNav() {
@@ -1014,6 +1023,7 @@ function groupNavItems(items: NavItem[]): NavItem[][] {
         try {
           sessionStorage.setItem(storageKey, product)
         } catch {}
+        document.cookie = `${storageKey}=${product}; path=/; SameSite=Lax`
       },
       { signal, capture: true },
     )

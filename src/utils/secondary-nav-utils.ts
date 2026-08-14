@@ -2,26 +2,24 @@ import { sidebar, sidebarToSecondaryNav, type SecondaryNavMapping } from '../con
 import { buildPathToSidebarMap, getSidebarIdForPath } from '../configs/sidebar-utils'
 import {
   SELF_HOSTED_COLD_DEFAULT_PRODUCT,
+  SHARED_HOW_TO_COLD_DEFAULT_PRODUCT,
+  guidesTopicForProduct,
   isDocsProduct,
+  isSelfHostedPath,
+  isSharedHowToPath,
+  isSharedProductPath,
   type DocsProduct,
 } from '../configs/self-hosted'
 import { isHashOnly, normalizePath } from './path-matching'
 import type { NavItem } from '../configs/secondary-nav.config'
 import { IconLucideLayoutGrid } from './icon-map'
 
-/**
- * Self-hosted deployment docs are shared by both products. Header and secondary
- * nav keep the visitor's product (AgentKit or Auth for SaaS) — never a third
- * "Self Hosted" product option.
- */
-export function isSelfHostedPath(pathname: string): boolean {
-  return pathname.startsWith('/self-hosted/')
-}
+export { isSelfHostedPath, isSharedHowToPath, isSharedProductPath }
 
 /**
  * Determines which product is active based on the current page context.
- * Frontmatter topic and path take precedence; shared self-hosted routes use
- * ?product= then a cold default (sessionStorage is applied client-side only).
+ * Frontmatter topic and path take precedence; shared routes use ?product=
+ * then a cold default (sessionStorage / cookie applied client-side).
  */
 export function getActiveProduct(
   pathname: string,
@@ -31,12 +29,14 @@ export function getActiveProduct(
   const productParam = searchParams?.get('product')
   if (isDocsProduct(productParam)) return productParam
 
-  if (topic === 'connect') return 'agentkit'
+  if (topic === 'connect' || topic === 'agentkit-guides') return 'agentkit'
+  if (topic === 'saaskit-guides') return 'saaskit'
   if (pathname.startsWith('/agentkit/')) return 'agentkit'
 
-  // Shared self-hosted docs: server-side cold default is AgentKit. Client restores
-  // SaaS from sessionStorage when the visitor arrived from Auth for SaaS.
+  // Shared routes: server-side cold default. Client restores the other product
+  // from sessionStorage when the visitor arrived from that product.
   if (isSelfHostedPath(pathname)) return SELF_HOSTED_COLD_DEFAULT_PRODUCT
+  if (isSharedHowToPath(pathname)) return SHARED_HOW_TO_COLD_DEFAULT_PRODUCT
 
   return 'saaskit'
 }
@@ -94,6 +94,14 @@ export function getActiveSecondaryNavId(
   // Map old home routes for backwards compatibility
   if (pathname === '/home/saaskit/' || pathname === '/home/saaskit') {
     return 'saaskit-user-management'
+  }
+
+  // Shared workspace how-tos: product (query / topic set by middleware) picks
+  // which Cookbooks tab to highlight. Do this before the path map, which would
+  // pin /how-to/** to whichever sidebar listed the folder first.
+  if (isSharedHowToPath(pathname)) {
+    const product = getActiveProduct(pathname, entry?.data?.topic, searchParams)
+    return guidesTopicForProduct(product)
   }
 
   // 1. First check explicit topic from page frontmatter
