@@ -1,0 +1,321 @@
+---
+title: 'Authorize mcp-use tools with Scalekit scopes'
+description: 'Sign a user in with Scalekit, grant todo:read and todo:write, and prove allow and deny in the mcp-use Inspector.'
+date: 2026-08-16
+tags: ['Agent auth', 'OAuth', 'Node.js']
+sidebar:
+  label: 'mcp-use tool scopes'
+excerpt: >
+  Login is not enough. A signed-in user can still call every tool unless each tool checks an OAuth scope. This recipe authenticates with Scalekit, grants todo:read and todo:write, and tests both the allow path and the deny path in the mcp-use Inspector.
+featured: false
+authors:
+  - name: 'Saif'
+    title: 'Developer Advocate'
+    url: 'https://www.linkedin.com/in/saif-shines/'
+    picture: '/images/blog/authors/saif.png'
+---
+
+import { Aside, Steps } from '@astrojs/starlight/components';
+
+<Aside type="caution" title="Wait for the npm export">
+
+This recipe imports `oauthScalekitProvider` from `mcp-use/oauth/scalekit`. Do not publish this page while that path 404s on npm. The factory is proposed in [mcp-use pull request #2272](https://github.com/mcp-use/mcp-use/pull/2272). Until a release ships it, clone [scalekit-mcpuse-example](https://github.com/scalekit-developers/scalekit-mcpuse-example). That repo still carries a local verifier so clone-and-run works today.
+
+</Aside>
+
+An [mcp-use](https://mcp-use.com) server is one URL that many hosts share. Scalekit login tells you *who* called. It does not decide *which tools* that person may run. Without a scope check, `list_todos` and `add_todo` are both open to every signed-in user.
+
+This recipe signs the user in with Scalekit, grants `todo:read` and `todo:write` on that MCP server, and tests the flow in the mcp-use Inspector. You will see a read call succeed and a write call fail when the write scope is missing.
+
+This is for an mcp-use v2 resource server over Streamable HTTP. If you use FastMCP instead, see the [FastMCP quickstart](/authenticate/mcp/fastmcp-quickstart/). That guide uses the same `todo:read` / `todo:write` scopes.
+
+## The problem
+
+- **Login is not authorization.** A valid token only proves Scalekit issued it for this MCP server. Every tool still runs unless you check a scope.
+- **mcp-use still lists the tool.** A missing scope does not hide `add_todo` in Inspector. The handler must refuse.
+- **Scopes live in two places.** You create `todo:read` and `todo:write` on the Scalekit MCP server. You check the same strings in `ctx.auth.scopes`. A mismatch looks like a random 403.
+- **Consent is sticky.** If you add a scope after the first login, the existing token does not gain it. The user must sign in again.
+
+## Who needs this
+
+- You run mcp-use over Streamable HTTP
+- Users must sign in with Scalekit before they call tools
+- Some tools are read-only and some tools write
+
+Skip this recipe when you only need a shared machine credential and no user identity. For Scalekit M2M JWT verification on a regular API, see [M2M JWT verification with JWKS and OAuth scopes](/cookbooks/m2m-jwks-and-oauth-scopes/).
+
+## The solution
+
+Scalekit is the authorization server. It issues an OAuth 2.1 access token that lists the scopes the user granted. mcp-use verifies that token with `oauthScalekitProvider`. Each tool then checks `ctx.auth.scopes` before it runs.
+
+Use two tools and two scopes, the same pair as the FastMCP todo app:
+
+| Tool | Required scope | What it does |
+| --- | --- | --- |
+| `list_todos` | `todo:read` | Lists todos owned by `ctx.auth.user.id` |
+| `add_todo` | `todo:write` | Creates a todo for that user |
+
+mcp-use does not enforce those scopes for you. The check belongs next to the tool.
+
+## Implementation
+
+### 1. Register the MCP server and add scopes
+
+Scalekit issues the token. Your process only verifies it. There is no Scalekit client id or secret on the resource server.
+
+**Prerequisites:** Node.js 22.22.2 or newer, a [Scalekit account](https://app.scalekit.com), and at least one [auth method](/mcp/auth-methods/social/) enabled.
+
+<Steps>
+
+1. ### Add the MCP server
+
+   Open [Scalekit Dashboard](https://app.scalekit.com) → **MCP servers** → **Add MCP server**. Give it a name. That name appears on the consent screen.
+
+2. ### Enable DCR and CIMD
+
+   Turn on **dynamic client registration** and **Client ID Metadata Document (CIMD)**. Inspector needs at least one of these. Keep both on.
+
+   Restart the mcp-use process after you change DCR or CIMD. Some clients cache authorization-server metadata.
+
+3. ### Set the Server URL with no trailing slash
+
+   Under advanced settings, set **Server URL** to:
+
+   ```text
+   http://localhost:3000/mcp
+   ```
+
+   Do not add a trailing slash. mcp-use requires the resource path to equal the server base path. A deployed origin uses `https://mcp.example.com/mcp`.
+
+4. ### Create the two scopes
+
+   Create or link these scopes on the same MCP server, then save:
+
+   | Scope | Description |
+   | --- | --- |
+   | `todo:read` | List todos |
+   | `todo:write` | Create todos |
+
+   These strings must match the checks in your tools exactly.
+
+5. ### Copy the three values
+
+   | Value | Where it appears |
+   | --- | --- |
+   | Environment URL | Dashboard → API credentials → `https://<your-env>.scalekit.cloud` |
+   | Resource ID | This MCP server page → `res_…` |
+   | Public MCP URL | The same string as **Server URL** (no trailing slash) |
+
+</Steps>
+
+The resource id is the audience check. A token minted for a different MCP server in the same environment must fail.
+
+### 2. Authenticate the mcp-use server
+
+```bash
+# Never hardcode secrets; use environment variables.
+npm install mcp-use zod
+```
+
+```env
+SCALEKIT_ENVIRONMENT_URL=https://your-env.scalekit.cloud
+SCALEKIT_RESOURCE_ID=res_xxxxxxxx
+MCP_URL=http://localhost:3000/mcp
+```
+
+Pass those three values into the published factory. Advertise the same scopes Scalekit offers, so Inspector can request them:
+
+```ts
+import { MCPServer } from "mcp-use";
+import { oauthScalekitProvider } from "mcp-use/oauth/scalekit";
+import { z } from "zod";
+
+function requiredEnv(name: string): string {
+  const value = process.env[name]?.trim();
+  if (!value) {
+    throw new TypeError(
+      `${name} is missing. Copy .env.example to .env and fill in values from your Scalekit dashboard.`,
+    );
+  }
+  return value;
+}
+
+const server = new MCPServer({
+  name: "todo-mcp",
+  version: "1.0.0",
+  oauth: oauthScalekitProvider({
+    environmentUrl: requiredEnv("SCALEKIT_ENVIRONMENT_URL"),
+    resourceId: requiredEnv("SCALEKIT_RESOURCE_ID"),
+    resource: requiredEnv("MCP_URL"),
+    scopesSupported: ["todo:read", "todo:write"],
+  }),
+  publicLandingPage: true,
+});
+```
+
+`publicLandingPage: true` keeps the HTML page public. `/mcp` stays bearer-gated. The tool checks below still apply if a client requests fewer scopes than you advertise.
+
+### 3. Guard each tool with a scope
+
+Store todos per user. Check the scope first. A missing scope returns an error. It does not throw an HTTP 401. The user is already authenticated.
+
+```ts
+type Todo = { id: string; title: string; ownerId: string };
+
+const todos = new Map<string, Todo[]>();
+
+function requireScope(ctx: { auth: { scopes: string[] } }, scope: string) {
+  if (!ctx.auth.scopes.includes(scope)) {
+    return {
+      isError: true,
+      content: [{ type: "text", text: `Missing scope ${scope}` }],
+    };
+  }
+  return undefined;
+}
+
+server.tool(
+  {
+    name: "list_todos",
+    description: "List todos for the signed-in user. Requires todo:read.",
+    outputSchema: z.object({
+      todos: z.array(
+        z.object({
+          id: z.string(),
+          title: z.string(),
+        }),
+      ),
+    }),
+  },
+  async (_args, ctx) => {
+    const denied = requireScope(ctx, "todo:read");
+    if (denied) return denied;
+
+    const items = todos.get(ctx.auth.user.id) ?? [];
+    return {
+      content: [{ type: "text", text: JSON.stringify(items) }],
+      structuredContent: { todos: items.map(({ id, title }) => ({ id, title })) },
+    };
+  },
+);
+
+server.tool(
+  {
+    name: "add_todo",
+    description: "Create a todo for the signed-in user. Requires todo:write.",
+    inputSchema: z.object({
+      title: z.string().min(1),
+    }),
+    outputSchema: z.object({
+      id: z.string(),
+      title: z.string(),
+    }),
+  },
+  async (args, ctx) => {
+    const denied = requireScope(ctx, "todo:write");
+    if (denied) return denied;
+
+    const item = {
+      id: crypto.randomUUID(),
+      title: args.title,
+      ownerId: ctx.auth.user.id,
+    };
+    const items = todos.get(ctx.auth.user.id) ?? [];
+    items.push(item);
+    todos.set(ctx.auth.user.id, items);
+    return {
+      content: [{ type: "text", text: JSON.stringify(item) }],
+      structuredContent: { id: item.id, title: item.title },
+    };
+  },
+);
+
+export default server;
+```
+
+`ctx.auth.user.id` is the token `sub`. Use it as the owner key. Do not treat a `subjectType: "machine"` caller as a person if your product is user-only.
+
+Add a `whoami` tool so Inspector can show the signed-in user and the granted scopes before you test writes:
+
+```ts
+server.tool(
+  {
+    name: "whoami",
+    description: "Return the signed-in Scalekit user and granted scopes",
+  },
+  async (_args, ctx) => {
+    const data = {
+      user: ctx.auth.user,
+      scopes: ctx.auth.scopes,
+    };
+    return {
+      content: [{ type: "text", text: JSON.stringify(data, null, 2) }],
+    };
+  },
+);
+```
+
+## Testing
+
+```bash
+npm run dev
+```
+
+| Endpoint | URL |
+| --- | --- |
+| MCP | `http://localhost:3000/mcp` |
+| Inspector | `http://localhost:3000/mcp/inspector` |
+
+Leave Inspector's client-id fields empty. This flow uses DCR or CIMD.
+
+<Steps>
+
+1. ### Sign in
+
+   Open Inspector. Connect to `http://localhost:3000/mcp`. The first call returns **401**. Inspector starts Scalekit login. Complete consent. Grant `todo:read` only on the first pass.
+
+2. ### Confirm identity
+
+   Call `whoami`. You should see a `usr_…` id, `subjectType: "user"`, and `scopes` that include `todo:read`. Do not paste live ids into docs or tickets.
+
+3. ### Prove the allow path
+
+   Call `list_todos`. The call succeeds. The list may be empty.
+
+4. ### Prove the deny path
+
+   Call `add_todo` with `{ "title": "Ship scopes" }`. The tool is visible. The handler returns `Missing scope todo:write`. That is the test. A green `whoami` is not enough.
+
+5. ### Grant write and retry
+
+   Sign out. Sign in again and grant `todo:write` as well. Call `add_todo`. The todo appears. Call `list_todos`. You see only your items.
+
+</Steps>
+
+A public URL change is two matching updates: Scalekit **Server URL** and `MCP_URL`. Restart the process.
+
+## Common mistakes
+
+- **Write tool is visible but returns `Missing scope todo:write`.** Symptom: Inspector lists `add_todo`. Cause: mcp-use does not hide tools by scope. Fix: this is expected on the deny path. Grant `todo:write` and sign in again to take the allow path.
+- **Scope is on the dashboard but not on the token.** Symptom: `whoami` scopes omit `todo:write` after you added it. Cause: consent is sticky. Fix: disconnect Inspector and sign in again.
+- **Dashboard scope string does not match the code.** Symptom: every call returns `Missing scope todo:read`. Cause: `todo:read` vs `todos:read`. Fix: use the FastMCP pair `todo:read` and `todo:write` in both places.
+- **Login works, every tool is 401.** Symptom: Inspector never reaches `whoami`. Cause: **Server URL** does not match `MCP_URL` (trailing slash, port, or `http` vs `https`). Fix: both must be `http://localhost:3000/mcp` with no trailing slash.
+- **Import 404s on npm.** Symptom: `Cannot find module 'mcp-use/oauth/scalekit'`. Cause: the factory is not in the installed mcp-use release yet. Fix: wait for the release that includes [mcp-use#2272](https://github.com/mcp-use/mcp-use/pull/2272), or run the [example](https://github.com/scalekit-developers/scalekit-mcpuse-example).
+
+Set `MCP_USE_OAUTH_DEBUG=1` to print `iss`, `aud`, and `sub` on a 401. Logs never print the raw token.
+
+## Production notes
+
+- Restart after any DCR, CIMD, or scope change. Clients cache metadata and tokens.
+- `resourceId` is the audience check. Copy it from the MCP server page. A wrong `res_…` weakens the check instead of failing loudly.
+- Replace the in-memory `Map` with a database keyed by `ctx.auth.user.id`.
+- Refuse `subjectType: "machine"` on user-only tools.
+- Do not set `issuerBoundAccessTokens: true`. A Scalekit issuer is a whole environment.
+
+## Next steps
+
+- Clone [scalekit-mcpuse-example](https://github.com/scalekit-developers/scalekit-mcpuse-example) if the published import is not on npm yet
+- Compare the same scopes on FastMCP in the [FastMCP quickstart](/authenticate/mcp/fastmcp-quickstart/)
+- Register more MCP servers in the [MCP Auth quickstart](/authenticate/mcp/quickstart/)
+- Read the [MCP Auth overview](/authenticate/mcp/overview/)
+- Use the [MCP auth troubleshooting](/authenticate/mcp/troubleshooting/) guide when Inspector login fails
