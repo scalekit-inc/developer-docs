@@ -55,6 +55,56 @@ try {
 
 `ScalekitServerException` is the base type. Prefer checking subclasses first so not-found and auth failures get the right UX.
 
+## Tool execution errors
+
+A failure during `scalekit.tools.executeTool` comes from one of two places, and the fix differs for each:
+
+- **The upstream provider rejected the call** (Gmail, Slack, Salesforce, and so on). Scalekit raises a dedicated `ScalekitTool*` exception. The most common is `ScalekitToolUnauthorizedException`, which means the connected account's provider token was expired or revoked — re-authorize the connected account. Do not change your client credentials.
+- **Scalekit rejected the call.** A plain `ScalekitUnauthorizedException` (no tool details) means your `client_id`/`client_secret` or Scalekit token is invalid. The SDK already refreshed and retried before surfacing it, so fix the credentials.
+
+Each tool exception subclasses its plain counterpart — `ScalekitToolUnauthorizedException` extends `ScalekitUnauthorizedException` — so **catch the tool type first**. Use `isToolException()` to detect any upstream tool failure, and read `toolErrorCode`, `toolErrorMessage`, and `executionId` for logging.
+
+```ts title="handle-tool-errors.ts" wrap showLineNumbers=false
+import {
+  ScalekitToolUnauthorizedException,
+  ScalekitToolRateLimitException,
+  ScalekitUnauthorizedException,
+  isToolException,
+} from '@scalekit-sdk/node'
+
+try {
+  const result = await scalekit.tools.executeTool({
+    toolName: 'gmail_send_email',
+    identifier: 'user@example.com',
+    params: {
+      to: 'team@example.com',
+      subject: 'Hello from Scalekit',
+      body: 'Tool execution succeeded.',
+    },
+  })
+} catch (err) {
+  if (err instanceof ScalekitToolUnauthorizedException) {
+    // Upstream provider rejected the token — re-authorize the connected account
+  } else if (err instanceof ScalekitToolRateLimitException) {
+    // Upstream provider rate limit — back off, then retry the tool call
+  } else if (err instanceof ScalekitUnauthorizedException) {
+    // Scalekit-side credentials are invalid — fix client ID/secret
+  } else if (isToolException(err)) {
+    // Any other upstream tool failure — inspect the provider's error
+    console.error(err.toolErrorCode, err.toolErrorMessage, err.executionId)
+  } else {
+    throw err
+  }
+}
+```
+
+| Exception | When it is raised | Typical response |
+| --- | --- | --- |
+| `ScalekitToolUnauthorizedException` | Upstream provider returned 401 during tool execution | Re-authorize the connected account |
+| `ScalekitToolForbiddenException` | Upstream provider returned 403 during tool execution | Add the missing provider scope, then re-authorize |
+| `ScalekitToolRateLimitException` | Upstream provider returned 429 during tool execution | Back off and retry the tool call |
+| `ScalekitToolException` | Any other upstream provider error during tool execution | Log `toolErrorCode`, `toolErrorMessage`, and `executionId`; surface a clear message |
+
 ## Related
 
 - [Connected accounts](/agentkit/sdks/node/actions/) — connect accounts and execute tools  
