@@ -1,0 +1,331 @@
+---
+title: 'Share an mcp-use server with your team'
+description: 'Share one MCP URL. Each person signs in with Scalekit. Tools see only their data. No secrets in client config.'
+sidebar:
+  label: 'mcp-use team access'
+  order: 12
+tableOfContents: true
+---
+
+import { Aside, Steps } from '@astrojs/starlight/components';
+
+You built an [mcp-use](https://mcp-use.com) server your team wants in Cursor, Claude, or Inspector. The fastest way to share it is also the riskiest: put `API_KEY`, database URLs, and service tokens in a shared `mcp.json`, commit it, and paste the same block onto every laptop.
+
+One person rotates a key. One onboarding call leaks the file. Every tool then runs as a shared service account. Audit logs cannot tell who did what.
+
+Per-user OAuth on the server fixes this. You share one MCP URL. Each person signs in with Scalekit. Secrets stay in the server `.env`. The resource server never holds a Scalekit client id or secret.
+
+**By the end of this recipe,** two people add the same URL, sign in separately, and each see only their own todos. A teammate with `todo:read` only cannot create one.
+
+This recipe is for an mcp-use v2 server over Streamable HTTP. For FastMCP, see the [FastMCP quickstart](/authenticate/mcp/fastmcp-quickstart/). For a machine credential with no user identity, see [M2M JWT verification with JWKS and OAuth scopes](/saaskit/cookbooks/m2m-jwks-and-oauth-scopes/).
+
+<Aside type="note" title="Import path until the adapter ships on npm">
+  The code imports `oauthScalekitProvider` from `mcp-use/oauth/scalekit`. That export is in [mcp-use pull request #2272](https://github.com/mcp-use/mcp-use/pull/2272). Until a release ships it, clone [scalekit-mcpuse-example](https://github.com/scalekit-developers/scalekit-mcpuse-example) and import from `./oauth/scalekit.js`.
+</Aside>
+
+## How team access works on one URL
+
+Deploy one HTTP endpoint, for example `https://todos.internal.example/mcp`.
+
+Each person adds **only that URL** to their MCP client. The first tool call opens Scalekit sign-in in the browser. No API keys go into client config.
+
+After sign-in, mcp-use verifies the JWT and puts the caller on `ctx.auth`. Tools such as `add_todo` and `list_todos` key storage on `ctx.auth.user.id` (token `sub`). Alice and Bob share the URL. Each works in a private todo list. Call `whoami` when you need to inspect the `usr_…` id and granted scopes during rollout.
+
+<Aside type="tip" title="The same pattern works beyond one internal team">
+  Publish one MCP server URL to more than one customer. Scalekit sign-in scopes identity per user, and per organization when you need it.
+</Aside>
+
+## Four checks before you share the URL
+
+A multi-user rollout succeeds when all of this is true:
+
+1. Two different people add the **same** MCP server URL to their clients.
+2. Each completes sign-in on first connect. Client config has no secrets.
+3. Each calls `add_todo` and `list_todos`.
+4. Each person sees **only their todos**.
+
+Identity answers **whose data is this?** A second check answers **may this person use this tool?** A viewer with `todo:read` can list. They must not create. That check is an OAuth scope on the token, enforced next to the tool.
+
+## Per-user OAuth moves the trust boundary to the server
+
+Shared credentials put the trust boundary in the MCP client. Per-user OAuth moves it to your mcp-use process.
+
+| Stays on the server | Stays with each person |
+| --- | --- |
+| MCP server URL you share | Sign-in through Scalekit |
+| Database and service credentials in `.env` | Bearer token on each request |
+| Tool logic and data rules | Identity (`ctx.auth.user.id`) and scopes (`ctx.auth.scopes`) |
+
+mcp-use verifies Scalekit JWTs against JWKS. It does not call Scalekit with a client secret. Users add one URL. The server decides who they are.
+
+`resourceId` (`res_…`) is the JWT `aud`. `resource` (`MCP_URL`) is the public MCP URL. mcp-use puts `resource` in RFC 9728 protected-resource metadata. It is not a second audience check.
+
+## Wire per-user auth into the mcp-use server
+
+Bring the team-todos shape into your project.
+
+### Register the MCP server in Scalekit
+
+**Prerequisites:** Node.js 22.22.2 or newer, a [Scalekit account](https://app.scalekit.com), and at least one [auth method](/mcp/auth-methods/social/) enabled.
+
+<Steps>
+
+1. ### Add the MCP server
+
+   Open [Scalekit Dashboard](https://app.scalekit.com) → **MCP servers** → **Add MCP server**. Give it a name. That name appears on the consent screen.
+
+2. ### Enable DCR and CIMD
+
+   Turn on **dynamic client registration** and **Client ID Metadata Document (CIMD)**. Public clients such as Inspector, Claude, and Cursor need at least one of these. Keep both on.
+
+   Reconnect the MCP client after you change DCR or CIMD. Inspector and other clients cache authorization-server metadata. This process does not.
+
+3. ### Set the Server URL
+
+   Under advanced settings, set **Server URL** to `http://localhost:3000/mcp` with no trailing slash. A deployed origin uses `https://todos.internal.example/mcp`.
+
+4. ### Create the two scopes
+
+   Create these scopes on the same MCP server, then save. The strings must match the tool checks exactly.
+
+   | Scope | Description |
+   | --- | --- |
+   | `todo:read` | List todos |
+   | `todo:write` | Create todos |
+
+5. ### Copy the three values
+
+   | Value | Where it appears |
+   | --- | --- |
+   | Environment URL | Dashboard → API credentials → `https://<your-env>.scalekit.cloud` |
+   | Resource ID | This MCP server page → `res_…` |
+   | Public MCP URL | The same string as **Server URL** |
+
+</Steps>
+
+A token minted for a different `res_…` in the same environment must fail.
+
+### Pass environment values into the provider
+
+Keep these values on the server. Never put them in Cursor, Claude, or any MCP client config.
+
+```bash title="Terminal" frame="terminal"
+# Never hard-code secrets. Use environment variables.
+SCALEKIT_ENVIRONMENT_URL=https://your-env.scalekit.cloud
+SCALEKIT_RESOURCE_ID=res_xxxxxxxx
+MCP_URL=http://localhost:3000/mcp
+```
+
+```ts title="index.ts"
+import { MCPServer } from 'mcp-use'
+import { oauthScalekitProvider } from 'mcp-use/oauth/scalekit'
+import { z } from 'zod'
+
+function requiredEnv(name: string): string {
+  const value = process.env[name]?.trim()
+  if (!value) {
+    throw new TypeError(
+      `${name} is missing. Copy .env.example to .env and fill values from your Scalekit dashboard.`,
+    )
+  }
+  return value
+}
+
+const server = new MCPServer({
+  name: 'todo-mcp',
+  version: '1.0.0',
+  oauth: oauthScalekitProvider({
+    environmentUrl: requiredEnv('SCALEKIT_ENVIRONMENT_URL'),
+    resourceId: requiredEnv('SCALEKIT_RESOURCE_ID'),
+    resource: requiredEnv('MCP_URL'),
+    scopesSupported: ['todo:read', 'todo:write'],
+  }),
+  publicLandingPage: true,
+})
+```
+
+`resource` must match the Scalekit **Server URL** exactly. `publicLandingPage: true` keeps the HTML page public. `/mcp` stays bearer-gated.
+
+Enable the sign-in methods your team will use in the Scalekit dashboard: social login, passwordless, [enterprise SSO](/mcp/auth-methods/enterprise/), or [bring your own auth](/mcp/auth-methods/custom-auth/).
+
+## Scope data to the signed-in user
+
+`ctx.auth.user.id` is the token `sub`. Key reads and writes on that id. Do not store data under a shared env credential.
+
+`subjectType` is `user` after an authorization-code login. It is `machine` when `sub` equals the client id. Refuse `machine` on user-only tools.
+
+```ts title="Key storage on the signed-in user"
+type Todo = { id: string; title: string; ownerId: string }
+
+const todos = new Map<string, Todo[]>()
+
+function requireUser(ctx: {
+  auth: { user: { id: string; subjectType: string } }
+}) {
+  if (ctx.auth.user.subjectType !== 'user') {
+    return {
+      isError: true,
+      content: [{ type: 'text', text: 'User session required' }],
+    }
+  }
+  return undefined
+}
+```
+
+## When identity is not enough: scopes
+
+User-id scoping stops Bob from reading Alice's rows. It does not stop a viewer from calling `add_todo`. That second question is authorization.
+
+Scalekit puts the scopes the user granted on the access token. mcp-use maps them to `ctx.auth.scopes`. mcp-use still lists every tool. A missing scope does not hide `add_todo`. The handler must refuse.
+
+```ts title="Gate before write"
+function requireScope(ctx: { auth: { scopes: string[] } }, scope: string) {
+  if (!ctx.auth.scopes.includes(scope)) {
+    return {
+      isError: true,
+      content: [{ type: 'text', text: `Missing scope ${scope}` }],
+    }
+  }
+  return undefined
+}
+
+server.tool(
+  {
+    name: 'list_todos',
+    description: 'List todos for the signed-in user. Requires todo:read.',
+    outputSchema: z.object({
+      todos: z.array(z.object({ id: z.string(), title: z.string() })),
+    }),
+  },
+  async (_args, ctx) => {
+    const notUser = requireUser(ctx)
+    if (notUser) return notUser
+    const denied = requireScope(ctx, 'todo:read')
+    if (denied) return denied
+
+    const items = todos.get(ctx.auth.user.id) ?? []
+    return {
+      content: [{ type: 'text', text: JSON.stringify(items) }],
+      structuredContent: {
+        todos: items.map(({ id, title }) => ({ id, title })),
+      },
+    }
+  },
+)
+
+server.tool(
+  {
+    name: 'add_todo',
+    description: 'Create a todo for the signed-in user. Requires todo:write.',
+    inputSchema: z.object({ title: z.string().min(1) }),
+    outputSchema: z.object({ id: z.string(), title: z.string() }),
+  },
+  async (args, ctx) => {
+    const notUser = requireUser(ctx)
+    if (notUser) return notUser
+    const denied = requireScope(ctx, 'todo:write')
+    if (denied) return denied
+
+    const item = {
+      id: crypto.randomUUID(),
+      title: args.title,
+      ownerId: ctx.auth.user.id,
+    }
+    const items = todos.get(ctx.auth.user.id) ?? []
+    items.push(item)
+    todos.set(ctx.auth.user.id, items)
+    return {
+      content: [{ type: 'text', text: JSON.stringify(item) }],
+      structuredContent: { id: item.id, title: item.title },
+    }
+  },
+)
+```
+
+| Check | Stops |
+| --- | --- |
+| `todos.get(ctx.auth.user.id)` | Bob reading Alice's rows |
+| `requireScope(ctx, 'todo:write')` | Carol creating when she is read-only |
+| `requireScope(ctx, 'todo:read')` | Dave using todo tools at all |
+
+<Aside type="note" title="OAuth scopes vs Scalekit permissions">
+  `ctx.auth.scopes` are the OAuth grants on the token (`todo:read`, `todo:write`). `ctx.auth.permissions` are Scalekit RBAC permissions when you assign roles. Use scopes for the consent screen. Use permissions when you already manage roles in Scalekit.
+</Aside>
+
+Add `whoami` so Inspector can show the signed-in user and granted scopes before you test writes:
+
+```ts title="whoami"
+server.tool(
+  {
+    name: 'whoami',
+    description: 'Return the signed-in Scalekit user and granted scopes',
+  },
+  async (_args, ctx) => {
+    const data = {
+      user: ctx.auth.user,
+      scopes: ctx.auth.scopes,
+    }
+    return {
+      content: [{ type: 'text', text: JSON.stringify(data, null, 2) }],
+    }
+  },
+)
+
+export default server
+```
+
+## Try per-user isolation
+
+```bash title="Terminal" frame="terminal"
+npm run dev
+```
+
+| Endpoint | URL |
+| --- | --- |
+| MCP | `http://localhost:3000/mcp` |
+| Inspector | `http://localhost:3000/mcp/inspector` |
+
+Leave Inspector's client-id fields empty. This flow uses DCR or CIMD.
+
+<Steps>
+
+1. ### Alice signs in and writes
+
+   Connect Inspector to `http://localhost:3000/mcp`. The first call returns **401**. Complete Scalekit consent and grant `todo:read` and `todo:write`. Call `add_todo` with `{ "title": "Ship rollout" }`. Call `list_todos`. Alice sees only her item.
+
+2. ### Bob uses the same URL
+
+   Open a second client, or sign out and sign in as a different Scalekit user. Call `list_todos`. Bob does not see Alice's todo. Call `add_todo`. Bob sees only his item.
+
+3. ### A read-only role cannot write
+
+   Sign in again and grant `todo:read` only. Call `list_todos`. The call succeeds. Call `add_todo`. The tool is visible. The handler returns `Missing scope todo:write`. That is the test.
+
+</Steps>
+
+Success means per-user identity works on one shared URL. A missing-scope error on step 3 means authorization is doing its job.
+
+A public URL change is two matching updates: Scalekit **Server URL** and `MCP_URL`. Restart the process. `resourceId` stays the audience check.
+
+## Troubleshooting
+
+| Symptom | Fix |
+| --- | --- |
+| Inspector never starts login | If DCR and CIMD are both off, turn at least one on and save. If they are already on, reconnect Inspector. Clients cache authorization-server metadata. |
+| `401` on every tool call | Finish the browser OAuth flow. Align Scalekit **Server URL** and `MCP_URL` (trailing slash, port, `http` vs `https`). |
+| Both users see the same data | Key storage on `ctx.auth.user.id`. Do not use a shared env credential as the owner. |
+| `add_todo` is visible but returns `Missing scope todo:write` | mcp-use does not hide tools by scope. Grant `todo:write` and sign in again. |
+| Scope is on the dashboard but not on the token | Consent is sticky. Disconnect the client and sign in again. |
+| Every call returns `Missing scope todo:read` | Dashboard string does not match the code. Use `todo:read` and `todo:write` in both places. |
+| `Cannot find module 'mcp-use/oauth/scalekit'` | The factory is not in the installed mcp-use release yet. Wait for the release that includes [mcp-use#2272](https://github.com/mcp-use/mcp-use/pull/2272), or run the [example](https://github.com/scalekit-developers/scalekit-mcpuse-example). |
+| Empty sign-in screen | Enable at least one auth method in the Scalekit dashboard. |
+| Need claim details on a 401 | Set `MCP_USE_OAUTH_DEBUG=1`. Logs print `iss`, `aud`, and `sub`. Logs never print the raw token. |
+
+See also [MCP auth troubleshooting](/authenticate/mcp/troubleshooting/).
+
+## What to do next
+
+- **Run the example:** clone [scalekit-mcpuse-example](https://github.com/scalekit-developers/scalekit-mcpuse-example) if the published import is not on npm yet.
+- **Production:** deploy the server and set Scalekit **Server URL** and `MCP_URL` to that origin. Replace the in-memory `Map` with a database keyed by `ctx.auth.user.id`.
+- **Same scopes on FastMCP:** [FastMCP quickstart](/authenticate/mcp/fastmcp-quickstart/).
+- **Register more MCP servers:** [MCP Auth quickstart](/authenticate/mcp/quickstart/).
