@@ -90,7 +90,7 @@ try {
   } else if (err instanceof ScalekitUnauthorizedException) {
     // Scalekit-side credentials are invalid — fix client ID/secret
   } else if (isToolException(err)) {
-    // Any other upstream tool failure — inspect the provider's error
+    // Security: log on the server only. Do not return toolErrorMessage to the end user.
     console.error(err.toolErrorCode, err.toolErrorMessage, err.executionId)
   } else {
     throw err
@@ -103,7 +103,7 @@ try {
 | `ScalekitToolUnauthorizedException` | Upstream provider returned 401 during tool execution | Re-authorize the connected account |
 | `ScalekitToolForbiddenException` | Upstream provider returned 403 during tool execution | Add the missing provider scope, then re-authorize |
 | `ScalekitToolRateLimitException` | Upstream provider returned 429 during tool execution | Back off and retry the tool call |
-| `ScalekitToolException` | Any other upstream provider error during tool execution | Log `toolErrorCode`, `toolErrorMessage`, and `executionId`; surface a clear message |
+| `ScalekitToolException` | Any other upstream provider error during tool execution | Log `toolErrorCode`, `toolErrorMessage`, and `executionId` on the server; surface a generic error to the end user |
 
 ## Related
 

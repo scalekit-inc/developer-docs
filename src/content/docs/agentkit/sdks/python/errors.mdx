@@ -90,7 +90,7 @@ except ScalekitUnauthorizedException:
     # Scalekit-side credentials are invalid — fix client ID/secret
     pass
 except ScalekitToolException as e:
-    # Any other upstream tool failure — inspect the provider's error
+    # Security: log on the server only. Do not return tool_error_message to the end user.
     print(e.tool_error_code, e.tool_error_message, e.execution_id)
 ```
 
@@ -99,7 +99,7 @@ except ScalekitToolException as e:
 | `ScalekitToolUnauthorizedException` | Upstream provider returned 401 during tool execution | Re-authorize the connected account |
 | `ScalekitToolForbiddenException` | Upstream provider returned 403 during tool execution | Add the missing provider scope, then re-authorize |
 | `ScalekitToolRateLimitException` | Upstream provider returned 429 during tool execution | Back off and retry the tool call |
-| `ScalekitToolException` | Base class for any upstream provider error during tool execution | Log `tool_error_code`, `tool_error_message`, and `execution_id`; surface a clear message |
+| `ScalekitToolException` | Base class for any upstream provider error during tool execution | Log `tool_error_code`, `tool_error_message`, and `execution_id` on the server; surface a generic error to the end user |
 
 ## Related
 
