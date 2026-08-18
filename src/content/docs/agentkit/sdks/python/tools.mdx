@@ -57,7 +57,7 @@ Use this when you need tool definitions for frameworks or your own executor. For
 from scalekit.v1.tools.tools_pb2 import Filter
 
 response = scalekit_client.tools.list_tools(
-    filter=Filter(query="calendar"),
+    filter=Filter(query="send message"),
     page_size=50,
 )
 ```
@@ -96,7 +96,12 @@ from scalekit.v1.tools.tools_pb2 import ScopedToolFilter
 
 response = scalekit_client.tools.list_scoped_tools(
     "user@example.com",
-    filter=ScopedToolFilter(),
+    filter=ScopedToolFilter(
+        providers=["SLACK"],
+        tool_names=["slack_send_message"],
+        connection_names=["slack"],
+    ),
+    page_size=50,
 )
 ```
 
@@ -132,13 +137,16 @@ response = scalekit_client.tools.list_scoped_tools(
 ```python wrap showLineNumbers=false
 # Low-level ToolsClient (tool_name, identifier, params)
 response = scalekit_client.tools.execute_tool(
-    tool_name="gmail.messages.list",
+    tool_name="gmail_fetch_mails",
     identifier="user@example.com",
-    params={"maxResults": 10},
+    params={"query": "is:unread", "max_results": 5},
 )
 ```
 
     </CB.ClassMethod>
   </CB.ClassBrowser>
 </div>
+
+Note: Need a tool Scalekit doesn't provide? See [Build custom tools](/agentkit/tools/custom-tools/) to proxy any provider API through a connected account.
+
 </div>

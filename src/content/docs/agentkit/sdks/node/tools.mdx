@@ -40,9 +40,9 @@ Use this client when you need tool definitions (name, parameters, connector) for
 ```typescript wrap showLineNumbers=false
 const res = await scalekit.tools.listTools({
   pageSize: 50,
-  filter: { query: 'calendar' },
+  filter: { query: 'send message' },
 });
-// res.tools, res.nextPageToken
+// res.tools, res.nextPageToken — e.g. slack_send_message
 ```
 
     </CB.ClassMethod>
@@ -61,7 +61,7 @@ const res = await scalekit.tools.listTools({
         Connected account identifier to scope the tools list.
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="options" type="object" hint="filter, pageSize, pageToken">
-        Optional fields: `filter`, `pageSize`, `pageToken`.
+        Required: `filter`. Optional: `pageSize`, `pageToken`.
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="ListScopedToolsResponse">
         Paginated results.
@@ -69,13 +69,15 @@ const res = await scalekit.tools.listTools({
 
 
 ```typescript wrap showLineNumbers=false
-// options.filter is required
 const res = await scalekit.tools.listScopedTools('user@example.com', {
   filter: {
-    // providers, toolNames, connectionNames as needed
+    providers: ['SLACK'],
+    toolNames: ['slack_send_message'],
+    connectionNames: ['slack'],
   },
   pageSize: 50,
 });
+// res.tools, res.nextPageToken
 ```
 
     </CB.ClassMethod>
@@ -105,6 +107,7 @@ const res = await scalekit.tools.listScopedTools('user@example.com', {
 const res = await scalekit.tools.listAvailableTools('user@example.com', {
   pageSize: 50,
 });
+// res.tools, res.nextPageToken
 ```
 
     </CB.ClassMethod>
@@ -130,9 +133,9 @@ const res = await scalekit.tools.listAvailableTools('user@example.com', {
 ```typescript wrap showLineNumbers=false
 // Low-level tools client (params, not toolInput)
 await scalekit.tools.executeTool({
-  toolName: 'slack.chat.postMessage',
-  identifier: 'T0123456',
-  params: { channel: 'C0123', text: 'hi' },
+  toolName: 'gmail_fetch_mails',
+  identifier: 'user@example.com',
+  params: { query: 'is:unread', max_results: 5 },
 });
 ```
 
@@ -140,5 +143,6 @@ await scalekit.tools.executeTool({
   </CB.ClassBrowser>
 </div>
 
+Note: Need a tool Scalekit doesn't provide? See [Build custom tools](/agentkit/tools/custom-tools/) to proxy any provider API through a connected account.
 
 </div>

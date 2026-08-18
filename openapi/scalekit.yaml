@@ -908,7 +908,7 @@ paths:
                 - FAILED
           style: form
           explode: true
-          description: "Filter by authentication request status. Accepted values: INITIATED, PENDING, SUCCESS, FAILED. Matching is case-insensitive."
+          description: 'Filter by authentication request status. Accepted values: INITIATED, PENDING, SUCCESS, FAILED. Matching is case-insensitive.'
           name: status
           in: query
         - schema:
@@ -934,24 +934,24 @@ paths:
           name: client_id
           in: query
       responses:
-        "200":
+        '200':
           description: Authentication requests page returned successfully; includes authRequests, pagination tokens, and total_size
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/auditlogsListAuthLogResponse"
-        "400":
+                $ref: '#/components/schemas/auditlogsListAuthLogResponse'
+        '400':
           description: Invalid request - page_token is malformed, or status filter value is not one of INITIATED, PENDING, SUCCESS, or FAILED
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/errdetailsErrorInfo"
-        "401":
+                $ref: '#/components/schemas/errdetailsErrorInfo'
+        '401':
           description: Missing or invalid Authorization header
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/errdetailsErrorInfo"
+                $ref: '#/components/schemas/errdetailsErrorInfo'
   /api/v1/mcp/configs:
     get:
       description: Lists MCP configurations for the current environment with optional filters for id, name prefix, and provider.
@@ -5168,6 +5168,160 @@ paths:
         - label: Java SDK
           lang: java
           source: RevokeSessionResponse res = scalekitClient.sessions().revokeSession("ses_123456789");
+  /api/v1/tools:
+    get:
+      description: Fetch tools by provider, identifier, and connector. If `filter.summary` is true, returns only tool names.
+      tags:
+        - Tool Calling
+      summary: List tools
+      operationId: ToolService_ListTools
+      parameters:
+        - schema:
+            type: boolean
+          description: Return only tool names instead of full tool details
+          name: filter.summary
+          in: query
+        - schema:
+            type: string
+          description: Filter by tool provider
+          name: filter.provider
+          in: query
+        - schema:
+            type: string
+          description: Filter by connected account identifier
+          name: filter.identifier
+          in: query
+        - schema:
+            type: array
+            items:
+              type: string
+          style: form
+          explode: true
+          description: Filter by one or more tool names
+          name: filter.tool_name
+          in: query
+        - schema:
+            type: string
+          description: 'Full-text search query to match tools by name or description (e.g., "gmail get attachment")'
+          name: filter.query
+          in: query
+        - schema:
+            type: string
+          description: Connector name (e.g., 'My Gmail'). When set together with filter.identifier, resolves to a specific connected account and includes its custom MCP tools in the response.
+          name: filter.connector
+          in: query
+        - schema:
+            type: string
+          description: Organization ID to scope the connected account lookup
+          name: filter.organization_id
+          in: query
+        - schema:
+            type: string
+          description: User ID to scope the connected account lookup
+          name: filter.user_id
+          in: query
+        - schema:
+            type: string
+          description: Connected account ID. Alternative to filter.identifier + filter.connector for directly identifying the connected account whose custom MCP tools should be included.
+          name: filter.connected_account_id
+          in: query
+        - schema:
+            type: integer
+            format: int64
+          description: Maximum number of tools to return per page
+          name: page_size
+          in: query
+        - schema:
+            type: string
+          description: Token from a previous response for pagination
+          name: page_token
+          in: query
+      responses:
+        '200':
+          description: Paginated list of tools matching the filter
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/toolsListToolsResponse'
+        '400':
+          description: Invalid request - malformed filter or pagination parameters
+          content:
+            application/json:
+              schema: {}
+        '401':
+          description: Authentication required - missing or invalid access token
+          content:
+            application/json:
+              schema: {}
+  /api/v1/tools/scoped:
+    get:
+      description: Lists tools scoped to a specific connected account identifier, optionally filtered by provider, tool name, or connection name. Use this endpoint to fetch the tools a specific user or agent is authorized to call.
+      tags:
+        - Tool Calling
+      summary: List scoped tools
+      operationId: ToolService_ListScopedTools
+      parameters:
+        - schema:
+            type: string
+          description: Identifier of the connected account to filter tools
+          name: identifier
+          in: query
+          required: true
+        - schema:
+            type: array
+            items:
+              type: string
+          style: form
+          explode: true
+          description: Filter by one or more tool providers
+          name: filter.providers
+          in: query
+        - schema:
+            type: array
+            items:
+              type: string
+          style: form
+          explode: true
+          description: Filter by one or more tool names
+          name: filter.tool_names
+          in: query
+        - schema:
+            type: array
+            items:
+              type: string
+          style: form
+          explode: true
+          description: Filter by one or more connection names
+          name: filter.connection_names
+          in: query
+        - schema:
+            type: integer
+            format: int64
+          description: Maximum number of tools to return per page
+          name: page_size
+          in: query
+        - schema:
+            type: string
+          description: Token from a previous response for pagination
+          name: page_token
+          in: query
+      responses:
+        '200':
+          description: Paginated list of tools scoped to the given connected account identifier
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/toolsListScopedToolsResponse'
+        '400':
+          description: Invalid request - missing identifier or malformed filter/pagination parameters
+          content:
+            application/json:
+              schema: {}
+        '401':
+          description: Authentication required - missing or invalid access token
+          content:
+            application/json:
+              schema: {}
   /api/v1/users:
     get:
       description: Retrieves a paginated list of all users across your entire environment. Use this endpoint to view all users regardless of their organization memberships. This is useful for administrative purposes, user audits, or when you need to see all users in your Scalekit environment. Supports pagination for large user bases.
@@ -5809,17 +5963,17 @@ components:
           type: array
           items:
             type: object
-            $ref: "#/components/schemas/auditlogsAuthLogRequest"
+            $ref: '#/components/schemas/auditlogsAuthLogRequest'
         next_page_token:
           description: Opaque cursor for the next page. Empty when the current page is the last. Pass back as page_token to fetch the next page.
           type: string
           examples:
-            - "3"
+            - '3'
         prev_page_token:
           description: Opaque cursor for the previous page. Empty when the current page is the first. Pass back as page_token to fetch the previous page.
           type: string
           examples:
-            - "1"
+            - '1'
         total_size:
           description: Total number of authentication requests matching the filter across all pages.
           type: integer
@@ -5854,7 +6008,7 @@ components:
           type: array
           items:
             type: object
-            $ref: "#/components/schemas/auditlogsConnectionDetails"
+            $ref: '#/components/schemas/auditlogsConnectionDetails'
         connection_id:
           description: Primary connection ID used for this authentication request.
           type: string
@@ -5901,7 +6055,7 @@ components:
           examples:
             - mcp
         status:
-          description: "Outcome of the authentication request: INITIATED, PENDING, SUCCESS, or FAILED."
+          description: 'Outcome of the authentication request: INITIATED, PENDING, SUCCESS, or FAILED.'
           type: string
           enum:
             - INITIATED
@@ -9869,6 +10023,124 @@ components:
           type: string
           examples:
             - '123456789'
+    toolsListScopedToolsResponse:
+      type: object
+      properties:
+        next_page_token:
+          description: Token for fetching the next page of tools
+          type: string
+          examples:
+            - eyJwYWdlIjozLCJsaW1pdCI6MzB9
+        prev_page_token:
+          description: Token for fetching the previous page of tools
+          type: string
+          examples:
+            - eyJwYWdlIjoxLCJsaW1pdCI6MzB9
+        tools:
+          description: List of tools scoped to the given connected account identifier
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/toolsScopedTool'
+        total_size:
+          description: Total number of tools matching the query
+          type: integer
+          format: int64
+          examples:
+            - 104
+    toolsListToolsResponse:
+      type: object
+      properties:
+        next_page_token:
+          description: Token for fetching the next page of tools
+          type: string
+          examples:
+            - eyJwYWdlIjozLCJsaW1pdCI6MzB9
+        prev_page_token:
+          description: Token for fetching the previous page of tools
+          type: string
+          examples:
+            - eyJwYWdlIjoxLCJsaW1pdCI6MzB9
+        tool_names:
+          description: List of tool names, returned when filter.summary is true
+          type: array
+          items:
+            type: string
+          examples:
+            - - gmail_send_email
+        tools:
+          description: List of tools, returned when filter.summary is false or omitted
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/toolsTool'
+        total_size:
+          description: Total number of tools matching the query
+          type: integer
+          format: int64
+          examples:
+            - 104
+    toolsScopedTool:
+      type: object
+      properties:
+        connected_account_id:
+          description: ID of the connected account for this scoped tool
+          type: string
+          examples:
+            - ca_123
+        identifier:
+          description: Connected account identifier this tool is scoped to
+          type: string
+        tool:
+          description: The underlying tool definition
+          $ref: '#/components/schemas/toolsTool'
+    toolsTool:
+      type: object
+      properties:
+        definition:
+          description: Tool definition in structured format
+          type: object
+          examples:
+            - input:
+                type: object
+        id:
+          description: Unique ID of the tool. Immutable and read-only.
+          type: string
+          readOnly: true
+          examples:
+            - tol_123
+        is_default:
+          description: Marks this tool as the default version for the combination. Read-only.
+          type: boolean
+          readOnly: true
+          examples:
+            - true
+        metadata:
+          description: Additional metadata about the tool
+          type: object
+          examples:
+            - category: email
+        provider:
+          description: Provider name (e.g. GOOGLE). Read-only.
+          type: string
+          readOnly: true
+          examples:
+            - GOOGLE
+        tags:
+          description: Tags for categorization or filtering
+          type: array
+          items:
+            type: string
+          examples:
+            - - notification
+              - email
+        updated_at:
+          description: Timestamp when the tool was last updated. Read-only.
+          type: string
+          format: date-time
+          readOnly: true
+          examples:
+            - '2023-10-01T12:00:00Z'
     usersCreateMembershipResponse:
       type: object
       properties:
