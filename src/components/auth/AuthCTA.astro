@@ -2,8 +2,6 @@
 import { LinkButton } from '@astrojs/starlight/components'
 // @ts-ignore: icon-map is a local utility module without TS types
 import { IconLucideLogOut as IconLogout, IconLucideUser as IconSignIn } from '../../utils/icon-map'
-import { getSession, clearSessionCache } from '../../utils/auth/session-client'
-
 const loginHref = '/auth/login'
 ---
 
@@ -47,37 +45,7 @@ const loginHref = '/auth/login'
 </div>
 
 <script>
-  // @ts-nocheck
-  const STORAGE_KEY = 'sk_auth_session'
-
-  const readCache = () => {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY)
-      if (!raw) return null
-      return JSON.parse(raw)
-    } catch {
-      return null
-    }
-  }
-
-  /** @param {any} session */
-  const writeCache = (session) => {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(session))
-    } catch {}
-  }
-
-  const clearCache = () => {
-    try {
-      localStorage.removeItem(STORAGE_KEY)
-    } catch {}
-  }
-
-  /** @param {any} expiresAt */
-  const isExpired = (expiresAt) => {
-    if (!expiresAt) return false
-    return Date.now() >= expiresAt
-  }
+  import { getSession, getCachedSession, clearSessionCache } from '../../utils/auth/session-client'
 
   const normalizeText = (value, maxLength) => {
     if (typeof value !== 'string') return null
@@ -102,49 +70,6 @@ const loginHref = '/auth/login'
       claims.name ||
       null
     return normalizeText(candidate, 200)
-  }
-
-  const getSession = async () => {
-    const cached = readCache()
-    if (cached?.authenticated && !isExpired(cached.expiresAt)) {
-      return cached
-    }
-
-    clearCache()
-
-    try {
-      let response = await fetch('/auth/session', { credentials: 'include' })
-      // Attempt refresh when access token has expired
-      if (response.status === 401) {
-        const refreshResponse = await fetch('/auth/refresh', {
-          method: 'POST',
-          credentials: 'include',
-          headers: { 'Content-Type': 'application/json' },
-          body: '{}',
-        })
-        if (refreshResponse.ok) {
-          response = await fetch('/auth/session', { credentials: 'include' })
-        } else {
-          clearCache()
-          return { authenticated: false }
-        }
-      }
-      if (!response.ok) {
-        clearCache()
-        return { authenticated: false }
-      }
-
-      const data = await response.json()
-      if (data?.authenticated) {
-        writeCache(data)
-      } else {
-        clearCache()
-      }
-      return data
-    } catch {
-      clearCache()
-      return { authenticated: false }
-    }
   }
 
   let authCtaAbort = null
@@ -210,9 +135,9 @@ const loginHref = '/auth/login'
         'click',
         (event) => {
           event.preventDefault()
-          const session = readCache()
+          const session = getCachedSession()
           const idToken = session?.idToken || ''
-          clearCache()
+          clearSessionCache()
           window.location.href = `/auth/logout?id_token=${encodeURIComponent(idToken)}`
         },
         { signal },
