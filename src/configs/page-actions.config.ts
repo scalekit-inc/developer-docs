@@ -1,5 +1,3 @@
-import { AGENT_PLUGIN_INLINE } from './agent-instructions'
-
 /** Human Setup command on the Run the CLI on-ramp. Interactive on purpose. */
 export const setupOneLiner = 'npx @scalekit-inc/cli setup'
 
@@ -57,23 +55,13 @@ Follow these in order. A step is done only when its check passes.
    - SCIM: no auth link. Public webhook URL, plus the admin portal link (generatePortalLink or Organizations → Generate link) so IT can copy the SCIM Endpoint URL and Bearer token. Path: Webhooks and Organizations`
 
 /**
- * Prompt used when opening documentation pages in coding agents (ChatGPT, Claude, Cursor).
- * The {url} placeholder is replaced with the current page URL by starlight-page-actions.
- * Note: The plugin replaces only the first {url} occurrence, so we use it once.
+ * Prompt stuffed into Open-in-agent deep links (Claude Code `q=`,
+ * VS Code Claude Code `prompt=`, Cursor `text=`).
+ * starlight-page-actions replaces only the first `{url}` — use it once.
+ * Keep this short: Claude Code warns on prompts over 1,000 characters and caps `q` at 5,000.
  */
-export const pageActionsPrompt = `You are an expert technical assistant implementing Scalekit authentication.
+export const pageActionsPrompt = `Implement this Scalekit documentation in the current repository: {url}
 
-${AGENT_PLUGIN_INLINE}
-
-Your task with the documentation at {url}:
-1. Read and deeply analyze the content at that URL.
-2. Build a mental model of: the main concepts, key terminology, structure, and any code examples present.
-3. Enter Q&A mode — wait for my questions and answer them based ONLY on the content at that URL.
-
-Rules:
-- If I ask something not covered in the doc, say so explicitly instead of guessing.
-- Cite the specific section or heading your answer comes from.
-- Keep answers concise unless I ask you to elaborate.
-- If a question requires code, mirror the style and language shown in the doc.
-
-Ready?`
+1. Fetch the page (try the same path with .md if the HTML is noisy). Done when you can state the page's outcome and the steps it requires.
+2. Load Scalekit skills. If none are available, run \`npx @scalekit-inc/cli setup\`. Done when a Scalekit skill matches the page's product (agent-auth, full-stack-auth, mcp-auth, modular-sso, or modular-scim).
+3. Apply those steps to this repo. Use the page as the source of truth and match its code style and SDK names. Done when the page's verify step succeeds, or you name the first blocker only the developer can resolve (credentials, a dashboard click, or a missing app).`
