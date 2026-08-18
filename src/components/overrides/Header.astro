@@ -62,78 +62,7 @@ const { entry, locale } = Astro.props
 </div>
 
 <script>
-  // @ts-nocheck
-  const STORAGE_KEY = 'sk_auth_session'
-
-  const readCache = () => {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY)
-      if (!raw) return null
-      return JSON.parse(raw)
-    } catch {
-      return null
-    }
-  }
-
-  /** @param {any} session */
-  const writeCache = (session) => {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(session))
-    } catch {}
-  }
-
-  const clearCache = () => {
-    try {
-      localStorage.removeItem(STORAGE_KEY)
-    } catch {}
-  }
-
-  /** @param {any} expiresAt */
-  const isExpired = (expiresAt) => {
-    if (!expiresAt) return false
-    return Date.now() >= expiresAt
-  }
-
-  const getSession = async () => {
-    const cached = readCache()
-    if (cached?.authenticated && !isExpired(cached.expiresAt)) {
-      return cached
-    }
-
-    clearCache()
-
-    try {
-      let response = await fetch('/auth/session', { credentials: 'include' })
-      // Attempt refresh when access token has expired
-      if (response.status === 401) {
-        const refreshResponse = await fetch('/auth/refresh', {
-          method: 'POST',
-          credentials: 'include',
-        })
-        if (refreshResponse.ok) {
-          response = await fetch('/auth/session', { credentials: 'include' })
-        } else {
-          clearCache()
-          return { authenticated: false }
-        }
-      }
-      if (!response.ok) {
-        clearCache()
-        return { authenticated: false }
-      }
-
-      const data = await response.json()
-      if (data?.authenticated) {
-        writeCache(data)
-      } else {
-        clearCache()
-      }
-      return data
-    } catch {
-      clearCache()
-      return { authenticated: false }
-    }
-  }
+  import { getSession } from '../../utils/auth/session-client'
 
   // Periodically refresh Dashboard button state without re-attaching listeners
   const refreshDashboardState = async (btn) => {
@@ -235,8 +164,8 @@ const { entry, locale } = Astro.props
     }
 
     .right-actions :global(.sk-secondary:hover) {
-      background-color: var(--sl-color-gray-6);
-      border-color: var(--sl-color-gray-4);
+      background-color: var(--sk-hover-surface);
+      border-color: var(--sk-hover-border);
     }
 
     .right-actions :global(.sk-primary:focus-visible),

@@ -80,6 +80,13 @@
     --sk-focus-ring: 2px solid var(--sl-color-accent);
     --sk-focus-offset: 2px;
 
+    /* Shared hover — use these on new chrome, do not pick gray-5/6 ad hoc.
+       Do not mix --sl-color-black/--sl-color-white: in this theme black === white. */
+    --sk-hover-duration: 150ms;
+    --sk-hover-surface: var(--sl-color-gray-5);
+    --sk-hover-border: var(--sl-color-gray-4);
+    --sk-hover-primary: color-mix(in srgb, var(--sl-color-accent) 82%, var(--sl-color-text-invert));
+
     /* Semantic status (replaces hard-coded Tailwind emerald / grays) */
     --sk-color-success: var(--sl-color-green-high, #34d399);
     --sk-color-muted-text: var(--sl-color-gray-3);
@@ -172,12 +179,7 @@
   }
 
   .sk-primary:hover {
-    background: var(--sl-color-gray-5);
-    box-shadow: var(--sk-shadow-button);
-  }
-
-  :root[data-theme='dark'] .sk-primary:hover {
-    background: var(--sl-color-gray-5);
+    background: var(--sk-hover-primary);
     box-shadow: var(--sk-shadow-button);
   }
 
@@ -213,7 +215,8 @@
   }
 
   .sk-secondary:hover {
-    background-color: var(--sl-color-gray-6);
+    background-color: var(--sk-hover-surface);
+    border-color: var(--sk-hover-border);
   }
 
   /* Quiz component button styling */
@@ -710,6 +713,18 @@ body {
   border-color: var(--sl-color-gray-5);
   color: var(--sl-color-text);
   background-color: transparent;
+}
+
+.header .sl-link-button.sk-secondary:hover,
+.header .sl-link-button.secondary:hover {
+  background-color: var(--sk-hover-surface);
+  border-color: var(--sk-hover-border);
+}
+
+.header .sl-link-button.primary.sk-primary:hover {
+  background: var(--sk-hover-primary);
+  background-color: var(--sk-hover-primary);
+  color: var(--sl-color-text-invert);
 }
 
 /*

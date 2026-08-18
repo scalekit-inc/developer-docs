@@ -89,6 +89,10 @@ export const getSession = async (): Promise<AuthSession> => {
   }
 }
 
+export const getCachedSession = (): AuthSession | null => {
+  return readCache()
+}
+
 export const clearSessionCache = () => {
   clearCache()
 }
