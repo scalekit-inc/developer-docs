@@ -9,11 +9,12 @@
  * We always clone the controls on boot so those listeners cannot stack and
  * reverse our expand-all result (see toggle handler below).
  */
-function getPageMethods(page) {
+
+export function getPageMethods(page) {
   return Array.from(page.querySelectorAll('.sdk-method-section .cb-method, .cb-method'))
 }
 
-function getChromeBrowser(page) {
+export function getChromeBrowser(page) {
   return (
     page.querySelector('.sdk-client-chrome .cb-browser') ||
     page.querySelector('.sdk-method-section .cb-browser') ||
@@ -37,7 +38,7 @@ function syncToggleUi(btn, methods) {
   btn.setAttribute('aria-label', fullyOpen ? 'Collapse all methods' : 'Expand all methods')
 }
 
-function bindToggleAll(page, chrome) {
+export function bindToggleAll(page, chrome) {
   const toggle = chrome.querySelector('.cb-toggle-all')
   if (!toggle) return
 
@@ -70,9 +71,11 @@ function bindToggleAll(page, chrome) {
     },
     true,
   )
+
+  return btn
 }
 
-function bindCopyJson(page, chrome) {
+export function bindCopyJson(page, chrome) {
   const copyBtn = chrome.querySelector('.cb-copy-json')
   if (!copyBtn) return
 
@@ -108,10 +111,12 @@ function bindCopyJson(page, chrome) {
     },
     true,
   )
+
+  return btn
 }
 
-function initSdkClientPageChrome() {
-  document.querySelectorAll('.sdk-client-page').forEach((page) => {
+export function initSdkClientPageChrome(root = document) {
+  root.querySelectorAll('.sdk-client-page').forEach((page) => {
     const chrome = getChromeBrowser(page)
     if (!chrome) return
 
@@ -119,7 +124,7 @@ function initSdkClientPageChrome() {
     bindToggleAll(page, chrome)
     bindCopyJson(page, chrome)
 
-    document.querySelectorAll('starlight-toc a, .right-sidebar-panel nav a').forEach((a) => {
+    root.querySelectorAll('starlight-toc a, .right-sidebar-panel nav a').forEach((a) => {
       if (!a.title) {
         const t = a.textContent?.trim()
         if (t) a.title = t
@@ -128,22 +133,24 @@ function initSdkClientPageChrome() {
   })
 }
 
-function boot() {
-  document.querySelector('.sdk-method-title-picker')?.remove()
-  if (document.body.dataset.methodTitle) delete document.body.dataset.methodTitle
-  initSdkClientPageChrome()
+export function boot(root = document) {
+  root.querySelector('.sdk-method-title-picker')?.remove()
+  if (root.body?.dataset?.methodTitle) delete root.body.dataset.methodTitle
+  initSdkClientPageChrome(root)
 }
 
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', boot)
-} else {
-  boot()
+if (typeof document !== 'undefined') {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => boot())
+  } else {
+    boot()
+  }
+
+  document.addEventListener('astro:after-swap', () => boot())
+  document.addEventListener('astro:page-load', () => boot())
+
+  // ClassBrowser attaches its own handlers on load; rebind after it runs.
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => boot())
+  })
 }
-
-document.addEventListener('astro:after-swap', boot)
-document.addEventListener('astro:page-load', boot)
-
-// ClassBrowser attaches its own handlers on load; rebind after it runs.
-requestAnimationFrame(() => {
-  requestAnimationFrame(boot)
-})
