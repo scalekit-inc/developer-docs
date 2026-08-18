@@ -1,9 +1,11 @@
-import { getDocSourceEntries, resolveImportSource } from './source-loader'
+import { normalizeLines } from './markdown'
+import {
+  getDocSourceEntries,
+  getSourceProvider,
+  resolveImportSource,
+  type SourceProvider,
+} from './source-loader'
 import type { ComponentUsage, ImportBinding, ParsedMdxFile } from './types'
-
-function normalizeLines(value: string): string {
-  return value.replace(/\r\n/g, '\n')
-}
 
 export function splitFrontmatter(raw: string): { frontmatter: string; body: string } {
   const match = normalizeLines(raw).match(/^---\n([\s\S]*?)\n---\n?([\s\S]*)$/)
@@ -241,17 +243,31 @@ export function parseMdxSource(filePath: string, source: string): ParsedMdxFile 
   }
 }
 
-const parsedDocs = new Map<string, ParsedMdxFile>(
-  getDocSourceEntries().map(([filePath, source]) => {
-    const parsed = parseMdxSource(filePath, source)
-    return [parsed.route, parsed]
-  }),
-)
+let parsedDocsCache: {
+  provider: SourceProvider
+  docs: Map<string, ParsedMdxFile>
+} | null = null
+
+function getParsedDocsMap(): Map<string, ParsedMdxFile> {
+  const provider = getSourceProvider()
+  if (parsedDocsCache?.provider === provider) {
+    return parsedDocsCache.docs
+  }
+
+  const docs = new Map<string, ParsedMdxFile>(
+    getDocSourceEntries().map(([filePath, source]) => {
+      const parsed = parseMdxSource(filePath, source)
+      return [parsed.route, parsed]
+    }),
+  )
+  parsedDocsCache = { provider, docs }
+  return docs
+}
 
 export function getParsedDoc(route: string): ParsedMdxFile | undefined {
-  return parsedDocs.get(route)
+  return getParsedDocsMap().get(route)
 }
 
 export function getParsedDocs(): ParsedMdxFile[] {
-  return Array.from(parsedDocs.values())
+  return Array.from(getParsedDocsMap().values())
 }
