@@ -80,11 +80,12 @@
     --sk-focus-ring: 2px solid var(--sl-color-accent);
     --sk-focus-offset: 2px;
 
-    /* Shared hover — use these on new chrome, do not pick gray-5/6 ad hoc */
+    /* Shared hover — use these on new chrome, do not pick gray-5/6 ad hoc.
+       Do not mix --sl-color-black/--sl-color-white: in this theme black === white. */
     --sk-hover-duration: 150ms;
     --sk-hover-surface: var(--sl-color-gray-5);
     --sk-hover-border: var(--sl-color-gray-4);
-    --sk-hover-primary: color-mix(in srgb, var(--sl-color-black) 88%, var(--sl-color-white));
+    --sk-hover-primary: color-mix(in srgb, var(--sl-color-accent) 82%, var(--sl-color-text-invert));
 
     /* Semantic status (replaces hard-coded Tailwind emerald / grays) */
     --sk-color-success: var(--sl-color-green-high, #34d399);
@@ -109,7 +110,6 @@
 
   :root[data-theme='dark'] {
     --sk-shadow-menu: var(--sk-shadow-menu-dark);
-    --sk-hover-primary: color-mix(in srgb, var(--sl-color-white) 88%, var(--sl-color-black));
     --sk-color-success: var(--sl-color-green-high, #6ee7b7);
     --sk-color-agent-soft: color-mix(in srgb, var(--sk-color-agent-deep) 55%, var(--sl-color-bg));
     --sk-color-agent-ink: var(--sl-color-green-high, #6ee7b7);
@@ -793,4 +793,11 @@ body {
   ::view-transition-new(*) {
     animation: none !important;
   }
+}
+
+/* Unlayered so Nova/Starlight button hover cannot wash primary to gray-5 */
+.sl-link-button.primary.sk-primary:hover,
+.sk-primary:hover {
+  background: var(--sk-hover-primary);
+  background-color: var(--sk-hover-primary);
 }
