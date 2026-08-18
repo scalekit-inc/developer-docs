@@ -7,7 +7,6 @@ import {
 } from '../configs/self-hosted'
 import { isHashOnly, normalizePath } from './path-matching'
 import type { NavItem } from '../configs/secondary-nav.config'
-import { IconLucideLayoutGrid } from './icon-map'
 
 /**
  * Self-hosted deployment docs are shared by both products. Header and secondary
@@ -184,36 +183,4 @@ export function getDisplayLabel(
     if (activeChild) return activeChild.label
   }
   return item.label
-}
-
-export function getDisplayIcon(
-  pathname: string,
-  item: NavItem,
-  entry?: SecondaryNavProps['entry'],
-  searchParams?: URLSearchParams,
-): any {
-  if (item.id === 'authenticate') {
-    if (item.children && item.children.length > 0) {
-      const activeChild = item.children.find((child) =>
-        isCurrentPage(pathname, child, entry, searchParams),
-      )
-      if (!activeChild) return IconLucideLayoutGrid
-      if (activeChild.iconComponent) return activeChild.iconComponent
-    }
-
-    return IconLucideLayoutGrid
-  }
-
-  if (item.children && item.children.length > 0) {
-    const activeChild = item.children.find((child) =>
-      isCurrentPage(pathname, child, entry, searchParams),
-    )
-    // For right column items (Full-stack Auth shortcuts), always use parent icon
-    if (activeChild && activeChild.columnGroup === 'right') {
-      return item.iconComponent
-    }
-    // For left column items (Modular Auth), use child icon
-    if (activeChild && activeChild.iconComponent) return activeChild.iconComponent
-  }
-  return item.iconComponent
 }

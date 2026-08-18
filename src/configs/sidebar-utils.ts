@@ -112,35 +112,6 @@ export function getSidebarIdForPath(
 }
 
 /**
- * Creates a horizontal divider in the sidebar
- * @returns A sidebar item configured as a visual separator
- * @example
- * ```ts
- * {
- *   label: 'User authentication',
- *   items: [...]
- * },
- * createDivider(),
- * {
- *   label: 'Authorization',
- *   items: [...]
- * }
- * ```
- */
-export function createDivider() {
-  return {
-    label: '',
-    link: '#',
-    attrs: {
-      'data-separator': 'divider',
-      class: 'sidebar-divider',
-      'aria-hidden': 'true',
-      tabindex: '-1',
-    },
-  }
-}
-
-/**
  * Creates an uppercase section header in the sidebar
  * @param label - The text to display (will be automatically uppercased in CSS)
  * @returns A sidebar item configured as a section header
