@@ -19,6 +19,14 @@ import dotenv from 'dotenv'
 import { unified } from 'unified'
 import remarkParse from 'remark-parse'
 import remarkStringify from 'remark-stringify'
+import {
+  toPascalCase,
+  setupExportName,
+  usageExportName,
+  getSetupComponent,
+  getUsageComponent,
+  sectionMatchesSlug,
+} from './lib/connector-identity.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -485,30 +493,9 @@ function buildSetupStemMap() {
   for (const file of files) {
     if (!file.startsWith('_setup-') || !file.endsWith('.mdx')) continue
     const stem = file.replace('_setup-', '').replace('.mdx', '')
-    map[stem] =
-      'Setup' +
-      stem
-        .split('-')
-        .filter((w) => w.length > 0)
-        .map((w) => w[0].toUpperCase() + w.slice(1))
-        .join('') +
-      'Section'
+    map[stem] = setupExportName(stem)
   }
   return map
-}
-
-function getSetupComponent(stemMap, providerSlug) {
-  if (!providerSlug) return null
-  return (
-    stemMap[providerSlug] ||
-    stemMap[providerSlug.replace(/_/g, '-')] ||
-    stemMap[providerSlug.replace(/_/g, '')] ||
-    Object.entries(stemMap).find(([stem]) => {
-      const normalized = stem.replace(/-/g, '')
-      return normalized === providerSlug || normalized.replace(/s$/, '') === providerSlug
-    })?.[1] ||
-    null
-  )
 }
 
 // Warns when a provider that has tools is missing a setup or usage template.
@@ -549,30 +536,9 @@ function buildUsageStemMap() {
   for (const file of files) {
     if (!file.startsWith('_usage-') || !file.endsWith('.mdx')) continue
     const stem = file.replace('_usage-', '').replace('.mdx', '')
-    map[stem] =
-      'Usage' +
-      stem
-        .split(/[-_]/)
-        .filter((w) => w.length > 0)
-        .map((w) => w[0].toUpperCase() + w.slice(1).toLowerCase())
-        .join('') +
-      'Section'
+    map[stem] = usageExportName(stem)
   }
   return map
-}
-
-function getUsageComponent(stemMap, providerSlug) {
-  if (!providerSlug) return null
-  return (
-    stemMap[providerSlug] ||
-    stemMap[providerSlug.replace(/_/g, '-')] ||
-    stemMap[providerSlug.replace(/_/g, '')] ||
-    Object.entries(stemMap).find(([stem]) => {
-      const normalized = stem.replace(/-/g, '')
-      return normalized === providerSlug || normalized.replace(/s$/, '') === providerSlug
-    })?.[1] ||
-    null
-  )
 }
 
 const USAGE_STEM_MAP = buildUsageStemMap()
@@ -638,14 +604,6 @@ const SECTION_HOOKS = [
   'after-tool-list',
 ]
 
-function toPascalCase(stem) {
-  return stem
-    .split(/[-_]/)
-    .filter((w) => w.length > 0)
-    .map((w) => w[0].toUpperCase() + w.slice(1))
-    .join('')
-}
-
 function readSectionTitle(filePath) {
   let raw
   try {
@@ -705,7 +663,7 @@ function getSectionEntries(sectionEntries, providerSlug, hook = null) {
 
   return sectionEntries.filter((entry) => {
     if (hook && entry.hook !== hook) return false
-    return entry.tail === providerSlug || entry.tail.startsWith(`${providerSlug}-`)
+    return sectionMatchesSlug(entry.tail, providerSlug)
   })
 }
 
