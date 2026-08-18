@@ -766,6 +766,8 @@ function groupNavItems(items: NavItem[]): NavItem[][] {
 </style>
 
 <script>
+  import { matchCurrentByHrefPrefix } from '../utils/chrome-selection.js'
+
   function getTriggerForDropdown(dropdown) {
     const navKey = dropdown.getAttribute('data-nav-key')
     if (!navKey) return null
@@ -826,38 +828,27 @@ function groupNavItems(items: NavItem[]): NavItem[][] {
       el.classList.remove('current')
     })
 
-    // Find the dropdown item that matches the current path
-    let matchingItem: Element | null = null
+    // Href-prefix rematch — not getActiveSecondaryNavId (SSR sidebar table).
+    const prefixMatch = matchCurrentByHrefPrefix(
+      currentPath,
+      [...document.querySelectorAll('.dropdown-item')].map((item) => ({
+        href: item.getAttribute('href'),
+        item,
+      })),
+    )
+    const matchingItem: Element | null = prefixMatch?.item ?? null
     let matchingLabel: string | null = null
     let matchingIcon: Node | null = null
 
-    document.querySelectorAll('.dropdown-item').forEach((item) => {
-      const href = item.getAttribute('href')
-      if (!href) return
-
-      // Normalize paths for comparison
-      const normalizedPath = currentPath.replace(/\/+$/, '')
-      const normalizedHref = href.replace(/\/+$/, '').split('#')[0] // Remove hash for path matching
-
-      // Check if current path starts with the item's href
-      if (normalizedPath.startsWith(normalizedHref) && normalizedHref !== '') {
-        // Only update if this is a better match (longer path = more specific)
-        if (
-          !matchingItem ||
-          normalizedHref.length > (matchingItem.getAttribute('href')?.split('#')[0].length || 0)
-        ) {
-          matchingItem = item
-          // Get label from the dropdown-item-label span, or fallback to any span
-          const labelSpan = item.querySelector('.dropdown-item-label') || item.querySelector('span')
-          matchingLabel = labelSpan?.textContent || null
-          // Get the icon from the dropdown item icon wrapper
-          const iconEl = item.querySelector('.dropdown-item-icon')
-          if (iconEl) {
-            matchingIcon = iconEl.cloneNode(true)
-          }
-        }
+    if (matchingItem) {
+      const labelSpan =
+        matchingItem.querySelector('.dropdown-item-label') || matchingItem.querySelector('span')
+      matchingLabel = labelSpan?.textContent || null
+      const iconEl = matchingItem.querySelector('.dropdown-item-icon')
+      if (iconEl) {
+        matchingIcon = iconEl.cloneNode(true)
       }
-    })
+    }
 
     // If we found a matching item, update the parent nav item
     if (matchingItem && matchingLabel) {

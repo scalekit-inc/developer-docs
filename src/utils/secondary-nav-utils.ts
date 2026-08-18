@@ -1,186 +1,71 @@
-import { sidebar, sidebarToSecondaryNav, type SecondaryNavMapping } from '../configs/sidebar.config'
-import { buildPathToSidebarMap, getSidebarIdForPath } from '../configs/sidebar-utils'
-import {
-  SELF_HOSTED_COLD_DEFAULT_PRODUCT,
-  isDocsProduct,
-  type DocsProduct,
-} from '../configs/self-hosted'
-import { isHashOnly, normalizePath } from './path-matching'
+/**
+ * SSR binder for chrome selection.
+ * Algorithms live in chrome-selection.js. This file attaches the live
+ * sidebar table so getActiveSecondaryNavId / isCurrentPage keep today's
+ * SSR behavior. Do not call these from the client rematch path.
+ */
+import { sidebar, sidebarToSecondaryNav } from '../configs/sidebar.config'
 import type { NavItem } from '../configs/secondary-nav.config'
+import {
+  buildPathToSidebarMap,
+  getActiveSecondaryNavId as resolveActiveSecondaryNavId,
+  isCurrentPage as resolveIsCurrentPage,
+  getDisplayLabel as resolveDisplayLabel,
+} from './chrome-selection.js'
 
-/**
- * Self-hosted deployment docs are shared by both products. Header and secondary
- * nav keep the visitor's product (AgentKit or Auth for SaaS) — never a third
- * "Self Hosted" product option.
- */
-export function isSelfHostedPath(pathname: string): boolean {
-  return pathname.startsWith('/self-hosted/')
-}
+export {
+  getActiveProduct,
+  isSelfHostedPath,
+  resolveNavMapping,
+  matchCurrentByHrefPrefix,
+  type SecondaryNavProps,
+} from './chrome-selection.js'
 
-/**
- * Determines which product is active based on the current page context.
- * Frontmatter topic and path take precedence; shared self-hosted routes use
- * ?product= then a cold default (sessionStorage is applied client-side only).
- */
-export function getActiveProduct(
-  pathname: string,
-  topic?: string,
-  searchParams?: URLSearchParams,
-): DocsProduct {
-  const productParam = searchParams?.get('product')
-  if (isDocsProduct(productParam)) return productParam
-
-  if (topic === 'connect') return 'agentkit'
-  if (pathname.startsWith('/agentkit/')) return 'agentkit'
-
-  // Shared self-hosted docs: server-side cold default is AgentKit. Client restores
-  // SaaS from sessionStorage when the visitor arrived from Auth for SaaS.
-  if (isSelfHostedPath(pathname)) return SELF_HOSTED_COLD_DEFAULT_PRODUCT
-
-  return 'saaskit'
-}
-
-// Props interface - entry is passed from Header.astro
-export interface SecondaryNavProps {
-  entry?: {
-    data: {
-      topic?: string
-    }
-  }
-}
-
-// Build the path-to-sidebar map once at render time
+// Bind the live sidebar table once for SSR. Client rematch does not use this map.
 const pathToSidebarMap = buildPathToSidebarMap(sidebar)
 
-/**
- * Resolves a SecondaryNavMapping to an actual nav item ID
- * Handles both simple string mappings and complex path-override mappings
- */
-export function resolveNavMapping(mapping: SecondaryNavMapping, pathname: string): string | null {
-  if (typeof mapping === 'string') {
-    return mapping
-  }
-
-  // Check path overrides for more specific matches
-  if (mapping.pathOverrides) {
-    const normalizedPath = normalizePath(pathname)
-    for (const [prefix, navId] of Object.entries(mapping.pathOverrides)) {
-      const normalizedPrefix = normalizePath(prefix)
-      if (
-        normalizedPath.startsWith(normalizedPrefix + '/') ||
-        normalizedPath === normalizedPrefix
-      ) {
-        return navId
-      }
-    }
-  }
-
-  return mapping.default || null
-}
-
-/**
- * Determines which secondary nav item should be active for the current pathname
- * Uses a sidebar-based approach:
- * 1. First, check explicit topic from page frontmatter
- * 2. Then, look up which sidebar the page belongs to from the sidebar config
- * 3. Map the sidebar ID to a SecondaryNav item using sidebarToSecondaryNav
- */
 export function getActiveSecondaryNavId(
   pathname: string,
-  entry?: SecondaryNavProps['entry'],
+  entry?: { data?: { topic?: string } },
   searchParams?: URLSearchParams,
 ): string | null {
-  // Map old home routes for backwards compatibility
-  if (pathname === '/home/saaskit/' || pathname === '/home/saaskit') {
-    return 'saaskit-user-management'
-  }
-
-  // 1. First check explicit topic from page frontmatter
-  if (entry?.data?.topic) {
-    const mapping = sidebarToSecondaryNav[entry.data.topic]
-    if (mapping) {
-      return resolveNavMapping(mapping, pathname)
-    }
-  }
-
-  // 2. Fall back to path-based sidebar lookup
-  const sidebarId = getSidebarIdForPath(pathname, pathToSidebarMap)
-
-  if (sidebarId && sidebarToSecondaryNav[sidebarId]) {
-    return resolveNavMapping(sidebarToSecondaryNav[sidebarId], pathname)
-  }
-
-  // 3. Hard-coded fallbacks for pages without a sidebar (e.g. Scalar /apis, product hubs)
-  if (pathname.startsWith('/agentkit/apis')) return 'agentkit-api-reference'
-  if (pathname.startsWith('/saaskit/apis')) return 'saaskit-apis'
-  if (pathname.startsWith('/apis')) return 'saaskit-apis'
-  if (pathname.startsWith('/saaskit/sdks')) return 'saaskit-sdks'
-  if (pathname === '/sdks' || pathname.startsWith('/sdks/')) return 'saaskit-sdks'
-  if (pathname.startsWith('/agentkit/sdks')) return 'agentkit-sdks'
-
-  // Fallback for AgentKit pages not registered in the sidebar map
-  // Routes through the 'connect' mapping which has path overrides for all /agentkit/* paths.
-  if (pathname.startsWith('/agentkit/') && sidebarToSecondaryNav['connect']) {
-    return resolveNavMapping(sidebarToSecondaryNav['connect'], pathname)
-  }
-
-  return null
+  return resolveActiveSecondaryNavId(
+    pathname,
+    entry,
+    searchParams,
+    pathToSidebarMap,
+    sidebarToSecondaryNav,
+  )
 }
 
-/**
- * Determines if a nav item should be marked as current based on the pathname
- */
 export function isCurrentPage(
   pathname: string,
   item: NavItem,
-  entry?: SecondaryNavProps['entry'],
+  entry?: { data?: { topic?: string } },
   searchParams?: URLSearchParams,
 ): boolean {
-  const activeId = getActiveSecondaryNavId(pathname, entry, searchParams)
-
-  // For dropdown parent items, check if any child is current
-  if (item.children && item.children.length > 0) {
-    const childIsCurrent = item.children.some((child) => child.id === activeId)
-    if (childIsCurrent) return true
-  }
-
-  // Hash-only links (dropdown triggers) are never current on their own
-  if (isHashOnly(item.href)) {
-    return false
-  }
-
-  // Check if this item's ID matches the active nav ID
-  return activeId === item.id
+  return resolveIsCurrentPage(
+    pathname,
+    item,
+    entry,
+    searchParams,
+    pathToSidebarMap,
+    sidebarToSecondaryNav,
+  )
 }
 
 export function getDisplayLabel(
   pathname: string,
   item: NavItem,
-  entry?: SecondaryNavProps['entry'],
+  entry?: { data?: { topic?: string } },
   searchParams?: URLSearchParams,
 ): string {
-  if (item.id === 'authenticate') {
-    if (item.children && item.children.length > 0) {
-      const activeChild = item.children.find((child) =>
-        isCurrentPage(pathname, child, entry, searchParams),
-      )
-      if (!activeChild) return 'Choose product'
-      return activeChild.label
-    }
-
-    return 'Choose product'
-  }
-
-  if (item.children && item.children.length > 0) {
-    const activeChild = item.children.find((child) =>
-      isCurrentPage(pathname, child, entry, searchParams),
-    )
-    // For right column items (Full-stack Auth shortcuts), always use parent label
-    if (activeChild && activeChild.columnGroup === 'right') {
-      return item.label
-    }
-    // For left column items (Modular Auth), use child label
-    if (activeChild) return activeChild.label
-  }
-  return item.label
+  return resolveDisplayLabel(
+    pathname,
+    item,
+    entry,
+    searchParams,
+    pathToSidebarMap,
+    sidebarToSecondaryNav,
+  )
 }
