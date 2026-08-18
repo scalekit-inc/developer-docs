@@ -1,6 +1,7 @@
 ---
 import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro'
 import { ScalarComponent } from '@scalar/astro'
+import ScalarClientPicker from '../../components/ScalarClientPicker.astro'
 
 const template = 'splash' as const
 const frontmatter = {
@@ -44,89 +45,7 @@ const frontmatter = {
 ---
 
 <div class="scalar-api-reference">
-  <script is:inline>
-    ;(() => {
-      try {
-        const KEY = 'scalar-reference-selected-client-v2'
-        if (!window?.localStorage?.getItem(KEY)) {
-          window.localStorage.setItem(KEY, 'shell/curl')
-        }
-        window.localStorage.setItem('colorMode', 'light')
-      } catch {
-        // Ignore storage errors
-      }
-    })()
-  </script>
-  <script is:inline>
-    ;(() => {
-      const SELECTED_CLIENT_KEY = 'scalar-reference-selected-client-v2'
-
-      const sdkLabelToClientId = new Map([
-        ['Node.js SDK', 'custom/javascript'],
-        ['Python SDK', 'custom/python'],
-        ['Go SDK', 'custom/go'],
-        ['Java SDK', 'custom/java'],
-      ])
-
-      const normalizeText = (value) => (value ?? '').replace(/\s+/g, ' ').trim()
-
-      const isInsideApiClientDialog = (el) => Boolean(el?.closest?.('[role="dialog"]'))
-      const findClosestRequestCard = (el) => el?.closest?.('.request-card')
-      const findScalarInstanceRoot = (el) =>
-        el?.closest?.('[id^="scalar-client-"]') ?? document.getElementById('scalar-client-0')
-
-      const syncCustomClientSelection = (sourceEl) => {
-        if (!(sourceEl instanceof Element)) return
-        if (isInsideApiClientDialog(sourceEl)) return
-
-        const card = findClosestRequestCard(sourceEl)
-        if (!card) return
-
-        const pickerButton = card.querySelector('[data-testid="client-picker"]')
-        if (!(pickerButton instanceof HTMLElement)) return
-
-        const label = normalizeText(pickerButton.textContent)
-        const clientId = sdkLabelToClientId.get(label)
-        if (!clientId) return
-
-        try {
-          const current = window?.localStorage?.getItem(SELECTED_CLIENT_KEY)
-          if (current === clientId) return
-
-          window.localStorage.setItem(SELECTED_CLIENT_KEY, clientId)
-
-          const root = findScalarInstanceRoot(card)
-          root?.dispatchEvent(
-            new CustomEvent('scalar-update-selected-client', {
-              detail: clientId,
-              bubbles: true,
-              composed: true,
-              cancelable: false,
-            }),
-          )
-        } catch {
-          // Ignore storage/DOM errors
-        }
-      }
-
-      const observedButtons = new WeakSet()
-      const attachObservers = () => {
-        document.querySelectorAll('[data-testid="client-picker"]').forEach((btn) => {
-          if (!(btn instanceof HTMLElement)) return
-          if (observedButtons.has(btn)) return
-
-          observedButtons.add(btn)
-
-          const observer = new MutationObserver(() => syncCustomClientSelection(btn))
-          observer.observe(btn, { childList: true, subtree: true, characterData: true })
-        })
-      }
-
-      attachObservers()
-      const pageObserver = new MutationObserver(() => attachObservers())
-      pageObserver.observe(document.documentElement, { childList: true, subtree: true })
-    })()
-  </script>
+  <ScalarClientPicker />
   {
     /*
     renderMode="client" is required under Astro ClientRouter / Starlight soft
