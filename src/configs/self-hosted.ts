@@ -2,6 +2,10 @@
  * Self-hosted deployment is shared by AgentKit and Auth for SaaS.
  * Product chrome is resolved client-side via sessionStorage when the URL
  * does not encode a product (see HeaderProductToggle + SecondaryNav).
+ *
+ * Selection helpers (getActiveProduct, tab current) live in
+ * src/utils/chrome-selection.js. Do not change this storage key or
+ * the cold default to "unify" chrome.
  */
 export const PRODUCT_STORAGE_KEY = 'sk-active-product'
 
