@@ -2,10 +2,10 @@
 
 # ============================================================
 # Scalekit Developer Docs — CodeRabbit Configuration
-# Goal: Uphold documentation quality and ensure FSA (and all
-#       topic sections) reflect a coherent user journey as
-#       defined in src/configs/sidebar.config.ts. Cookbooks
-#       (src/content/docs/cookbooks) use blog-style rules below.
+# Goal: Flag factual bugs and contract errors. Do not nitpick
+#       style, invent proto/SDK fields, or review generated API
+#       bundles. Journey rules stay for FSA and how-tos.
+# Evidence: accept/reject pass on PRs 935–965 (2026-08-19).
 # ============================================================
 
 language: 'en-US'
@@ -16,21 +16,23 @@ tone_instructions: >-
   files. Prioritize correctness over style.
 
 reviews:
-  profile: 'assertive'
-  request_changes_workflow: true
+  profile: 'chill'
+  request_changes_workflow: false
 
   path_filters:
     - '!pnpm-lock.yaml'
     - '!package-lock.json'
     - '!dist/**'
     - '!.astro/**'
+    - '!public/api/**'
+    - '!src/lib/**/fixtures/**'
     - '!src/content/docs/reference/agent-connectors/**'
   high_level_summary: true
   high_level_summary_placeholder: '@coderabbitai summary'
   poem: false
   review_status: true
-  review_details: true
-  collapse_walkthrough: false
+  review_details: false
+  collapse_walkthrough: true
 
   auto_review:
     enabled: true
@@ -70,18 +72,19 @@ reviews:
         - `sidebar.label` MUST be present and ≤ 30 characters.
         - `sidebar.order` MUST be set on every page that lives inside a section
           with siblings, to enforce the journey order in sidebar.config.ts.
-        - Flag any missing `prev` / `next` links on pages that are clearly
-          part of a sequential flow (e.g., quickstart → implement-login →
-          complete-login → manage-session → logout).
+        - Flag missing `prev` / `next` only on sequential FSA journey pages
+          that already use those keys. Starlight sidebar prev/next is enough
+          on standalone how-tos (PR 946).
 
         ## Voice & Style (CLAUDE.md standards)
         - Voice: confident, direct, collaborative, instructional.
-        - Person: second person only ("you", "your application"). Reject "we",
-          "our", "the developer", "the user".
+        - Person: prefer second person ("you", "your application") on sentences
+          this PR added or rewrote. Do not restyle unchanged nearby prose.
+        - Do not block on leftover "we", "the user", or "my" in text this PR
+          did not change (PRs 935, 949).
         - Tense: present tense for descriptions; imperative mood for instructions.
-        - Flag weasel words: "simply", "just", "easy", "straightforward",
-          "obviously", "of course", "note that".
-        - Flag passive voice constructions where active voice is clearer.
+        - Flag weasel words only on new sentences: "simply", "just", "easy",
+          "straightforward", "obviously", "of course".
         - Headings must be sentence case, not Title Case (except proper nouns).
         - Headings that match a real API parameter, method, or field name
           (e.g., `contactID`, `xero_tenant_id`, `executeTool`) should preserve
@@ -96,21 +99,23 @@ reviews:
         - Concept pages MUST NOT contain numbered steps — concepts explain, not instruct.
         - API reference pages MUST list parameters in a table with Name / Type /
           Required / Description columns.
-        - Every page MUST end with a clear "what's next" signal — either a
-          `next:` frontmatter link, a `<LinkCard>`, or an explicit paragraph
-          pointing the reader forward in the sidebar journey.
+        - Do not require an extra "what's next" paragraph when Starlight already
+          renders prev/next (PR 946).
 
         ## Code examples
-        - ALL code examples that show SDK usage MUST include all four language
-          tabs: Node.js, Python, Go, Java — using `<Tabs syncKey="tech-stack">`.
+        - Require Node.js, Python, Go, and Java tabs ONLY when this page
+          documents a Scalekit client SDK method that exists in that language
+          on current origin/main. Do not invent Go/Java wrappers (PR 963).
+          Follow CLAUDE.md: about 90% of real SDK examples, not 100%.
         - SDK variable names are STRICTLY: `scalekit` (Node.js),
           `scalekit_client` (Python), `scalekitClient` (Go), `scalekitClient` (Java).
           Flag any deviation.
         - Code blocks MUST have a `title=` attribute showing the file path
           (e.g., `title="routes/auth.ts"`).
-        - Security-sensitive operations (tokens, cookies, secrets) MUST include
-          inline comments explaining the security implication or threat mitigated.
-        - Show both success path AND error path in every code example.
+        - Flag real-looking secrets. Placeholders such as `YOUR_CLIENT_SECRET`
+          are required.
+        - Require both success and error paths only when the page is about
+          errors or the success-only sample is not runnable (PR 939).
 
         ## Links & References
         - Internal links MUST use root-relative paths (e.g., `/authenticate/fsa/quickstart/`).
@@ -157,6 +162,7 @@ reviews:
           global MDX.
         - Prefer `sidebar.label` for navigation consistency; if absent, do not
           treat it as a hard failure (older cookbooks may omit it).
+        - Do not force cookbook labels to exactly 3 words (PR 946).
         - `date`, `tags`, `authors`, `excerpt`, and `featured` are normal for
           cookbooks — verify tags match the topic (e.g. MCP, SSO, FSA).
 
@@ -316,12 +322,63 @@ reviews:
     # ── JS/TS source files — relaxed commenting rules ───
     - path: '**/*.{ts,js,mjs}'
       instructions: |
+        Review only the diff this PR introduced.
+        Do not flag pre-existing types or patterns already on main (PR 961).
         Do NOT enforce code-commenting style rules on these files.
         Specifically, do not flag:
         - Comments that "duplicate" or restate what the code does.
         - Missing comments on bug fixes, workarounds, or issue references.
         - Missing inline documentation or explanatory comments.
         Code comments are at the author's discretion.
+        Do not suggest site-wide Node engine pins, extra test files, or
+        module-loader refactors on a hygiene extract (PRs 959, 961, 962).
+
+    # ── Tests — keep intent locks, do not ask for more ──
+    - path: '**/*.{test,spec}.{js,mjs,ts}'
+      instructions: |
+        This repo has few tests. Do not ask for more unit tests.
+        Do not suggest extra coverage, eventBus spies, or new test files
+        (PR 959). Do flag a broken assertion in a test this PR already
+        added (PR 961 offset guard). Do not treat fixtures as published
+        pages.
+
+    # ── OpenAPI source — proto owns field meaning ──
+    - path: 'openapi/**'
+      instructions: |
+        Working source is openapi/scalekit.yaml. Proto in scalekit-inc/scalekit
+        owns field meaning. Do not invent fields, enums, or typed shapes that
+        the proto annotation does not have (PRs 958, 963). Do not suggest
+        editing public/api/*.scalar.yaml or *.scalar.json. After a source
+        change, the author regenerates with `pnpm run bundle:apis`.
+        Quote-only style churn is not a finding.
+
+    # ── Runtime pins — leave site-wide ──
+    - path: '{netlify.toml,package.json,.nvmrc}'
+      instructions: |
+        Site runtime is Node 22 via .nvmrc and netlify.toml. Do not suggest
+        engines or Node >=22.18.0 pins because a test imports .ts (PR 961,
+        PR 953).
+
+    # ── Agent-markdown internals — not published pages ──
+    - path: 'src/lib/agent-markdown/**'
+      instructions: |
+        These are conversion internals and fixtures, not published docs.
+        Do not require sidebar.label, published <Steps> format, or
+        frontmatter on fixtures (PR 962). Flag only conversion bugs.
+
+    # ── ClassBrowser SDK pages ──
+    - path: 'src/content/docs/{agentkit,saaskit}/sdks/**/*.mdx'
+      instructions: |
+        These pages render in ClassBrowser. Do not require <Aside> around
+        notes (PR 963). Require four SDK language tabs only when the method
+        exists in that SDK. Do not invent Go or Java Tools wrappers.
+
+    # ── How-to shelves ──
+    - path: 'src/content/docs/**/how-to/**/*.mdx'
+      instructions: |
+        Numbered Verify lists are valid. Do not demand <CheckItem> (PR 946).
+        Do not demand an extra next-step paragraph when Starlight already
+        renders prev/next. Do flag leaked secrets and wrong copy.
 
     # ── Astro config ─────────────────────────────────────
     - path: 'astro.config.mjs'
@@ -353,6 +410,8 @@ reviews:
         - Do NOT suggest extracting constants, refactoring data structures,
           or renaming fields — these match the upstream API schemas.
         - Do NOT suggest adding parameters that don't exist in the upstream API.
+        - Do NOT flag upstream tool-name mismatches that a docs sync cannot
+          rename (PR 951). Fix those in the product catalog, then re-sync.
         - DO flag: incorrect types, missing required fields per the
           AgentConnectorTool schema, and description text that contradicts
           what the tool actually does.
@@ -372,6 +431,8 @@ reviews:
   finishing_touches:
     docstrings:
       enabled: false # This is a docs repo, not a code library
+    unit_tests:
+      enabled: false # Extra tests are usually declined (PRs 959, 961)
     custom:
       - name: 'fix frontmatter'
         enabled: true
@@ -399,3 +460,22 @@ knowledge_base:
       - 'CLAUDE.md'
       - 'CONTRIBUTING.md'
       - 'AGENTS.md'
+  linked_repositories:
+    - repository: 'scalekit-inc/scalekit'
+      instructions: >
+        Proto is the contract. Do not invent OpenAPI fields, enums, or
+        typed Struct shapes that the proto annotation does not have.
+    - repository: 'scalekit-inc/scalekit-sdk-node'
+      instructions: >
+        Public Tools wrappers live here. Do not invent methods this
+        package does not export.
+    - repository: 'scalekit-inc/scalekit-sdk-python'
+      instructions: >
+        Public Tools wrappers live here. list_available_tools is not
+        in this SDK unless the checkout shows it.
+    - repository: 'scalekit-inc/scalekit-sdk-go'
+      instructions: >
+        No public Tools wrapper on current main. Do not invent one.
+    - repository: 'scalekit-inc/scalekit-sdk-java'
+      instructions: >
+        No public Tools wrapper on current main. Do not invent one.
