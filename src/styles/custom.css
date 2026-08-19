@@ -767,6 +767,17 @@ body {
   box-sizing: border-box;
 }
 
+/* Scalar API client is position:fixed inside .scalar-api-reference
+   (sticky + overflow, starts below the site header). That containing
+   block clips the client under the nav. Expand the box when Scalar
+   adds .scalar-client--open. Unlayered so this beats the unlayered
+   page <style> on /apis, /agentkit/apis, and /saaskit/apis. */
+.scalar-api-reference:has(.scalar-client--open) {
+  top: 0;
+  height: 100vh;
+  z-index: calc(var(--sl-z-index-skiplink) + 10);
+}
+
 /* =============================================================================
    VIEW TRANSITIONS — simple full-page fade only
    -----------------------------------------------------------------------------
