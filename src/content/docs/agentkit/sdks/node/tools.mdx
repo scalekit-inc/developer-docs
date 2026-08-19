@@ -19,7 +19,13 @@ import '@/styles/sdk-reference.css'
 
 `scalekit.tools` returns raw tool schemas so you can build custom agent adapters instead of using `scalekit.actions.executeTool` directly.
 
-Use this client when you need tool definitions (name, parameters, connector) for frameworks or your own executor. For connect + execute flows, prefer [Connected accounts](/agentkit/sdks/node/actions/). See [Error handling](/agentkit/sdks/node/errors/) for exceptions.
+Use this client when you need tool definitions (name, parameters, connector) for frameworks or your own executor. For connect + execute flows, prefer [Connected accounts](/agentkit/sdks/node/actions/). These methods throw on 4xx/5xx. See [Error handling](/agentkit/sdks/node/errors/).
+
+Pick a list method:
+
+- `listTools` — workspace catalog
+- `listScopedTools` — tools already bound to one identifier (the list you pass to an LLM)
+- `listAvailableTools` — tools you can make available for that identifier
 
 ### listTools
 <div class="sdk-method-section">
@@ -27,7 +33,7 @@ Use this client when you need tool definitions (name, parameters, connector) for
     <CB.ClassMethod name="listTools" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Lists tools available in your workspace with optional filtering and pagination.
+      Lists the workspace catalog. Use this when you need every tool in the environment, not tools bound to one user.
 
       <CB.ClassMethodInput name="options" type="object" hint="filter, pageSize, pageToken">
         Optional fields: `filter`, `pageSize`, `pageToken`.
@@ -40,9 +46,8 @@ Use this client when you need tool definitions (name, parameters, connector) for
 ```typescript wrap showLineNumbers=false
 const res = await scalekit.tools.listTools({
   pageSize: 50,
-  filter: { query: 'calendar' },
+  filter: { query: 'send message' },
 });
-// res.tools, res.nextPageToken
 ```
 
     </CB.ClassMethod>
@@ -55,13 +60,13 @@ const res = await scalekit.tools.listTools({
     <CB.ClassMethod name="listScopedTools" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Lists tools that are scoped to a specific connected account identifier.
+      Lists tools already bound to one identifier. Use this when you need the list a user is authorized to call.
 
       <CB.ClassMethodInput name="identifier" type="string">
         Connected account identifier to scope the tools list.
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="options" type="object" hint="filter, pageSize, pageToken">
-        Optional fields: `filter`, `pageSize`, `pageToken`.
+        Required: `filter`. Optional: `pageSize`, `pageToken`. `connectionNames` is the Connection name from the dashboard, not a provider slug.
       </CB.ClassMethodInput>
       <CB.ClassMethodOutput type="ListScopedToolsResponse">
         Paginated results.
@@ -69,10 +74,9 @@ const res = await scalekit.tools.listTools({
 
 
 ```typescript wrap showLineNumbers=false
-// options.filter is required
 const res = await scalekit.tools.listScopedTools('user@example.com', {
   filter: {
-    // providers, toolNames, connectionNames as needed
+    connectionNames: ['github-connect'],
   },
   pageSize: 50,
 });
@@ -88,10 +92,10 @@ const res = await scalekit.tools.listScopedTools('user@example.com', {
     <CB.ClassMethod name="listAvailableTools" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Lists tools that are available for a specific connected account identifier.
+      Lists tools that can be made available for one identifier. Use this instead of `listScopedTools` when you need the candidate set, not the tools already bound.
 
       <CB.ClassMethodInput name="identifier" type="string">
-        Connected account identifier to scope the available tools.
+        Connected account identifier to list available tools for.
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="options" type="object" hint="pageSize, pageToken">
         Optional fields: `pageSize`, `pageToken`.
@@ -130,9 +134,9 @@ const res = await scalekit.tools.listAvailableTools('user@example.com', {
 ```typescript wrap showLineNumbers=false
 // Low-level tools client (params, not toolInput)
 await scalekit.tools.executeTool({
-  toolName: 'slack.chat.postMessage',
-  identifier: 'T0123456',
-  params: { channel: 'C0123', text: 'hi' },
+  toolName: 'gmail_fetch_mails',
+  identifier: 'user@example.com',
+  params: { query: 'is:unread', max_results: 5 },
 });
 ```
 
@@ -140,5 +144,6 @@ await scalekit.tools.executeTool({
   </CB.ClassBrowser>
 </div>
 
+Note: Need a tool Scalekit doesn't provide? See [Build custom tools](/agentkit/tools/custom-tools/) to proxy any provider API through a connected account.
 
 </div>

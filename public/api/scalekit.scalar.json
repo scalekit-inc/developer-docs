@@ -6267,6 +6267,385 @@
         ]
       }
     },
+    "/api/v1/tools": {
+      "get": {
+        "description": "Workspace catalog. Fetch tools by provider, identifier, and connector. Use this when you need every tool in the environment, not tools bound to one user. If `filter.summary` is true, returns only tool names.",
+        "tags": [
+          "Tool Calling"
+        ],
+        "summary": "List tools",
+        "operationId": "ToolService_ListTools",
+        "parameters": [
+          {
+            "schema": {
+              "type": "boolean"
+            },
+            "description": "Return only tool names instead of full tool details",
+            "name": "filter.summary",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filter by tool provider",
+            "name": "filter.provider",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filter by connected account identifier",
+            "name": "filter.identifier",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "style": "form",
+            "explode": true,
+            "description": "Filter by one or more tool names",
+            "name": "filter.tool_name",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "description": "Full-text search query to match tools by name or description (e.g., \"gmail get attachment\")",
+            "name": "filter.query",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "description": "Connector name (e.g., 'My Gmail'). When set together with filter.identifier, resolves to a specific connected account and includes its custom MCP tools in the response.",
+            "name": "filter.connector",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "description": "Organization ID to scope the connected account lookup",
+            "name": "filter.organization_id",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "description": "User ID to scope the connected account lookup",
+            "name": "filter.user_id",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "description": "Connected account ID. Alternative to filter.identifier + filter.connector for directly identifying the connected account whose custom MCP tools should be included.",
+            "name": "filter.connected_account_id",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "description": "Maximum number of tools to return per page",
+            "name": "page_size",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "description": "Token from a previous response for pagination",
+            "name": "page_token",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Paginated list of tools matching the filter",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/toolsListToolsResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request - malformed filter or pagination parameters",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required - missing or invalid access token",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        },
+        "x-codeSamples": [
+          {
+            "label": "Node.js SDK",
+            "lang": "javascript",
+            "source": "const res = await scalekit.tools.listTools({\n  pageSize: 50,\n  filter: { query: 'send message' },\n})"
+          },
+          {
+            "label": "Python SDK",
+            "lang": "python",
+            "source": "from scalekit.v1.tools.tools_pb2 import Filter\n\nresponse = scalekit_client.tools.list_tools(\n    filter=Filter(query=\"send message\"),\n    page_size=50,\n)"
+          },
+          {
+            "label": "Go SDK",
+            "lang": "go",
+            "source": "// List tools is not available in the Go SDK public API yet.\n// Use GET /api/v1/tools or the Node.js/Python SDKs."
+          },
+          {
+            "label": "Java SDK",
+            "lang": "java",
+            "source": "// List tools is not part of the Java SDK public API yet.\n// Use GET /api/v1/tools or the Node.js/Python SDKs."
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/scoped": {
+      "get": {
+        "description": "Tools already bound to one connected-account identifier. Use this when you need the list a user or agent is authorized to call (the list you pass to an LLM). Filter by provider, tool name, or connection name. `identifier` is required.",
+        "tags": [
+          "Tool Calling"
+        ],
+        "summary": "List scoped tools",
+        "operationId": "ToolService_ListScopedTools",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "description": "Identifier of the connected account to filter tools",
+            "name": "identifier",
+            "in": "query",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "style": "form",
+            "explode": true,
+            "description": "Filter by one or more tool providers",
+            "name": "filter.providers",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "style": "form",
+            "explode": true,
+            "description": "Filter by one or more tool names",
+            "name": "filter.tool_names",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "style": "form",
+            "explode": true,
+            "description": "Filter by one or more connection names",
+            "name": "filter.connection_names",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "description": "Maximum number of tools to return per page",
+            "name": "page_size",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "description": "Token from a previous response for pagination",
+            "name": "page_token",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Paginated list of tools scoped to the given connected account identifier",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/toolsListScopedToolsResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request - missing identifier or malformed filter/pagination parameters",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required - missing or invalid access token",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        },
+        "x-codeSamples": [
+          {
+            "label": "Node.js SDK",
+            "lang": "javascript",
+            "source": "const res = await scalekit.tools.listScopedTools('user@example.com', {\n  filter: {\n    connectionNames: ['github-connect'],\n  },\n  pageSize: 50,\n})"
+          },
+          {
+            "label": "Python SDK",
+            "lang": "python",
+            "source": "from scalekit.v1.tools.tools_pb2 import ScopedToolFilter\n\nresponse = scalekit_client.tools.list_scoped_tools(\n    \"user@example.com\",\n    filter=ScopedToolFilter(\n        connection_names=[\"github-connect\"],\n    ),\n    page_size=50,\n)"
+          },
+          {
+            "label": "Go SDK",
+            "lang": "go",
+            "source": "// List scoped tools is not available in the Go SDK public API yet.\n// Use GET /api/v1/tools/scoped or the Node.js/Python SDKs."
+          },
+          {
+            "label": "Java SDK",
+            "lang": "java",
+            "source": "// List scoped tools is not part of the Java SDK public API yet.\n// Use GET /api/v1/tools/scoped or the Node.js/Python SDKs."
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/available": {
+      "get": {
+        "description": "Tools that can be made available for a connected-account identifier. Use this when you need the candidate set for an identifier, not the tools already scoped to it. `identifier` is required. Distinct from GET /api/v1/tools/scoped.",
+        "tags": [
+          "Tool Calling"
+        ],
+        "summary": "List available tools",
+        "operationId": "ToolService_ListAvailableTools",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "description": "Identifier of the connected account to list available tools for",
+            "name": "identifier",
+            "in": "query",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "description": "Maximum number of tools to return per page",
+            "name": "page_size",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "description": "Token from a previous response for pagination",
+            "name": "page_token",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Paginated list of tools available for the identifier",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/toolsListAvailableToolsResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request - missing or malformed identifier",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required - missing or invalid access token",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "404": {
+            "description": "Identifier not found",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        },
+        "x-codeSamples": [
+          {
+            "label": "Node.js SDK",
+            "lang": "javascript",
+            "source": "const res = await scalekit.tools.listAvailableTools('user@example.com', {\n  pageSize: 50,\n})"
+          },
+          {
+            "label": "Python SDK",
+            "lang": "python",
+            "source": "# list_available_tools is not in the Python SDK.\n# Use GET /api/v1/tools/available?identifier=user@example.com&page_size=50"
+          },
+          {
+            "label": "Go SDK",
+            "lang": "go",
+            "source": "// List available tools is not available in the Go SDK public API yet.\n// Use GET /api/v1/tools/available or the Node.js SDK."
+          },
+          {
+            "label": "Java SDK",
+            "lang": "java",
+            "source": "// List available tools is not part of the Java SDK public API yet.\n// Use GET /api/v1/tools/available or the Node.js SDK."
+          }
+        ]
+      }
+    },
     "/api/v1/users": {
       "get": {
         "description": "Retrieves a paginated list of all users across your entire environment. Use this endpoint to view all users regardless of their organization memberships. This is useful for administrative purposes, user audits, or when you need to see all users in your Scalekit environment. Supports pagination for large user bases.",
@@ -14598,6 +14977,214 @@
             "type": "string",
             "examples": [
               "123456789"
+            ]
+          }
+        }
+      },
+      "toolsListAvailableToolsResponse": {
+        "type": "object",
+        "properties": {
+          "next_page_token": {
+            "description": "Token for fetching the next page of tools",
+            "type": "string",
+            "examples": [
+              "eyJwYWdlIjozLCJsaW1pdCI6MzB9"
+            ]
+          },
+          "prev_page_token": {
+            "description": "Token for fetching the previous page of tools",
+            "type": "string",
+            "examples": [
+              "eyJwYWdlIjoxLCJsaW1pdCI6MzB9"
+            ]
+          },
+          "tools": {
+            "description": "List of tools available for the identifier",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "$ref": "#/components/schemas/toolsTool"
+            }
+          },
+          "total_size": {
+            "description": "Total number of available tools matching the query",
+            "type": "integer",
+            "format": "int64",
+            "examples": [
+              104
+            ]
+          }
+        }
+      },
+      "toolsListScopedToolsResponse": {
+        "type": "object",
+        "properties": {
+          "next_page_token": {
+            "description": "Token for fetching the next page of tools",
+            "type": "string",
+            "examples": [
+              "eyJwYWdlIjozLCJsaW1pdCI6MzB9"
+            ]
+          },
+          "prev_page_token": {
+            "description": "Token for fetching the previous page of tools",
+            "type": "string",
+            "examples": [
+              "eyJwYWdlIjoxLCJsaW1pdCI6MzB9"
+            ]
+          },
+          "tools": {
+            "description": "List of tools scoped to the given connected account identifier",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "$ref": "#/components/schemas/toolsScopedTool"
+            }
+          },
+          "total_size": {
+            "description": "Total number of tools matching the query",
+            "type": "integer",
+            "format": "int64",
+            "examples": [
+              104
+            ]
+          }
+        }
+      },
+      "toolsListToolsResponse": {
+        "type": "object",
+        "properties": {
+          "next_page_token": {
+            "description": "Token for fetching the next page of tools",
+            "type": "string",
+            "examples": [
+              "eyJwYWdlIjozLCJsaW1pdCI6MzB9"
+            ]
+          },
+          "prev_page_token": {
+            "description": "Token for fetching the previous page of tools",
+            "type": "string",
+            "examples": [
+              "eyJwYWdlIjoxLCJsaW1pdCI6MzB9"
+            ]
+          },
+          "tool_names": {
+            "description": "List of tool names, returned when filter.summary is true",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "examples": [
+              [
+                "gmail_send_email"
+              ]
+            ]
+          },
+          "tools": {
+            "description": "List of tools, returned when filter.summary is false or omitted",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "$ref": "#/components/schemas/toolsTool"
+            }
+          },
+          "total_size": {
+            "description": "Total number of tools matching the query",
+            "type": "integer",
+            "format": "int64",
+            "examples": [
+              104
+            ]
+          }
+        }
+      },
+      "toolsScopedTool": {
+        "type": "object",
+        "properties": {
+          "connected_account_id": {
+            "description": "ID of the connected account for this scoped tool",
+            "type": "string",
+            "examples": [
+              "ca_123"
+            ]
+          },
+          "identifier": {
+            "description": "Connected account identifier this tool is scoped to",
+            "type": "string"
+          },
+          "tool": {
+            "description": "The underlying tool definition",
+            "$ref": "#/components/schemas/toolsTool"
+          }
+        }
+      },
+      "toolsTool": {
+        "type": "object",
+        "properties": {
+          "definition": {
+            "description": "Tool definition in structured format",
+            "type": "object",
+            "examples": [
+              {
+                "input": {
+                  "type": "object"
+                }
+              }
+            ]
+          },
+          "id": {
+            "description": "Unique ID of the tool. Immutable and read-only.",
+            "type": "string",
+            "readOnly": true,
+            "examples": [
+              "tol_123"
+            ]
+          },
+          "is_default": {
+            "description": "Marks this tool as the default version for the combination. Read-only.",
+            "type": "boolean",
+            "readOnly": true,
+            "examples": [
+              true
+            ]
+          },
+          "metadata": {
+            "description": "Additional metadata about the tool",
+            "type": "object",
+            "examples": [
+              {
+                "category": "email"
+              }
+            ]
+          },
+          "provider": {
+            "description": "Provider name (e.g. GOOGLE). Read-only.",
+            "type": "string",
+            "readOnly": true,
+            "examples": [
+              "GOOGLE"
+            ]
+          },
+          "tags": {
+            "description": "Tags for categorization or filtering",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "examples": [
+              [
+                "notification",
+                "email"
+              ]
+            ]
+          },
+          "updated_at": {
+            "description": "Timestamp when the tool was last updated. Read-only.",
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true,
+            "examples": [
+              "2023-10-01T12:00:00Z"
             ]
           }
         }
