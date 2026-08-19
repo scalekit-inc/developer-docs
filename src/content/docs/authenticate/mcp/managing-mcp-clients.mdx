@@ -161,3 +161,14 @@ To revoke access, use one of the supported paths instead:
 - **Revoke consent from the dashboard**: revoke the user's consent from the **Consents** tab, as described in [Revoke user access](/authenticate/mcp/managing-mcp-clients/#revoke-user-access).
 - **Disconnect in the client**: most MCP clients expose a **Disconnect** action that clears tokens stored on the client. This is local sign-out only; it does not revoke the grant on Scalekit.
 - **Revoke the session in your own system**: when you use [Bring your own auth](/authenticate/mcp/custom-auth/), revoke the user's session in your auth system. After your MCP server rejects that session, the next request returns `401 Unauthorized` and the client must authenticate again.
+
+### How revocation affects active access tokens
+
+Revoking consent or ending a session stops Scalekit from issuing **new** access tokens for that user, but it does not cancel an access token that was already issued. The existing token keeps working until it expires.
+
+This is expected behavior, not a vulnerability. Scalekit issues access tokens as self-contained JWTs. Your MCP server validates each token locally against Scalekit's public keys and does not call back to the authorization server on every request, so Scalekit cannot reach out and cancel a token that is already in circulation. Every OAuth server that issues self-contained JWTs behaves this way. The exposure is bounded by the time left on the token — its `exp` claim.
+
+To shrink or close that window, use either approach:
+
+- **Shorten the access token lifetime.** Lower the **Access token lifetime** for the MCP server in the dashboard (set it when you [add an MCP server](/authenticate/mcp/quickstart/); the recommended range is 300–3600 seconds). You can also set it per client. A shorter lifetime means a revoked token stops working sooner.
+- **Maintain a token denylist.** Validate the token with the Scalekit SDK as you do today, then check its `jti` claim against a denylist before serving the request, and reject the request when the `jti` is present. Store each revoked `jti` with a time-to-live equal to the token's remaining lifetime — for example, a Redis key that expires at the token's `exp`. This gives near-immediate revocation at the cost of one lookup per request.
