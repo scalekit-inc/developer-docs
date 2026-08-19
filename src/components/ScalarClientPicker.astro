@@ -1,0 +1,58 @@
+---
+/**
+ * Scalar request-example client picker for the three API reference pages.
+ * Keep this component immediately before <ScalarComponent>.
+ *
+ * Seed stays is:inline so it runs during HTML parse, before Scalar hydrates.
+ * First paint must not flash a different client. The module is the source of
+ * truth; keep this IIFE in sync with seedScalarClientPicker().
+ *
+ * Do not move this script into Head.astro. Do not restore themeSync.
+ * Storage key stays global across /apis, /agentkit/apis, and /saaskit/apis.
+ */
+---
+
+{
+  /* Persist the selected "Request Example" client globally across endpoints.
+  Scalar stores this preference under scalar-reference-selected-client-v2.
+  We only set an initial default for first-time visitors; afterwards Scalar keeps it updated. */
+}
+<script is:inline>
+  ;(() => {
+    try {
+      const KEY = 'scalar-reference-selected-client-v2'
+      if (!window?.localStorage?.getItem(KEY)) {
+        // Default to cURL on first visit (matches the previous `defaultHttpClient` behavior).
+        window.localStorage.setItem(KEY, 'shell/curl')
+      }
+      // Force Scalar into light mode regardless of system preference or stale localStorage.
+      window.localStorage.setItem('colorMode', 'light')
+    } catch {
+      // Ignore storage errors (private mode, blocked storage, etc.)
+    }
+  })()
+</script>
+{
+  /* Scalar only emits scalar-update-selected-client for non-custom http-clients.
+  When users pick an SDK example (which uses custom/{lang} ids), Scalar intentionally
+  does NOT emit that event, so other request examples do not update.
+  This bridge makes SDK selection global for inline request examples only. */
+}
+<script>
+  import { initScalarClientPicker, seedScalarClientPicker } from '../utils/scalarClientPicker.js'
+
+  let pageLoadBound = false
+
+  const boot = () => {
+    if (!document.querySelector('.scalar-api-reference')) return
+    seedScalarClientPicker()
+    initScalarClientPicker()
+  }
+
+  boot()
+
+  if (!pageLoadBound) {
+    pageLoadBound = true
+    document.addEventListener('astro:page-load', boot)
+  }
+</script>
