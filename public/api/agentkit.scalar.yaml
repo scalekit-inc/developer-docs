@@ -979,7 +979,7 @@ paths:
         required: true
   /api/v1/tools:
     get:
-      description: Fetch tools by provider, identifier, and connector. If `filter.summary` is true, returns only tool names.
+      description: Workspace catalog. Fetch tools by provider, identifier, and connector. Use this when you need every tool in the environment, not tools bound to one user. If `filter.summary` is true, returns only tool names.
       tags:
         - Tool Calling
       summary: List tools
@@ -1062,9 +1062,36 @@ paths:
           content:
             application/json:
               schema: {}
+      x-codeSamples:
+        - label: Node.js SDK
+          lang: javascript
+          source: |-
+            const res = await scalekit.tools.listTools({
+              pageSize: 50,
+              filter: { query: 'send message' },
+            })
+        - label: Python SDK
+          lang: python
+          source: |-
+            from scalekit.v1.tools.tools_pb2 import Filter
+
+            response = scalekit_client.tools.list_tools(
+                filter=Filter(query="send message"),
+                page_size=50,
+            )
+        - label: Go SDK
+          lang: go
+          source: |-
+            // List tools is not available in the Go SDK public API yet.
+            // Use GET /api/v1/tools or the Node.js/Python SDKs.
+        - label: Java SDK
+          lang: java
+          source: |-
+            // List tools is not part of the Java SDK public API yet.
+            // Use GET /api/v1/tools or the Node.js/Python SDKs.
   /api/v1/tools/scoped:
     get:
-      description: Lists tools scoped to a specific connected account identifier, optionally filtered by provider, tool name, or connection name. Use this endpoint to fetch the tools a specific user or agent is authorized to call.
+      description: Tools already bound to one connected-account identifier. Use this when you need the list a user or agent is authorized to call (the list you pass to an LLM). Filter by provider, tool name, or connection name. `identifier` is required.
       tags:
         - Tool Calling
       summary: List scoped tools
@@ -1131,6 +1158,107 @@ paths:
           content:
             application/json:
               schema: {}
+      x-codeSamples:
+        - label: Node.js SDK
+          lang: javascript
+          source: |-
+            const res = await scalekit.tools.listScopedTools('user@example.com', {
+              filter: {
+                connectionNames: ['github-connect'],
+              },
+              pageSize: 50,
+            })
+        - label: Python SDK
+          lang: python
+          source: |-
+            from scalekit.v1.tools.tools_pb2 import ScopedToolFilter
+
+            response = scalekit_client.tools.list_scoped_tools(
+                "user@example.com",
+                filter=ScopedToolFilter(
+                    connection_names=["github-connect"],
+                ),
+                page_size=50,
+            )
+        - label: Go SDK
+          lang: go
+          source: |-
+            // List scoped tools is not available in the Go SDK public API yet.
+            // Use GET /api/v1/tools/scoped or the Node.js/Python SDKs.
+        - label: Java SDK
+          lang: java
+          source: |-
+            // List scoped tools is not part of the Java SDK public API yet.
+            // Use GET /api/v1/tools/scoped or the Node.js/Python SDKs.
+  /api/v1/tools/available:
+    get:
+      description: Tools that can be made available for a connected-account identifier. Use this when you need the candidate set for an identifier, not the tools already scoped to it. `identifier` is required. Distinct from GET /api/v1/tools/scoped.
+      tags:
+        - Tool Calling
+      summary: List available tools
+      operationId: ToolService_ListAvailableTools
+      parameters:
+        - schema:
+            type: string
+          description: Identifier of the connected account to list available tools for
+          name: identifier
+          in: query
+          required: true
+        - schema:
+            type: integer
+            format: int64
+          description: Maximum number of tools to return per page
+          name: page_size
+          in: query
+        - schema:
+            type: string
+          description: Token from a previous response for pagination
+          name: page_token
+          in: query
+      responses:
+        '200':
+          description: Paginated list of tools available for the identifier
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/toolsListAvailableToolsResponse'
+        '400':
+          description: Invalid request - missing or malformed identifier
+          content:
+            application/json:
+              schema: {}
+        '401':
+          description: Authentication required - missing or invalid access token
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Identifier not found
+          content:
+            application/json:
+              schema: {}
+      x-codeSamples:
+        - label: Node.js SDK
+          lang: javascript
+          source: |-
+            const res = await scalekit.tools.listAvailableTools('user@example.com', {
+              pageSize: 50,
+            })
+        - label: Python SDK
+          lang: python
+          source: |-
+            # list_available_tools is not in the Python SDK.
+            # Use GET /api/v1/tools/available?identifier=user@example.com&page_size=50
+        - label: Go SDK
+          lang: go
+          source: |-
+            // List available tools is not available in the Go SDK public API yet.
+            // Use GET /api/v1/tools/available or the Node.js SDK.
+        - label: Java SDK
+          lang: java
+          source: |-
+            // List available tools is not part of the Java SDK public API yet.
+            // Use GET /api/v1/tools/available or the Node.js SDK.
 webhooks:
   connected_account.created:
     post:
@@ -1609,8 +1737,8 @@ components:
           examples:
             - authorization_details:
                 oauth_token:
-                  access_token: '...'
-                  refresh_token: '...'
+                  access_token: ...
+                  refresh_token: ...
                   scopes:
                     - read
                     - write
@@ -1844,7 +1972,7 @@ components:
           type: object
           examples:
             - api_key: sk_live_...
-              api_secret: '...'
+              api_secret: ...
     connected_accountsTrustedIDPAuth:
       description: |-
         Trusted IDP federated authentication — used for TRUSTED_IDP connections (e.g. AWS Redshift).
@@ -1886,8 +2014,8 @@ components:
           examples:
             - authorization_details:
                 oauth_token:
-                  access_token: '...'
-                  refresh_token: '...'
+                  access_token: ...
+                  refresh_token: ...
                   scopes:
                     - read
                     - write
@@ -2209,6 +2337,31 @@ components:
           type: string
           examples:
             - '123456789'
+    toolsListAvailableToolsResponse:
+      type: object
+      properties:
+        next_page_token:
+          description: Token for fetching the next page of tools
+          type: string
+          examples:
+            - eyJwYWdlIjozLCJsaW1pdCI6MzB9
+        prev_page_token:
+          description: Token for fetching the previous page of tools
+          type: string
+          examples:
+            - eyJwYWdlIjoxLCJsaW1pdCI6MzB9
+        tools:
+          description: List of tools available for the identifier
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/toolsTool'
+        total_size:
+          description: Total number of available tools matching the query
+          type: integer
+          format: int64
+          examples:
+            - 104
     toolsListScopedToolsResponse:
       type: object
       properties:
@@ -3064,7 +3217,7 @@ x-scalar-active-environment: staging
 x-scalekit-docs-operation-rank:
   default: 0
   path-segments:
-    - match: :external
+    - match: ':external'
       rank: 1
-    - match: :search
+    - match: ':search'
       rank: 2

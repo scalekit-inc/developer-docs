@@ -908,7 +908,7 @@ paths:
                 - FAILED
           style: form
           explode: true
-          description: 'Filter by authentication request status. Accepted values: INITIATED, PENDING, SUCCESS, FAILED. Matching is case-insensitive.'
+          description: "Filter by authentication request status. Accepted values: INITIATED, PENDING, SUCCESS, FAILED. Matching is case-insensitive."
           name: status
           in: query
         - schema:
@@ -934,24 +934,24 @@ paths:
           name: client_id
           in: query
       responses:
-        '200':
+        "200":
           description: Authentication requests page returned successfully; includes authRequests, pagination tokens, and total_size
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/auditlogsListAuthLogResponse'
-        '400':
+                $ref: "#/components/schemas/auditlogsListAuthLogResponse"
+        "400":
           description: Invalid request - page_token is malformed, or status filter value is not one of INITIATED, PENDING, SUCCESS, or FAILED
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/errdetailsErrorInfo'
-        '401':
+                $ref: "#/components/schemas/errdetailsErrorInfo"
+        "401":
           description: Missing or invalid Authorization header
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/errdetailsErrorInfo'
+                $ref: "#/components/schemas/errdetailsErrorInfo"
   /api/v1/mcp/configs:
     get:
       description: Lists MCP configurations for the current environment with optional filters for id, name prefix, and provider.
@@ -5170,7 +5170,7 @@ paths:
           source: RevokeSessionResponse res = scalekitClient.sessions().revokeSession("ses_123456789");
   /api/v1/tools:
     get:
-      description: Fetch tools by provider, identifier, and connector. If `filter.summary` is true, returns only tool names.
+      description: Workspace catalog. Fetch tools by provider, identifier, and connector. Use this when you need every tool in the environment, not tools bound to one user. If `filter.summary` is true, returns only tool names.
       tags:
         - Tool Calling
       summary: List tools
@@ -5255,7 +5255,7 @@ paths:
               schema: {}
   /api/v1/tools/scoped:
     get:
-      description: Lists tools scoped to a specific connected account identifier, optionally filtered by provider, tool name, or connection name. Use this endpoint to fetch the tools a specific user or agent is authorized to call.
+      description: Tools already bound to one connected-account identifier. Use this when you need the list a user or agent is authorized to call (the list you pass to an LLM). Filter by provider, tool name, or connection name. `identifier` is required.
       tags:
         - Tool Calling
       summary: List scoped tools
@@ -5319,6 +5319,53 @@ paths:
               schema: {}
         '401':
           description: Authentication required - missing or invalid access token
+          content:
+            application/json:
+              schema: {}
+  /api/v1/tools/available:
+    get:
+      description: Tools that can be made available for a connected-account identifier. Use this when you need the candidate set for an identifier, not the tools already scoped to it. `identifier` is required. Distinct from GET /api/v1/tools/scoped.
+      tags:
+        - Tool Calling
+      summary: List available tools
+      operationId: ToolService_ListAvailableTools
+      parameters:
+        - schema:
+            type: string
+          description: Identifier of the connected account to list available tools for
+          name: identifier
+          in: query
+          required: true
+        - schema:
+            type: integer
+            format: int64
+          description: Maximum number of tools to return per page
+          name: page_size
+          in: query
+        - schema:
+            type: string
+          description: Token from a previous response for pagination
+          name: page_token
+          in: query
+      responses:
+        '200':
+          description: Paginated list of tools available for the identifier
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/toolsListAvailableToolsResponse'
+        '400':
+          description: Invalid request - missing or malformed identifier
+          content:
+            application/json:
+              schema: {}
+        '401':
+          description: Authentication required - missing or invalid access token
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Identifier not found
           content:
             application/json:
               schema: {}
@@ -5963,17 +6010,17 @@ components:
           type: array
           items:
             type: object
-            $ref: '#/components/schemas/auditlogsAuthLogRequest'
+            $ref: "#/components/schemas/auditlogsAuthLogRequest"
         next_page_token:
           description: Opaque cursor for the next page. Empty when the current page is the last. Pass back as page_token to fetch the next page.
           type: string
           examples:
-            - '3'
+            - "3"
         prev_page_token:
           description: Opaque cursor for the previous page. Empty when the current page is the first. Pass back as page_token to fetch the previous page.
           type: string
           examples:
-            - '1'
+            - "1"
         total_size:
           description: Total number of authentication requests matching the filter across all pages.
           type: integer
@@ -6008,7 +6055,7 @@ components:
           type: array
           items:
             type: object
-            $ref: '#/components/schemas/auditlogsConnectionDetails'
+            $ref: "#/components/schemas/auditlogsConnectionDetails"
         connection_id:
           description: Primary connection ID used for this authentication request.
           type: string
@@ -6055,7 +6102,7 @@ components:
           examples:
             - mcp
         status:
-          description: 'Outcome of the authentication request: INITIATED, PENDING, SUCCESS, or FAILED.'
+          description: "Outcome of the authentication request: INITIATED, PENDING, SUCCESS, or FAILED."
           type: string
           enum:
             - INITIATED
@@ -10023,6 +10070,31 @@ components:
           type: string
           examples:
             - '123456789'
+    toolsListAvailableToolsResponse:
+      type: object
+      properties:
+        next_page_token:
+          description: Token for fetching the next page of tools
+          type: string
+          examples:
+            - eyJwYWdlIjozLCJsaW1pdCI6MzB9
+        prev_page_token:
+          description: Token for fetching the previous page of tools
+          type: string
+          examples:
+            - eyJwYWdlIjoxLCJsaW1pdCI6MzB9
+        tools:
+          description: List of tools available for the identifier
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/toolsTool'
+        total_size:
+          description: Total number of available tools matching the query
+          type: integer
+          format: int64
+          examples:
+            - 104
     toolsListScopedToolsResponse:
       type: object
       properties:

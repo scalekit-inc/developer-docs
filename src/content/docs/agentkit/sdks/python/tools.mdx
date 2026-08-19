@@ -29,7 +29,14 @@ import '@/styles/sdk-reference.css'
 
 `scalekit.tools` returns raw tool schemas for custom agent adapters.
 
-Use this when you need tool definitions for frameworks or your own executor. For connect + execute, use [Connected accounts](/agentkit/sdks/python/actions/). See [Error handling](/agentkit/sdks/python/errors/).
+Use this when you need tool definitions for frameworks or your own executor. For connect + execute, use [Connected accounts](/agentkit/sdks/python/actions/). These methods raise on 4xx/5xx. See [Error handling](/agentkit/sdks/python/errors/).
+
+Pick a list method:
+
+- `list_tools` — workspace catalog
+- `list_scoped_tools` — tools already bound to one identifier (the list you pass to an LLM)
+
+`list_available_tools` is not in the Python SDK. Use `GET /api/v1/tools/available` or the Node `listAvailableTools` method.
 
 ### tools.list_tools
 <div class="sdk-method-section">
@@ -37,7 +44,7 @@ Use this when you need tool definitions for frameworks or your own executor. For
     <CB.ClassMethod name="tools.list_tools" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Runs `tools.list_tools` and returns the result.
+      Lists the workspace catalog. Use this when you need every tool in the environment, not tools bound to one user.
 
       <CB.ClassMethodInput name="filter" type="Filter">
         Filter by provider, identifier, or tool name
@@ -72,13 +79,13 @@ response = scalekit_client.tools.list_tools(
     <CB.ClassMethod name="tools.list_scoped_tools" open={true}>
       <CB.ClassModifier type="async" slot="modifiers" />
 
-      Lists tools scoped to a specific user.
+      Lists tools already bound to one identifier. Use this when you need the list a user is authorized to call.
 
       <CB.ClassMethodInput name="identifier" type="str">
         User connected account identifier **Required.**
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="filter" type="ScopedToolFilter">
-        Filter by providers, tool names, or connection names
+        Optional. Filter by providers, tool names, or connection names. `connection_names` is the Connection name from the dashboard, not a provider slug.
       </CB.ClassMethodInput>
       <CB.ClassMethodInput name="page_size" type="int">
         Maximum tools per page.
@@ -97,9 +104,7 @@ from scalekit.v1.tools.tools_pb2 import ScopedToolFilter
 response = scalekit_client.tools.list_scoped_tools(
     "user@example.com",
     filter=ScopedToolFilter(
-        providers=["SLACK"],
-        tool_names=["slack_send_message"],
-        connection_names=["slack"],
+        connection_names=["github-connect"],
     ),
     page_size=50,
 )
