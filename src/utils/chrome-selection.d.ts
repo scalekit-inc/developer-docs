@@ -17,7 +17,7 @@ export function getActiveProduct(
 
 export interface SecondaryNavProps {
   entry?: {
-    data: {
+    data?: {
       topic?: string
     }
   }

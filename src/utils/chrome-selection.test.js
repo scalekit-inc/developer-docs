@@ -138,10 +138,12 @@ test('getActiveProduct: everything else is saaskit, including cookbooks', () => 
 
 test('live sidebar items still omit cookbooks and browse', () => {
   const src = readFileSync(join(here, '../configs/sidebar.config.ts'), 'utf8')
-  const sidebarBlock = src.slice(
-    src.indexOf('export const sidebar ='),
-    src.indexOf('export const exclude'),
-  )
+  const start = src.indexOf('export const sidebar =')
+  const end = src.indexOf('export const exclude')
+  assert.ok(start >= 0, 'sidebar.config.ts must declare "export const sidebar ="')
+  assert.ok(end > start, 'sidebar.config.ts must declare "export const exclude" after the sidebar')
+  const sidebarBlock = src.slice(start, end)
+  assert.ok(sidebarBlock.length > 0, 'sidebar block must not be empty')
 
   assert.equal(
     /['"]cookbooks(?:\/[^'"]*)?['"]/.test(sidebarBlock),
