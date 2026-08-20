@@ -41,8 +41,9 @@ export function isSelfHostedPath(pathname) {
 
 /**
  * Determines which product is active based on the current page context.
- * Frontmatter topic and path take precedence; shared routes use ?product=
- * then a cold default (sessionStorage is applied client-side only).
+ * A valid `?product=` query param wins over topic and path. Shared routes
+ * without that param use topic, then path, then a cold default
+ * (sessionStorage is applied client-side only).
  */
 export function getActiveProduct(pathname, topic, searchParams) {
   const productParam = searchParams?.get('product')
