@@ -841,15 +841,20 @@
 }
 
 /*
- * Param / return rows: keep name + type + description on one line when
- * there is space. MDX wraps slot text in <p>, which is block-level.
+ * Param / return rows: signature on line 1, description + hint stacked
+ * under the name. One-line flex wrap left a hanging indent and a
+ * right-aligned hint, so long constructor options zigzag.
  */
+.sdk-client-page .cb-param,
+.sdk-client-page .cb-returns {
+  --cb-param-gutter: 4rem;
+}
 .sdk-client-page .cb-param-row,
 .sdk-client-page .cb-returns-row {
   display: flex;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
   align-items: baseline;
-  gap: 0.35rem 0.5rem;
+  gap: 0.2rem 0.5rem;
   min-width: 0;
 }
 .sdk-client-page .cb-param-label,
@@ -861,8 +866,9 @@
 }
 .sdk-client-page .cb-param-desc,
 .sdk-client-page .cb-returns-desc {
-  flex: 1 1 auto;
+  flex: 1 1 100%;
   min-width: 0;
+  padding-inline-start: var(--cb-param-gutter);
   line-height: 1.45;
   overflow-wrap: anywhere;
 }
@@ -871,17 +877,13 @@
   display: inline;
   margin: 0;
 }
-
-/* Stack on narrow method cards */
-@media (max-width: 40rem) {
-  .sdk-client-page .cb-param-row,
-  .sdk-client-page .cb-returns-row {
-    flex-wrap: wrap;
-  }
-  .sdk-client-page .cb-param-desc,
-  .sdk-client-page .cb-returns-desc {
-    flex: 1 1 100%;
-  }
+.sdk-client-page .cb-hint-row {
+  justify-content: flex-start;
+  padding-inline-start: var(--cb-param-gutter);
+}
+.sdk-client-page .cb-hint,
+.sdk-client-page .cb-hint-row .cb-hint {
+  text-align: start;
 }
 
 .sdk-hub-with-sidebar .sdk-cards-grid,
