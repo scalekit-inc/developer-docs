@@ -14,7 +14,11 @@ type SidebarLink = {
   label: string
   href: string
   isCurrent: boolean
-  badge?: { variant: 'note' | 'tip' | 'caution' | 'danger' | 'success' | 'default'; class?: string; text: string }
+  badge?: {
+    variant: 'note' | 'tip' | 'caution' | 'danger' | 'success' | 'default'
+    class?: string
+    text: string
+  }
   attrs: Record<string, unknown>
 }
 
@@ -36,7 +40,9 @@ interface Props {
 const { sublist, nested } = Astro.props
 
 function flattenSidebar(sidebar: SidebarEntry[]): SidebarLink[] {
-  return sidebar.flatMap((entry) => (entry.type === 'group' ? flattenSidebar(entry.entries) : entry))
+  return sidebar.flatMap((entry) =>
+    entry.type === 'group' ? flattenSidebar(entry.entries) : entry,
+  )
 }
 ---
 
@@ -53,7 +59,11 @@ function flattenSidebar(sidebar: SidebarEntry[]): SidebarLink[] {
           >
             <span>{entry.label}</span>
             {entry.badge && (
-              <Badge variant={entry.badge.variant} class={entry.badge.class} text={entry.badge.text} />
+              <Badge
+                variant={entry.badge.variant}
+                class={entry.badge.class}
+                text={entry.badge.text}
+              />
             )}
           </a>
         ) : (
@@ -67,7 +77,11 @@ function flattenSidebar(sidebar: SidebarEntry[]): SidebarLink[] {
                 )}
                 <span class="large">{entry.label}</span>
                 {entry.badge && (
-                  <Badge variant={entry.badge.variant} class={entry.badge.class} text={entry.badge.text} />
+                  <Badge
+                    variant={entry.badge.variant}
+                    class={entry.badge.class}
+                    text={entry.badge.text}
+                  />
                 )}
               </span>
               <Icon name="right-caret" class="caret" size="1.25rem" />
