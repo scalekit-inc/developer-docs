@@ -35,6 +35,8 @@ export interface SdkClientNavEntry {
 
 export interface SdkLangNav {
   label: string
+  /** icon-map key. Rendered on the group label via SidebarSublist. Not passed to Starlight (groups reject attrs). */
+  icon?: string
   installation: {
     label: string
     href: string
