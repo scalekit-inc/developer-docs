@@ -1,0 +1,189 @@
+---
+title: Django session middleware
+description: Add hosted login and an encrypted session cookie to Django with ScalekitAuthMiddleware
+topic: saaskit-sdks
+tableOfContents:
+  minHeadingLevel: 3
+  maxHeadingLevel: 3
+sidebar:
+  label: Quickstart
+prev: false
+next: false
+seeAlso:
+  items:
+    - title: Python SDK
+      icon: python
+      url: /saaskit/sdks/python/
+    - title: Django example
+      icon: django
+      url: https://github.com/scalekit-inc/scalekit-sdk-python/tree/main/examples/django
+  expanded: true
+  label: See also
+---
+
+import { Aside } from '@astrojs/starlight/components'
+import * as CB from '@gesslar/starlight-class-browser'
+import '@/styles/sdk-reference.css'
+
+Use `scalekit.frameworks.django` to add hosted login, an encrypted `sk_session` cookie, token refresh, and logout.
+
+Typical flow: install the `django` extra, add settings and `ScalekitAuthMiddleware`, include the auth URLs, and decorate one view with `@login_required`. There is no `ScalekitAuth` instance to construct.
+
+Requires `scalekit-sdk-python` 2.17.0 or later.
+
+Register these URLs in the Scalekit Dashboard under **Authentication > Redirects** before you test. Paths have **no trailing slash**.
+
+| Dashboard field | Must match |
+| --- | --- |
+| **Redirect URI** | `SCALEKIT_REDIRECT_URI` exactly, for example `http://localhost:8000/callback` |
+| **Post Logout Redirect URI** | Absolute URL after full logout, for example `http://localhost:8000/` |
+| **Initiate Login URL** | Login path, for example `http://localhost:8000/login` |
+
+Store credentials in environment variables. Never hard-code secrets.
+
+```bash title=".env" frame="none" showLineNumbers=false
+SCALEKIT_ENVIRONMENT_URL=https://your-env.scalekit.com
+SCALEKIT_CLIENT_ID=skc_...
+SCALEKIT_CLIENT_SECRET=...
+COOKIE_ENCRYPTION_SECRET=   # openssl rand -base64 32
+REDIRECT_URI=http://localhost:8000/callback
+```
+
+Keep `COOKIE_ENCRYPTION_SECRET` identical on every server instance.
+
+## Install the package
+
+```bash frame="none" showLineNumbers=false
+pip install "scalekit-sdk-python[django]"
+```
+
+## Protect a route
+
+```python title="settings.py" wrap showLineNumbers=false
+import os
+
+MIDDLEWARE = [
+    # ...
+    "scalekit.frameworks.django.ScalekitAuthMiddleware",
+]
+
+SCALEKIT_ENV_URL = os.environ["SCALEKIT_ENVIRONMENT_URL"]
+SCALEKIT_CLIENT_ID = os.environ["SCALEKIT_CLIENT_ID"]
+SCALEKIT_CLIENT_SECRET = os.environ["SCALEKIT_CLIENT_SECRET"]
+SCALEKIT_REDIRECT_URI = os.environ["REDIRECT_URI"]
+SCALEKIT_COOKIE_ENCRYPTION_SECRET = os.environ["COOKIE_ENCRYPTION_SECRET"]
+SCALEKIT_COOKIE_SECURE = False  # set True behind HTTPS
+```
+
+```python title="urls.py" wrap showLineNumbers=false
+from django.urls import include, path
+from . import views
+
+urlpatterns = [
+    path("", include("scalekit.frameworks.django")),
+    path("account", views.account),
+]
+```
+
+```python title="views.py" wrap showLineNumbers=false
+from django.http import JsonResponse
+from scalekit.frameworks.django import login_required
+
+@login_required
+def account(request):
+    return JsonResponse({"sub": request.scalekit_user["sub"]})
+```
+
+Open `http://localhost:8000/account`. A missing session returns **302** to `/login`, not a JSON 401.
+
+`request.scalekit_user` is access-token claims, or `None` when the visitor is anonymous. `sub` is always present on an authenticated user. `email` appears only when you add it as a custom access-token claim.
+
+<Aside type="note" title="Middleware does not block anonymous requests">
+`ScalekitAuthMiddleware` sets `request.scalekit_user` and refreshes the cookie. It does not redirect. Use `@login_required` on views that must be signed in. This matches Django's `AuthenticationMiddleware` plus `login_required`.
+</Aside>
+
+<Aside type="caution" title="Set SCALEKIT_COOKIE_SECURE=False on local HTTP">
+`SCALEKIT_COOKIE_SECURE` defaults to `True`. Set it `False` for local HTTP. Set it `True` in production.
+</Aside>
+
+<div class="sdk-client-page">
+
+### ScalekitAuthMiddleware
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="ScalekitAuthMiddleware" type="class" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/frameworks/django.py">
+    <CB.ClassMethod name="__call__" open={true}>
+
+      Django middleware that reads `sk_session` on every request. Sets `request.scalekit_user` (`None` if unauthenticated) and writes a refreshed cookie about 10 seconds before expiry.
+
+      Add the class path to `MIDDLEWARE`. Required settings: `SCALEKIT_REDIRECT_URI`, `SCALEKIT_COOKIE_ENCRYPTION_SECRET`, and either `SCALEKIT_CLIENT` or `SCALEKIT_ENV_URL` + `SCALEKIT_CLIENT_ID` + `SCALEKIT_CLIENT_SECRET`.
+
+      <CB.ClassMethodInput name="request" type="HttpRequest">
+        Incoming request.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="HttpResponse">
+        Downstream response, with a new or cleared session cookie when needed.
+      </CB.ClassMethodOutput>
+
+```python wrap showLineNumbers=false
+MIDDLEWARE = [
+    "scalekit.frameworks.django.ScalekitAuthMiddleware",
+]
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### login_required
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="scalekit.frameworks.django" type="module" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/frameworks/django.py">
+    <CB.ClassMethod name="login_required" open={true}>
+
+      View decorator that requires `request.scalekit_user`. Redirects to `SCALEKIT_LOGIN_PATH?returnTo=...` when the user is missing. Requires `ScalekitAuthMiddleware`.
+
+      <CB.ClassMethodInput name="view_func" type="Callable">
+        Django view to protect.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="Callable">
+        Wrapped view. Missing session → 302, never JSON 401.
+      </CB.ClassMethodOutput>
+
+```python wrap showLineNumbers=false
+from scalekit.frameworks.django import login_required
+
+@login_required
+def billing(request):
+    return JsonResponse({"sub": request.scalekit_user["sub"]})
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### get_session
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="scalekit.frameworks.django" type="module" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/frameworks/django.py">
+    <CB.ClassMethod name="get_session" open={true}>
+
+      Read-only session lookup when you also need `expires_at`. Most views can read `request.scalekit_user` instead. Does not refresh or write a cookie.
+
+      <CB.ClassMethodInput name="request" type="HttpRequest">
+        Incoming request.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="dict | None">
+        `{"user": ..., "expires_at": ...}`, or `None`. Never includes `access_token`, `refresh_token`, or `id_token`.
+      </CB.ClassMethodOutput>
+
+```python wrap showLineNumbers=false
+from scalekit.frameworks.django import get_session
+
+session = get_session(request)
+if session:
+    print(session["user"]["sub"], session["expires_at"])
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+</div>

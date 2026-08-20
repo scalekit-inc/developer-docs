@@ -1,0 +1,241 @@
+---
+title: FastAPI session middleware
+description: Add hosted login and an encrypted session cookie to FastAPI with ScalekitAuth
+topic: saaskit-sdks
+tableOfContents:
+  minHeadingLevel: 3
+  maxHeadingLevel: 3
+sidebar:
+  label: Quickstart
+prev: false
+next: false
+seeAlso:
+  items:
+    - title: Python SDK
+      icon: python
+      url: /saaskit/sdks/python/
+    - title: FastAPI example
+      icon: fastapi
+      url: https://github.com/scalekit-inc/scalekit-sdk-python/tree/main/examples/fastapi
+  expanded: true
+  label: See also
+---
+
+import { Aside } from '@astrojs/starlight/components'
+import * as CB from '@gesslar/starlight-class-browser'
+import '@/styles/sdk-reference.css'
+
+Use `ScalekitAuth` from `scalekit.frameworks.fastapi` to add hosted login, an encrypted `sk_session` cookie, token refresh, and logout.
+
+Typical flow: install the `fastapi` extra, call `auth.install(app)`, and protect an endpoint with `Depends(auth.requires_auth)`.
+
+Requires `scalekit-sdk-python` 2.17.0 or later.
+
+Register these URLs in the Scalekit Dashboard under **Authentication > Redirects** before you test:
+
+| Dashboard field | Must match |
+| --- | --- |
+| **Redirect URI** | `redirect_uri` exactly, for example `http://localhost:5001/callback` |
+| **Post Logout Redirect URI** | Absolute URL after full logout, for example `http://localhost:5001/` |
+| **Initiate Login URL** | Login path, for example `http://localhost:5001/login` |
+
+Store credentials in environment variables. Never hard-code secrets.
+
+```bash title=".env" frame="none" showLineNumbers=false
+SCALEKIT_ENVIRONMENT_URL=https://your-env.scalekit.com
+SCALEKIT_CLIENT_ID=skc_...
+SCALEKIT_CLIENT_SECRET=...
+COOKIE_ENCRYPTION_SECRET=   # openssl rand -base64 32
+REDIRECT_URI=http://localhost:5001/callback
+```
+
+Keep `COOKIE_ENCRYPTION_SECRET` identical on every server instance.
+
+## Install the package
+
+```bash frame="none" showLineNumbers=false
+pip install "scalekit-sdk-python[fastapi]"
+```
+
+## Protect a route
+
+```python title="app.py" wrap showLineNumbers=false
+import os
+from fastapi import Depends, FastAPI
+from scalekit.frameworks.fastapi import ScalekitAuth
+
+app = FastAPI()
+auth = ScalekitAuth(
+    env_url=os.environ["SCALEKIT_ENVIRONMENT_URL"],
+    client_id=os.environ["SCALEKIT_CLIENT_ID"],
+    client_secret=os.environ["SCALEKIT_CLIENT_SECRET"],
+    redirect_uri=os.environ["REDIRECT_URI"],
+    cookie_encryption_secret=os.environ["COOKIE_ENCRYPTION_SECRET"],
+    cookie_secure=False,  # set True behind HTTPS
+)
+auth.install(app)
+
+@app.get("/account")
+async def account(user: dict = Depends(auth.requires_auth)):
+    return {"sub": user["sub"]}
+```
+
+Open `http://localhost:5001/account`. A missing session returns **302** to `/login`, not a JSON 401.
+
+`user` is access-token claims. `sub` is always present. `email` appears only when you add it as a custom access-token claim.
+
+<Aside type="caution" title="Set cookie_secure=False on local HTTP">
+`cookie_secure` defaults to `True`. Set `cookie_secure=False` for local HTTP. Set it `True` in production.
+</Aside>
+
+<div class="sdk-client-page">
+
+### constructor
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="ScalekitAuth" type="class" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/frameworks/fastapi.py">
+    <CB.ClassMethod name="__init__" open={true}>
+
+      Creates the FastAPI session helper. Call `install(app)` after construction to register routes and the 302 handler.
+
+      <CB.ClassMethodInput name="client" type="ScalekitClient | None" hint="optional">
+        Existing client. When omitted, the constructor builds one from `env_url`, `client_id`, and `client_secret`.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="env_url" type="str" hint="required if client is omitted">
+        Scalekit environment URL.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="client_id" type="str" hint="required if client is omitted">
+        Application client ID.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="client_secret" type="str" hint="required if client is omitted">
+        Application client secret.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="redirect_uri" type="str">
+        Exact **Redirect URI** registered in the dashboard.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="cookie_encryption_secret" type="str">
+        Secret used to encrypt `sk_session`. Generate with `openssl rand -base64 32`.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="cookie_name" type="str" hint="optional, default sk_session">
+        Session cookie name.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="cookie_secure" type="bool" hint="optional, default True">
+        Set `False` for local HTTP.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="login_path" type="str" hint="optional, default /login">
+        Login route path.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="callback_path" type="str" hint="optional, default /callback">
+        Callback route path.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="logout_path" type="str" hint="optional, default /logout">
+        Logout route path.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="post_login_redirect" type="str" hint="optional, default /">
+        Fallback path after login when `returnTo` is absent.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="post_logout_redirect_uri" type="str | None" hint="optional">
+        Where logout lands. Defaults to `post_login_redirect`.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="full_logout" type="bool" hint="optional, default True">
+        When `True`, logout ends the Scalekit session with `id_token_hint`.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="ScalekitAuth">
+        Helper with `install`, `requires_auth`, and `get_session`.
+      </CB.ClassMethodOutput>
+
+```python wrap showLineNumbers=false
+auth = ScalekitAuth(
+    env_url=os.environ["SCALEKIT_ENVIRONMENT_URL"],
+    client_id=os.environ["SCALEKIT_CLIENT_ID"],
+    client_secret=os.environ["SCALEKIT_CLIENT_SECRET"],
+    redirect_uri=os.environ["REDIRECT_URI"],
+    cookie_encryption_secret=os.environ["COOKIE_ENCRYPTION_SECRET"],
+)
+auth.install(app)
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### install
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="ScalekitAuth" type="class" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/frameworks/fastapi.py">
+    <CB.ClassMethod name="install" open={true}>
+
+      Mounts the login, callback, and logout routes and registers the exception handler that turns a missing session into a 302.
+
+      Call this once. `app.include_router(auth.router)` alone skips the 302 handler.
+
+      <CB.ClassMethodInput name="app" type="FastAPI">
+        FastAPI application.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="None">
+        Routes and the redirect handler are registered in place.
+      </CB.ClassMethodOutput>
+
+```python wrap showLineNumbers=false
+auth.install(app)
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### requires_auth
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="ScalekitAuth" type="class" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/frameworks/fastapi.py">
+    <CB.ClassMethod name="requires_auth" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      FastAPI dependency. Use `user: dict = Depends(auth.requires_auth)`. Session check and refresh run in a thread pool so they do not block the event loop.
+
+      <CB.ClassMethodInput name="request" type="Request">
+        Incoming request. Injected by FastAPI.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="response" type="Response">
+        Injected response. Receives a refreshed `sk_session` cookie when needed.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="dict | None">
+        Access-token claims. Missing session raises an internal error that `install` converts to 302, not `HTTPException(401)`.
+      </CB.ClassMethodOutput>
+
+```python wrap showLineNumbers=false
+@app.get("/billing")
+async def billing(user: dict = Depends(auth.requires_auth)):
+    return {"sub": user["sub"]}
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+<Aside type="note" title="Do not return a Response from a protected endpoint">
+`requires_auth` writes the refreshed cookie on the injected `response`. If the endpoint returns a `Response` instance, FastAPI discards that injected response. Return a plain value, or copy `response.raw_headers` onto the response you return.
+</Aside>
+
+### get_session
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="ScalekitAuth" type="class" language="python" source="https://github.com/scalekit-inc/scalekit-sdk-python/blob/main/scalekit/frameworks/fastapi.py">
+    <CB.ClassMethod name="get_session" open={true}>
+
+      Read-only session lookup. Does not refresh or write a cookie. Only `requires_auth` refreshes the session.
+
+      <CB.ClassMethodInput name="request" type="Request">
+        Incoming request.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="dict | None">
+        `{"user": ..., "expires_at": ...}`, or `None`. Never includes `access_token`, `refresh_token`, or `id_token`.
+      </CB.ClassMethodOutput>
+
+```python wrap showLineNumbers=false
+session = auth.get_session(request)
+if session:
+    print(session["user"]["sub"], session["expires_at"])
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+</div>

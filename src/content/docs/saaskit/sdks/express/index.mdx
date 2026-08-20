@@ -1,0 +1,214 @@
+---
+title: Express session middleware
+description: Add hosted login and an encrypted session cookie to Express with ScalekitAuth
+topic: saaskit-sdks
+tableOfContents:
+  minHeadingLevel: 3
+  maxHeadingLevel: 3
+sidebar:
+  label: Quickstart
+prev: false
+next: false
+seeAlso:
+  items:
+    - title: Node.js SDK
+      icon: nodejs
+      url: /saaskit/sdks/node/
+    - title: Express example
+      icon: express
+      url: https://github.com/scalekit-inc/scalekit-sdk-node/tree/main/examples/express
+  expanded: true
+  label: See also
+---
+
+import { Aside } from '@astrojs/starlight/components'
+import * as CB from '@gesslar/starlight-class-browser'
+import '@/styles/sdk-reference.css'
+
+Use `ScalekitAuth` from `@scalekit-sdk/node/express` to add hosted login, an encrypted `sk_session` cookie, token refresh, and logout.
+
+Typical flow: install `@scalekit-sdk/node` 2.12.0 or later, mount `auth.router`, and guard one route with `auth.requiresAuth`. Use the methods below to change paths, logout, or pass an existing [ScalekitClient](/saaskit/sdks/node/scalekit-client/).
+
+Register these URLs in the Scalekit Dashboard under **Authentication > Redirects** before you test:
+
+| Dashboard field | Must match |
+| --- | --- |
+| **Redirect URI** | `redirectUri` exactly, for example `http://localhost:5001/callback` |
+| **Post Logout Redirect URI** | Absolute URL after full logout, for example `http://localhost:5001/` |
+| **Initiate Login URL** | Login path, for example `http://localhost:5001/login` |
+
+Store credentials in environment variables. Never hard-code secrets.
+
+```bash title=".env" frame="none" showLineNumbers=false
+SCALEKIT_ENVIRONMENT_URL=https://your-env.scalekit.com
+SCALEKIT_CLIENT_ID=skc_...
+SCALEKIT_CLIENT_SECRET=...
+COOKIE_ENCRYPTION_SECRET=   # openssl rand -base64 32
+REDIRECT_URI=http://localhost:5001/callback
+```
+
+Keep `COOKIE_ENCRYPTION_SECRET` identical on every server instance. The SDK does not ship a default.
+
+## Install the package
+
+```bash frame="none" showLineNumbers=false
+npm install @scalekit-sdk/node express
+```
+
+`cookie-parser` is optional. `ScalekitAuth` reads the `Cookie` header when `req.cookies` is missing.
+
+## Protect a route
+
+```typescript title="server.ts" wrap showLineNumbers=false
+import express from 'express';
+import { ScalekitAuth } from '@scalekit-sdk/node/express';
+
+const auth = new ScalekitAuth({
+  envUrl: process.env.SCALEKIT_ENVIRONMENT_URL,
+  clientId: process.env.SCALEKIT_CLIENT_ID,
+  clientSecret: process.env.SCALEKIT_CLIENT_SECRET,
+  redirectUri: process.env.REDIRECT_URI,
+  cookieEncryptionSecret: process.env.COOKIE_ENCRYPTION_SECRET,
+});
+
+const app = express();
+app.use(auth.router);
+
+app.get('/account', auth.requiresAuth, (req, res) => {
+  res.json({ sub: req.scalekitUser?.sub });
+});
+
+app.listen(5001);
+```
+
+Open `http://localhost:5001/account`. A missing session returns **302** to `/login?returnTo=/account`, not a JSON 401. After login, the callback restores `/account`.
+
+`req.scalekitUser` is access-token claims. `sub` is always present. `email` appears only when you add it as a custom access-token claim.
+
+<Aside type="caution" title="Do not treat 302 as an API error">
+A background `fetch` that follows redirects can complete a login instead of returning 401. Use `requiresAuth` on browser navigations, not as a JSON API gate.
+</Aside>
+
+<div class="sdk-client-page">
+
+### constructor
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="ScalekitAuth" type="class" language="typescript" source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main/src/frameworks/express.ts">
+    <CB.ClassMethod name="constructor" open={true}>
+
+      Creates the Express session helper and builds `auth.router` for `/login`, `/callback`, and `/logout`.
+
+      <CB.ClassMethodInput name="client" type="ScalekitClient" hint="optional">
+        Existing client. When omitted, the constructor builds one from `envUrl`, `clientId`, and `clientSecret`.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="envUrl" type="string" hint="required if client is omitted">
+        Scalekit environment URL.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="clientId" type="string" hint="required if client is omitted">
+        Application client ID.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="clientSecret" type="string" hint="required if client is omitted">
+        Application client secret.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="redirectUri" type="string">
+        Exact **Redirect URI** registered in the dashboard.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="cookieEncryptionSecret" type="string">
+        Secret used to encrypt `sk_session`. Generate with `openssl rand -base64 32`.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="cookieName" type="string" hint="optional, default sk_session">
+        Session cookie name.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="loginPath" type="string" hint="optional, default /login">
+        Path served by `auth.router` for login.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="callbackPath" type="string" hint="optional, default /callback">
+        Path served by `auth.router` for the OAuth callback.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="logoutPath" type="string" hint="optional, default /logout">
+        Path served by `auth.router` for logout.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="postLoginRedirect" type="string" hint="optional, default /">
+        Fallback path after login when `returnTo` is absent.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="postLogoutRedirectUri" type="string" hint="optional">
+        Where logout lands. Defaults to `postLoginRedirect`. Register the absolute URL as **Post Logout Redirect URI**.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="fullLogout" type="boolean" hint="optional, default true">
+        When `true`, logout ends the Scalekit session with `id_token_hint`. Set `false` to clear only the local cookie.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="ScalekitAuth">
+        Helper with `router` and `requiresAuth`.
+      </CB.ClassMethodOutput>
+
+```typescript wrap showLineNumbers=false
+const auth = new ScalekitAuth({
+  envUrl: process.env.SCALEKIT_ENVIRONMENT_URL,
+  clientId: process.env.SCALEKIT_CLIENT_ID,
+  clientSecret: process.env.SCALEKIT_CLIENT_SECRET,
+  redirectUri: process.env.REDIRECT_URI,
+  cookieEncryptionSecret: process.env.COOKIE_ENCRYPTION_SECRET,
+});
+
+app.use(auth.router);
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### requiresAuth
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="ScalekitAuth" type="class" language="typescript" source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main/src/frameworks/express.ts">
+    <CB.ClassMethod name="requiresAuth" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Express middleware that requires a valid session. Refreshes the cookie about 10 seconds before expiry. Redirects to `loginPath` when the session is missing or invalid.
+
+      <CB.ClassMethodInput name="req" type="Request">
+        Incoming request. On success, sets `req.scalekitUser` to access-token claims.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="res" type="Response">
+        Outgoing response. May receive a refreshed `sk_session` cookie.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="next" type="NextFunction">
+        Called only when the session is valid.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="Promise<void>">
+        Completes the request, or sends 302 to `/login?returnTo=...`.
+      </CB.ClassMethodOutput>
+
+```typescript wrap showLineNumbers=false
+app.get('/billing', auth.requiresAuth, (req, res) => {
+  res.send(`Hello ${req.scalekitUser.sub}`);
+});
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### router
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="ScalekitAuth" type="class" language="typescript" source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main/src/frameworks/express.ts">
+    <CB.ClassMethod name="router" open={true}>
+
+      Express router that serves `loginPath`, `callbackPath`, and `logoutPath`. Mount it before protected routes.
+
+      <CB.ClassMethodOutput type="Router">
+        Router registered by the constructor.
+      </CB.ClassMethodOutput>
+
+```typescript wrap showLineNumbers=false
+app.use(auth.router);
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+<Aside type="note" title="Session cookies are Secure">
+The helper sets the `Secure` attribute on `sk_session`. Use HTTPS, or a browser that accepts `Secure` cookies on `http://localhost`.
+</Aside>
+
+</div>

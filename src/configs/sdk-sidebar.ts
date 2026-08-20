@@ -5,7 +5,18 @@
 
 export type SdkProduct = 'agentkit' | 'saaskit'
 /** Server SDKs use ClassBrowser clients; mobile uses guide sections on one page. */
-export type SdkLang = 'node' | 'python' | 'go' | 'java' | 'expo' | 'ios'
+export type SdkLang =
+  | 'node'
+  | 'express'
+  | 'nextjs'
+  | 'python'
+  | 'flask'
+  | 'fastapi'
+  | 'django'
+  | 'go'
+  | 'java'
+  | 'expo'
+  | 'ios'
 
 export interface SdkClientNavEntry {
   id: string
