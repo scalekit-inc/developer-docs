@@ -506,6 +506,10 @@ MCP Server -> MCP Client: Tool response
      xmcp automatically loads <code>src/middleware.ts</code> as a special entry point. Tools cannot import from this file directly — shared code like <code>getSession()</code> lives in <code>src/lib/</code> instead.
    </Aside>
 
+   <Aside type="note" title="Scalekit requests offline_access on authorize">
+     The <code>scopes</code> array above is <code>scopes_supported</code> on your protected-resource metadata. Scalekit still requests <code>offline_access</code> on the authorize request so it can issue a refresh token. Leave <code>offline_access</code> out of this list.
+   </Aside>
+
 7. ## Add tools
 
    xmcp uses file-based routing — each file in `src/tools/` becomes an MCP tool. Create two tools that use the authenticated session.
