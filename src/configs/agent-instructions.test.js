@@ -1,5 +1,8 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
+import { readFileSync } from 'node:fs'
+import { dirname, join } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import {
   setupOneLiner,
   setupForAgent,
@@ -10,6 +13,11 @@ import {
   AGENT_PLUGIN_META,
 } from './agent-instructions.ts'
 import { homepagePrompt, pageActionsPrompt } from './page-actions.config.ts'
+
+const publicAgentsMd = readFileSync(
+  join(dirname(fileURLToPath(import.meta.url)), '../../public/AGENTS.md'),
+  'utf8',
+)
 
 /** Skill IDs the authstack repo already ships. Independent of this module's internals. */
 const SHIPPED_SKILLS = [
@@ -43,8 +51,14 @@ function installStoryExports() {
 }
 
 function combinedInstallStory() {
-  return Object.values(installStoryExports()).join('\n')
+  return [...Object.values(installStoryExports()), publicAgentsMd].join('\n')
 }
+
+test('public AGENTS.md includes the install story and the Authstack env var', () => {
+  assert.equal(publicAgentsMd.includes(setupOneLiner), true)
+  assert.equal(publicAgentsMd.includes(AGENT_PLUGIN_DETAILS_MD.trim()), true)
+  assert.equal(publicAgentsMd.includes(ENVIRONMENT_URL_VAR), true)
+})
 
 test('install story names the human CLI and the non-interactive agent form', () => {
   assert.equal(setupOneLiner, 'npx @scalekit-inc/cli setup')
