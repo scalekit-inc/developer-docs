@@ -54,9 +54,13 @@ function combinedInstallStory() {
   return [...Object.values(installStoryExports()), publicAgentsMd].join('\n')
 }
 
+function squash(text) {
+  return text.replace(/\s+/g, ' ').trim()
+}
+
 test('public AGENTS.md includes the install story and the Authstack env var', () => {
   assert.equal(publicAgentsMd.includes(setupOneLiner), true)
-  assert.equal(publicAgentsMd.includes(AGENT_PLUGIN_DETAILS_MD.trim()), true)
+  assert.equal(squash(publicAgentsMd).includes(squash(AGENT_PLUGIN_DETAILS_MD)), true)
   assert.equal(publicAgentsMd.includes(ENVIRONMENT_URL_VAR), true)
 })
 

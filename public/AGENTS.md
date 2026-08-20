@@ -5,11 +5,13 @@
 Install the authstack plugin for coding agents with one command. This is the recommended way to give your agent accurate Scalekit implementation guidance.
 
 **Recommended**:
+
 ```bash
 npx @scalekit-inc/cli setup
 ```
 
 For repeated use:
+
 ```bash
 npm install -g @scalekit-inc/cli
 scalekit setup

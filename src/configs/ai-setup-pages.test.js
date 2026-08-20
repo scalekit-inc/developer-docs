@@ -44,7 +44,9 @@ test('AI setup templates do not invent skill tokens as plugin names', () => {
 })
 
 test('AgentKit coding-agent cookbook verify uses SCALEKIT_ENVIRONMENT_URL', () => {
-  const text = read(join(repoRoot, 'src/content/docs/cookbooks/set-up-agentkit-with-your-coding-agent.mdx'))
+  const text = read(
+    join(repoRoot, 'src/content/docs/cookbooks/set-up-agentkit-with-your-coding-agent.mdx'),
+  )
   assert.equal(text.includes('SCALEKIT_ENVIRONMENT_URL'), true)
   assert.equal(text.includes('SCALEKIT_ENV_URL'), false)
 })
