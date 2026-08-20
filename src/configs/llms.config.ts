@@ -16,7 +16,7 @@ for in-depth answers. Load \`llms-full.txt\` only when exhaustive context is nee
 
 ## Product → Documentation routing
 
-- **AgentKit** (AI agents, tool calling, connectors) → load Agent Authentication set
+- **AgentKit** (AI agents, tool calling, connectors) → load AgentKit set
 - **AgentKit + specific framework** → fetch the framework page directly (see Framework routing below)
 - **SaaSKit / FSA** (login, sessions, RBAC) → load SaaSKit Complete set
 - **MCP Authentication** (OAuth 2.1 for MCP servers) → load MCP Authentication set
@@ -174,6 +174,9 @@ Start with the Quickstart Collection, then follow the developer's question to th
     // Pages with sidebar.hidden: true — not navigable, noindex, should not appear in any LLM set
     '404',
     'guides/sso/sso-migration-strategy',
+    'dev-kit/ai-assisted-development/claude',
+    'dev-kit/ai-assisted-development/codex',
+    'dev-kit/ai-assisted-development/vscode',
   ],
 
   // Minify settings to reduce file size while preserving critical content
