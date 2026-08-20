@@ -31,11 +31,13 @@ you have authorized.
 
 ## Read the row
 
-The row's status is the diagnosis. Only `ACTIVE` accounts can serve tool calls; every other status
-names the exact step the user or your app still owes.
+The row's status tells you the next check. Only `ACTIVE` accounts are ready for tool calls.
+Other statuses name the step the user or your app still owes. `ACTIVE` does not mean every
+tool call will succeed.
 
-The dashboard reports the same value your code reads from `account.status`, so the row and the SDK
-never disagree. Use the dashboard for a one-off answer and the SDK when you need the check in code.
+The dashboard reports the same `account.status` value as the SDK. Use the dashboard for a
+one-off answer and the SDK when you need the check in code. If status is `ACTIVE` and the
+tool still fails, check scopes, logs, or a read-only tool.
 
 For the full status list and the fix for each one, see
 [Start with diagnostics](/agentkit/authentication/troubleshooting/#start-with-diagnostics). For the
@@ -46,7 +48,8 @@ webhook that pushes these changes to your app instead, see
 
 The row count is the useful signal the SDK will not give you in a single call:
 
-- **One row is failing** — that user needs to re-authorize. Send a fresh authorization link.
-- **Every row is failing** — the connection is at fault, not the users. Open the connection's own
-  settings and confirm its credentials. A rotated or expired OAuth client on the provider side takes
-  down every account beneath it at once.
+- **One row is failing** — start with that user's account. Confirm its status, then
+  re-authorize if it is not `ACTIVE`.
+- **Every row is failing** — check the connection settings and credentials before you treat
+  it as a per-user issue. A rotated or expired OAuth client on the provider side takes down
+  every account beneath it at once.
