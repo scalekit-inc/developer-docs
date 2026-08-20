@@ -1,0 +1,388 @@
+---
+title: Next.js session middleware
+description: Add hosted login and an encrypted session cookie to the Next.js App Router
+topic: saaskit-sdks
+tableOfContents:
+  minHeadingLevel: 3
+  maxHeadingLevel: 3
+sidebar:
+  label: Quickstart
+prev: false
+next: false
+seeAlso:
+  items:
+    - title: Node.js SDK
+      icon: nodejs
+      url: /saaskit/sdks/node/
+    - title: Next.js example
+      icon: nextjs
+      url: https://github.com/scalekit-inc/scalekit-sdk-node/tree/main/examples/nextjs
+    - title: Next.js Edge example
+      icon: nextjs
+      url: https://github.com/scalekit-inc/scalekit-sdk-node/tree/main/examples/nextjs-edge
+  expanded: true
+  label: See also
+---
+
+import { Aside } from '@astrojs/starlight/components'
+import * as CB from '@gesslar/starlight-class-browser'
+import '@/styles/sdk-reference.css'
+
+Use `ScalekitAuthNext` from `@scalekit-sdk/node/next` to add hosted login, an encrypted `sk_session` cookie, token refresh, and logout to the App Router.
+
+Typical flow: create one `auth` instance, export login/callback/logout Route Handlers, and wrap a protected handler with `withAuth`. Use `createMiddleware()` to fail closed on every other path. For Edge Runtime, pass `ScalekitEdgeClient` instead of `ScalekitClient`.
+
+Requires `@scalekit-sdk/node` 2.12.0 or later.
+
+Register these URLs in the Scalekit Dashboard under **Authentication > Redirects** before you test:
+
+| Dashboard field | Must match |
+| --- | --- |
+| **Redirect URI** | `redirectUri` exactly, for example `http://localhost:3000/callback` |
+| **Post Logout Redirect URI** | Absolute URL after full logout, for example `http://localhost:3000/` |
+| **Initiate Login URL** | Login path, for example `http://localhost:3000/login` |
+
+Store credentials in environment variables. Never hard-code secrets.
+
+```bash title=".env" frame="none" showLineNumbers=false
+SCALEKIT_ENVIRONMENT_URL=https://your-env.scalekit.com
+SCALEKIT_CLIENT_ID=skc_...
+SCALEKIT_CLIENT_SECRET=...
+COOKIE_ENCRYPTION_SECRET=   # openssl rand -base64 32
+REDIRECT_URI=http://localhost:3000/callback
+```
+
+Keep `COOKIE_ENCRYPTION_SECRET` identical on every server instance.
+
+## Install the package
+
+```bash title="Terminal" frame="none" showLineNumbers=false
+npm install @scalekit-sdk/node
+```
+
+## Protect a route
+
+`ScalekitAuthNext` requires a `client`. It does not accept `envUrl` alone.
+
+```typescript title="lib/auth.ts" wrap showLineNumbers=false
+import ScalekitClient from '@scalekit-sdk/node';
+import { ScalekitAuthNext } from '@scalekit-sdk/node/next';
+
+const scalekit = new ScalekitClient(
+  process.env.SCALEKIT_ENVIRONMENT_URL!,
+  process.env.SCALEKIT_CLIENT_ID!,
+  process.env.SCALEKIT_CLIENT_SECRET!
+);
+
+export const auth = new ScalekitAuthNext({
+  client: scalekit,
+  redirectUri: process.env.REDIRECT_URI!,
+  cookieEncryptionSecret: process.env.COOKIE_ENCRYPTION_SECRET!,
+});
+```
+
+```typescript title="app/login/route.ts" wrap showLineNumbers=false
+import { auth } from '../../lib/auth';
+export const GET = auth.createLoginHandler();
+```
+
+```typescript title="app/callback/route.ts" wrap showLineNumbers=false
+import { auth } from '../../lib/auth';
+export const GET = auth.createCallbackHandler();
+```
+
+```typescript title="app/logout/route.ts" wrap showLineNumbers=false
+import { auth } from '../../lib/auth';
+export const GET = auth.createLogoutHandler();
+```
+
+```typescript title="app/account/route.ts" wrap showLineNumbers=false
+import { auth } from '../../lib/auth';
+
+export const GET = auth.withAuth(async (request, { user }) => {
+  return Response.json({ sub: user?.sub });
+});
+```
+
+Open `http://localhost:3000/account`. A missing session returns **302** to `/login`, not a JSON 401.
+
+`user` is access-token claims. `sub` is always present. `email` appears only when you add it as a custom access-token claim.
+
+<Aside type="caution" title="Pin runtime: 'nodejs' unless you use ScalekitEdgeClient">
+`createMiddleware()` uses `ScalekitClient` by default. That client is Node-only. Export `runtime: 'nodejs'` in `middleware.ts`, or the Next.js build fails. See [`ScalekitEdgeClient`](#scalekitedgeclient) for Edge Runtime.
+</Aside>
+
+<div class="sdk-client-page">
+
+### constructor
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="ScalekitAuthNext" type="class" language="typescript" source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main/src/frameworks/nextjs.ts">
+    <CB.ClassMethod name="constructor" open={true}>
+
+      Creates the App Router session helper. Pass a `ScalekitClient` or `ScalekitEdgeClient`.
+
+      <CB.ClassMethodInput name="client" type="ScalekitClient | ScalekitEdgeClient">
+        Auth client. Required. `ScalekitClient` is Node-only; use `ScalekitEdgeClient` on Edge Runtime.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="redirectUri" type="string">
+        Exact **Redirect URI** registered in the dashboard.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="cookieEncryptionSecret" type="string">
+        Secret used to encrypt `sk_session`. Generate with `openssl rand -base64 32`.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="cookieName" type="string" hint="optional, default sk_session">
+        Session cookie name.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="loginPath" type="string" hint="optional, default /login">
+        Login route path.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="callbackPath" type="string" hint="optional, default /callback">
+        Callback route path. Also excluded from `createMiddleware()` gating.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="logoutPath" type="string" hint="optional, default /logout">
+        Logout route path. Also excluded from `createMiddleware()` gating.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="postLoginRedirect" type="string" hint="optional, default /">
+        Fallback path after login when `returnTo` is absent.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="postLogoutRedirectUri" type="string" hint="optional">
+        Where logout lands. Defaults to `postLoginRedirect`. Register the absolute URL as **Post Logout Redirect URI**.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="fullLogout" type="boolean" hint="optional, default true">
+        When `true`, logout ends the Scalekit session with `id_token_hint`.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="ScalekitAuthNext">
+        Helper used by Route Handlers and middleware.
+      </CB.ClassMethodOutput>
+
+```typescript wrap showLineNumbers=false
+export const auth = new ScalekitAuthNext({
+  client: scalekit,
+  redirectUri: process.env.REDIRECT_URI!,
+  cookieEncryptionSecret: process.env.COOKIE_ENCRYPTION_SECRET!,
+});
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### createLoginHandler
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="ScalekitAuthNext" type="class" language="typescript" source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main/src/frameworks/nextjs.ts">
+    <CB.ClassMethod name="createLoginHandler" open={true}>
+
+      Returns a `GET` Route Handler that starts hosted login and sets the CSRF state cookie.
+
+      <CB.ClassMethodOutput type="(request: NextRequest) => Promise<NextResponse>">
+        Handler to re-export from `app/login/route.ts`.
+      </CB.ClassMethodOutput>
+
+```typescript wrap showLineNumbers=false
+export const GET = auth.createLoginHandler();
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### createCallbackHandler
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="ScalekitAuthNext" type="class" language="typescript" source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main/src/frameworks/nextjs.ts">
+    <CB.ClassMethod name="createCallbackHandler" open={true}>
+
+      Returns a `GET` Route Handler that exchanges the authorization code and sets `sk_session`.
+
+      <CB.ClassMethodOutput type="(request: NextRequest) => Promise<NextResponse>">
+        Handler to re-export from `app/callback/route.ts`.
+      </CB.ClassMethodOutput>
+
+```typescript wrap showLineNumbers=false
+export const GET = auth.createCallbackHandler();
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### createLogoutHandler
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="ScalekitAuthNext" type="class" language="typescript" source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main/src/frameworks/nextjs.ts">
+    <CB.ClassMethod name="createLogoutHandler" open={true}>
+
+      Returns a `GET` Route Handler that clears `sk_session`. With `fullLogout: true`, also ends the Scalekit session.
+
+      <CB.ClassMethodOutput type="(request: NextRequest) => Promise<NextResponse>">
+        Handler to re-export from `app/logout/route.ts`.
+      </CB.ClassMethodOutput>
+
+```typescript wrap showLineNumbers=false
+export const GET = auth.createLogoutHandler();
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### withAuth
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="ScalekitAuthNext" type="class" language="typescript" source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main/src/frameworks/nextjs.ts">
+    <CB.ClassMethod name="withAuth" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Wraps a Route Handler so it runs only with a valid session. Refreshes the cookie about 10 seconds before expiry. Redirects to `loginPath` when the session is missing.
+
+      <CB.ClassMethodInput name="handler" type="(request, context) => NextResponse">
+        Route Handler. `context.user` is access-token claims.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="(request: NextRequest) => Promise<NextResponse>">
+        Wrapped handler. Missing session → 302, never JSON 401.
+      </CB.ClassMethodOutput>
+
+```typescript wrap showLineNumbers=false
+export const GET = auth.withAuth(async (request, { user }) => {
+  return Response.json({ sub: user?.sub });
+});
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### createMiddleware
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="ScalekitAuthNext" type="class" language="typescript" source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main/src/frameworks/nextjs.ts">
+    <CB.ClassMethod name="createMiddleware" open={true}>
+
+      Fail-closed middleware. Every matched path redirects to login unless it is listed in `publicRoutes` or is `loginPath`, `callbackPath`, or `logoutPath`.
+
+      Next.js reads `export const config` as a static export. This method cannot generate that object.
+
+      <CB.ClassMethodInput name="publicRoutes" type="string[]" hint="optional">
+        Paths that stay public, for example `['/', '/pricing']`.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="(request: NextRequest) => Promise<NextResponse>">
+        Middleware function to export as the default from `middleware.ts`.
+      </CB.ClassMethodOutput>
+
+```typescript wrap showLineNumbers=false
+export default auth.createMiddleware({
+  publicRoutes: ['/', '/pricing'],
+});
+
+export const config = {
+  runtime: 'nodejs',
+  matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'],
+};
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### getSession
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="ScalekitAuthNext" type="class" language="typescript" source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main/src/frameworks/nextjs.ts">
+    <CB.ClassMethod name="getSession" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Read-only session lookup for Server Components, Route Handlers, and Server Actions. Does not refresh or write a cookie. Only `createMiddleware()` and `withAuth()` write a new cookie.
+
+      <CB.ClassMethodOutput type="{ user, expiresAt } | null">
+        Access-token claims and expiry, or `null`. Never includes `accessToken` or `refreshToken`.
+      </CB.ClassMethodOutput>
+
+```typescript wrap showLineNumbers=false
+const session = await auth.getSession();
+if (session) {
+  console.log(session.user.sub, session.expiresAt);
+}
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### currentUser
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="ScalekitAuthNext" type="class" language="typescript" source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main/src/frameworks/nextjs.ts">
+    <CB.ClassMethod name="currentUser" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Shortcut for `getSession()` when only claims are needed.
+
+      <CB.ClassMethodOutput type="Record<string, unknown> | undefined">
+        Access-token claims, or `undefined` when there is no valid session.
+      </CB.ClassMethodOutput>
+
+```typescript wrap showLineNumbers=false
+const user = await auth.currentUser();
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+<Aside type="note" title="Same-request expiry after a refresh">
+If middleware refreshes the cookie on the current request, `getSession()` on that same request can still read the old `expiresAt`. The next request sees the new cookie.
+</Aside>
+
+### ScalekitEdgeClient
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="ScalekitEdgeClient" type="class" language="typescript" source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main/src/edge.ts">
+    <CB.ClassMethod name="constructor" open={true}>
+
+      Fetch + `jose` client for the auth methods `ScalekitAuthNext` needs on Edge Runtime. Not a full `ScalekitClient`. Use [Create client](/saaskit/sdks/node/scalekit-client/) for Organizations, Users, and other API clients.
+
+      <CB.ClassMethodInput name="envUrl" type="string">
+        Scalekit environment URL.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="clientId" type="string">
+        Application client ID.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="clientSecret" type="string">
+        Application client secret.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="ScalekitEdgeClient">
+        Drop-in `client` for `ScalekitAuthNext`.
+      </CB.ClassMethodOutput>
+
+```typescript wrap showLineNumbers=false
+import { ScalekitEdgeClient } from '@scalekit-sdk/node/edge';
+import { ScalekitAuthNext } from '@scalekit-sdk/node/next';
+
+const scalekit = new ScalekitEdgeClient(
+  process.env.SCALEKIT_ENVIRONMENT_URL!,
+  process.env.SCALEKIT_CLIENT_ID!,
+  process.env.SCALEKIT_CLIENT_SECRET!
+);
+
+export const auth = new ScalekitAuthNext({
+  client: scalekit,
+  redirectUri: process.env.REDIRECT_URI!,
+  cookieEncryptionSecret: process.env.COOKIE_ENCRYPTION_SECRET!,
+});
+```
+
+```typescript title="middleware.ts" wrap showLineNumbers=false
+import { auth } from './lib/auth';
+
+export default auth.createMiddleware({
+  publicRoutes: ['/', '/pricing'],
+});
+
+export const config = {
+  runtime: 'experimental-edge',
+  matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'],
+};
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+<Aside type="note" title="Use experimental-edge, not edge">
+This Next.js version rejects the string `'edge'` at build time. Set `runtime: 'experimental-edge'`.
+</Aside>
+
+</div>

@@ -2,7 +2,12 @@ import { createSectionHeader, createSpacing } from './sidebar-utils'
 import { buildLanguageGroup } from './sdk-sidebar'
 /* sdk-nav-labels: journey-v1 */
 import saaskitNodeNav from '../components/sdk-reference/saaskit/node/_nav.json'
+import saaskitExpressNav from '../components/sdk-reference/saaskit/express/_nav.json'
+import saaskitNextjsNav from '../components/sdk-reference/saaskit/nextjs/_nav.json'
 import saaskitPythonNav from '../components/sdk-reference/saaskit/python/_nav.json'
+import saaskitFlaskNav from '../components/sdk-reference/saaskit/flask/_nav.json'
+import saaskitFastapiNav from '../components/sdk-reference/saaskit/fastapi/_nav.json'
+import saaskitDjangoNav from '../components/sdk-reference/saaskit/django/_nav.json'
 import saaskitGoNav from '../components/sdk-reference/saaskit/go/_nav.json'
 import saaskitJavaNav from '../components/sdk-reference/saaskit/java/_nav.json'
 import agentkitNodeNav from '../components/sdk-reference/agentkit/node/_nav.json'
@@ -558,7 +563,12 @@ export const sidebar = [
     icon: 'seti:webpack',
     items: [
       buildLanguageGroup('saaskit', 'node', saaskitNodeNav),
+      buildLanguageGroup('saaskit', 'express', saaskitExpressNav),
+      buildLanguageGroup('saaskit', 'nextjs', saaskitNextjsNav),
       buildLanguageGroup('saaskit', 'python', saaskitPythonNav),
+      buildLanguageGroup('saaskit', 'flask', saaskitFlaskNav),
+      buildLanguageGroup('saaskit', 'fastapi', saaskitFastapiNav),
+      buildLanguageGroup('saaskit', 'django', saaskitDjangoNav),
       buildLanguageGroup('saaskit', 'go', saaskitGoNav),
       buildLanguageGroup('saaskit', 'java', saaskitJavaNav),
       buildLanguageGroup('saaskit', 'expo', saaskitExpoNav),

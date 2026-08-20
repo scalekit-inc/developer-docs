@@ -1,10 +1,21 @@
 ---
-// src/components/Sidebar.astro
-import Default from '@astrojs/starlight/components/Sidebar.astro'
-import TopicsDropdown from 'starlight-sidebar-topics-dropdown/TopicsDropdown.astro'
+/**
+ * Replaces starlight-sidebar-topics' Sidebar override so we can render
+ * language/framework icons on SDK groups. Topics list stays the same.
+ */
+import Topics from 'starlight-sidebar-topics/components/Sidebar.astro'
+import MobileMenuFooter from 'virtual:starlight/components/MobileMenuFooter'
+import SidebarPersister from '@astrojs/starlight/components/SidebarPersister.astro'
+import SidebarSublist from './SidebarSublist.astro'
+
+const { sidebar } = Astro.locals.starlightRoute
 ---
 
-{/* Render the topics dropdown menu. */}
-<TopicsDropdown />
-{/* Render the default sidebar. */}
-<Default><slot /></Default>
+<Topics />
+<SidebarPersister>
+  <SidebarSublist sublist={sidebar} />
+</SidebarPersister>
+
+<div class="md:sl-hidden">
+  <MobileMenuFooter />
+</div>
