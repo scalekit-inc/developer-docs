@@ -238,6 +238,46 @@ export const sidebar = [
       },
     ],
   },
+  // Product cookbook shelves — dedicated sidebars entered from secondary nav, not journey rails
+  {
+    label: 'AgentKit cookbooks',
+    id: 'agentkit-guides',
+    link: '/agentkit/cookbooks/set-up-agentkit-with-your-coding-agent/',
+    icon: 'open-book',
+    items: [
+      {
+        label: 'Cookbooks',
+        collapsed: false,
+        items: [{ autogenerate: { directory: 'agentkit/cookbooks' } }],
+      },
+      {
+        label: 'How-to',
+        collapsed: false,
+        items: [
+          { autogenerate: { directory: 'agentkit/how-to' } },
+          { autogenerate: { directory: 'how-to' } },
+        ],
+      },
+    ],
+  },
+  {
+    label: 'SaaSKit cookbooks',
+    id: 'saaskit-guides',
+    link: '/saaskit/cookbooks/add-hosted-auth-nextjs-app-router/',
+    icon: 'open-book',
+    items: [
+      {
+        label: 'Cookbooks',
+        collapsed: false,
+        items: [{ autogenerate: { directory: 'saaskit/cookbooks' } }],
+      },
+      {
+        label: 'How-to',
+        collapsed: false,
+        items: [{ autogenerate: { directory: 'how-to' } }],
+      },
+    ],
+  },
   {
     label: 'Developer Kit',
     id: 'dev-kit',
@@ -269,6 +309,7 @@ export const sidebar = [
         items: [
           'dev-kit/tools/scalekit-dryrun',
           'dev-kit/tools/sso-simulator',
+          'dev-kit/tools/scim-simulator',
           'dev-kit/tools/use-scalekit-credentials',
         ],
       },
@@ -608,6 +649,9 @@ export const exclude = [
   '/blog',
   '/404', // Error page
   '/apis/**/*', // REST API reference has Scalar-powered navigation
+  // Cross-product cookbook hub: belongs to no single product, so it must not
+  // inherit the Auth for SaaS journey rail or light up a product nav pill.
+  '/cookbooks',
 ]
 
 /**
@@ -632,6 +676,17 @@ export const topics = {
   // Agent connectors (dedicated connectors sidebar — must come before connect)
   'agent-connectors': ['/agentkit/connectors/**/*'],
 
+  // Product guide shelves (before connect catch-all and resources)
+  'agentkit-guides': [
+    '/agentkit/cookbooks',
+    '/agentkit/cookbooks/**/*',
+    '/agentkit/how-to',
+    '/agentkit/how-to/**/*',
+    '/how-to',
+    '/how-to/**/*',
+  ],
+  'saaskit-guides': ['/saaskit/cookbooks', '/saaskit/cookbooks/**/*', '/how-to', '/how-to/**/*'],
+
   // Product SDK sidebars (before connect catch-all)
   'agentkit-sdks': ['/agentkit/sdks/**/*'],
   'saaskit-sdks': ['/saaskit/sdks/**/*', '/sdks', '/sdks/', '/sdks/expo/**/*', '/sdks/ios/**/*'],
@@ -651,8 +706,6 @@ export const topics = {
     '/guides/**/*',
     '/browse/**/*',
     '/reference/**/*',
-    '/cookbooks',
-    '/cookbooks/**/*',
     '/**/*', // Catch-all: anything not matched above defaults here
   ],
 
@@ -735,6 +788,10 @@ export const sidebarToSecondaryNav: Record<string, SecondaryNavMapping> = {
   // Agent connectors sidebar → AgentKit Connectors tab
   'agent-connectors': 'agentkit-connectors',
 
+  // Product cookbook shelves → top-level Cookbooks secondary nav (not Developer Resources)
+  'agentkit-guides': 'agentkit-guides',
+  'saaskit-guides': 'saaskit-guides',
+
   // AgentKit sidebar → AgentKit tabs
   connect: {
     default: 'agentkit-quickstart',
@@ -772,7 +829,6 @@ export const sidebarToSecondaryNav: Record<string, SecondaryNavMapping> = {
       '/authenticate/interceptors': 'workflows',
       '/reference/interceptors': 'workflows',
       '/reference/admin-portal': 'workflows',
-      '/cookbooks': 'cookbooks',
     },
   },
 

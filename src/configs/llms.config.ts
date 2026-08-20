@@ -57,13 +57,15 @@ Start with the Quickstart Collection, then follow the developer's question to th
         'directory/scim/**',
         'guides/user-auth/**',
         'guides/user-management/**',
+        'saaskit/cookbooks/**',
+        'how-to/**',
       ],
     },
     {
       label: 'AgentKit',
       description:
         'Complete AgentKit documentation with connectors, frameworks, and tool calling for AI agents',
-      paths: ['agentkit/**', 'dev-kit/ai-assisted-development/**', 'cookbooks/**'],
+      paths: ['agentkit/**', 'dev-kit/ai-assisted-development/**'],
     },
     {
       label: 'AgentKit Frameworks',
@@ -122,6 +124,7 @@ Start with the Quickstart Collection, then follow the developer's question to th
         'guides/integrations/index',
         'guides/integrations/*/index',
         'guides/dashboard/**',
+        'how-to/**', // Workspace/dashboard how-tos (shared by both products)
         'dev-kit/api-collections/**',
       ],
     },
@@ -139,7 +142,8 @@ Start with the Quickstart Collection, then follow the developer's question to th
     '**/overview', // All overview pages
     '**/quickstart', // All quickstart guides
     'agentkit/examples/**', // Framework examples (high value for agent queries)
-    'cookbooks/**', // Practical cookbooks
+    'agentkit/cookbooks/**', // Practical AgentKit cookbooks
+    'saaskit/cookbooks/**', // Practical SaaSKit cookbooks
     'fsa/data-modelling', // Critical data modeling guide
     'authenticate/set-up-scalekit', // Initial setup
     'authenticate/fsa/complete-login', // Core FSA flow

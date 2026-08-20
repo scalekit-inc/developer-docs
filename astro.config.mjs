@@ -16,7 +16,6 @@ import starlightThemeNova from 'starlight-theme-nova'
 import starlightVideos from 'starlight-videos'
 import starlightLinksValidator from 'starlight-links-validator'
 import starlightLlmsTxt from 'starlight-llms-txt'
-import starlightBlog from 'starlight-blog'
 import { sidebar as sidebarConfig, topics, exclude } from './src/configs/sidebar.config'
 import { redirects } from './src/configs/redirects.config'
 import { llmsConfig } from './src/configs/llms.config.ts'
@@ -29,6 +28,7 @@ import Icons from 'unplugin-icons/vite'
 import netlify from '@astrojs/netlify'
 import openapiToMarkdown from './src/integrations/openapi-markdown'
 import { injectAgentHeader } from './src/integrations/inject-agent-header.ts'
+import assignHowToTopic from './src/integrations/assign-how-to-topic'
 
 // https://astro.build/config
 export default defineConfig({
@@ -108,6 +108,8 @@ export default defineConfig({
         starlightImageZoom({
           showCaptions: true,
         }),
+        // Shared /how-to/** pages have no product folder; assign a topic so Starlight can pick a Cookbooks rail.
+        assignHowToTopic(),
         starlightSidebarTopics(sidebarConfig, { topics, exclude }),
         starlightDocSearch({
           appId: '7554BDRAJD',
@@ -152,14 +154,6 @@ export default defineConfig({
             },
           },
           // No baseUrl — prevents llms.txt generation (already handled by starlight-llms-txt)
-        }),
-        starlightBlog({
-          prefix: 'cookbooks',
-          rss: false,
-          metrics: {
-            readingTime: true,
-            words: 'total',
-          },
         }),
       ],
       head: [
@@ -466,8 +460,6 @@ export default defineConfig({
     },
     optimizeDeps: {
       include: ['vue'],
-      // starlight-blog uses Astro/Starlight virtual modules that should not be pre-bundled.
-      exclude: ['starlight-blog'],
     },
     // Provide a safe fallback for libraries that reference the CommonJS
     // global `__dirname` (e.g. canvaskit-wasm used by astro-og-canvas).

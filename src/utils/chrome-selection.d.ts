@@ -3,11 +3,14 @@ import type { SecondaryNavMapping } from '../configs/sidebar.config'
 
 export const PRODUCT_STORAGE_KEY: 'sk-active-product'
 export const SELF_HOSTED_COLD_DEFAULT_PRODUCT: 'agentkit'
+export const SHARED_HOW_TO_COLD_DEFAULT_PRODUCT: 'saaskit'
 export type DocsProduct = 'agentkit' | 'saaskit'
 
 export function isDocsProduct(value: string | null | undefined): value is DocsProduct
 
 export function isSelfHostedPath(pathname: string): boolean
+export function isSharedHowToPath(pathname: string): boolean
+export function isSharedProductPath(pathname: string): boolean
 
 export function getActiveProduct(
   pathname: string,

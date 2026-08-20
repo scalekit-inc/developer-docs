@@ -70,6 +70,13 @@ const agentKitItems: NavItem[] = [
     iconComponent: IconApi,
   },
   {
+    // Opens the dedicated AgentKit cookbooks sidebar (Cookbooks + How-to collapsibles)
+    id: 'agentkit-guides',
+    href: '/agentkit/cookbooks/set-up-agentkit-with-your-coding-agent/',
+    label: 'Cookbooks',
+    iconComponent: IconLucideBookOpenText,
+  },
+  {
     id: 'enterprise-deployment',
     href: '/self-hosted/overview/',
     label: 'Enterprise Deployment',
@@ -116,10 +123,11 @@ const saasKitItems: NavItem[] = [
     iconComponent: IconApi,
   },
   {
-    id: 'enterprise-deployment',
-    href: '/self-hosted/overview/',
-    label: 'Enterprise Deployment',
-    iconComponent: IconSolarServerPathOutline,
+    // Opens the dedicated SaaSKit cookbooks sidebar (Cookbooks + How-to collapsibles)
+    id: 'saaskit-guides',
+    href: '/saaskit/cookbooks/add-hosted-auth-nextjs-app-router/',
+    label: 'Cookbooks',
+    iconComponent: IconLucideBookOpenText,
   },
   {
     id: 'developer-resources',
@@ -175,15 +183,6 @@ const saasKitItems: NavItem[] = [
         columnGroup: 'right',
       },
       {
-        id: 'cookbooks',
-        href: '/cookbooks/',
-        label: 'Developer Resources',
-        dropdownLabel: 'Cookbooks',
-        iconComponent: IconLucideBookOpenText,
-        description: 'Implement common patterns with step-by-step recipes',
-        columnGroup: 'right',
-      },
-      {
         id: 'code-samples',
         href: '/resources/code-samples/',
         label: 'Code Samples',
@@ -192,6 +191,12 @@ const saasKitItems: NavItem[] = [
         columnGroup: 'right',
       },
     ],
+  },
+  {
+    id: 'enterprise-deployment',
+    href: '/self-hosted/overview/',
+    label: 'Enterprise Deployment',
+    iconComponent: IconSolarServerPathOutline,
   },
 ]
 
