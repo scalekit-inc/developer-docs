@@ -758,13 +758,26 @@ body {
  * var(--ec-brdCol)` in starlight.components). ClientRouter soft-nav can drop
  * or reorder that layered sheet, leaving only the frame's offset box-shadow
  * (0.1rem 0.1rem …) — looks like a missing left/top border until hard refresh.
- * Unlayered so this always wins after soft-nav (same class of bug as Nova above).
+ * Keep these unlayered so they survive that drop. Do not put them in a CSS
+ * layer: a later layer still overrides EC's titled/terminal top-square radii,
+ * and an earlier layer loses the border restore.
  */
 .sl-markdown-content .expressive-code pre,
 .expressive-code pre {
   border: var(--ec-brdWd, 1px) solid var(--ec-brdCol, var(--sl-color-gray-5));
   border-radius: calc(var(--ec-brdRad, 0.375rem) + var(--ec-brdWd, 1px));
   box-sizing: border-box;
+}
+
+/* Same selectors EC uses. The shorthand radius above would otherwise round
+ * the top of titled/terminal pres and leave a square join under the header. */
+.expressive-code .frame.has-title pre,
+.expressive-code .frame.has-title code,
+.expressive-code .frame.is-terminal pre,
+.expressive-code .frame.is-terminal code {
+  border-top: none;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
 }
 
 /* Scalar API client is position:fixed inside .scalar-api-reference
