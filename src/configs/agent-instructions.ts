@@ -3,12 +3,31 @@
  * Single source of truth — used across page-actions prompt, llms.txt, copy-markdown button, and meta tag.
  */
 
+/** Human Setup command. Interactive on purpose. */
+export const setupOneLiner = 'npx @scalekit-inc/cli setup'
+
+/** Same Setup for a coding agent: skip npx and CLI prompts. */
+export const setupForAgent = `npx -y ${setupOneLiner.replace(/^npx\s+/, '')} -y`
+
+/** Skill IDs the authstack repo already ships. Docs copy must use these names. */
+export const AUTHSTACK_SKILLS = [
+  'integrating-agentkit',
+  'implementing-saaskit',
+  'adding-mcp-oauth',
+  'implementing-modular-sso',
+  'implementing-scim-provisioning',
+] as const
+
+export const ENVIRONMENT_URL_VAR = 'SCALEKIT_ENVIRONMENT_URL'
+
+const skillList = AUTHSTACK_SKILLS.join(', ')
+
 /** HTML comment prepended to copied markdown — read by agents that receive raw page content. */
 export const AGENT_PLUGIN_HEADER = `<!-- Building with AI coding agents?
 Install the authstack plugin for your coding agent with one command.
 
 Recommended:
-  npx @scalekit-inc/cli setup
+  ${setupOneLiner}
 
 For repeated use:
   npm install -g @scalekit-inc/cli
@@ -16,31 +35,14 @@ For repeated use:
 
 This gives your agent full awareness of Scalekit authentication patterns and reduces hallucinations.
 
-After installing the plugin, ask your agent to implement Scalekit authentication using the provided patterns and skills.
+After installing the plugin, ask your agent to implement Scalekit authentication using the shipped skills: ${skillList}.
 
-<auth-type> values: agent-auth, full-stack-auth, mcp-auth, modular-sso, modular-scim
 Full guide: https://docs.scalekit.com/dev-kit/build-with-ai/ -->
 
 `
 
-/** Plain-text install block. Not used by the Open-in-agent deep-link prompt (that lives in page-actions.config.ts). */
-export const AGENT_PLUGIN_INLINE = `Building with AI coding agents?
-Install the authstack plugin with one command:
-
-  npx @scalekit-inc/cli setup
-
-Or globally:
-  npm install -g @scalekit-inc/cli
-  scalekit setup
-
-The authstack plugin gives your agent accurate Scalekit implementation patterns (full-stack-auth, agent-auth, mcp-auth, modular-sso, modular-scim).
-
-Full guide: https://docs.scalekit.com/dev-kit/build-with-ai/`
-
 /**
  * Markdown-formatted block for llms.txt `details`.
- * Uses bold and backtick code for better rendering in LLM contexts —
- * intentionally different formatting from AGENT_PLUGIN_INLINE.
  */
 export const AGENT_PLUGIN_DETAILS_MD = `## Building with AI coding agents?
 
@@ -48,7 +50,7 @@ Install the authstack plugin for coding agents with one command. This is the rec
 
 **Recommended**:
 \`\`\`bash
-npx @scalekit-inc/cli setup
+${setupOneLiner}
 \`\`\`
 
 For repeated use:
@@ -59,7 +61,7 @@ scalekit setup
 
 The CLI installs the authstack plugin for Claude Code, Cursor, GitHub Copilot, Codex, and skills for 40+ other agents.
 
-Use natural language or the specific feature skills: full-stack-auth, agent-auth, mcp-auth, modular-sso, modular-scim.
+Use natural language or a shipped skill: ${skillList}.
 
 [Full setup guide](https://docs.scalekit.com/dev-kit/build-with-ai/)
 
@@ -75,7 +77,7 @@ export const AGENT_PLUGIN_VISIBLE_MD = `> **Building with AI coding agents?** In
 >
 > **Recommended**:
 > \`\`\`bash
-> npx @scalekit-inc/cli setup
+> ${setupOneLiner}
 > \`\`\`
 >
 > Global:
@@ -85,7 +87,7 @@ export const AGENT_PLUGIN_VISIBLE_MD = `> **Building with AI coding agents?** In
 > \`\`\`
 >
 > Supports Claude Code, Cursor, GitHub Copilot, Codex + skills for 40+ agents.
-> Features: full-stack-auth, agent-auth, mcp-auth, modular-sso, modular-scim.
+> Skills: ${skillList}.
 > [Full setup guide](https://docs.scalekit.com/dev-kit/build-with-ai/)
 
 ---
@@ -108,7 +110,7 @@ export const AGENT_DOCS_FOOTER = `
 
 /** Single-line string safe for an HTML meta content attribute. */
 export const AGENT_PLUGIN_META =
-  'Building with AI coding agents? Install the authstack plugin with one command: npx @scalekit-inc/cli setup (or npm i -g @scalekit-inc/cli then scalekit setup). ' +
+  `Building with AI coding agents? Install the authstack plugin with one command: ${setupOneLiner} (or npm i -g @scalekit-inc/cli then scalekit setup). ` +
   'Sets up Claude Code, Cursor, GitHub Copilot, Codex + 40+ agents. ' +
-  'Features: full-stack-auth, agent-auth, mcp-auth, modular-sso, modular-scim. ' +
+  `Skills: ${skillList}. ` +
   'Guide: https://docs.scalekit.com/dev-kit/build-with-ai/'

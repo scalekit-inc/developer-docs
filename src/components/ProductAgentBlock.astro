@@ -1,0 +1,39 @@
+---
+import { Code, TabItem } from '@astrojs/starlight/components'
+import Tabs from './ui/Tabs.astro'
+import { setupOneLiner } from '../configs/agent-instructions'
+
+interface Props {
+  skill: string
+  example: string
+  syncKey?: string
+}
+
+const { skill, example, syncKey = 'product-agent-cli' } = Astro.props
+---
+
+<Tabs syncKey={syncKey}>
+  <TabItem label="Recommended">
+    <Code
+      code={setupOneLiner}
+      lang="bash"
+      title="Terminal"
+      frame="terminal"
+      showLineNumbers={false}
+    />
+  </TabItem>
+  <TabItem label="Global install (for repeated use)">
+    <Code
+      code={'npm install -g @scalekit-inc/cli\nscalekit setup'}
+      lang="bash"
+      title="Terminal"
+      frame="terminal"
+      showLineNumbers={false}
+    />
+  </TabItem>
+</Tabs>
+
+<p>
+  Paste a task that names <code>{skill}</code>. For example:
+</p>
+<Code code={example} lang="text" title="Example prompt" showLineNumbers={false} wrap />

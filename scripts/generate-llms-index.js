@@ -10,8 +10,9 @@
  */
 
 import { readFile, writeFile, readdir } from 'node:fs/promises'
-import { join, relative, extname, basename } from 'node:path'
-import { fileURLToPath } from 'node:url'
+import { join, relative, extname, basename, resolve } from 'node:path'
+import { fileURLToPath, pathToFileURL } from 'node:url'
+import { AGENT_PLUGIN_DETAILS_MD } from '../src/configs/agent-instructions.ts'
 
 const __dirname = fileURLToPath(new URL('.', import.meta.url))
 const ROOT = join(__dirname, '..')
@@ -27,7 +28,7 @@ const CUSTOM_SETS = [
     desc: 'users, orgs, sessions, RBAC, login flows, SSO, SCIM provisioning',
   },
   {
-    label: 'Agent Authentication',
+    label: 'AgentKit',
     slug: 'agentkit',
     desc: 'AI agents, OAuth token vault, tool calling, connectors, framework integrations',
   },
@@ -125,19 +126,21 @@ function formatEntry({ urlPath, title, description }) {
     : `- [${title}](${mdUrl(urlPath)})`
 }
 
-// --- Collect all docs ---
-const reads = []
-for await (const file of walk(DOCS_DIR)) {
-  reads.push(readFile(file, 'utf8').then((content) => ({ file, content })))
-}
-const allFiles = await Promise.all(reads)
+async function collectPages(docsDir) {
+  const reads = []
+  for await (const file of walk(docsDir)) {
+    reads.push(readFile(file, 'utf8').then((content) => ({ file, content })))
+  }
+  const allFiles = await Promise.all(reads)
 
-const pages = []
-for (const { file, content } of allFiles) {
-  const { title, description, draft, sidebarHidden } = parseFrontmatter(content)
-  if (draft || sidebarHidden) continue
-  const urlPath = fileToUrlPath(file)
-  pages.push({ file, urlPath, title: title || basename(file), description: description || '' })
+  const pages = []
+  for (const { file, content } of allFiles) {
+    const { title, description, draft, sidebarHidden } = parseFrontmatter(content)
+    if (draft || sidebarHidden) continue
+    const urlPath = fileToUrlPath(file)
+    pages.push({ file, urlPath, title: title || basename(file), description: description || '' })
+  }
+  return pages
 }
 
 // --- Classify pages into named sections for grouped output ---
@@ -237,85 +240,97 @@ function classifyPages(pages) {
   return sections
 }
 
-const classified = classifyPages(pages)
-const rootPage = pages.find((p) => p.urlPath === '/')
+function renderLlmsTxt(pages) {
+  const classified = classifyPages(pages)
+  const rootPage = pages.find((p) => p.urlPath === '/')
 
-// --- Build the llms.txt content ---
-const lines = [
-  '# Scalekit',
-  '',
-  '> Scalekit is a developer platform for enterprise authentication, providing Full Stack Auth (FSA), Single Sign-On (SSO), SCIM provisioning, Agent Authentication, MCP Authentication, and API authentication solutions for B2B and AI applications.',
-  '',
-  '## How to use',
-  '',
-  'When answering questions about Scalekit, load the most relevant documentation set below.',
-  'For framework-specific AgentKit questions, fetch the framework page directly — see "Framework routing" below.',
-  'Use `llms-full.txt` only when exhaustive context is needed.',
-  '',
-  '## Product → Documentation routing',
-  '',
-  '- **AgentKit** (AI agents, tool calling, connectors) → load Agent Authentication set',
-  '- **AgentKit + specific framework** → fetch the framework page directly (see Framework routing below)',
-  '- **SaaSKit / FSA** (login, sessions, RBAC) → load SaaSKit Complete set',
-  '- **MCP Authentication** (OAuth 2.1 for MCP servers) → load MCP Authentication set',
-  '- **Enterprise SSO / SCIM** → load Enterprise SSO & SCIM set',
-  '- **M2M / API auth** → load Machine-to-Machine Auth set',
-  '- **Quickstarts** → load Quickstart Collection set',
-  '',
-  '## Framework routing (AgentKit)',
-  '',
-  'When a developer mentions a specific AI framework, fetch that page directly:',
-  '',
-  `- LangChain → ${BASE_URL}/agentkit/examples/langchain.md`,
-  `- Vercel AI SDK → ${BASE_URL}/agentkit/examples/vercel-ai.md`,
-  `- Anthropic SDK → ${BASE_URL}/agentkit/examples/anthropic.md`,
-  `- OpenAI Agents SDK → ${BASE_URL}/agentkit/examples/openai.md`,
-  `- Google ADK → ${BASE_URL}/agentkit/examples/google-adk.md`,
-  `- Mastra → ${BASE_URL}/agentkit/examples/mastra.md`,
-  `- Claude Managed Agents → ${BASE_URL}/agentkit/examples/claude-managed-agents.md`,
-  '',
-  `For all framework examples: ${BASE_URL}/agentkit/examples.md`,
-  '',
-  '## Documentation Sets',
-  '',
-  `- [Abridged documentation](${BASE_URL}/llms-small.txt): compact version with non-essential content removed`,
-  `- [Complete documentation](${BASE_URL}/llms-full.txt): full documentation for Scalekit`,
-  ...CUSTOM_SETS.map(
-    ({ label, slug, desc }) => `- [${label}](${BASE_URL}/_llms-txt/${slug}.txt): ${desc}`,
-  ),
-  '',
-  '## Optional',
-  '',
-  `- [API reference markdown — all endpoints](${BASE_URL}/apis.md): LLM-friendly Markdown from the full Scalekit OpenAPI specification`,
-  `- [AgentKit API reference markdown](${BASE_URL}/agentkit/apis.md): AgentKit APIs — connected accounts, tool execution, webhooks`,
-  `- [SaaSKit API reference markdown](${BASE_URL}/saaskit/apis.md): SaaSKit APIs — SSO, SCIM, directories, sessions, roles, users`,
-  `- [OpenAPI Specification — all endpoints](${BASE_URL}/api/scalekit.scalar.json): OpenAPI Specification for Scalekit REST API`,
-  `- [AgentKit OpenAPI Specification](${BASE_URL}/api/agentkit.scalar.json): OpenAPI Specification for AgentKit REST API`,
-  `- [SaaSKit OpenAPI Specification](${BASE_URL}/api/saaskit.scalar.json): OpenAPI Specification for SaaSKit REST API`,
-  '',
-]
+  const lines = [
+    '# Scalekit',
+    '',
+    '> Scalekit is a developer platform for enterprise authentication, providing Full Stack Auth (FSA), Single Sign-On (SSO), SCIM provisioning, AgentKit, MCP Authentication, and API authentication solutions for B2B and AI applications.',
+    '',
+    AGENT_PLUGIN_DETAILS_MD,
+    '## How to use',
+    '',
+    'When answering questions about Scalekit, load the most relevant documentation set below.',
+    'For framework-specific AgentKit questions, fetch the framework page directly — see "Framework routing" below.',
+    'Use `llms-full.txt` only when exhaustive context is needed.',
+    '',
+    '## Product → Documentation routing',
+    '',
+    '- **AgentKit** (AI agents, tool calling, connectors) → load AgentKit set',
+    '- **AgentKit + specific framework** → fetch the framework page directly (see Framework routing below)',
+    '- **SaaSKit / FSA** (login, sessions, RBAC) → load SaaSKit Complete set',
+    '- **MCP Authentication** (OAuth 2.1 for MCP servers) → load MCP Authentication set',
+    '- **Enterprise SSO / SCIM** → load Enterprise SSO & SCIM set',
+    '- **M2M / API auth** → load Machine-to-Machine Auth set',
+    '- **Quickstarts** → load Quickstart Collection set',
+    '',
+    '## Framework routing (AgentKit)',
+    '',
+    'When a developer mentions a specific AI framework, fetch that page directly:',
+    '',
+    `- LangChain → ${BASE_URL}/agentkit/examples/langchain.md`,
+    `- Vercel AI SDK → ${BASE_URL}/agentkit/examples/vercel-ai.md`,
+    `- Anthropic SDK → ${BASE_URL}/agentkit/examples/anthropic.md`,
+    `- OpenAI Agents SDK → ${BASE_URL}/agentkit/examples/openai.md`,
+    `- Google ADK → ${BASE_URL}/agentkit/examples/google-adk.md`,
+    `- Mastra → ${BASE_URL}/agentkit/examples/mastra.md`,
+    `- Claude Managed Agents → ${BASE_URL}/agentkit/examples/claude-managed-agents.md`,
+    '',
+    `For all framework examples: ${BASE_URL}/agentkit/examples.md`,
+    '',
+    '## Documentation Sets',
+    '',
+    `- [Abridged documentation](${BASE_URL}/llms-small.txt): compact version with non-essential content removed`,
+    `- [Complete documentation](${BASE_URL}/llms-full.txt): full documentation for Scalekit`,
+    ...CUSTOM_SETS.map(
+      ({ label, slug, desc }) => `- [${label}](${BASE_URL}/_llms-txt/${slug}.txt): ${desc}`,
+    ),
+    '',
+    '## Optional',
+    '',
+    `- [API reference markdown — all endpoints](${BASE_URL}/apis.md): LLM-friendly Markdown from the full Scalekit OpenAPI specification`,
+    `- [AgentKit API reference markdown](${BASE_URL}/agentkit/apis.md): AgentKit APIs — connected accounts, tool execution, webhooks`,
+    `- [SaaSKit API reference markdown](${BASE_URL}/saaskit/apis.md): SaaSKit APIs — SSO, SCIM, directories, sessions, roles, users`,
+    `- [OpenAPI Specification — all endpoints](${BASE_URL}/api/scalekit.scalar.json): OpenAPI Specification for Scalekit REST API`,
+    `- [AgentKit OpenAPI Specification](${BASE_URL}/api/agentkit.scalar.json): OpenAPI Specification for AgentKit REST API`,
+    `- [SaaSKit OpenAPI Specification](${BASE_URL}/api/saaskit.scalar.json): OpenAPI Specification for SaaSKit REST API`,
+    '',
+  ]
 
-// Root page first
-if (rootPage) {
-  lines.push('## Home')
-  lines.push('')
-  lines.push(formatEntry(rootPage))
-  lines.push('')
-}
-
-// Grouped sections
-for (const { heading, pages: sectionPages } of classified) {
-  lines.push(`## ${heading}`)
-  lines.push('')
-  for (const page of sectionPages) {
-    lines.push(formatEntry(page))
+  if (rootPage) {
+    lines.push('## Home', '', formatEntry(rootPage), '')
   }
-  lines.push('')
+
+  for (const { heading, pages: sectionPages } of classified) {
+    lines.push(`## ${heading}`, '')
+    for (const page of sectionPages) {
+      lines.push(formatEntry(page))
+    }
+    lines.push('')
+  }
+
+  return { output: lines.join('\n') + '\n', pages, classified }
 }
 
-const output = lines.join('\n') + '\n'
-await writeFile(OUT_FILE, output, 'utf8')
+export async function buildPublishedLlmsTxt() {
+  const pages = await collectPages(DOCS_DIR)
+  return renderLlmsTxt(pages).output
+}
 
-console.log(
-  `[generate-llms-index] Wrote ${pages.length} pages in ${classified.length} sections to dist/llms.txt (${output.length} bytes)`,
-)
+async function main() {
+  const pages = await collectPages(DOCS_DIR)
+  const { output, classified } = renderLlmsTxt(pages)
+  await writeFile(OUT_FILE, output, 'utf8')
+  console.log(
+    `[generate-llms-index] Wrote ${pages.length} pages in ${classified.length} sections to dist/llms.txt (${output.length} bytes)`,
+  )
+}
+
+const invokedDirectly =
+  Boolean(process.argv[1]) && import.meta.url === pathToFileURL(resolve(process.argv[1])).href
+
+if (invokedDirectly) {
+  await main()
+}

@@ -1,8 +1,14 @@
-/** Human Setup command on the Run the CLI on-ramp. Interactive on purpose. */
-export const setupOneLiner = 'npx @scalekit-inc/cli setup'
+import {
+  AUTHSTACK_SKILLS,
+  ENVIRONMENT_URL_VAR,
+  setupForAgent,
+  setupOneLiner,
+} from './agent-instructions.ts'
 
-/** Same Setup for a coding agent: skip npx and CLI prompts. */
-export const setupForAgent = `npx -y ${setupOneLiner.replace(/^npx\s+/, '')} -y`
+const [agentkitSkill, saaskitSkill, mcpSkill, ssoSkill, scimSkill] = AUTHSTACK_SKILLS
+const skillChoice = `${AUTHSTACK_SKILLS.slice(0, -1).join(', ')}, or ${AUTHSTACK_SKILLS.at(-1)}`
+
+export { setupOneLiner, setupForAgent }
 
 /**
  * Playbook copied from the Quickstart with your agent on-ramp.
@@ -23,18 +29,18 @@ Follow these in order. A step is done only when its check passes.
    Done: the command exits 0.
 
 2. Skill — install the matching authstack skill, non-interactive. Default (AgentKit with Gmail):
-   npx --yes skills add scalekit-inc/authstack --yes --skill integrating-agentkit -a cursor -a claude-code -a codex
+   npx --yes skills add scalekit-inc/authstack --yes --skill ${agentkitSkill} -a cursor -a claude-code -a codex
 
    Other products:
-   - SaaSKit → implementing-saaskit
-   - MCP auth → adding-mcp-oauth
-   - SSO → implementing-modular-sso
-   - SCIM → implementing-scim-provisioning
+   - SaaSKit → ${saaskitSkill}
+   - MCP auth → ${mcpSkill}
+   - SSO → ${ssoSkill}
+   - SCIM → ${scimSkill}
 
    Done: that skill is installed for cursor, claude-code, and codex.
 
 3. Credentials — set these in a local .env for development, from https://app.scalekit.com → Developers → Settings → API Credentials:
-   SCALEKIT_ENVIRONMENT_URL
+   ${ENVIRONMENT_URL_VAR}
    SCALEKIT_CLIENT_ID
    SCALEKIT_CLIENT_SECRET
    Keep .env out of git. If I paste values into this chat, use them only for that development .env and remind me to rotate them in the dashboard afterward.
@@ -48,7 +54,7 @@ Follow these in order. A step is done only when its check passes.
 
    - AgentKit: authorization link if the connected account is not ACTIVE; after OAuth, status ACTIVE and one successful tool/API call. Path: AgentKit → Connections
    - SaaSKit: the app login/authorize URL, plus
-     npx @scalekit-sdk/dryrun --env_url=$SCALEKIT_ENVIRONMENT_URL --client_id=$SCALEKIT_CLIENT_ID --mode=fsa
+     npx @scalekit-sdk/dryrun --env_url=$${ENVIRONMENT_URL_VAR} --client_id=$SCALEKIT_CLIENT_ID --mode=fsa
      Register http://localhost:12456/auth/callback under Authentication → Redirect URIs first. Path: Authentication → Redirect URLs
    - MCP auth: MCP server URL and https://<your-domain>/.well-known/oauth-protected-resource. Curl the MCP URL for 401 + WWW-Authenticate, and curl the well-known JSON. Path: MCP servers
    - SSO: authorization URL that opens the SSO simulator — Test Organization organization_id from Organizations → Test Organization, or login_hint on @example.com / @example.org. Path: Organizations → Test Organization
@@ -63,5 +69,5 @@ Follow these in order. A step is done only when its check passes.
 export const pageActionsPrompt = `Implement this Scalekit documentation in the current repository: {url}
 
 1. Fetch the page (try the same path with .md if the HTML is noisy). Done when you can state the page's outcome and the steps it requires.
-2. Load Scalekit skills. If none are available, run \`npx @scalekit-inc/cli setup\`. Done when a Scalekit skill matches the page's product (agent-auth, full-stack-auth, mcp-auth, modular-sso, or modular-scim).
+2. Load Scalekit skills. If none are available, run \`${setupForAgent}\`. Done when a Scalekit skill matches the page (${skillChoice}).
 3. Apply those steps to this repo. Use the page as the source of truth and match its code style and SDK names. Done when the page's verify step succeeds, or you name the first blocker only the developer can resolve (credentials, a dashboard click, or a missing app).`
