@@ -168,12 +168,6 @@ export const tools: Tool[] = [
         required: false,
         description: `Comma-separated list of fields to return.`,
       },
-      {
-        name: 'xero_tenant_id',
-        type: 'string',
-        required: false,
-        description: `Xero tenant (organisation) ID.`,
-      },
     ],
   },
   {

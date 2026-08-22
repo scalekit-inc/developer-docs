@@ -2,6 +2,25 @@ import type { Tool } from '../../types/agent-connectors'
 
 export const tools: Tool[] = [
   {
+    name: 'tactiqmcp_expand_transcript_excerpt',
+    description: `Read the conversation immediately around an excerpt returned by get_transcript_excerpts — the question it answered, the reply it drew. Use it when an excerpt reads as one side of an exchange, or when a name or number in it looks garbled and the surrounding words would settle it.
+
+IMPORTANT: Takes the \`excerptId\` of an excerpt from a recent get_transcript_excerpts call. References stop working after about an hour; when one does, search again and expand one of the fresh excerpts.
+IMPORTANT: Returns a short fixed window around the excerpt. Expanding the same excerpt again returns the same window, so to read further use get_transcript_excerpts with a more specific question.
+IMPORTANT: Rate limited: transcript excerpts can be read for at most 100 different meetings per hour per user; meetings already read in the window don't count again.
+IMPORTANT: Requires a Tactiq Team plan.
+
+Returns: \`entries[]\` (each: \`text\`, \`speaker\`, \`startSeconds\`, \`endSeconds\`, \`isExcerpt\`) in speaking order, and \`url\` which opens the transcript at the excerpt.`,
+    params: [
+      {
+        name: 'excerptId',
+        type: 'string',
+        required: true,
+        description: `The excerptId of an excerpt from get_transcript_excerpts.`,
+      },
+    ],
+  },
+  {
     name: 'tactiqmcp_get_generation_status',
     description: `Check whether a previously triggered AI generation (typically a detailed summary started by \`get_meeting\`) has finished.
 
@@ -58,6 +77,51 @@ Returns: \`id\`, \`title\`, optional \`contentType\` (e.g. \`summary\`, \`email_
         description: `Artifact ID from \`list_meeting_artifacts\` or \`get_meeting\`'s \`otherArtifacts[]\`.`,
       },
       { name: 'meetingId', type: 'string', required: true, description: `Meeting ID.` },
+    ],
+  },
+  {
+    name: 'tactiqmcp_get_transcript',
+    description: `Read a meeting's full transcript, one page at a time, in speaking order with speaker names and timestamps.
+
+Prefer get_transcript_excerpts when you are looking for specific moments, quotes, or topics — it is faster and more precise. Use this pager only when you genuinely need the complete text (e.g. a full translation or rewrite).
+
+IMPORTANT: The transcript is returned in fixed pages. Start at page 1; \`totalPages\` tells you how many pages exist, and the same page number always returns the same content for a given meeting.
+IMPORTANT: Rate limited: full transcripts can be read for at most 10 different meetings per hour per user; meetings already read in the window don't count again.
+IMPORTANT: Requires a Tactiq Team plan.
+IMPORTANT: This tool requires the Tactiq connection to have been authorized with transcript access. If it returns an upgrade/permission message, disconnect and reconnect Tactiq and approve the "Read meeting details, summaries, transcript excerpts and full transcripts" permission on the consent screen.
+
+Returns: \`page\`, \`totalPages\`, \`totalChars\` (size of the whole transcript in characters), \`hasMore\`, \`entries[]\` (each: \`text\`, \`speaker\`, \`startSeconds\`, \`endSeconds\`), \`url\`. Cite \`url\` when you relay this content — it lets the user open the meeting to verify what was said.`,
+    params: [
+      { name: 'meetingId', type: 'string', required: true, description: `Meeting ID.` },
+      {
+        name: 'page',
+        type: 'integer',
+        required: false,
+        description: `Page number to read, starting at 1. Defaults to 1.`,
+      },
+    ],
+  },
+  {
+    name: 'tactiqmcp_get_transcript_excerpts',
+    description: `Find the verbatim transcript excerpts of a meeting that are relevant to a question — what exactly was said, by whom, and when.
+
+Prefer this over get_transcript whenever you are looking for specific moments, quotes, decisions, or topics; fetch the full transcript only when you genuinely need the entire text.
+
+IMPORTANT: Returns at most 10 short excerpts per call. Each excerpt is a single moment; when one reads as half of an exchange, pass its \`excerptId\` to expand_transcript_excerpt to see what was said around it.
+IMPORTANT: \`hasMore\` tells you whether relevant excerpts were left out — when it is true, call again with a more specific question rather than assuming this is everything.
+IMPORTANT: An empty \`excerpts\` list means nothing matched the question's wording — NOT that the topic is absent from the meeting. Transcripts contain speech-recognition errors and people rarely speak in the question's exact terms, so rephrase (synonyms, related terms, a broader topic) and try again before concluding something was never discussed.
+IMPORTANT: Rate limited: transcript excerpts can be read for at most 100 different meetings per hour per user; meetings already read in the window don't count again.
+IMPORTANT: Requires a Tactiq Team plan.
+
+Returns: \`excerpts[]\` (each: \`text\`, \`speaker\`, \`excerptId\`, \`startSeconds\`, \`endSeconds\`, \`url\`), ordered most relevant first; \`hasMore\`; and \`searchedWholeMeeting\`. An empty list means nothing matched this wording — rephrase and retry before concluding the topic is absent. Each \`url\` opens the transcript at that excerpt — link to it when you quote or reference the excerpt.`,
+    params: [
+      { name: 'meetingId', type: 'string', required: true, description: `Meeting ID.` },
+      {
+        name: 'query',
+        type: 'string',
+        required: true,
+        description: `The question or topic to find transcript excerpts for, e.g. "what did they agree about pricing". At most 500 characters.`,
+      },
     ],
   },
   {

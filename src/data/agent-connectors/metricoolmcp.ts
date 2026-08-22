@@ -32,6 +32,48 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'metricoolmcp_createscheduledpostforreview',
+    description: `Schedule a new post and send it to review (approval flow) in Metricool, replicating the web "Send for review" action.`,
+    params: [
+      {
+        name: 'approvalSystem',
+        type: 'string',
+        required: true,
+        description: `Approval system: any, all or optional`,
+      },
+      {
+        name: 'blogId',
+        type: 'string',
+        required: true,
+        description: `Blog id of the Metricool brand account`,
+      },
+      {
+        name: 'date',
+        type: 'string',
+        required: true,
+        description: `Publication date/time once approved. Format: ISO 8601 (YYYY-MM-DDTHH:MM:SS±HH:MM)`,
+      },
+      {
+        name: 'info',
+        type: 'string',
+        required: true,
+        description: `Data of the post to be scheduled. Same JSON structure as createScheduledPost.`,
+      },
+      {
+        name: 'reviewers',
+        type: 'string',
+        required: true,
+        description: `Comma-separated list of reviewer emails`,
+      },
+      {
+        name: 'notify',
+        type: 'boolean',
+        required: false,
+        description: `Notify internal Metricool reviewers by email. Default true. External reviewers are always emailed.`,
+      },
+    ],
+  },
+  {
     name: 'metricoolmcp_getanalyticsavailablemetrics',
     description: `Get the available analytics metrics for a specific social network and connector in Metricool.`,
     params: [
@@ -153,6 +195,54 @@ export const tools: Tool[] = [
         type: 'boolean',
         required: false,
         description: `When true, search date range is expanded one day before and after. Default: false`,
+      },
+    ],
+  },
+  {
+    name: 'metricoolmcp_sendscheduledpostforreview',
+    description: `Send an already-scheduled post to review (approval flow) in Metricool. Requires the post id and uuid from getScheduledPosts.`,
+    params: [
+      {
+        name: 'approvalSystem',
+        type: 'string',
+        required: true,
+        description: `Approval system: any, all or optional`,
+      },
+      {
+        name: 'blogId',
+        type: 'string',
+        required: true,
+        description: `Blog id of the Metricool brand account`,
+      },
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `Id of the already scheduled post`,
+      },
+      {
+        name: 'info',
+        type: 'string',
+        required: true,
+        description: `Full content of the post to send to review, same JSON structure as updateScheduledPost`,
+      },
+      {
+        name: 'reviewers',
+        type: 'string',
+        required: true,
+        description: `Comma-separated list of reviewer emails`,
+      },
+      {
+        name: 'uuid',
+        type: 'string',
+        required: true,
+        description: `Uuid of the already scheduled post`,
+      },
+      {
+        name: 'notify',
+        type: 'boolean',
+        required: false,
+        description: `Notify internal Metricool reviewers by email. Default true. External reviewers are always emailed.`,
       },
     ],
   },

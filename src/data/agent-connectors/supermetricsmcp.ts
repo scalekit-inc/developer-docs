@@ -483,6 +483,108 @@ export const tools: Tool[] = [
     params: [],
   },
   {
+    name: 'supermetricsmcp_manage_dashboards',
+    description: `Upload, retrieve, edit, or view version history for live Supermetrics Studio dashboards that re-query data on each view.`,
+    params: [
+      {
+        name: 'action',
+        type: 'string',
+        required: true,
+        description: `Action to perform: \`upload\` to create or replace a dashboard, \`get\` to retrieve its code and metadata, \`edit\` to apply patches to its code, or \`changelog\` to view version history.`,
+      },
+      {
+        name: 'allowed_accounts',
+        type: 'string',
+        required: false,
+        description: `Per-data-source list of account IDs the dashboard may query. Required for \`upload\`.`,
+      },
+      {
+        name: 'allowed_tools',
+        type: 'string',
+        required: false,
+        description: `MCP tool names the dashboard is allowed to call. Required for \`upload\`.`,
+      },
+      {
+        name: 'change_summary',
+        type: 'string',
+        required: false,
+        description: `Description of the change, recorded in version history. Used by \`upload\` replace and \`edit\`.`,
+      },
+      {
+        name: 'code',
+        type: 'string',
+        required: false,
+        description: `Complete dashboard code (HTML or JSX) that visualizes the data. Required for \`upload\`.`,
+      },
+      {
+        name: 'dashboard_id',
+        type: 'string',
+        required: false,
+        description: `UUID of the dashboard. Required for \`get\` and \`edit\`. For \`upload\`, omit to create a new dashboard or provide to replace an existing one.`,
+      },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `Short description/subtitle of the dashboard itself, shown in the board list. Used by \`upload\`.`,
+      },
+      {
+        name: 'patches',
+        type: 'string',
+        required: false,
+        description: `List of patch operations to apply to the dashboard's code. Used by \`edit\`.`,
+      },
+      {
+        name: 'title',
+        type: 'string',
+        required: false,
+        description: `Display name of the dashboard. Used by \`upload\`.`,
+      },
+    ],
+  },
+  {
+    name: 'supermetricsmcp_manage_user_and_team',
+    description: `Manage your Supermetrics account: get user profile, license, and team member info, invite new members, get a login link for a data source, or assign users to a subscription.`,
+    params: [
+      {
+        name: 'action',
+        type: 'string',
+        required: true,
+        description: `Action to perform: \`get_info\` for user/license/team info, \`invite_member\` to invite a new member, \`login_data_source\` for a login link (requires \`ds_id\`), or \`add_user_to_subscription\` (requires \`license_id\` and \`user_ids\`).`,
+      },
+      {
+        name: 'ds_id',
+        type: 'string',
+        required: false,
+        description: `Data source identifier to get a login link for. Required for \`login_data_source\`.`,
+      },
+      {
+        name: 'email',
+        type: 'string',
+        required: false,
+        description: `Email address of the member to invite. Used by \`invite_member\`.`,
+      },
+      {
+        name: 'license_id',
+        type: 'string',
+        required: false,
+        description: `Subscription license ID from \`get_info\`. Required for \`add_user_to_subscription\`.`,
+      },
+      {
+        name: 'role',
+        type: 'string',
+        required: false,
+        description: `Role to assign the invited member. Used by \`invite_member\`.`,
+      },
+      {
+        name: 'user_ids',
+        type: 'string',
+        required: false,
+        description: `User IDs from \`get_info\` to assign to the subscription. Required for \`add_user_to_subscription\`.`,
+      },
+    ],
+  },
+  {
     name: 'supermetricsmcp_resources_manage',
     description: `Open the visual media picker or manage ad creative assets for a supported platform.`,
     params: [
@@ -519,8 +621,20 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'supermetricsmcp_supermetrics_guide',
+    description: `Explain what Supermetrics can do for this user, or show what has changed recently.`,
+    params: [
+      {
+        name: 'mode',
+        type: 'string',
+        required: false,
+        description: `Use \`tour\` (the default) for what the user can do with Supermetrics, or \`whats_new\` for capabilities added recently.`,
+      },
+    ],
+  },
+  {
     name: 'supermetricsmcp_user_info',
-    description: `Retrieve the authenticated Supermetrics user's profile information.`,
+    description: `[STALE: no longer present in upstream tools/list as of 2026-08-19 refresh; superseded by supermetricsmcp_manage_user_and_team's get_info action] Retrieve the authenticated Supermetrics user's profile information.`,
     params: [],
   },
 ]

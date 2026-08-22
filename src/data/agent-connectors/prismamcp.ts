@@ -2,6 +2,54 @@ import type { Tool } from '../../types/agent-connectors'
 
 export const tools: Tool[] = [
   {
+    name: 'prismamcp_create_object_store_bucket',
+    description: `Create a new object-store bucket in the given project. On success, use the returned bucket id to generate access credentials.`,
+    params: [
+      {
+        name: 'projectId',
+        type: 'string',
+        required: true,
+        description: `The project ID to create the bucket in (e.g. proj_xxx).`,
+      },
+      {
+        name: 'branchId',
+        type: 'string',
+        required: false,
+        description: `Branch ID (e.g. br_xxx) to scope the bucket to. Defaults to the project default branch.`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: false,
+        description: `A display name for the bucket. Generated if omitted.`,
+      },
+    ],
+  },
+  {
+    name: 'prismamcp_create_object_store_bucket_key',
+    description: `Create an S3-compatible access key for an object-store bucket. The secret access key is returned exactly once and never stored, so it must be saved immediately.`,
+    params: [
+      {
+        name: 'bucketId',
+        type: 'string',
+        required: true,
+        description: `The bucket ID to create the key for (e.g. bkt_xxx). Use the List Buckets tool to find it.`,
+      },
+      {
+        name: 'role',
+        type: 'string',
+        required: true,
+        description: `Access level: 'read' for read-only, 'read_write' for full access.`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: false,
+        description: `A display name for the key. Generated if omitted.`,
+      },
+    ],
+  },
+  {
     name: 'prismamcp_create_prisma_postgres_backup',
     description: `Create an automated backup for a Prisma Postgres database. Note: on-demand backup creation is not currently supported; backups are created automatically by the system.`,
     params: [
@@ -76,6 +124,30 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `A unique name for the recovered database.`,
+      },
+    ],
+  },
+  {
+    name: 'prismamcp_delete_object_store_bucket',
+    description: `Permanently delete an object-store bucket, all objects stored in it, and all its access keys. This action cannot be undone.`,
+    params: [
+      {
+        name: 'bucketId',
+        type: 'string',
+        required: true,
+        description: `The bucket ID to delete (e.g. bkt_xxx). Use the List Buckets tool to find it.`,
+      },
+    ],
+  },
+  {
+    name: 'prismamcp_delete_object_store_bucket_key',
+    description: `Delete an object-store bucket access key. The key immediately stops working. This action cannot be undone.`,
+    params: [
+      {
+        name: 'bucketKeyId',
+        type: 'string',
+        required: true,
+        description: `The key ID to delete (e.g. bkey_xxx), as returned when the key was created.`,
       },
     ],
   },
@@ -175,6 +247,24 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'prismamcp_list_object_store_buckets',
+    description: `List object-store buckets in the workspace, 100 per page, optionally filtered by project ID. Use the returned id as bucketId in other bucket tools.`,
+    params: [
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Pagination cursor from a previous response's nextCursor.`,
+      },
+      {
+        name: 'projectId',
+        type: 'string',
+        required: false,
+        description: `Filter buckets by project ID (e.g. proj_xxx). Omit to list all buckets.`,
+      },
+    ],
+  },
+  {
     name: 'prismamcp_list_prisma_postgres_backups',
     description: `List all available automated backups for a Prisma Postgres database.`,
     params: [
@@ -202,5 +292,17 @@ export const tools: Tool[] = [
     name: 'prismamcp_list_prisma_postgres_databases',
     description: `List all Prisma Postgres databases in the workspace. Use the returned id as databaseId in other tools.`,
     params: [],
+  },
+  {
+    name: 'prismamcp_search_prisma_documentation',
+    description: `Search Prisma's official documentation and knowledge sources to answer questions about Prisma Postgres, Prisma ORM, Accelerate, Optimize, schema design, and migrations. Returns an answer grounded in the docs, with citations.`,
+    params: [
+      {
+        name: 'query',
+        type: 'string',
+        required: true,
+        description: `Natural-language question about Prisma — Prisma Postgres, Prisma ORM, Accelerate, Optimize, schema design, migrations, etc.`,
+      },
+    ],
   },
 ]

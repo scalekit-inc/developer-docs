@@ -2,6 +2,78 @@ import type { Tool } from '../../types/agent-connectors'
 
 export const tools: Tool[] = [
   {
+    name: 'fiberymcp_add_chart_tab',
+    description: `Appends a new chart tab to an existing Fibery report.
+
+**Prerequisite:** You need a \`reportId\` from \`create_report\` or \`get_reports_list\`. Call \`display_report_schema\` first to discover valid field expressions for the report's sources.
+
+Reports are a specialized domain — call \`get_fibery_skill\` with \`skill: "reports"\` for the full report model, expression syntax, palettes, conditions, and workflow.`,
+    params: [
+      {
+        name: 'reportId',
+        type: 'string',
+        required: true,
+        description: `UUID of the report to add the chart tab to (from create_report or get_reports_list).`,
+      },
+      {
+        name: 'x',
+        type: 'array',
+        required: true,
+        description: `X-axis dimensions. Put categorical/date dimensions before numeric.`,
+      },
+      {
+        name: 'y',
+        type: 'array',
+        required: true,
+        description: `Y-axis dimensions. Put categorical/date dimensions before numeric.`,
+      },
+      {
+        name: 'color',
+        type: 'object',
+        required: false,
+        description: `Color-coding (legend) dimension. Only one allowed.`,
+      },
+      { name: 'description', type: 'string', required: false, description: `Tab description.` },
+      {
+        name: 'dimensionConditions',
+        type: 'array',
+        required: false,
+        description: `Dimension-level filters (must reference expressions already used in the tab).`,
+      },
+      {
+        name: 'fieldConditions',
+        type: 'array',
+        required: false,
+        description: `Field-level filters applied to this tab's data.`,
+      },
+      {
+        name: 'label',
+        type: 'array',
+        required: false,
+        description: `Label dimensions shown on chart points/bars.`,
+      },
+      {
+        name: 'palette',
+        type: 'string',
+        required: false,
+        description: `Color palette. See get_fibery_skill(skill:'reports') for palette selection guidance.`,
+      },
+      {
+        name: 'size',
+        type: 'object',
+        required: false,
+        description: `Size-coding dimension. Only one allowed.`,
+      },
+      { name: 'title', type: 'string', required: false, description: `Tab title.` },
+      {
+        name: 'type',
+        type: 'string',
+        required: false,
+        description: `Chart type. Defaults to 'scatterplot' if omitted. See get_fibery_skill(skill:'reports') for chart-type guidance.`,
+      },
+    ],
+  },
+  {
     name: 'fiberymcp_add_collection_items',
     description: `Adds related entities to a Collection field on a Fibery entity.`,
     params: [
@@ -88,8 +160,112 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'fiberymcp_add_inline_comments',
+    description: `Adds inline comments to text inside ONE block. The matched text becomes the highlighted range; block content is NOT changed. The author is the current user.
+
+Call \`read_document\` first to get block ids.
+Call \`get_fibery_skill({skill: "documents"})\` for more details. For entity-level comments (the Comments field of an entity), use \`add_comment\` instead.
+
+## Example
+\`\`\`
+{
+    secret: "123",
+    comments: [{blockId: "456", exact: "comprehensive test suite", content: "Which suites exactly? Consider linking them."}]
+}
+\`\`\``,
+    params: [
+      { name: 'comments', type: 'array', required: true, description: `Comments to attach` },
+      {
+        name: 'secret',
+        type: 'string',
+        required: true,
+        description: `Document secret (UUID). For entity document fields, select the field's secret via query (e.g. {Secret: ['Space/Field', 'Collaboration~Documents/secret']}). For standalone documents, use search with viewType 'document'`,
+      },
+    ],
+  },
+  {
+    name: 'fiberymcp_add_metric_tab',
+    description: `Appends a new metric tab to an existing Fibery report.
+
+**Prerequisite:** You need a \`reportId\` from \`create_report\` or \`get_reports_list\`. Call \`display_report_schema\` first to discover valid field expressions for the report's sources.
+
+**Scalar expressions only:** Every metric expression must be a scalar aggregate (e.g. \`COUNT([ID])\`). Raw field references are not valid here.
+
+Reports are a specialized domain — call \`get_fibery_skill\` with \`skill: "reports"\` for the full report model, expression syntax, palettes, conditions, and workflow.`,
+    params: [
+      {
+        name: 'metrics',
+        type: 'array',
+        required: true,
+        description: `Scalar metrics to display. Each expression must be scalar (e.g. COUNT([ID])). Never duplicate.`,
+      },
+      {
+        name: 'reportId',
+        type: 'string',
+        required: true,
+        description: `UUID of the report to add the metric tab to (from create_report or get_reports_list).`,
+      },
+      { name: 'description', type: 'string', required: false, description: `Tab description.` },
+      {
+        name: 'dimensionConditions',
+        type: 'array',
+        required: false,
+        description: `Dimension-level filters (must reference expressions already used in the tab).`,
+      },
+      {
+        name: 'fieldConditions',
+        type: 'array',
+        required: false,
+        description: `Field-level filters applied to this tab's data.`,
+      },
+      { name: 'title', type: 'string', required: false, description: `Tab title.` },
+    ],
+  },
+  {
+    name: 'fiberymcp_add_table_tab',
+    description: `Appends a new table tab to an existing Fibery report.
+
+**Prerequisite:** You need a \`reportId\` from \`create_report\` or \`get_reports_list\`. Call \`display_report_schema\` first to discover valid field expressions for the report's sources.
+
+Reports are a specialized domain — call \`get_fibery_skill\` with \`skill: "reports"\` for the full report model, expression syntax, palettes, conditions, and workflow.`,
+    params: [
+      {
+        name: 'columns',
+        type: 'array',
+        required: true,
+        description: `Table columns. Never duplicate expressions across columns.`,
+      },
+      {
+        name: 'reportId',
+        type: 'string',
+        required: true,
+        description: `UUID of the report to add the table tab to (from create_report or get_reports_list).`,
+      },
+      { name: 'description', type: 'string', required: false, description: `Tab description.` },
+      {
+        name: 'dimensionConditions',
+        type: 'array',
+        required: false,
+        description: `Dimension-level filters (must reference expressions already used in the tab).`,
+      },
+      {
+        name: 'fieldConditions',
+        type: 'array',
+        required: false,
+        description: `Field-level filters applied to this tab's data.`,
+      },
+      {
+        name: 'groupBy',
+        type: 'array',
+        required: false,
+        description: `Additional group-by dimensions. Do not reuse an expression already used as a column.`,
+      },
+      { name: 'title', type: 'string', required: false, description: `Tab title.` },
+    ],
+  },
+  {
     name: 'fiberymcp_append_document_content',
-    description: `Appends Markdown content to the end of a document field on a Fibery entity.`,
+    description: `[STALE: removed upstream, replaced by block-based document tools (insert_document_blocks/set_block_text/read_document)] Appends Markdown content to the end of a document field on a Fibery entity.`,
     params: [
       {
         name: 'content',
@@ -133,6 +309,33 @@ export const tools: Tool[] = [
         type: 'array',
         required: true,
         description: `Array of full database names (e.g., ["SoftDev/Task"])`,
+      },
+    ],
+  },
+  {
+    name: 'fiberymcp_create_custom_app',
+    description: `Create a new Fibery custom app, placed in the user's private space unless \`spaceName\` is provided.
+
+This tool does NOT generate any app code — it only creates an empty app scaffolded from the starter template.`,
+    params: [
+      { name: 'name', type: 'string', required: true, description: `Name of the new custom app.` },
+      {
+        name: 'spaceName',
+        type: 'string',
+        required: false,
+        description: `Space to place the app view in. Defaults to the user's private space.`,
+      },
+    ],
+  },
+  {
+    name: 'fiberymcp_create_custom_app_dev_token',
+    description: `Issue a short-lived (~1 hour) access token for developing a custom app locally. The token authenticates only the app's \`get-source-files\` / \`update-source-files\` endpoints, passed as the \`custom-app-dev-token\` query parameter — see \`get_fibery_skill({skill: "custom-apps-dev"})\` for the full development loop.`,
+    params: [
+      {
+        name: 'appId',
+        type: 'string',
+        required: true,
+        description: `Id of the custom app (from get_custom_apps_list or create_custom_app).`,
       },
     ],
   },
@@ -209,6 +412,37 @@ export const tools: Tool[] = [
     name: 'fiberymcp_create_relation_fields',
     description: `Creates relation fields between databases, establishing links in both the source and target database.`,
     params: [{ name: 'fields', type: 'array', required: true, description: `No description.` }],
+  },
+  {
+    name: 'fiberymcp_create_report',
+    description: `Creates a Fibery report with sources and a title.
+
+The report is placed in the user's private space unless \`spaceName\` is provided.
+
+Prerequisites: call \`schema\` to discover valid database names; call \`display_report_schema\` to discover field expressions before configuring dimensions.
+
+Reports are a specialized domain — call \`get_fibery_skill\` with \`skill: "reports"\` for the full report model, expression syntax, palettes, conditions, and workflow.`,
+    params: [
+      {
+        name: 'sources',
+        type: 'array',
+        required: true,
+        description: `One or more source databases for the report.`,
+      },
+      { name: 'title', type: 'string', required: true, description: `Title of the new report.` },
+      {
+        name: 'sourceMode',
+        type: 'string',
+        required: false,
+        description: `Source mode: 'current' (default) queries live entity state; 'historical' resolves a history-timeline source for time-in-state / change-frequency analysis.`,
+      },
+      {
+        name: 'spaceName',
+        type: 'string',
+        required: false,
+        description: `Space to place the report in. Defaults to the user's private space.`,
+      },
+    ],
   },
   {
     name: 'fiberymcp_create_single_select_fields',
@@ -332,6 +566,37 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'fiberymcp_delete_document_blocks',
+    description: `Deletes blocks from a document, each with all its children.
+
+Call \`read_document\` first to get block ids.
+Call \`get_fibery_skill({skill: "documents"})\` for the block model and the editing workflow.
+
+Delete a \`table\` only by the whole \`table\` block's id — \`table_row\`, \`table_cell\` and \`table_header\` CANNOT be deleted, adding/removing rows or columns is not supported.
+
+## Example
+\`\`\`
+{
+    secret: "123",
+    blockIds: ["456", "789"]
+}
+\`\`\``,
+    params: [
+      {
+        name: 'blockIds',
+        type: 'array',
+        required: true,
+        description: `Ids of blocks to delete. Each block is deleted with all its children`,
+      },
+      {
+        name: 'secret',
+        type: 'string',
+        required: true,
+        description: `Document secret (UUID). For entity document fields, select the field's secret via query (e.g. {Secret: ['Space/Field', 'Collaboration~Documents/secret']}). For standalone documents, use search with viewType 'document'`,
+      },
+    ],
+  },
+  {
     name: 'fiberymcp_delete_entities',
     description: `Permanently deletes entities from a database by their IDs.`,
     params: [
@@ -403,6 +668,96 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'fiberymcp_display_entity_capabilities_via_sharing',
+    description: `Returns per-entity capabilities derived from sharing for the requested Fibery databases.
+
+Use this when the user wants to know what access they have at the entity level (not just space- or database-level). For each database, the response includes the entities they can reach and how they reach them.
+
+Three access paths are covered:
+1. **Direct sharing** — the entity was explicitly shared with the user, returned in \`entityLevelGrants\`.
+2. **Propagated sharing** — access was inherited from a related entity, returned in \`indirectEntityLevelGrants\`.
+3. **Assignment rules** — the user appears in a People-field rule on the entity type, returned in \`assigneeGrants\`.
+
+Capabilities from every source (space-level, database-level, per-entity grants, propagation from other databases) ACCUMULATE — they NEVER override. To compute effective capabilities on a specific entity, take the UNION of all sources.
+
+Limitations for assignee grants: sample only (up to 10 entities per rule)
+
+Per-database result fields:
+- \`spaceLevelCapabilities\` — capabilities granted at the space level.
+- \`databaseLevelCapabilities\` — capabilities granted at the database level.
+- \`entityLevelGrants\` — per-entity grants from direct sharing.
+- \`indirectEntityLevelGrants\` — grants propagated from related entities.
+- \`assigneeGrants\` — grants derived from assignment rules on People-type fields.
+
+If a database can't be resolved in the schema, its entry is \`{database, error}\` instead.`,
+    params: [
+      {
+        name: 'databases',
+        type: 'array',
+        required: true,
+        description: `Full database names in "Space/Database" format (e.g. ["Project Management/Feature"]).`,
+      },
+    ],
+  },
+  {
+    name: 'fiberymcp_display_report_schema',
+    description: `Get the vizydrop report source schema for one or more Fibery databases. This is distinct from the Fibery type/relation schema returned by \`schema\` or \`schema_detailed\`.
+
+Returns the flat set of fields and enum values usable in report dimension/metric expressions and filter conditions. Call this before configuring chart, table, or metric dimensions so you know the valid field names and types.
+
+**\`sourceMode\`**: \`current\` (default) for live entity state; \`historical\` for modification events (time-in-state data).
+
+When multiple databases are specified, a synthetic \`Entity Database\` field is added to allow splitting results by source.
+
+Reports are a specialized domain — call \`get_fibery_skill\` with \`skill: "reports"\` for the full report model, expression syntax, palettes, conditions, and workflow.`,
+    params: [
+      {
+        name: 'databases',
+        type: 'array',
+        required: true,
+        description: `List of database names in 'Space/Database' format to get the report source schema for.`,
+      },
+      {
+        name: 'sourceMode',
+        type: 'string',
+        required: false,
+        description: `Source mode: 'current' (default) queries live entity state; 'historical' resolves a history-timeline source for time-in-state / change-frequency analysis.`,
+      },
+    ],
+  },
+  {
+    name: 'fiberymcp_display_schema_capabilities',
+    description: `Returns the current user's access info per space and per database in the Fibery workspace.
+
+Use this when explaining what the user can/cannot do, or before suggesting an action that requires specific access.
+
+URL conventions:
+- For spaces: user will see anything if they have ANY access to the space.
+- For databases: user will see anything only if they have architect-level access; otherwise it will render as "No Access".
+
+Capabilities from every source (space-level, database-level, per-entity grants, propagation from other databases) ACCUMULATE — they NEVER override. To compute the user's effective capabilities on a specific entity, take the UNION of all sources.
+
+The response shape:
+- \`accessInfo.spaces\` — map keyed by space namespace.
+- \`accessInfo.databases\` — map keyed by \`Space/Database\` name.
+
+Each entry value is one of:
+- \`'no-access'\` — the user has no access.
+- \`'entity-level'\` — no space/database-level grant, but the user has access to at least one entity via an entity-level access template.
+- \`{level, templateId, isDefault, url}\` — standard template-based access. \`level\` is the template name with the \`app.access/\` / \`type.access/\` prefix stripped. \`isDefault: false\` indicates a custom template.
+- \`'derived-per-field'\` — applies only to \`fibery/file\` and \`comments/comment\`; access is granted via per-field grants on the owning database, not at the type level.
+
+- \`levelInfo.space\` and \`levelInfo.database\` — keyed by \`level\` (the same string as above); each value carries the template's full title, description, and capability set so the caller can explain what a level grants.`,
+    params: [
+      {
+        name: 'spaces',
+        type: 'array',
+        required: false,
+        description: `Optional list of space names to scope the response (e.g. ['Product', 'Sales']). Omit to receive capabilities for every space and database in the workspace.`,
+      },
+    ],
+  },
+  {
     name: 'fiberymcp_download_file',
     description: `Fetches a Fibery file attachment by secret and returns a signed download URL valid for ~60 minutes.`,
     params: [
@@ -457,8 +812,15 @@ export const tools: Tool[] = [
     params: [],
   },
   {
+    name: 'fiberymcp_get_custom_apps_list',
+    description: `List the workspace's custom apps the user can see.
+
+Custom apps are small React apps embedded in Fibery views. Use the \`id\` to work on an app's source code with the custom-app development flow — call \`get_fibery_skill({skill: "custom-apps-dev"})\` for the full guide.`,
+    params: [],
+  },
+  {
     name: 'fiberymcp_get_documents_content',
-    description: `Returns the Markdown content of one or more Fibery document fields identified by their secrets.`,
+    description: `[STALE: removed upstream, replaced by read_document] Returns the Markdown content of one or more Fibery document fields identified by their secrets.`,
     params: [
       { name: 'secrets', type: 'array', required: true, description: `Secrets of documents` },
       {
@@ -484,6 +846,45 @@ export const tools: Tool[] = [
         type: 'array',
         required: true,
         description: `Array of entity public IDs (e.g., ['42', '43'])`,
+      },
+    ],
+  },
+  {
+    name: 'fiberymcp_get_entity_mention',
+    description: `Builds an inline entity reference for document markdown. When the document is shown, it renders as a "live" entity which has current name, with a link.
+
+Embed the returned string into content passed to the document editing tools (\`insert_document_blocks\`, \`set_block_text\`, comment bodies). Call \`get_fibery_skill({skill: "documents"})\` for the markdown reference.
+
+## Example
+\`\`\`
+{
+    database: "SoftDev/Task",
+    entityId: "123",
+    label: "Fix login bug"
+}
+\`\`\``,
+    params: [
+      {
+        name: 'database',
+        type: 'string',
+        required: true,
+        description: `Full database name in "Space/Type" format (e.g., 'Projects/Task')`,
+      },
+      { name: 'entityId', type: 'string', required: true, description: `Entity UUID (fibery/id)` },
+      { name: 'label', type: 'string', required: true, description: `Fallback display text` },
+    ],
+  },
+  {
+    name: 'fiberymcp_get_fibery_skill',
+    description: `Load the full guide for a Fibery skill domain.
+
+Call this tool when you need the complete reference for a domain that spans multiple tools. Each skill covers the full model, expression syntax, configuration shapes, conditions, and workflow for its related tools.`,
+    params: [
+      {
+        name: 'skill',
+        type: 'string',
+        required: true,
+        description: `The skill domain to load. Use one of the listed enum values.`,
       },
     ],
   },
@@ -547,14 +948,122 @@ export const tools: Tool[] = [
     params: [],
   },
   {
+    name: 'fiberymcp_get_report',
+    description: `Fetch a Fibery report (vizydrop view) by its UUID, including its tabs, sources, schema, and dimension configuration.
+
+Use \`get_reports_list\` first to discover available report IDs. The response includes \`tabId\`, \`tabType\`, and per-dimension \`id\` values needed by \`update_tab\`, \`update_dimension\`, and \`remove_dimension\`.
+
+Reports are a specialized domain — call \`get_fibery_skill\` with \`skill: "reports"\` for the full report model, expression syntax, palettes, conditions, and workflow.`,
+    params: [
+      {
+        name: 'reportId',
+        type: 'string',
+        required: true,
+        description: `The UUID of the report view to fetch.`,
+      },
+    ],
+  },
+  {
+    name: 'fiberymcp_get_reports_list',
+    description: `List all vizydrop report views in the Fibery workspace.
+
+Returns an array of report summaries with \`id\` and \`title\`. Use the \`id\` field with \`get_report\` to fetch full details including tab structure and dimension IDs.
+
+Reports are a specialized domain — call \`get_fibery_skill\` with \`skill: "reports"\` for the full report model, expression syntax, palettes, conditions, and workflow.`,
+    params: [],
+  },
+  {
     name: 'fiberymcp_get_tool_reference',
-    description: `Returns extended reference documentation for a specific Fibery MCP tool.`,
+    description: `[STALE: removed upstream, replaced by get_fibery_skill] Returns extended reference documentation for a specific Fibery MCP tool.`,
     params: [
       {
         name: 'toolName',
         type: 'string',
         required: true,
         description: `The snake_case MCP tool name to look up (e.g. 'query', 'create_entities')`,
+      },
+    ],
+  },
+  {
+    name: 'fiberymcp_get_user_mention',
+    description: `Builds an inline user mention for document markdown, works the same as \`get_entity_mention\`, but for the \`fibery/user\` database. When the document is shown, it renders as a "live" user mention.
+
+Embed the returned string into content passed to the document editing tools (\`insert_document_blocks\`, \`set_block_text\`, comment bodies). Get user ids via \`query\` from the \`fibery/user\` database, or your own id via \`get_me\`. Call \`get_fibery_skill({skill: "documents"})\` for the markdown reference.
+
+## Example
+\`\`\`
+{
+    userId: "123",
+    label: "Alice"
+}
+\`\`\``,
+    params: [
+      { name: 'label', type: 'string', required: true, description: `Fallback display text` },
+      {
+        name: 'userId',
+        type: 'string',
+        required: true,
+        description: `User UUID (fibery/id from the 'fibery/user' database)`,
+      },
+    ],
+  },
+  {
+    name: 'fiberymcp_insert_document_blocks',
+    description: `Inserts new blocks into a document from markdown.
+
+Call \`get_fibery_skill({skill: "documents"})\` first. It covers the full markdown reference (headings, lists, tables, code, math, images/videos, callouts, highlights, entity references), content adaptation rules, and the editing workflow.
+Call \`read_document\` for block ids to anchor to (not needed when inserting at the document root with \`parent: {blockId: null, ...}\`).
+
+## Example
+Append a section to the end of a document:
+\`\`\`
+{
+    secret: "123",
+    inserts: [{parent: {blockId: null, position: "end"}, content: "## Next steps\\n\\n- [ ] review\\n- [ ] deploy"}]
+}
+\`\`\``,
+    params: [
+      {
+        name: 'inserts',
+        type: 'array',
+        required: true,
+        description: `Insertions to perform. Each item must have exactly ONE anchor: after, before or parent`,
+      },
+      {
+        name: 'secret',
+        type: 'string',
+        required: true,
+        description: `Document secret (UUID). For entity document fields, select the field's secret via query (e.g. {Secret: ['Space/Field', 'Collaboration~Documents/secret']}). For standalone documents, use search with viewType 'document'`,
+      },
+    ],
+  },
+  {
+    name: 'fiberymcp_move_document_blocks',
+    description: `Moves blocks (each with all its children) to a new position in the document. 
+
+Call \`read_document\` first to get block ids.
+Call \`get_fibery_skill({skill: "documents"})\` for the block model and the editing workflow.
+
+## Example
+Move a block to the end of the document:
+\`\`\`
+{
+    secret: "123",
+    moves: [{blockId: "456", parent: {blockId: null, position: "end"}}]
+}
+\`\`\``,
+    params: [
+      {
+        name: 'moves',
+        type: 'array',
+        required: true,
+        description: `Moves to perform. Each item must have exactly ONE anchor: after, before or parent`,
+      },
+      {
+        name: 'secret',
+        type: 'string',
+        required: true,
+        description: `Document secret (UUID). For entity document fields, select the field's secret via query (e.g. {Secret: ['Space/Field', 'Collaboration~Documents/secret']}). For standalone documents, use search with viewType 'document'`,
       },
     ],
   },
@@ -603,6 +1112,22 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'fiberymcp_read_document',
+    description: `Reads a single document as a flat list of addressable blocks with stable ids. Call this before any document editing tool — the returned block ids are required by all of them.
+
+**Call \`get_fibery_skill({skill: "documents"})\` FIRST** — it covers how to find document secrets (via \`query\` or \`search\`), the snapshot anatomy, the block model, inline comments, and the whole editing workflow.
+
+Returns a TOON-encoded snapshot: \`version\`, \`rootBlockIds\` (ordered top-level ids), \`blocks\` in document order (each with \`id\`, \`type\`, \`parentId\` — \`null\` = top level, \`attrs\`, \`content\`, \`index\`), plus a \`comments\` section when the document has inline comment threads.`,
+    params: [
+      {
+        name: 'secret',
+        type: 'string',
+        required: true,
+        description: `Document secret (UUID). For entity document fields, select the field's secret via query (e.g. {Secret: ['Space/Field', 'Collaboration~Documents/secret']}). For standalone documents, use search with viewType 'document'`,
+      },
+    ],
+  },
+  {
     name: 'fiberymcp_remove_collection_items',
     description: `Removes related entities from a Collection field on a Fibery entity.`,
     params: [
@@ -628,6 +1153,66 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'fiberymcp_remove_dimension',
+    description: `Removes a single dimension from a tab in a Fibery report.
+
+Use \`get_report\` to find the \`tabId\`, \`tabType\`, and the dimension \`id\` (from \`result.tabs[].x[].id\`, \`.y[].id\`, \`.columns[].id\`, \`.metrics[].id\`, etc.).
+
+**This action is irreversible** — the dimension is permanently removed from the tab's specification.
+
+Reports are a specialized domain — call \`get_fibery_skill\` with \`skill: "reports"\` for the full report model, expression syntax, palettes, conditions, and workflow.`,
+    params: [
+      {
+        name: 'dimensionId',
+        type: 'string',
+        required: true,
+        description: `ID of the dimension to remove (from get_report result.tabs[].x[].id, .y[].id, .columns[].id, etc.).`,
+      },
+      {
+        name: 'reportId',
+        type: 'string',
+        required: true,
+        description: `UUID of the report containing the tab.`,
+      },
+      {
+        name: 'tabId',
+        type: 'string',
+        required: true,
+        description: `ID of the tab containing the dimension (from get_report result.tabs[].id).`,
+      },
+      {
+        name: 'tabType',
+        type: 'string',
+        required: true,
+        description: `Type of the tab — required so the server picks the right update command.`,
+      },
+    ],
+  },
+  {
+    name: 'fiberymcp_remove_tab',
+    description: `Removes a tab from an existing Fibery report.
+
+Use \`get_report\` to find the \`tabId\` of the tab you want to remove (each tab object in \`result.tabs\` has an \`id\` field).
+
+**This action is irreversible** — the tab and all its dimensions/conditions will be permanently deleted.
+
+Reports are a specialized domain — call \`get_fibery_skill\` with \`skill: "reports"\` for the full report model, expression syntax, palettes, conditions, and workflow.`,
+    params: [
+      {
+        name: 'reportId',
+        type: 'string',
+        required: true,
+        description: `UUID of the report containing the tab.`,
+      },
+      {
+        name: 'tabId',
+        type: 'string',
+        required: true,
+        description: `ID of the tab to remove (from get_report result.tabs[].id).`,
+      },
+    ],
+  },
+  {
     name: 'fiberymcp_rename_databases',
     description: `Renames one or more databases, optionally moving them to a different space.`,
     params: [{ name: 'databases', type: 'array', required: true, description: `No description.` }],
@@ -636,6 +1221,61 @@ export const tools: Tool[] = [
     name: 'fiberymcp_rename_fields',
     description: `Renames one or more fields within their databases.`,
     params: [{ name: 'fields', type: 'array', required: true, description: `No description.` }],
+  },
+  {
+    name: 'fiberymcp_replace_block_text',
+    description: `Replaces one occurrence of exact text inside a block, leaving the rest untouched. The preferred tool for small fixes — surrounding formatting and inline comments survive.
+
+Call \`read_document\` first to get block ids.
+Call \`get_fibery_skill({skill: "documents"})\` for selector semantics, the block model, and the editing workflow.
+
+\`exact\` is the block's plain text with marks stripped, as shown in \`read_document\` — never markdown (e.g., match by \`text\`, not by \`**text**\`). \`replacement\` is inserted literal: markdown/HTML is NOT parsed and no marks are applied, so this tool cannot add or change formatting (bold, underline, links, colors).
+To change formatting on a span, rewrite the whole block with \`set_block_text\`.
+
+## Example
+\`\`\`
+{
+    secret: "123",
+    replacements: [{blockId: "456", exact: "teh", replacement: "the"}]
+}
+\`\`\``,
+    params: [
+      {
+        name: 'replacements',
+        type: 'array',
+        required: true,
+        description: `Replacements to perform`,
+      },
+      {
+        name: 'secret',
+        type: 'string',
+        required: true,
+        description: `Document secret (UUID). For entity document fields, select the field's secret via query (e.g. {Secret: ['Space/Field', 'Collaboration~Documents/secret']}). For standalone documents, use search with viewType 'document'`,
+      },
+    ],
+  },
+  {
+    name: 'fiberymcp_reply_document_comment',
+    description: `Adds replies to existing inline comment threads in a document. The reply author is the current user.
+
+Call \`get_fibery_skill({skill: "documents"})\` for the comment thread model.
+
+## Example
+\`\`\`
+{
+    secret: "123",
+    replies: [{commentId: "456", content: "Done — rewrote the section above."}]
+}
+\`\`\``,
+    params: [
+      { name: 'replies', type: 'array', required: true, description: `Replies to add` },
+      {
+        name: 'secret',
+        type: 'string',
+        required: true,
+        description: `Document secret (UUID). For entity document fields, select the field's secret via query (e.g. {Secret: ['Space/Field', 'Collaboration~Documents/secret']}). For standalone documents, use search with viewType 'document'`,
+      },
+    ],
   },
   {
     name: 'fiberymcp_schema',
@@ -772,8 +1412,69 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'fiberymcp_set_block_attrs',
+    description: `Merges attributes into blocks' attrs (e.g. heading level, task state, code block language, callout icon).
+
+Call \`read_document\` first to get block ids.
+Call \`get_fibery_skill({skill: "documents"})\` for the per-block-type attrs catalog.
+
+## Example
+Turn a heading into level 3 and mark a task done:
+\`\`\`
+{
+    secret: "123",
+    blocks: [
+        {blockId: "456", attrs: {level: 3}},
+        {blockId: "789", attrs: {state: "DONE"}}
+    ]
+}
+\`\`\``,
+    params: [
+      {
+        name: 'blocks',
+        type: 'array',
+        required: true,
+        description: `Attribute updates to perform`,
+      },
+      {
+        name: 'secret',
+        type: 'string',
+        required: true,
+        description: `Document secret (UUID). For entity document fields, select the field's secret via query (e.g. {Secret: ['Space/Field', 'Collaboration~Documents/secret']}). For standalone documents, use search with viewType 'document'`,
+      },
+    ],
+  },
+  {
+    name: 'fiberymcp_set_block_text',
+    description: `Rewrites the inline content of text blocks from markdown. Keeps each block's type, attrs and id.
+
+Call \`read_document\` first to get block ids.
+Call \`get_fibery_skill({skill: "documents"})\` for the block model, the inline markdown reference, and the editing workflow.
+
+**Prefer \`replace_block_text\` for small fixes** — it touches only the matched text and preserves surrounding formatting and comments. Use this tool to rewrite a whole block.
+
+Each \`content\` must resolve to a **single top-level block** — it replaces one block's inline content, it does NOT add blocks. Multi-block markdown (heading + paragraph, several paragraphs, a list, \`---\`) is rejected. To add blocks use \`insert_document_blocks\`; to change a block's type use \`set_block_attrs\`.
+
+## Example
+\`\`\`
+{
+    secret: "123",
+    blocks: [{blockId: "456", content: "Updated **summary** of findings"}]
+}
+\`\`\``,
+    params: [
+      { name: 'blocks', type: 'array', required: true, description: `Blocks to rewrite` },
+      {
+        name: 'secret',
+        type: 'string',
+        required: true,
+        description: `Document secret (UUID). For entity document fields, select the field's secret via query (e.g. {Secret: ['Space/Field', 'Collaboration~Documents/secret']}). For standalone documents, use search with viewType 'document'`,
+      },
+    ],
+  },
+  {
     name: 'fiberymcp_set_document_content',
-    description: `Sets (replaces) the content of a document field on a Fibery entity.`,
+    description: `[STALE: removed upstream, replaced by block-based document tools (set_block_text/replace_block_text/insert_document_blocks)] Sets (replaces) the content of a document field on a Fibery entity.`,
     params: [
       {
         name: 'content',
@@ -808,6 +1509,50 @@ export const tools: Tool[] = [
       },
       { name: 'entityId', type: 'string', required: true, description: `fibery/id of an entity` },
       { name: 'state', type: 'string', required: true, description: `State title (enum/name)` },
+    ],
+  },
+  {
+    name: 'fiberymcp_update_dimension',
+    description: `Updates an existing dimension in a report tab.
+
+Use \`get_report\` to find the \`tabId\`, \`tabType\`, and per-dimension \`id\` values. Each dimension object in the tab's axis arrays (\`x\`, \`y\`, \`columns\`, \`metrics\`, etc.) has an \`id\` field — pass that as \`dimensionId\`.
+
+**\`changes\`** is a partial object: only the keys you provide will be merged into the existing dimension. Omit keys you do not want to change.
+
+To add or remove dimensions entirely, use \`remove_dimension\` or recreate the tab with the add-tab tools.
+
+Reports are a specialized domain — call \`get_fibery_skill\` with \`skill: "reports"\` for the full report model, expression syntax, palettes, conditions, and workflow.`,
+    params: [
+      {
+        name: 'changes',
+        type: 'object',
+        required: true,
+        description: `Partial dimension update. Only provided keys are merged into the existing dimension.`,
+      },
+      {
+        name: 'dimensionId',
+        type: 'string',
+        required: true,
+        description: `ID of the dimension to update (from get_report result.tabs[].x[].id, .y[].id, .columns[].id, etc.).`,
+      },
+      {
+        name: 'reportId',
+        type: 'string',
+        required: true,
+        description: `UUID of the report containing the tab.`,
+      },
+      {
+        name: 'tabId',
+        type: 'string',
+        required: true,
+        description: `ID of the tab containing the dimension (from get_report result.tabs[].id).`,
+      },
+      {
+        name: 'tabType',
+        type: 'string',
+        required: true,
+        description: `Type of the tab — required so the server picks the right update command.`,
+      },
     ],
   },
   {
@@ -853,9 +1598,91 @@ export const tools: Tool[] = [
     params: [{ name: 'fields', type: 'array', required: true, description: `No description.` }],
   },
   {
+    name: 'fiberymcp_update_report',
+    description: `Updates an existing Fibery report's title and/or sources.
+
+**At least one of \`title\` or \`sources\` must be provided.**
+
+Use \`get_report\` to retrieve the current report state and \`reportId\` before calling this tool.
+
+Reports are a specialized domain — call \`get_fibery_skill\` with \`skill: "reports"\` for the full report model, expression syntax, palettes, conditions, and workflow.`,
+    params: [
+      {
+        name: 'reportId',
+        type: 'string',
+        required: true,
+        description: `UUID of the report to update (from get_report or get_reports_list).`,
+      },
+      {
+        name: 'sources',
+        type: 'array',
+        required: false,
+        description: `Replace the report's source databases; source mode is fixed at creation and cannot change here.`,
+      },
+      { name: 'title', type: 'string', required: false, description: `New title for the report.` },
+    ],
+  },
+  {
     name: 'fiberymcp_update_single_select_fields',
     description: `Updates the options of one or more existing single-select fields.`,
     params: [{ name: 'fields', type: 'array', required: true, description: `No description.` }],
+  },
+  {
+    name: 'fiberymcp_update_tab',
+    description: `Updates scalar properties of an existing tab in a Fibery report.
+
+Use \`get_report\` to find the \`tabId\` and \`tabType\` of the tab to update.
+
+**What this tool can change:** \`title\`, \`type\` / \`palette\` (chart tabs only), \`fieldConditions\` / \`dimensionConditions\` (replaces the tab's filter set entirely).
+
+**What this tool cannot do:** Add or remove dimensions (use \`update_dimension\` / \`remove_dimension\` or recreate the tab). Change \`tabType\` (recreate the tab instead).
+
+Reports are a specialized domain — call \`get_fibery_skill\` with \`skill: "reports"\` for the full report model, expression syntax, palettes, conditions, and workflow.`,
+    params: [
+      {
+        name: 'reportId',
+        type: 'string',
+        required: true,
+        description: `UUID of the report containing the tab.`,
+      },
+      {
+        name: 'tabId',
+        type: 'string',
+        required: true,
+        description: `ID of the tab to update (from get_report result.tabs[].id).`,
+      },
+      {
+        name: 'tabType',
+        type: 'string',
+        required: true,
+        description: `Type of the tab — required so the server picks the right update command.`,
+      },
+      {
+        name: 'dimensionConditions',
+        type: 'array',
+        required: false,
+        description: `Replace the tab's dimension-level filters entirely.`,
+      },
+      {
+        name: 'fieldConditions',
+        type: 'array',
+        required: false,
+        description: `Replace the tab's field-level filters entirely.`,
+      },
+      {
+        name: 'palette',
+        type: 'string',
+        required: false,
+        description: `Color palette. Applies to chart tabs only; ignored for table/metric.`,
+      },
+      { name: 'title', type: 'string', required: false, description: `New tab title.` },
+      {
+        name: 'type',
+        type: 'string',
+        required: false,
+        description: `Chart type. Applies to chart tabs only; ignored for table/metric.`,
+      },
+    ],
   },
   {
     name: 'fiberymcp_update_view',

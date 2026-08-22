@@ -2,8 +2,80 @@ import type { Tool } from '../../types/agent-connectors'
 
 export const tools: Tool[] = [
   {
+    name: 'gustomcp_accept_reasonable_salary',
+    description: `Accept the most recently calculated reasonable-salary estimate (from calculate_reasonable_salary) for a Solo S-corp owner, recording it as their W-2 salary for IRS-defensibility. Call only after the user has reviewed and explicitly confirmed the estimate.`,
+    params: [
+      {
+        name: '_context',
+        type: 'string',
+        required: false,
+        description: `The original user question or request that prompted this tool call`,
+      },
+    ],
+  },
+  {
+    name: 'gustomcp_calculate_reasonable_salary',
+    description: `Calculate an IRS-defensible reasonable salary for an S-corp owner from BLS wage data, given the company's zip_code and one or more occupations (codes from search_business_info with type occupation). Overwrites the single in-progress estimate for the company/owner; call accept_reasonable_salary to persist it after user confirmation.`,
+    params: [
+      {
+        name: 'occupations',
+        type: 'array',
+        required: true,
+        description: `The occupation(s) making up the owner's role. At least one entry is required; for a split role pass several, with time_percentage values summing to 1.0`,
+      },
+      {
+        name: 'zip_code',
+        type: 'string',
+        required: true,
+        description: `The company's 5-digit ZIP code, used to find the BLS wage area`,
+      },
+      {
+        name: '_context',
+        type: 'string',
+        required: false,
+        description: `The original user question or request that prompted this tool call`,
+      },
+      {
+        name: 'annual_net_revenue',
+        type: 'integer',
+        required: false,
+        description: `The company's annual net revenue in whole USD; when provided, caps the salary at this amount`,
+      },
+      {
+        name: 'work_schedule',
+        type: 'object',
+        required: false,
+        description: `The owner's work schedule. Defaults to full-time`,
+      },
+    ],
+  },
+  {
     name: 'gustomcp_get_company',
     description: `Retrieve the company profile including legal name, entity type, EIN, and status.`,
+    params: [
+      {
+        name: '_context',
+        type: 'string',
+        required: false,
+        description: `The original user question or request that prompted this tool call`,
+      },
+    ],
+  },
+  {
+    name: 'gustomcp_get_company_onboarding_package',
+    description: `Get the company's available onboarding plans, add-ons, and benefits, plus Gusto's recommended package and the company's current selection. The first call made once the profile is ready also computes and stores the recommendation, a one-time side effect.`,
+    params: [
+      {
+        name: '_context',
+        type: 'string',
+        required: false,
+        description: `The original user question or request that prompted this tool call`,
+      },
+    ],
+  },
+  {
+    name: 'gustomcp_get_company_onboarding_status',
+    description: `Get the company's onboarding status for its current experience, including outstanding questions, whether each is required, and their answer schemas. Drives step-by-step onboarding: save answers with save_company_onboarding_answer and re-check status after each save since a save can reroute the remaining questions.`,
     params: [
       {
         name: '_context',
@@ -238,6 +310,24 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `The unique identifier (UUID) for the location`,
+      },
+      {
+        name: '_context',
+        type: 'string',
+        required: false,
+        description: `The original user question or request that prompted this tool call`,
+      },
+    ],
+  },
+  {
+    name: 'gustomcp_get_onboarding_answer',
+    description: `Get the current answer for a single onboarding question by question_key (as surfaced by get_company_onboarding_status), including any unset fields as null.`,
+    params: [
+      {
+        name: 'question_key',
+        type: 'string',
+        required: true,
+        description: `The onboarding question to read (e.g. "ein", "who_to_pay"), as surfaced by get_company_onboarding_status`,
       },
       {
         name: '_context',
@@ -873,19 +963,254 @@ export const tools: Tool[] = [
   },
   {
     name: 'gustomcp_list_time_records',
-    description: `List time records for the company over a pay period. Requires pay_period with start and end dates.`,
+    description: `List time records for the company over a date range. Requires start_date and end_date.`,
     params: [
       {
-        name: 'pay_period',
-        type: 'object',
+        name: 'end_date',
+        type: 'string',
         required: true,
-        description: `Date range to query. Pass as an object with start_date and end_date in YYYY-MM-DD format.`,
+        description: `End date of the pay period (YYYY-MM-DD). Filters both native shifts and third-party timesheets.`,
+      },
+      {
+        name: 'start_date',
+        type: 'string',
+        required: true,
+        description: `Start date of the pay period (YYYY-MM-DD). Filters both native shifts and third-party timesheets.`,
       },
       {
         name: '_context',
         type: 'string',
         required: false,
         description: `The original user question or request that prompted this tool call`,
+      },
+    ],
+  },
+  {
+    name: 'gustomcp_manage_account',
+    description: `Get the Gusto account's status or resend the password setup email, via the action parameter.`,
+    params: [
+      {
+        name: 'action',
+        type: 'string',
+        required: true,
+        description: `The account action to perform`,
+      },
+      {
+        name: '_context',
+        type: 'string',
+        required: false,
+        description: `The original user question or request that prompted this tool call`,
+      },
+    ],
+  },
+  {
+    name: 'gustomcp_record_time',
+    description: `Record time for an employee or contractor (identified by company_member_uuid, from list_time_records), either adding a new shift or updating an existing one via on_existing. shift_started_at, shift_ended_at, and timezone are always required, but may be sent as null on an update to leave that field unchanged; updates additionally require shift_id.`,
+    params: [
+      {
+        name: 'company_member_uuid',
+        type: 'string',
+        required: true,
+        description: `The company member UUID for the worker whose time is being recorded, from list_time_records' companyMemberUuid field`,
+      },
+      { name: 'company_uuid', type: 'string', required: true, description: `The company's UUID` },
+      {
+        name: 'shift_ended_at',
+        type: 'string',
+        required: true,
+        description: `ISO8601 timestamp with explicit UTC offset for the end of the shift, in the past. Must be later than shift_started_at. Null leaves the stored end alone on an update; refused on an add`,
+      },
+      {
+        name: 'shift_started_at',
+        type: 'string',
+        required: true,
+        description: `ISO8601 timestamp with explicit UTC offset for the start of the shift. Must be earlier than shift_ended_at. Null is only meaningful when on_existing is "update", where it leaves the stored start alone; refused on an add`,
+      },
+      {
+        name: 'timezone',
+        type: 'string',
+        required: true,
+        description: `IANA timezone of the worker (e.g. America/Los_Angeles). Sets the tracker's timezone when one isn't already set. Null leaves the stored timezone alone on an update`,
+      },
+      {
+        name: '_context',
+        type: 'string',
+        required: false,
+        description: `The original user question or request that prompted this tool call`,
+      },
+      {
+        name: 'hours_worked',
+        type: 'number',
+        required: false,
+        description: `Only used for external/third-party time tracking; ignored for native. Overrides the hours derived from the shift window rather than validating against it`,
+      },
+      {
+        name: 'job_uuid',
+        type: 'string',
+        required: false,
+        description: `The job UUID the hours belong to, from list_employee_jobs. Required on a native update; omit entirely for a contractor`,
+      },
+      {
+        name: 'note',
+        type: 'string',
+        required: false,
+        description: `Optional note to attach to the entry. Only used for native time tracking; dropped (with a warning) for third-party`,
+      },
+      {
+        name: 'on_existing',
+        type: 'string',
+        required: false,
+        description: `Whether to add a new entry alongside existing time, or update an existing one. Defaults to add when omitted. update also requires shift_id`,
+      },
+      {
+        name: 'ot_policy_approved',
+        type: 'boolean',
+        required: false,
+        description: `Only relevant for external/third-party time tracking with unclassified hours. Set true once the admin has explicitly approved the overtime policy suggestion returned by a prior refusal`,
+      },
+      {
+        name: 'shift_id',
+        type: 'string',
+        required: false,
+        description: `Required when on_existing is "update". For native time tracking it's a shift's id under shifts; for third-party it's the timesheet's own top-level id under timesheets`,
+      },
+    ],
+  },
+  {
+    name: 'gustomcp_run_payroll',
+    description: `Calculate and submit an existing unprocessed payroll by payroll_uuid. Cannot create new or off-cycle payrolls; use update_payroll first to adjust hours, amounts, or PTO before running.`,
+    params: [
+      {
+        name: 'payroll_uuid',
+        type: 'string',
+        required: true,
+        description: `The unique identifier (UUID) for the payroll`,
+      },
+      {
+        name: '_context',
+        type: 'string',
+        required: false,
+        description: `The original user question or request that prompted this tool call`,
+      },
+    ],
+  },
+  {
+    name: 'gustomcp_save_company_onboarding_answer',
+    description: `Save the answer for one onboarding question_key. The value's shape depends on the question (see its value_schema from get_company_onboarding_status); a successful save returns the refreshed onboarding_status since a save can reroute the remaining questions.`,
+    params: [
+      {
+        name: 'question_key',
+        type: 'string',
+        required: true,
+        description: `The onboarding question to answer (e.g. "who_to_pay"), as surfaced by the onboarding status read`,
+      },
+      {
+        name: 'value',
+        type: 'object',
+        required: true,
+        description: `The answer object for the given question_key. Most questions take a flat object whose keys are the field names from the question's value_schema, e.g. { "pay_employees": true } for question_key "who_to_pay". Exception: "company_state_tax_setup" nests its state-qualified keys under a "fields" object.`,
+      },
+      {
+        name: '_context',
+        type: 'string',
+        required: false,
+        description: `The original user question or request that prompted this tool call`,
+      },
+    ],
+  },
+  {
+    name: 'gustomcp_search_business_info',
+    description: `Resolve free-text business info to canonical codes: type industry returns NAICS industry classifications, type occupation returns BLS occupation codes, matched against the user's query.`,
+    params: [
+      {
+        name: 'query',
+        type: 'string',
+        required: true,
+        description: `The user's free-text description of what to resolve, in their own words (e.g. "we run an apple orchard" for industry, or "software developer" for occupation)`,
+      },
+      {
+        name: 'type',
+        type: 'string',
+        required: true,
+        description: `What kind of business information to resolve. "industry" returns NAICS industry classifications; "occupation" returns BLS occupation codes`,
+      },
+      {
+        name: '_context',
+        type: 'string',
+        required: false,
+        description: `The original user question or request that prompted this tool call`,
+      },
+    ],
+  },
+  {
+    name: 'gustomcp_submit_feedback',
+    description: `Submit user feedback about the Gusto MCP experience, with an optional category and freeform context metadata (e.g. tool invoked, app version, OS).`,
+    params: [
+      {
+        name: 'message',
+        type: 'string',
+        required: true,
+        description: `The user's feedback (required, max 5000 characters)`,
+      },
+      {
+        name: '_context',
+        type: 'string',
+        required: false,
+        description: `The original user question or request that prompted this tool call`,
+      },
+      {
+        name: 'category',
+        type: 'string',
+        required: false,
+        description: `Optional category for the feedback`,
+      },
+      {
+        name: 'context',
+        type: 'object',
+        required: false,
+        description: `Optional metadata (e.g. tool invoked, app version, OS) to help the reviewer`,
+      },
+    ],
+  },
+  {
+    name: 'gustomcp_update_payroll',
+    description: `Update inputs (hours, amounts, memos, PTO, exclusions, payment method) for employees on an unprocessed payroll before running it. Send an empty employee_compensations array only to materialize the roster of a pre-prepare payroll. withholding_pay_period, skip_regular_deductions, and fixed_withholding_rate apply to general off-cycle payrolls only.`,
+    params: [
+      {
+        name: 'employee_compensations',
+        type: 'array',
+        required: true,
+        description: `Array of per-employee updates. Only include employees you want to change; omitted employees are left as-is. Max 100. Send an EMPTY array to materialize the roster of a pre-prepare payroll`,
+      },
+      {
+        name: 'payroll_uuid',
+        type: 'string',
+        required: true,
+        description: `UUID of the unprocessed payroll to update`,
+      },
+      {
+        name: '_context',
+        type: 'string',
+        required: false,
+        description: `The original user question or request that prompted this tool call`,
+      },
+      {
+        name: 'fixed_withholding_rate',
+        type: 'boolean',
+        required: false,
+        description: `General off-cycle only. Withholds federal at IRS supplemental rate (22%) and state at state supplemental rate`,
+      },
+      {
+        name: 'skip_regular_deductions',
+        type: 'boolean',
+        required: false,
+        description: `General off-cycle only. Blocks regular deductions and contributions for this payroll`,
+      },
+      {
+        name: 'withholding_pay_period',
+        type: 'string',
+        required: false,
+        description: `General off-cycle only (Correction/Bonus/Adhoc). Not accepted by termination or transition payrolls`,
       },
     ],
   },

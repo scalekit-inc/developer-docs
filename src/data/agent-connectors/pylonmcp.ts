@@ -2,6 +2,30 @@ import type { Tool } from '../../types/agent-connectors'
 
 export const tools: Tool[] = [
   {
+    name: 'pylonmcp_create_attachment',
+    description: `Upload a base64-encoded file to Pylon and return its attachment ID and URL. Files are limited to 5 MB decoded and are not attached to an issue or message.`,
+    params: [
+      {
+        name: 'content_base64',
+        type: 'string',
+        required: true,
+        description: `Base64-encoded file bytes. Max 5 MB decoded.`,
+      },
+      {
+        name: 'filename',
+        type: 'string',
+        required: true,
+        description: `Filename including extension. Max 191 characters.`,
+      },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `Optional description of the attachment.`,
+      },
+    ],
+  },
+  {
     name: 'pylonmcp_create_issue',
     description: `Create a new issue in Pylon with a title, body, and account. Optionally assign a requester, priority, team, and tags.`,
     params: [
@@ -283,6 +307,24 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `The account ID (UUID) or external ID.`,
+      },
+    ],
+  },
+  {
+    name: 'pylonmcp_get_agent_issue',
+    description: `Retrieve an AI agent's full event and action timeline on a specific issue, including tool calls, runbook steps, reassignments/escalations, messages, and outcomes.`,
+    params: [
+      {
+        name: 'agent_id',
+        type: 'string',
+        required: true,
+        description: `The AI agent whose activity to fetch.`,
+      },
+      {
+        name: 'issue_id',
+        type: 'string',
+        required: true,
+        description: `The issue to fetch the agent's event timeline for.`,
       },
     ],
   },
@@ -723,6 +765,12 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `ID of the user to assign this resource to.`,
+      },
+      {
+        name: 'custom_fields',
+        type: 'object',
+        required: false,
+        description: `Custom field values to set. Keys are configured issue-field slugs and values are the field values to set. For multi-select fields, use comma-separated values.`,
       },
       {
         name: 'state',

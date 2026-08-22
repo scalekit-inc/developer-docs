@@ -70,6 +70,50 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'motherduckmcp_create_guide',
+    description: `Create a new guide — a markdown document that agents read to answer this org's data questions correctly (metric definitions, join/filter conventions, pitfalls). Group related guides with a lowercase kebab-case topic (e.g. 'revenue-billing' or 'core/metrics'); omit it for a guide without a topic. Visibility is controlled by access: 'user' (private, default) or 'organization' (org-wide, permission-gated). Attach references to the 1-5 objects the guide is authoritative about.`,
+    params: [
+      { name: 'content', type: 'string', required: true, description: `The full markdown body.` },
+      { name: 'title', type: 'string', required: true, description: `Human-readable title.` },
+      {
+        name: 'access',
+        type: 'string',
+        required: false,
+        description: `'user' (private, default) or 'organization' (org-wide, permission-gated).`,
+      },
+      {
+        name: 'change_comment',
+        type: 'string',
+        required: false,
+        description: `Optional note describing this initial version.`,
+      },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `Short one-line summary shown in the index.`,
+      },
+      {
+        name: 'external_id',
+        type: 'string',
+        required: false,
+        description: `Optional caller-provided id for this version (e.g. a git SHA).`,
+      },
+      {
+        name: 'references',
+        type: 'array',
+        required: false,
+        description: `Structured references to the objects this guide explains.`,
+      },
+      {
+        name: 'topic',
+        type: 'string',
+        required: false,
+        description: `Slash-separated grouping label, e.g. 'revenue-billing' or 'core/metrics' (no leading/trailing slash). Omit for no topic.`,
+      },
+    ],
+  },
+  {
     name: 'motherduckmcp_delete_dive',
     description: `Permanently remove a Dive from the MotherDuck workspace. This action cannot be undone.`,
     params: [
@@ -90,6 +134,18 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `Flight identifier (UUID) of the Flight to permanently delete.`,
+      },
+    ],
+  },
+  {
+    name: 'motherduckmcp_delete_guide',
+    description: `Soft-delete a guide while preserving its version history. Identify it by uuid.`,
+    params: [
+      {
+        name: 'uuid',
+        type: 'string',
+        required: true,
+        description: `The guide's UUID, as returned by list_guides or a previous mutation.`,
       },
     ],
   },
@@ -144,6 +200,36 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'motherduckmcp_edit_guide_content',
+    description: `Edit a guide's markdown body by applying one or more text replacements, then save as a new version. Identify the guide by uuid. Reads the stored guide, applies edits in sequence, and persists. old_string must be unique unless replace_all is true. No prior get_guide call is needed.`,
+    params: [
+      {
+        name: 'edits',
+        type: 'array',
+        required: true,
+        description: `List of edits to apply in sequence. Each edit has old_string, new_string, and optional replace_all.`,
+      },
+      {
+        name: 'uuid',
+        type: 'string',
+        required: true,
+        description: `The guide's UUID, as returned by list_guides or a previous mutation.`,
+      },
+      {
+        name: 'change_comment',
+        type: 'string',
+        required: false,
+        description: `Optional note describing this version's change.`,
+      },
+      {
+        name: 'external_id',
+        type: 'string',
+        required: false,
+        description: `Optional caller-provided id for this version (e.g. a git SHA).`,
+      },
+    ],
+  },
+  {
     name: 'motherduckmcp_get_dive_guide',
     description: `Retrieve comprehensive instructions for creating MotherDuck Dives (interactive React data apps), tailored to the calling AI client.`,
     params: [
@@ -174,8 +260,27 @@ export const tools: Tool[] = [
     params: [],
   },
   {
+    name: 'motherduckmcp_get_flight_logs',
+    description: `Fetch the plain-text logs (stdout + stderr) of a Flight run plus the matching Run record (status, exit_code, timing). Logs may be large; pass max_bytes to cap the response size — the response will be the tail when truncated.`,
+    params: [
+      { name: 'id', type: 'string', required: true, description: `Flight identifier (UUID).` },
+      {
+        name: 'run_number',
+        type: 'integer',
+        required: true,
+        description: `Sequential run number, as returned by list_flight_runs.`,
+      },
+      {
+        name: 'max_bytes',
+        type: 'integer',
+        required: false,
+        description: `Optional max bytes of logs to return; the response is truncated to fit and the truncation is reported via truncated: true.`,
+      },
+    ],
+  },
+  {
     name: 'motherduckmcp_get_flight_run_logs',
-    description: `Fetch the logs and run record for a single Flight run, combining stdout/stderr with status, exit code, and timing.`,
+    description: `[STALE: upstream renamed this tool to get_flight_logs; this upstream_tool_name no longer appears in the live MCP tools/list as of the 2026-08-19 SK-1675 refresh. Kept for backward compatibility, not for new use — see motherduckmcp_get_flight_logs.] Fetch the logs and run record for a single Flight run, combining stdout/stderr with status, exit code, and timing.`,
     params: [
       { name: 'id', type: 'string', required: true, description: `Flight identifier (UUID).` },
       {
@@ -191,6 +296,29 @@ export const tools: Tool[] = [
         description: `Cap response size in bytes (minimum 1024). When the log exceeds this limit, the tail of the log is returned.`,
       },
     ],
+  },
+  {
+    name: 'motherduckmcp_get_guide',
+    description: `Load a guide by uuid. Guides are curated markdown documents about this organization's data (metric definitions, conventions, pitfalls). Find a guide's uuid with list_guides or via get_query_guide, get_dive_guide, or get_flight_guide.`,
+    params: [
+      {
+        name: 'uuid',
+        type: 'string',
+        required: true,
+        description: `The guide's UUID, as returned by list_guides or a previous mutation.`,
+      },
+      {
+        name: 'version',
+        type: 'integer',
+        required: false,
+        description: `Version number to read; defaults to the current version.`,
+      },
+    ],
+  },
+  {
+    name: 'motherduckmcp_get_query_guide',
+    description: `Call this before writing SQL to answer a data question. Returns this organization's query guidance: what guides exist (curated markdown documents about the data), how to navigate them, and an overview of the available guide topics.`,
+    params: [],
   },
   {
     name: 'motherduckmcp_get_short_lived_token',
@@ -283,6 +411,48 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'motherduckmcp_list_guides',
+    description: `Browse this organization's curated guides — markdown documents that capture organization and personal context about the data in MotherDuck. Called with no arguments, lists the root level: guides without topics plus every topic (folder) with its guide count. Pass topic to open a folder. Read a guide in full with get_guide(uuid).`,
+    params: [
+      {
+        name: 'topic',
+        type: 'string',
+        required: false,
+        description: `Open this folder, e.g. 'revenue-billing' or 'core/metrics' (no leading/trailing slash). Omit for the root level.`,
+      },
+    ],
+  },
+  {
+    name: 'motherduckmcp_list_macros',
+    description: `List all macros (table and scalar macros) in a MotherDuck database, with their schema and parameters. Optionally filter by schema or keywords.`,
+    params: [
+      {
+        name: 'database',
+        type: 'string',
+        required: true,
+        description: `Database name to list macros from.`,
+      },
+      {
+        name: 'keywords',
+        type: 'string',
+        required: false,
+        description: `Optional keywords to filter macros by name (case-insensitive, any word can match).`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Max results to return (default: 100).`,
+      },
+      {
+        name: 'schema',
+        type: 'string',
+        required: false,
+        description: `Schema name (optional, defaults to all schemas).`,
+      },
+    ],
+  },
+  {
     name: 'motherduckmcp_list_shares',
     description: `Retrieve all database shares that have been shared with the user by other MotherDuck users. Each share includes a name and URL for attaching via the ATTACH command.`,
     params: [],
@@ -302,6 +472,36 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Schema filter; omitting returns tables from all schemas.`,
+      },
+    ],
+  },
+  {
+    name: 'motherduckmcp_list_views',
+    description: `List all views in a MotherDuck database, with their schema, comment, and column count. Optionally filter by schema or keywords.`,
+    params: [
+      {
+        name: 'database',
+        type: 'string',
+        required: true,
+        description: `Database name to list views from.`,
+      },
+      {
+        name: 'keywords',
+        type: 'string',
+        required: false,
+        description: `Optional keywords to filter views by name or comment (case-insensitive, any word can match).`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Max results to return (default: 100).`,
+      },
+      {
+        name: 'schema',
+        type: 'string',
+        required: false,
+        description: `Schema name (optional, defaults to all schemas).`,
       },
     ],
   },
@@ -496,6 +696,24 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'motherduckmcp_set_guide_access',
+    description: `Set a guide's visibility to 'user' (private to the owner) or 'organization' (visible to the whole org). Identify it by uuid. Org-wide scoping is permission-gated.`,
+    params: [
+      {
+        name: 'access',
+        type: 'string',
+        required: true,
+        description: `'user' (private) or 'organization' (org-wide, permission-gated).`,
+      },
+      {
+        name: 'uuid',
+        type: 'string',
+        required: true,
+        description: `The guide's UUID, as returned by list_guides or a previous mutation.`,
+      },
+    ],
+  },
+  {
     name: 'motherduckmcp_share_dive_data',
     description: `Make a Dive's underlying data accessible to your organization by creating org-scoped shares for owned databases referenced by the Dive's SQL queries.`,
     params: [
@@ -578,6 +796,67 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Python entrypoint code. Providing this field creates a new FlightVersion.`,
+      },
+    ],
+  },
+  {
+    name: 'motherduckmcp_update_guide',
+    description: `Append a new version to an existing guide, identified by uuid. Omit content to keep the current text and just change metadata such as references. A supplied references list replaces the existing one (pass [] to clear them, omit to carry them forward). For small in-place edits use edit_guide_content. Use create_guide to make a new guide, update_guide_metadata to retitle or re-topic.`,
+    params: [
+      {
+        name: 'uuid',
+        type: 'string',
+        required: true,
+        description: `The guide's UUID, as returned by list_guides or a previous mutation.`,
+      },
+      {
+        name: 'change_comment',
+        type: 'string',
+        required: false,
+        description: `Optional note describing this version's change.`,
+      },
+      {
+        name: 'content',
+        type: 'string',
+        required: false,
+        description: `New full markdown body. Omit to carry the current version's content forward.`,
+      },
+      {
+        name: 'external_id',
+        type: 'string',
+        required: false,
+        description: `Optional caller-provided id for this version (e.g. a git SHA).`,
+      },
+      {
+        name: 'references',
+        type: 'array',
+        required: false,
+        description: `Replaces the guide's references. Pass [] to clear; omit to carry them forward.`,
+      },
+    ],
+  },
+  {
+    name: 'motherduckmcp_update_guide_metadata',
+    description: `Change a guide's title, description, or topic without appending a content version. Identify it by uuid. Pass an empty description to clear it; pass an empty topic to remove the topic.`,
+    params: [
+      {
+        name: 'uuid',
+        type: 'string',
+        required: true,
+        description: `The guide's UUID, as returned by list_guides or a previous mutation.`,
+      },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `New one-line summary. Pass an empty string to clear it.`,
+      },
+      { name: 'title', type: 'string', required: false, description: `New title.` },
+      {
+        name: 'topic',
+        type: 'string',
+        required: false,
+        description: `New grouping label, e.g. 'revenue-billing' or 'core/metrics' (no leading/trailing slash). Pass an empty string to remove the topic.`,
       },
     ],
   },

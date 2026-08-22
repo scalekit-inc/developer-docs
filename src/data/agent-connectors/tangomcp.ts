@@ -15,7 +15,7 @@ export const tools: Tool[] = [
   },
   {
     name: 'tangomcp_get_details',
-    description: `Get detailed information about a single item — entity, contract, IDV, vehicle, opportunity, OTA, OTIDV, organization, protest, SIN, GSA eLibrary contract, IT investment, NAICS/PSC code, or budget account. Use after search or resolve to drill into a specific record, optionally enriched with related data.`,
+    description: `Get detailed information about a single item — entity, contract, IDV, vehicle, opportunity, OTA, OTIDV, organization, protest, SIN, GSA eLibrary contract, IT investment, NAICS/PSC code, budget account, DIBBS RFQ/RFP/award, SAM exclusion, or SBIR topic/solicitation. Use after search or resolve to drill into a specific record, optionally enriched with related data.`,
     params: [
       {
         name: 'id',
@@ -34,6 +34,12 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Opportunity only. Comma-separated attachment resource_ids (or exact filenames) to pull full extracted text for — the targeted alternative to include_attachment_text when you only need specific documents (Pro-tier).`,
+      },
+      {
+        name: 'attachment_offset',
+        type: 'integer',
+        required: false,
+        description: `Opportunity only, used with attachment_ids. Character offset into each selected document's extracted text — pass the next_offset reported under attachment_text.partial[] to continue reading a document larger than the per-call budget. Ignored without attachment_ids.`,
       },
       {
         name: 'fields',
@@ -93,13 +99,31 @@ export const tools: Tool[] = [
   },
   {
     name: 'tangomcp_search',
-    description: `Search contracts, IDVs, vehicles, GSA eLibrary Schedule holders, CALC labor rates, OTAs, OTIDVs, subawards, organizations, GAO bid protests, federal grants, and federal budget accounts. This is the primary data retrieval tool — use it to find records by vendor, organization, NAICS/PSC code, date range, keyword, or type-specific filters. Set include_summary=true to get aggregate statistics (total obligated, vendor distribution, set-aside breakdown) computed across up to 500 matching records. For appropriations data use type='budget_account'; for labor rate benchmarking use type='lcat'; for GSA Schedule holder lookups use type='gsa_elibrary'.`,
+    description: `Search contracts, IDVs, vehicles, GSA eLibrary Schedule holders, CALC labor rates, OTAs, OTIDVs, subawards, organizations, GAO bid protests, federal grants, federal budget accounts, DIBBS awards, SAM exclusions (debarments), and SAM entity registrations (vendors). This is the primary data retrieval tool — use it to find records by vendor, organization, NAICS/PSC code, date range, or type-specific filters. Set include_summary=true to get aggregate statistics computed across a hard-capped sample of matching records. For appropriations data use type='budget_account'; for labor rate benchmarking use type='lcat'; for GSA Schedule holder lookups use type='gsa_elibrary'; for vendor debarment checks use type='exclusion'; for DLA parts spending use type='dibbs_award'; for vendor population/attribute queries use type='entity'.`,
     params: [
       {
         name: 'account_title',
         type: 'string',
         required: false,
         description: `Account title contains filter for budget account searches.`,
+      },
+      {
+        name: 'activate_date_after',
+        type: 'string',
+        required: false,
+        description: `Activation date lower bound, YYYY-MM-DD (exclusion type only).`,
+      },
+      {
+        name: 'activate_date_before',
+        type: 'string',
+        required: false,
+        description: `Activation date upper bound, YYYY-MM-DD (exclusion type only).`,
+      },
+      {
+        name: 'active',
+        type: 'string',
+        required: false,
+        description: `When true, restrict to exclusions in force today, derived at query time from the activate/termination dates (exclusion type only). A lapsed exclusion is not a change to the record.`,
       },
       {
         name: 'agency_code',
@@ -132,10 +156,22 @@ export const tools: Tool[] = [
         description: `Filter subawards by parent contract key (subaward type only).`,
       },
       {
+        name: 'award_number',
+        type: 'string',
+        required: false,
+        description: `DIBBS award number, exact (dibbs_award type only). Use '|' for OR.`,
+      },
+      {
         name: 'award_type',
         type: 'string',
         required: false,
         description: `Award type code to filter by (e.g. 'A' for BPA Call, 'B' for Purchase Order, 'C' for Delivery Order, 'D' for Definitive Contract).`,
+      },
+      {
+        name: 'awardee_cage',
+        type: 'string',
+        required: false,
+        description: `Awardee CAGE code (dibbs_award type only).`,
       },
       {
         name: 'awarding_org',
@@ -162,6 +198,12 @@ export const tools: Tool[] = [
         description: `Filter by business size code (lcat type only).`,
       },
       {
+        name: 'cage_code',
+        type: 'string',
+        required: false,
+        description: `CAGE code filter (exclusion type only).`,
+      },
+      {
         name: 'cfda_number',
         type: 'string',
         required: false,
@@ -186,6 +228,12 @@ export const tools: Tool[] = [
         description: `Maximum CIO rating threshold — returns investments at or below this rating (itdashboard type only; Business+ tier).`,
       },
       {
+        name: 'classification_type',
+        type: 'string',
+        required: false,
+        description: `Exclusion classification type (exclusion type only).`,
+      },
+      {
         name: 'contract_number',
         type: 'string',
         required: false,
@@ -204,6 +252,18 @@ export const tools: Tool[] = [
         description: `Protest decision date range start, YYYY-MM-DD (protest type only).`,
       },
       {
+        name: 'delisted',
+        type: 'string',
+        required: false,
+        description: `Filter by delisted status (exclusion type only).`,
+      },
+      {
+        name: 'delivery_order_number',
+        type: 'string',
+        required: false,
+        description: `DIBBS delivery order number (dibbs_award type only).`,
+      },
+      {
         name: 'docket_number',
         type: 'string',
         required: false,
@@ -216,10 +276,40 @@ export const tools: Tool[] = [
         description: `Filter labor rates by education level requirement (lcat type only).`,
       },
       {
+        name: 'entity_state',
+        type: 'string',
+        required: false,
+        description: `US state filter for entity registrations (entity type only).`,
+      },
+      {
         name: 'entity_uei',
         type: 'string',
         required: false,
         description: `Entity UEI for labor rate lookup (lcat type only). Either idv_key or entity_uei is required for lcat searches.`,
+      },
+      {
+        name: 'excluding_agency_code',
+        type: 'string',
+        required: false,
+        description: `Excluding agency code (exclusion type only).`,
+      },
+      {
+        name: 'excluding_agency_name',
+        type: 'string',
+        required: false,
+        description: `Excluding agency name (exclusion type only).`,
+      },
+      {
+        name: 'exclusion_program',
+        type: 'string',
+        required: false,
+        description: `Exclusion program filter (exclusion type only).`,
+      },
+      {
+        name: 'exclusion_type',
+        type: 'string',
+        required: false,
+        description: `Exclusion type filter (exclusion type only).`,
       },
       {
         name: 'expiring_end',
@@ -390,6 +480,18 @@ export const tools: Tool[] = [
         description: `Filter by NAICS (North American Industry Classification System) code.`,
       },
       {
+        name: 'npi',
+        type: 'string',
+        required: false,
+        description: `National Provider Identifier filter (exclusion type only).`,
+      },
+      {
+        name: 'nsn',
+        type: 'string',
+        required: false,
+        description: `National Stock Number, exact (dibbs_award type only). Use '|' for OR.`,
+      },
+      {
         name: 'obligated_gte',
         type: 'string',
         required: false,
@@ -438,6 +540,12 @@ export const tools: Tool[] = [
         description: `Filter organizations by type string (organization type only).`,
       },
       {
+        name: 'organization',
+        type: 'string',
+        required: false,
+        description: `Federal-hierarchy key of the buying organization (dibbs_award type only). Always DLA.`,
+      },
+      {
         name: 'outcome',
         type: 'string',
         required: false,
@@ -448,6 +556,12 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Filter organizations by parent organization key (organization type only).`,
+      },
+      {
+        name: 'part_number',
+        type: 'string',
+        required: false,
+        description: `Manufacturer part number, exact (dibbs_award type only).`,
       },
       {
         name: 'performance_risk',
@@ -484,6 +598,18 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Period of performance start date range — lower bound (YYYY-MM-DD).`,
+      },
+      {
+        name: 'posted_date_after',
+        type: 'string',
+        required: false,
+        description: `Posted date lower bound, YYYY-MM-DD (dibbs_award type only).`,
+      },
+      {
+        name: 'posted_date_before',
+        type: 'string',
+        required: false,
+        description: `Posted date upper bound, YYYY-MM-DD (dibbs_award type only).`,
       },
       {
         name: 'posted_date_end',
@@ -534,6 +660,12 @@ export const tools: Tool[] = [
         description: `Filter by PSC (Product Service Code).`,
       },
       {
+        name: 'purchase_request',
+        type: 'string',
+        required: false,
+        description: `Purchase request number (dibbs_award type only).`,
+      },
+      {
         name: 'recipient_name',
         type: 'string',
         required: false,
@@ -570,6 +702,12 @@ export const tools: Tool[] = [
         description: `Filter by SIN (Special Item Number) code (gsa_elibrary and lcat types). Not valid for contract-type searches — use type='gsa_elibrary' with sin= to find MAS Schedule holders.`,
       },
       {
+        name: 'socioeconomic',
+        type: 'string',
+        required: false,
+        description: `SAM business-type code(s), pipe-OR supported, e.g. 'OY|A2' (entity type only). NOT set-aside codes. Call fetch_api_docs("entities") for the full table.`,
+      },
+      {
         name: 'solicitation_identifier',
         type: 'string',
         required: false,
@@ -594,6 +732,30 @@ export const tools: Tool[] = [
         description: `Filter subawards by subcontractor UEI (subaward type only).`,
       },
       {
+        name: 'termination_date_after',
+        type: 'string',
+        required: false,
+        description: `Termination date lower bound, YYYY-MM-DD (exclusion type only).`,
+      },
+      {
+        name: 'termination_date_before',
+        type: 'string',
+        required: false,
+        description: `Termination date upper bound, YYYY-MM-DD (exclusion type only).`,
+      },
+      {
+        name: 'total_contract_price_max',
+        type: 'string',
+        required: false,
+        description: `Maximum order total in USD (dibbs_award type only).`,
+      },
+      {
+        name: 'total_contract_price_min',
+        type: 'string',
+        required: false,
+        description: `Minimum order total in USD (dibbs_award type only). The whole ORDER's total, repeated on every line item.`,
+      },
+      {
         name: 'total_obligated_max',
         type: 'string',
         required: false,
@@ -610,6 +772,18 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `What record type to search. Options: contract (default), idv, vehicle, all (contracts+IDVs), ota, otidv, subaward, organization, protest, gsa_elibrary, lcat, itdashboard, grant, budget_account.`,
+      },
+      {
+        name: 'update_date_after',
+        type: 'string',
+        required: false,
+        description: `Last-updated date lower bound, YYYY-MM-DD (exclusion type only).`,
+      },
+      {
+        name: 'update_date_before',
+        type: 'string',
+        required: false,
+        description: `Last-updated date upper bound, YYYY-MM-DD (exclusion type only).`,
       },
       {
         name: 'updated_after',
@@ -645,13 +819,19 @@ export const tools: Tool[] = [
   },
   {
     name: 'tangomcp_search_opportunities',
-    description: `Search open federal procurement opportunities and forecasts. Filter by organization, NAICS code, PSC code, set-aside type, notice type, place of performance, response deadline, and more. Returns a list of matching opportunities with total count.`,
+    description: `Search open federal pre-award procurement records — SAM.gov opportunities, procurement forecasts, DLA DIBBS RFQs/RFPs, and SBIR/STTR topics and solicitations. Filter by organization, NAICS/PSC code, set-aside type, notice type, place of performance, response deadline, and family-specific filters (nsn/part_number for DIBBS, topic_number/program for SBIR). Returns a list of matching records with total count.`,
     params: [
       {
         name: 'active',
         type: 'string',
         required: false,
         description: `Filter active or inactive opportunities.`,
+      },
+      {
+        name: 'activity',
+        type: 'string',
+        required: false,
+        description: `SBIR lifecycle, derived at query time — 'open', 'closed', or (topics only) 'unknown' for topics with no usable date roster (SBIR only). Prefer this over active for SBIR.`,
       },
       {
         name: 'award_date_after',
@@ -664,6 +844,24 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Anticipated award date upper bound (YYYY-MM-DD, forecasts only).`,
+      },
+      {
+        name: 'buyer_code',
+        type: 'string',
+        required: false,
+        description: `DLA buyer code (dibbs_rfp only).`,
+      },
+      {
+        name: 'cycle_name',
+        type: 'string',
+        required: false,
+        description: `Solicitation cycle name (sbir_solicitation only).`,
+      },
+      {
+        name: 'doc_source',
+        type: 'string',
+        required: false,
+        description: `Source document collection (sbir_topic only).`,
       },
       {
         name: 'fields',
@@ -756,6 +954,12 @@ export const tools: Tool[] = [
         description: `Filter by notice type. Accepts a single-letter code or human-readable name. Codes: p (Pre solicitation), k (Combined Synopsis/Solicitation), o (Solicitation), a (Award Notice), m (Modification/Amendment/Cancel), r (Sources Sought), s (Special Notice), u (Justification), i (Intent to Bundle), g (Sale of Surplus Property).`,
       },
       {
+        name: 'nsn',
+        type: 'string',
+        required: false,
+        description: `National Stock Number, exact (dibbs_rfq/dibbs_rfp only). Use '|' for OR.`,
+      },
+      {
         name: 'ordering',
         type: 'string',
         required: false,
@@ -768,16 +972,70 @@ export const tools: Tool[] = [
         description: `Organization filter — accepts a code, name, or abbreviation (e.g. "VA", "CMS", "7500").`,
       },
       {
+        name: 'organization',
+        type: 'string',
+        required: false,
+        description: `Federal-hierarchy key of the DLA buying organization (DIBBS only). Not the same as org — DIBBS is always DLA, so this narrows within DLA.`,
+      },
+      {
+        name: 'out_of_cycle',
+        type: 'string',
+        required: false,
+        description: `Whether the solicitation is out of cycle (sbir_solicitation only).`,
+      },
+      {
+        name: 'part_number',
+        type: 'string',
+        required: false,
+        description: `Manufacturer part number, exact (dibbs_rfq/dibbs_rfp only).`,
+      },
+      {
         name: 'place_of_performance',
         type: 'string',
         required: false,
         description: `Place of performance text filter.`,
       },
       {
+        name: 'program',
+        type: 'string',
+        required: false,
+        description: `'SBIR' or 'STTR' (sbir_solicitation only). Topics have no program filter; filter topics via solicitation_number instead.`,
+      },
+      {
         name: 'psc_codes',
         type: 'string',
         required: false,
         description: `List of PSC codes to filter by.`,
+      },
+      {
+        name: 'purchase_request',
+        type: 'string',
+        required: false,
+        description: `Purchase request number (dibbs_rfq only).`,
+      },
+      {
+        name: 'quantity_max',
+        type: 'string',
+        required: false,
+        description: `Maximum quantity requested (dibbs_rfq only).`,
+      },
+      {
+        name: 'quantity_min',
+        type: 'string',
+        required: false,
+        description: `Minimum quantity requested (dibbs_rfq only).`,
+      },
+      {
+        name: 'release_date_after',
+        type: 'string',
+        required: false,
+        description: `Release-date lower bound (sbir_topic only). A topic is released, then opens, then closes — this is the earliest of the three, distinct from first_notice_date_*.`,
+      },
+      {
+        name: 'release_date_before',
+        type: 'string',
+        required: false,
+        description: `Release-date upper bound (sbir_topic only).`,
       },
       {
         name: 'response_deadline_after',
@@ -792,6 +1050,12 @@ export const tools: Tool[] = [
         description: `Include opportunities due before this date (YYYY-MM-DD).`,
       },
       {
+        name: 'set_aside_flag',
+        type: 'string',
+        required: false,
+        description: `DIBBS set-aside flag — 'Y' or 'N' (dibbs_rfq only). A yes/no flag, not a set-aside program type; use set_aside_types for 8(a)/SDVOSB/etc. on opportunities.`,
+      },
+      {
         name: 'set_aside_types',
         type: 'string',
         required: false,
@@ -802,6 +1066,12 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Solicitation number filter.`,
+      },
+      {
+        name: 'solicitation_status',
+        type: 'string',
+        required: false,
+        description: `sbir.gov's own raw Open/Closed string (SBIR only). Source data, distinct from the derived activity field — they can disagree.`,
       },
       {
         name: 'source_system',
@@ -816,10 +1086,28 @@ export const tools: Tool[] = [
         description: `Status filter (forecasts only). Examples: "Draft", "Final".`,
       },
       {
+        name: 'status_code',
+        type: 'string',
+        required: false,
+        description: `11-character composite DIBBS status code, e.g. 'DLK00L1N000' (dibbs_rfq only). Unrelated to status and solicitation_status.`,
+      },
+      {
+        name: 'topic_number',
+        type: 'string',
+        required: false,
+        description: `SBIR topic number, exact (sbir_topic only).`,
+      },
+      {
         name: 'type',
         type: 'string',
         required: false,
-        description: `What to search — "opportunity" (default) or "forecast".`,
+        description: `What to search — "opportunity" (default), "forecast", "dibbs_rfq", "dibbs_rfp", "sbir_topic", or "sbir_solicitation".`,
+      },
+      {
+        name: 'year',
+        type: 'string',
+        required: false,
+        description: `Solicitation year, exact (SBIR only). Not a fiscal year — use fiscal_year for forecasts.`,
       },
     ],
   },

@@ -58,6 +58,48 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'sanitymcp_cors_origins_delete',
+    description: `Deletes a CORS origin from a Sanity project.`,
+    params: [
+      {
+        name: 'origin',
+        type: 'string',
+        required: true,
+        description: `CORS origin to delete, in format protocol://hostname[:port]. Must be an exact match.`,
+      },
+      {
+        name: 'resource',
+        type: 'object',
+        required: true,
+        description: `Resource information indicating which project ID to target`,
+      },
+      {
+        name: 'intent',
+        type: 'string',
+        required: false,
+        description: `Brief description of what you are trying to accomplish.`,
+      },
+    ],
+  },
+  {
+    name: 'sanitymcp_cors_origins_list',
+    description: `Lists all CORS origins configured for a Sanity project.`,
+    params: [
+      {
+        name: 'resource',
+        type: 'object',
+        required: true,
+        description: `Resource information indicating which project ID to target`,
+      },
+      {
+        name: 'intent',
+        type: 'string',
+        required: false,
+        description: `Brief description of what you are trying to accomplish.`,
+      },
+    ],
+  },
+  {
     name: 'sanitymcp_create_dataset',
     description: `Create a new dataset in a Sanity project with the specified access control mode.`,
     params: [
@@ -85,6 +127,42 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Brief description of what you are trying to accomplish.`,
+      },
+    ],
+  },
+  {
+    name: 'sanitymcp_create_documents',
+    description: `Create one or more draft documents by directly providing structured content. Creates drafts (drafts.* prefix) unless releaseId is specified for version creation.`,
+    params: [
+      {
+        name: 'documents',
+        type: 'array',
+        required: true,
+        description: `Array of documents to create. Each document must have a type and content, with every document field inside content. Prefer Sanity-generated _id values by omitting _id from content unless a stable custom document ID is required.`,
+      },
+      {
+        name: 'resource',
+        type: 'object',
+        required: true,
+        description: `Resource information indicating which project ID and dataset to target`,
+      },
+      {
+        name: 'intent',
+        type: 'string',
+        required: false,
+        description: `Brief description of what you are trying to accomplish.`,
+      },
+      {
+        name: 'releaseId',
+        type: 'string',
+        required: false,
+        description: `Optional release ID for creating versioned documents. If provided, documents will be created under the specified release version instead of as drafts.`,
+      },
+      {
+        name: 'workspaceName',
+        type: 'string',
+        required: false,
+        description: `Workspace name as returned by \`list_workspace_schemas\`. Not a document type. Defaults to "default".`,
       },
     ],
   },
@@ -226,6 +304,12 @@ export const tools: Tool[] = [
         description: `Brief description of what you are trying to accomplish.`,
       },
       {
+        name: 'releaseId',
+        type: 'string',
+        required: false,
+        description: `Optional release ID, if omitted one is generated.`,
+      },
+      {
         name: 'releaseType',
         type: 'string',
         required: false,
@@ -255,6 +339,18 @@ export const tools: Tool[] = [
         required: true,
         description: `Resource information indicating which project ID and dataset to target`,
       },
+      {
+        name: 'intent',
+        type: 'string',
+        required: false,
+        description: `Brief description of what you are trying to accomplish.`,
+      },
+    ],
+  },
+  {
+    name: 'sanitymcp_dataset_assets_upload',
+    description: `Provide local Sanity CLI guidance for uploading an image or file asset to a Content Lake dataset. This tool does not read or upload the file.`,
+    params: [
       {
         name: 'intent',
         type: 'string',
@@ -310,12 +406,17 @@ export const tools: Tool[] = [
         description: `Resource information indicating which project ID and dataset to target`,
       },
       {
+        name: 'title',
+        type: 'string',
+        required: true,
+        description: `Human-facing title shown in Studio navigation.`,
+      },
+      {
         name: 'intent',
         type: 'string',
         required: false,
         description: `Brief description of what you are trying to accomplish.`,
       },
-      { name: 'title', type: 'string', required: false, description: `Title of the release.` },
       {
         name: 'workspaceName',
         type: 'string',
@@ -461,12 +562,69 @@ export const tools: Tool[] = [
         required: false,
         description: `Brief description of what you are trying to accomplish.`,
       },
+      {
+        name: 'schemaId',
+        type: 'string',
+        required: false,
+        description: `Optional exact schema ID returned by list_workspace_schemas. Use this to inspect a specific source when multiple deployments share a workspace name.`,
+      },
       { name: 'type', type: 'string', required: false, description: `Document schema type name.` },
       {
         name: 'workspaceName',
         type: 'string',
         required: false,
         description: `Sanity workspace name. Defaults to the default workspace.`,
+      },
+    ],
+  },
+  {
+    name: 'sanitymcp_give_sanity_feedback',
+    description: `Submit feedback about Sanity when you encounter issues while working with a Sanity codebase or project.
+Use this when:
+- A Sanity MCP tool returned an unexpected error or confusing result
+- You needed a Sanity capability that doesn't exist or is hard to use
+- Sanity docs, MCP tool descriptions, or examples were unclear or incorrect
+- Common Sanity surfaces such as @sanity/client, the HTTP API, schemas, Studio, or deployment were confusing or blocked progress
+- You had to use a workaround for something in Sanity that should be simpler
+
+Provide a specific, detailed message about what you were trying to do,
+what happened, and what you expected instead.`,
+    params: [
+      {
+        name: 'message',
+        type: 'string',
+        required: true,
+        description: `Describe the Sanity issue. Include: what you were trying to do, what you tried, and where you got stuck. Be specific — include MCP tool names, Sanity surface names such as @sanity/client, HTTP API, docs, Studio, or schemas, error messages, and parameter values when relevant.`,
+      },
+      {
+        name: 'category',
+        type: 'string',
+        required: false,
+        description: `Category of feedback to help with triage.`,
+      },
+      {
+        name: 'intent',
+        type: 'string',
+        required: false,
+        description: `Brief description of what you are trying to accomplish.`,
+      },
+      {
+        name: 'projectId',
+        type: 'string',
+        required: false,
+        description: `The Sanity project ID this feedback relates to, if any. Leave unset for general feedback not tied to a specific project.`,
+      },
+      {
+        name: 'severity',
+        type: 'string',
+        required: false,
+        description: `How much this blocked progress. high = completely blocked, medium = workaround needed, low = minor.`,
+      },
+      {
+        name: 'toolName',
+        type: 'string',
+        required: false,
+        description: `The MCP tool this feedback is about, if any (e.g. "query_documents"). Leave unset for general Sanity feedback.`,
       },
     ],
   },
@@ -712,6 +870,42 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'sanitymcp_patch_documents',
+    description: `Update or edit one or more existing documents by applying precise modifications using @sanity/client patch() operations. Patches for each document are applied as a single transaction (all succeed or all fail). Edits are saved to the draft or release version; published content is never modified directly.`,
+    params: [
+      {
+        name: 'documents',
+        type: 'object',
+        required: true,
+        description: `Map of document IDs to patch operations, up to 25 documents. Accepts published, draft (\`drafts.<id>\`), and version (\`versions.<releaseId>.<id>\`) IDs. Published and draft IDs edit the draft; version IDs edit that release version.`,
+      },
+      {
+        name: 'resource',
+        type: 'object',
+        required: true,
+        description: `Resource information indicating which project ID and dataset to target`,
+      },
+      {
+        name: 'intent',
+        type: 'string',
+        required: false,
+        description: `Brief description of what you are trying to accomplish.`,
+      },
+      {
+        name: 'releaseId',
+        type: 'string',
+        required: false,
+        description: `Optional release ID for patching documents in an existing release.`,
+      },
+      {
+        name: 'workspaceName',
+        type: 'string',
+        required: false,
+        description: `Workspace name as returned by \`list_workspace_schemas\`. Not a document type. Defaults to "default".`,
+      },
+    ],
+  },
+  {
     name: 'sanitymcp_publish_documents',
     description: `Publish one or more draft documents to make them publicly visible.`,
     params: [
@@ -804,6 +998,24 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `URL of the Sanity documentation page to read.`,
+      },
+    ],
+  },
+  {
+    name: 'sanitymcp_run_sanity_cli',
+    description: `Run a limited subset of Sanity CLI commands and return their output. Use \`--help\` to list available commands or \`<command> --help\` for command details. Commands run without a shell and cannot access the filesystem, prompt for input, run in the background, or change authentication. Dedicated Sanity MCP tools may provide more structured responses, but equivalent CLI commands are also available.`,
+    params: [
+      {
+        name: 'args',
+        type: 'string',
+        required: true,
+        description: `Arguments passed to the Sanity CLI after \`sanity\`, as a single string. Examples: \`--help\`, \`datasets list\`.`,
+      },
+      {
+        name: 'intent',
+        type: 'string',
+        required: false,
+        description: `Brief description of what you are trying to accomplish.`,
       },
     ],
   },
@@ -930,6 +1142,12 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Brief description of what you are trying to accomplish.`,
+      },
+      {
+        name: 'releaseId',
+        type: 'string',
+        required: false,
+        description: `Optional release ID for scheduling documents to be unpublished when the release runs.`,
       },
     ],
   },

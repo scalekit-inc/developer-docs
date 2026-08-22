@@ -139,6 +139,11 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'gtmetrixmcp_reauthenticate',
+    description: `Sign in to a GTmetrix account from the current MCP session. Call this when a guest connection hits the guest credit limit (a 402 'Insufficient guest credits' error) or is told that a tool requires a GTmetrix account, and also when a logged-in user wants to switch accounts. It revokes the current access token; on the next GTmetrix tool call the server will require re-authentication and present a sign-in page where the user can log into (or create) an account.`,
+    params: [],
+  },
+  {
     name: 'gtmetrixmcp_start_test',
     description: `Start a new GTmetrix page performance test for a URL.`,
     params: [

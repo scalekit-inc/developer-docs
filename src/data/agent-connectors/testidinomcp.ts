@@ -2,6 +2,80 @@ import type { Tool } from '../../types/agent-connectors'
 
 export const tools: Tool[] = [
   {
+    name: 'testidinomcp_connect_integration',
+    description: `Start the provider OAuth/connect flow for a TestDino project. The tool first checks current status and returns already_connected instead of starting OAuth when the provider is connected.`,
+    params: [
+      { name: 'projectId', type: 'string', required: true, description: `TestDino project ID.` },
+      {
+        name: 'provider',
+        type: 'string',
+        required: true,
+        description: `Integration provider connected to this TestDino project.`,
+      },
+      {
+        name: 'orgId',
+        type: 'string',
+        required: false,
+        description: `TestDino organization ID. Usually inferred from the PAT scope; pass explicitly if the token spans multiple orgs.`,
+      },
+    ],
+  },
+  {
+    name: 'testidinomcp_create_external_issue',
+    description: `Create a provider issue/task/item linked to a TestDino entity. Supported source types include automated and manual runs, test cases, suites, releases, and sessions. Check get_integration_status first for required provider fields.`,
+    params: [
+      { name: 'projectId', type: 'string', required: true, description: `TestDino project ID.` },
+      {
+        name: 'provider',
+        type: 'string',
+        required: true,
+        description: `Integration provider connected to this TestDino project.`,
+      },
+      {
+        name: 'source',
+        type: 'object',
+        required: true,
+        description: `TestDino entity to link with the external issue.`,
+      },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `Issue body/description. Later phases can derive this from source.`,
+      },
+      {
+        name: 'idempotencyKey',
+        type: 'string',
+        required: false,
+        description: `Caller-provided stable key for retrying the same create request without creating duplicates when supported downstream.`,
+      },
+      {
+        name: 'linkBack',
+        type: 'boolean',
+        required: false,
+        description: `Whether TestDino should link the created external issue back to the source entity.`,
+      },
+      {
+        name: 'preview',
+        type: 'boolean',
+        required: false,
+        description: `When true, resolve and return the issue draft without creating anything in the provider.`,
+      },
+      {
+        name: 'summary',
+        type: 'string',
+        required: false,
+        description: `Issue title. Later phases can derive this from source.`,
+      },
+      {
+        name: 'target',
+        type: 'object',
+        required: false,
+        description: `Provider-specific target/field values. Jira accepts human-readable aliases such as { jiraProjectKey: "TRX", issueType: "Bug" } or { jiraProjectName, issueTypeName }; raw { jiraProjectId, issueTypeId } also works. Linear { teamId }, Asana { workspaceId, projectId }, monday.com { boardId }.`,
+      },
+    ],
+  },
+  {
     name: 'testidinomcp_create_manual_run',
     description: `Create a new manual test run. Requires write permission. selectionMode controls which test cases are included: "all" (default — every case in the project) or "selected" (use testCaseIds and/or suiteIds to scope). releaseId attaches the run to a release. note accepts rich HTML. IMPORTANT: tags must be a JSON array of strings — e.g. ["smoke","regression"] — NOT the comma-separated form that list_manual_runs accepts as a filter.`,
     params: [
@@ -391,7 +465,7 @@ export const tools: Tool[] = [
   },
   {
     name: 'testidinomcp_debug_testcase',
-    description: `AI-assisted root cause analysis for a failing or flaky test. Returns historical execution data, aggregated failure patterns (error types, frequency, browsers affected), common error messages, and a debugging_prompt field. IMPORTANT: always read the debugging_prompt field in the response — it contains pre-formatted analysis instructions curated for this specific test. Treat it as your analysis context before drawing conclusions. Use this when the user asks "why is test X failing?", "debug test X", or "is test X flaky?". Workflow: debug_testcase() → read debugging_prompt → identify pattern (always fails? flaky? browser-specific? recent regression?) → optionally follow up with get_testcase_details(steps_filter="failed_only", include_screenshots=true) for a specific execution.`,
+    description: `AI-assisted root cause analysis for a failing or flaky test. Returns historical execution data, aggregated failure patterns (error types, frequency, browsers affected), common error messages, and a debugging_prompt field. If you are debugging a failing test, call get_debug_evidence first: it already carries the debugging_prompt, the verdict and the artifact links. Come here afterwards only for the stored AI suggestions or the full execution history. IMPORTANT: always read the debugging_prompt field in the response — it contains pre-formatted analysis instructions curated for this specific test. Treat it as your analysis context before drawing conclusions. Any fixes you produce from this analysis are recommendations only — validate them against the live code before applying. Use this when the user asks "why is test X failing?", "debug test X", or "is test X flaky?". If the title is shared across multiple files, pair with suite_file_path to disambiguate (else data-handler returns 409 AMBIGUOUS_IDENTITY with candidates). Set include_ai_insights=true to also get TestDino's stored AI analysis for this test under \`ai_fixes\`: recommendations (investigation/remediation steps + reasoning + historical insight) and quick fixes (concrete fixes, often with code snippets, plus long-term stabilization steps). By default they target the most recent failing execution; pass testrun_id to target a specific run. AI payloads are generated lazily — if \`ai_fixes\` sections report status "in_progress", poll get_ai_insights(testrun_id=..., testcase_id=...) until they report "completed". An "unavailable" section carries the upstream statusCode: a 5xx or timeout is transient (retry once via get_ai_insights); a 4xx (bad ids) is terminal.`,
     params: [
       {
         name: 'projectId',
@@ -404,6 +478,72 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `Test case name / title to debug.`,
+      },
+      {
+        name: 'include_ai_insights',
+        type: 'boolean',
+        required: false,
+        description: `Attach AI recommendations + quick fixes for this test under \`ai_fixes\` (targets the most recent failing execution unless testrun_id is set).`,
+      },
+      {
+        name: 'suite_file_path',
+        type: 'string',
+        required: false,
+        description: `Optional spec file path — disambiguates when several tests share the same title. Example: "tests/checkout.spec.ts".`,
+      },
+      {
+        name: 'testrun_id',
+        type: 'string',
+        required: false,
+        description: `Only with include_ai_insights: fetch the AI analysis for this specific run instead of the most recent failure.`,
+      },
+    ],
+  },
+  {
+    name: 'testidinomcp_get_ai_insights',
+    description: `TestDino's AI Insights, at three levels. With testrun_id + testcase_id: that test case's AI fixes — recommendations (investigation/remediation steps + reasoning) and quick fixes (concrete fixes, often with code snippets). With testrun_id only: that run's AI analysis — AI failure categorization (flaky/bug/ui_change), failure clusters, new-failures cards, the error-analysis table, and the LLM-written run summary. With neither: the project-level overview — per-category failure counts over the date range with the top offending test cases in each category. AI payloads are generated lazily: sections may report status "not_generated", "queued", "processing", or "failed" before "completed" — poll this tool every few seconds while "processing". A "disabled" status is terminal (AI features are off for the project, Settings → AI) — do not poll it. Case mode (testrun_id + testcase_id) reports "in_progress" while ai_fixes generate; the run-level sections use "processing". An "unavailable" section carries the upstream statusCode: a 5xx or timeout is transient (retry once), a 4xx (bad ids) is terminal. Use the project overview to answer "what should we fix first?"; the run mode to triage one run; the case mode to get fixes for one failing test — each also serves as the poll target after get_run_details(include_ai_insights=true) / debug_testcase(include_ai_insights=true) reported a pending status. Requires AI features to be enabled in the project settings (Settings → AI).`,
+    params: [
+      {
+        name: 'projectId',
+        type: 'string',
+        required: true,
+        description: `Project ID (e.g. project_<id>).`,
+      },
+      {
+        name: 'dateRange',
+        type: 'string',
+        required: false,
+        description: `Project overview only: e.g. "7d", "30d", or "custom" (with fromDate/toDate).`,
+      },
+      {
+        name: 'environment',
+        type: 'string',
+        required: false,
+        description: `Project overview only: filter by environment name.`,
+      },
+      {
+        name: 'fromDate',
+        type: 'string',
+        required: false,
+        description: `Project overview only: custom range start (YYYY-MM-DD).`,
+      },
+      {
+        name: 'testcase_id',
+        type: 'string',
+        required: false,
+        description: `Case mode: with testrun_id, return AI fixes (recommendations + quick fixes) for this test case (its pw_test_id) in that run.`,
+      },
+      {
+        name: 'testrun_id',
+        type: 'string',
+        required: false,
+        description: `Run mode: AI insights for this single test run. Also required for case mode (with testcase_id).`,
+      },
+      {
+        name: 'toDate',
+        type: 'string',
+        required: false,
+        description: `Project overview only: custom range end (YYYY-MM-DD).`,
       },
     ],
   },
@@ -441,6 +581,134 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Report ID. Required for action='get'.`,
+      },
+    ],
+  },
+  {
+    name: 'testidinomcp_get_debug_evidence',
+    description: `Start every failing-test investigation here. One call returns the whole cheap tier of the evidence ladder: the computed flake verdict with its per-attempt failure signatures, the regression boundary (the last run this test passed and the first it failed), and download links for every stored artifact — trace, screenshots, and the expected/actual/diff images on a visual failure. Read all of it before forming a hypothesis. The verdict says whether the failure repeats, never why, so it rules fixes out rather than pointing at a cause; the boundary turns "why does this fail" into "what changed between these two runs", which is a far smaller question. Artifact links are minutes-scale: download what you need immediately, and call this again to mint fresh ones rather than treating an expired link as a missing artifact.`,
+    params: [
+      {
+        name: 'projectId',
+        type: 'string',
+        required: true,
+        description: `Project ID (e.g. project_<id>).`,
+      },
+      {
+        name: 'format',
+        type: 'string',
+        required: false,
+        description: `Response shape. "md" is markdown, and markedly cheaper for the same content.`,
+      },
+      {
+        name: 'include_instructions',
+        type: 'boolean',
+        required: false,
+        description: `Default true. The procedure and the trace runbook are identical on every call and about half the response — set false on repeat calls once you have read them.`,
+      },
+      {
+        name: 'maxLength',
+        type: 'integer',
+        required: false,
+        description: `Cap the markdown length. Applies to format="md" only; anything cut is announced in the output. JSON is never truncated, because a cut payload would not parse and would read as a complete one.`,
+      },
+      {
+        name: 'suite_file_path',
+        type: 'string',
+        required: false,
+        description: `Spec file path — only needed when the title is shared across files.`,
+      },
+      {
+        name: 'testcase_id',
+        type: 'string',
+        required: false,
+        description: `The case's pw_test_id.`,
+      },
+      {
+        name: 'testcase_name',
+        type: 'string',
+        required: false,
+        description: `Full test title. Required for the regression boundary — prefer it when known.`,
+      },
+      {
+        name: 'testrun_id',
+        type: 'string',
+        required: false,
+        description: `Run scope. Omit to use the most recently started run carrying this case.`,
+      },
+    ],
+  },
+  {
+    name: 'testidinomcp_get_external_issue',
+    description: `Fetch external issue/task details by provider IDs or keys previously linked to TestDino, such as Jira keys TD-17 or Linear issue identifiers.`,
+    params: [
+      {
+        name: 'issueIds',
+        type: 'array',
+        required: true,
+        description: `External issue IDs or keys.`,
+      },
+      { name: 'projectId', type: 'string', required: true, description: `TestDino project ID.` },
+      {
+        name: 'provider',
+        type: 'string',
+        required: true,
+        description: `Integration provider connected to this TestDino project.`,
+      },
+      {
+        name: 'target',
+        type: 'object',
+        required: false,
+        description: `Provider-specific target/context values. For Jira, pass { defaultApp } to read from a specific Atlassian site/resource.`,
+      },
+    ],
+  },
+  {
+    name: 'testidinomcp_get_flake_verdict',
+    description: `Say whether a failing test behaves the same way every time, by comparing its retry attempts within one run. If you are debugging a failing test, call get_debug_evidence first — it returns this plus the regression boundary and every artifact link in one call, so calling this separately afterwards repeats work already done. Returns a computed verdict — "deterministic" (every attempt failed with the same signature, so the failure repeats), "flaky" (an attempt passed on retry, so the outcome is not consistent), or "inconclusive" (too few attempts, or the attempts failed differently) — plus the per-attempt signatures behind it. The verdict describes the behaviour, not the cause. It tells you which fixes the evidence cannot support; it does not tell you where the fix goes. Decide that after reading the artifacts, the trace and the code. Needs a test that ran with retries enabled; a single attempt is always inconclusive.`,
+    params: [
+      {
+        name: 'projectId',
+        type: 'string',
+        required: true,
+        description: `Project ID (e.g. project_<id>).`,
+      },
+      {
+        name: 'testcase_id',
+        type: 'string',
+        required: true,
+        description: `Playwright pw_test_id of the failing case.`,
+      },
+      {
+        name: 'testrun_id',
+        type: 'string',
+        required: false,
+        description: `Run scope. Omit to use the most recently started run carrying this case.`,
+      },
+    ],
+  },
+  {
+    name: 'testidinomcp_get_integration_status',
+    description: `Check whether Jira, Linear, Asana, monday.com, or GitHub is connected for a TestDino project. Call this before connect_integration or create_external_issue.`,
+    params: [
+      { name: 'projectId', type: 'string', required: true, description: `TestDino project ID.` },
+      {
+        name: 'provider',
+        type: 'string',
+        required: true,
+        description: `Integration provider connected to this TestDino project.`,
+      },
+      {
+        name: 'includeCreateOptions',
+        type: 'boolean',
+        required: false,
+        description: `When true, include provider create metadata (createOptions: projects, issue types, required/optional fields). Resolved against the provider default target when no target is supplied.`,
+      },
+      {
+        name: 'target',
+        type: 'object',
+        required: false,
+        description: `Provider-specific target/field values. Jira accepts human-readable aliases such as { jiraProjectKey: "TRX", issueType: "Bug" } or { jiraProjectName, issueTypeName }; raw { jiraProjectId, issueTypeId } also works. Linear { teamId }, Asana { workspaceId, projectId }, monday.com { boardId }.`,
       },
     ],
   },
@@ -500,7 +768,7 @@ export const tools: Tool[] = [
   },
   {
     name: 'testidinomcp_get_run_details',
-    description: `Get the full breakdown of one or more test runs — test statistics, error category breakdown, suite list, and all test cases in the run. Use testrun_id for ID-based lookup or counter for the human-readable run number (e.g. counter="47"). Batch up to 20 runs by comma-separating: testrun_id="id1,id2,id3". Typical workflow: list_testruns() → pick IDs → get_run_details() for the specific run.`,
+    description: `Get the full breakdown of one or more test runs — test statistics, error category breakdown, suite list, and all test cases in the run. Use testrun_id for ID-based lookup or counter for the human-readable run number (e.g. counter="47"). Batch up to 20 runs by comma-separating: testrun_id="id1,id2,id3". Typical workflow: list_testruns() → pick IDs → get_run_details() for the specific run. Set include_ai_insights=true (single testrun_id only) to also get the run's AI Insights under \`ai_insights\`: AI failure categorization (flaky/bug/ui_change), failure clusters, new-failures cards, the error-analysis table, and the LLM-written run summary. AI payloads are generated lazily — if \`ai_insights\` sections report status "processing"/"not_generated", poll get_ai_insights(testrun_id=...) until "completed" instead of re-calling this tool. An "unavailable" section carries the upstream statusCode: a 5xx or timeout is transient (retry once via get_ai_insights), a 4xx (bad ids) is terminal.`,
     params: [
       {
         name: 'projectId',
@@ -512,13 +780,43 @@ export const tools: Tool[] = [
         name: 'counter',
         type: 'string',
         required: false,
-        description: `Single counter, or comma-separated counters (max 20). Alternative to testrun_id.`,
+        description: `Run counter. Number for a single run (e.g. 47), or comma-separated string ("47,48,49", max 20) for batch lookup.`,
+      },
+      {
+        name: 'include_ai_insights',
+        type: 'boolean',
+        required: false,
+        description: `Attach the run's AI Insights (categorization, clusters, error-analysis table, written summary) under \`ai_insights\`. Requires a single testrun_id (not counter, not a batch).`,
       },
       {
         name: 'testrun_id',
         type: 'string',
         required: false,
         description: `Single test run ID, or comma-separated IDs (max 20).`,
+      },
+    ],
+  },
+  {
+    name: 'testidinomcp_get_run_error_clusters',
+    description: `Group ONE run's failing tests by shared error signature (normalized error fingerprint), computed for that run only. Returns error clusters (each = one signature + its affected tests + an error category), an \`unclustered\` bucket for blank/unfingerprintable errors, a per-category rollup, and run totals. Failed/timed-out tests cluster on their final-attempt error; flaky tests cluster on the error they recovered from (pre-recovery). Categories: assertion, timeout, element_not_found, network, other. Use this to answer "what are the distinct failures in this run?" or "which error affected the most tests?" — it is far cheaper than paging every failed case. Optionally narrow with status="failed" or status="flaky" (default "all"). Workflow: list_testruns() → pick a testrun_id → get_run_error_clusters().`,
+    params: [
+      {
+        name: 'projectId',
+        type: 'string',
+        required: true,
+        description: `Project ID (e.g. project_<id>).`,
+      },
+      {
+        name: 'testrun_id',
+        type: 'string',
+        required: true,
+        description: `The test run ID to cluster errors for (single run).`,
+      },
+      {
+        name: 'status',
+        type: 'string',
+        required: false,
+        description: `Which contributing tests populate the clusters (default "all").`,
       },
     ],
   },
@@ -542,7 +840,7 @@ export const tools: Tool[] = [
   },
   {
     name: 'testidinomcp_get_testcase_details',
-    description: `Get full details of a test case — errors, stack traces, steps, console logs, and artifacts. CRITICAL RULE: using by_title alone without by_testrun_id or counter returns ALL executions of that test across every run — this is expensive and usually not what you want. Always pair by_title with by_testrun_id or counter to scope to a specific run. Use testcaseid for the most precise lookup (no other context needed). Always pass steps_filter="failed_only" when debugging — it drops passing setup/hook steps and returns only the erroring step, cutting noise significantly. Use include_history=true + history_limit to see pass/fail patterns over time (useful for flakiness analysis). Use include_screenshots=true or include_traces=true to get artifact URLs for a specific failing execution.`,
+    description: `Get full details of a test case — errors, stack traces, steps, console logs, and artifacts. Use testcase_id (the Playwright pw_test_id) for the most precise lookup; it can be used alone for latest detail or paired with testrun_id for exact run-scoped detail. testcase_name resolves through test history; combine it with testrun_id to scope to specific run(s), otherwise the latest run is used. Always pass steps_filter="failed_only" when debugging — it drops unrelated passing setup/hook steps and keeps failed branches plus required parent context, cutting noise significantly. Every stored artifact comes back in \`evidence[]\` — trace, video, screenshots, and for a visual failure the expected/actual/diff images — each with its attempt index, a \`url\`, and an \`expires_at\`. Download what you need as soon as you receive it: the links are minutes-scale by design. If one has expired, call this tool again to mint fresh links rather than treating the artifact as missing. \`traceDownloadUrl\` points at the first FAILING attempt, which on a flaky test is not the last one. testcaseid, by_title, by_testrun_id (top-level) are deprecated aliases for testcase_id, testcase_name, and testrun_id, kept for backward compatibility.`,
     params: [
       {
         name: 'projectId',
@@ -551,143 +849,100 @@ export const tools: Tool[] = [
         description: `Project ID. Obtain from the health tool.`,
       },
       {
-        name: 'by_code_snippet',
-        type: 'string',
-        required: false,
-        description: `Filter by code snippet in the test.`,
-      },
-      {
-        name: 'by_error_message',
-        type: 'string',
-        required: false,
-        description: `Filter by error message text.`,
-      },
-      {
         name: 'by_fulltitle',
         type: 'string',
         required: false,
-        description: `Filter by full test case title (including suite prefix).`,
-      },
-      {
-        name: 'by_status',
-        type: 'string',
-        required: false,
-        description: `Filter by test case status.`,
+        description: `Full test title including suite prefix.`,
       },
       {
         name: 'by_testrun_id',
         type: 'string',
         required: false,
-        description: `Filter to a specific test run ID.`,
+        description: `Deprecated alias for testrun_id (kept for backward compatibility).`,
       },
       {
         name: 'by_testrun_ids',
         type: 'string',
         required: false,
-        description: `Comma-separated test run IDs (max 20).`,
-      },
-      {
-        name: 'by_testsuite_id',
-        type: 'string',
-        required: false,
-        description: `Filter by test suite ID.`,
+        description: `Comma-separated (max 20).`,
       },
       {
         name: 'by_title',
         type: 'string',
         required: false,
-        description: `Filter by test case title. Always pair with by_testrun_id or counter to scope to a specific run.`,
-      },
-      {
-        name: 'get_all',
-        type: 'boolean',
-        required: false,
-        description: `Return all results (max 1000).`,
+        description: `Deprecated alias for testcase_name (kept for backward compatibility).`,
       },
       {
         name: 'history_limit',
         type: 'integer',
         required: false,
-        description: `Number of historical executions to include (1-100).`,
-      },
-      {
-        name: 'include_artifacts',
-        type: 'boolean',
-        required: false,
-        description: `Include artifact URLs in the response.`,
-      },
-      {
-        name: 'include_attachments',
-        type: 'boolean',
-        required: false,
-        description: `Include attachment URLs in the response.`,
+        description: `Maximum history timeline cells to keep when include_history=true.`,
       },
       {
         name: 'include_history',
         type: 'boolean',
         required: false,
-        description: `Include pass/fail history across runs (useful for flakiness analysis).`,
+        description: `Attach DH /analytics/test-history output to returned case detail items.`,
       },
-      {
-        name: 'include_screenshots',
-        type: 'boolean',
-        required: false,
-        description: `Include screenshot URLs in the response.`,
-      },
-      {
-        name: 'include_traces',
-        type: 'boolean',
-        required: false,
-        description: `Include trace URLs in the response.`,
-      },
-      {
-        name: 'include_videos',
-        type: 'boolean',
-        required: false,
-        description: `Include video URLs in the response.`,
-      },
-      {
-        name: 'limit',
-        type: 'integer',
-        required: false,
-        description: `Items per page. Use 0 or -1 for all results (capped at 1000).`,
-      },
-      {
-        name: 'offset',
-        type: 'integer',
-        required: false,
-        description: `Skip N items (alternative to page).`,
-      },
-      {
-        name: 'page',
-        type: 'integer',
-        required: false,
-        description: `1-indexed page number (default: 1).`,
-      },
-      {
-        name: 'sort_by',
-        type: 'string',
-        required: false,
-        description: `Sort results by this field.`,
-      },
-      { name: 'sort_order', type: 'string', required: false, description: `Sort direction.` },
       {
         name: 'steps_filter',
         type: 'string',
         required: false,
-        description: `Use "failed_only" to drop passing setup/hook steps and return only the erroring step.`,
+        description: `Use "failed_only" to drop passing setup/hook steps.`,
+      },
+      {
+        name: 'testcase_id',
+        type: 'string',
+        required: false,
+        description: `Exact test case ID(s) — Playwright pw_test_id, comma-separated (max 50).`,
+      },
+      {
+        name: 'testcase_name',
+        type: 'string',
+        required: false,
+        description: `Test case title — resolves through test history; scoped by testrun_id when given, else latest matching detail.`,
       },
       {
         name: 'testcaseid',
         type: 'string',
         required: false,
-        description: `Exact test case ID(s), comma-separated (max 50).`,
+        description: `Deprecated alias for testcase_id (kept for backward compatibility).`,
+      },
+      {
+        name: 'testrun_id',
+        type: 'string',
+        required: false,
+        description: `Run scope for testcase_id / testcase_name lookup. Comma-separated (max 20).`,
+      },
+    ],
+  },
+  {
+    name: 'testidinomcp_get_trace_analysis',
+    description: `Debug a failing Playwright test from its trace.zip using the Playwright agent CLI (npx playwright trace …, Playwright 1.59+). Returns a runbook that teaches the exact CLI protocol (open → actions → action → snapshot → close) plus how to classify the failure and propose a fix. Pass projectId + testcase_id (the Playwright pw_test_id) to also get a short-lived download URL for that case's hosted trace; optionally scope with testrun_id. Omit the ids to just get the runbook for a trace.zip you already have locally. The analysis runs on your machine — download the trace, run the CLI commands yourself, then report the root cause and fix.`,
+    params: [
+      {
+        name: 'projectId',
+        type: 'string',
+        required: false,
+        description: `Project ID — required to resolve the hosted trace download URL.`,
+      },
+      {
+        name: 'testcase_id',
+        type: 'string',
+        required: false,
+        description: `Playwright pw_test_id of the failing case whose hosted trace to resolve.`,
+      },
+      {
+        name: 'testrun_id',
+        type: 'string',
+        required: false,
+        description: `Optional run scope for testcase_id (single run).`,
       },
     ],
   },
   {
     name: 'testidinomcp_health',
-    description: `ALWAYS call this first — before any other tool in every session. Verifies your PAT, returns your account info, and lists every organization and project you can access with their projectId values. Every other tool requires a projectId; this is the only way to get it. Extract the projectId for the project the user is asking about and store it for all subsequent calls. Also call this whenever you get a PROJECT_NOT_FOUND or auth error from another tool — it will tell you which projects are actually accessible.`,
+    description: `ALWAYS call this first — before any other tool in every session. Verifies your PAT, returns your account identity, and lists every organization and project you can access with their projectId AND human names (orgName, projectName). Every other tool requires a projectId; this is the only way to get it. Extract the projectId for the project the user is asking about (match by projectName if the user gives a name) and store it for all subsequent calls. Each organization also reports your \`role\` in it (owner, admin, member, billing, or viewer) so you can tell the user what they can do there — treat it as informational, not a security guarantee. Wildcard scopes surface as \`projects: { allProjects: true }\` with no per-project names — for those, ask the user which projectId to use, or call a listing tool. Recently-renamed orgs/projects may show the old name for up to 30s (registry poll cadence). Also call this whenever you get a PROJECT_NOT_FOUND or auth error from another tool — it will tell you which projects are actually accessible.`,
     params: [],
   },
   {
@@ -1008,7 +1263,7 @@ export const tools: Tool[] = [
   },
   {
     name: 'testidinomcp_list_testcase',
-    description: `List and filter test cases across runs. Requires at least one run context: by_testrun_id, counter, by_pages, by_branch, by_time_interval, by_environment, by_author, or by_commit. When you use by_branch, by_time_interval, by_author, or by_commit, this tool resolves the matching runs internally — you do NOT need to call list_testruns first. Combine filters freely: e.g. by_branch="main" + by_status="failed" + by_time_interval="1d" gives you all failures on main today in one call. Batch up to 20 run IDs with by_testrun_id="id1,id2,id3". Use by_error_category to filter by "timeout_issues", "element_not_found", "assertion_failures", or "network_issues". Prefer specific filters over get_all=true.`,
+    description: `List and filter test cases across runs. Provide at least one run context: by_testrun_id, counter, by_pages, by_branch, by_time_interval, by_environment, by_author, or by_commit. Without a run context the tool returns an empty result with a warning. KEY INSIGHT: when you use by_branch, by_time_interval, by_author, or by_commit, this tool resolves the matching runs internally — you do NOT need to call list_testruns first. Combine filters freely: e.g. by_branch="main" + by_status="failed" + by_time_interval="1d" gives you all failures on main today in one call. Batch up to 20 run IDs with by_testrun_id="id1,id2,id3". Prefer specific filters and pagination over broad result sets.`,
     params: [
       {
         name: 'projectId',
@@ -1026,13 +1281,13 @@ export const tools: Tool[] = [
         name: 'by_attempt_number',
         type: 'integer',
         required: false,
-        description: `Filter by attempt number.`,
+        description: `Exact retry count filter. 0 means initial/no-retry cases (attempt_count=1), 1 means one retry (attempt_count=2).`,
       },
       {
         name: 'by_author',
         type: 'string',
         required: false,
-        description: `Filter by commit author.`,
+        description: `Filter by commit author, resolving matching runs internally.`,
       },
       {
         name: 'by_branch',
@@ -1041,46 +1296,28 @@ export const tools: Tool[] = [
         description: `Filter by git branch name.`,
       },
       {
-        name: 'by_browser_name',
-        type: 'string',
-        required: false,
-        description: `Filter by browser name, e.g. "webkit", "chromium", "firefox".`,
-      },
-      {
         name: 'by_commit',
         type: 'string',
         required: false,
-        description: `Filter by commit SHA or message.`,
+        description: `Filter by commit, resolving matching runs internally.`,
       },
       {
         name: 'by_environment',
         type: 'string',
         required: false,
-        description: `Filter by environment label.`,
-      },
-      {
-        name: 'by_error_category',
-        type: 'string',
-        required: false,
-        description: `Filter by error category, e.g. "timeout_issues", "element_not_found", "assertion_failures", "network_issues".`,
-      },
-      {
-        name: 'by_error_message',
-        type: 'string',
-        required: false,
-        description: `Filter by error message text.`,
+        description: `Filter by environment label, resolving matching runs internally.`,
       },
       {
         name: 'by_pages',
         type: 'integer',
         required: false,
-        description: `Test-run page (1-indexed, 20 runs per page, newest first). Use to walk back through historical runs when no other run filter is given.`,
+        description: `Test-run page for cross-run lookup (1-indexed, newest first). MCP fetches one run-list page and uses up to 20 matching runs.`,
       },
       {
-        name: 'by_spec_file_name',
-        type: 'string',
+        name: 'by_shard',
+        type: 'integer',
         required: false,
-        description: `Filter by spec file name.`,
+        description: `1-based shard index — scope results to a single shard of a sharded run.`,
       },
       {
         name: 'by_status',
@@ -1101,40 +1338,34 @@ export const tools: Tool[] = [
         description: `Single test run ID or comma-separated (max 20).`,
       },
       {
+        name: 'by_testsuite_id',
+        type: 'string',
+        required: false,
+        description: `Filter by suite ID.`,
+      },
+      {
         name: 'by_time_interval',
         type: 'string',
         required: false,
-        description: `Time filter: "1h", "1d", "weekly", "monthly", "last 5 days", or "YYYY-MM-DD,YYYY-MM-DD".`,
+        description: `Time filter for resolving matching runs, e.g. "1h", "1d", "weekly", "monthly", "last 5 days", or "YYYY-MM-DD,YYYY-MM-DD".`,
       },
       {
         name: 'by_total_runtime',
         type: 'string',
         required: false,
-        description: `Per-test duration filter. Numbers are milliseconds by default; suffix with \`s\` for seconds. Examples: ">5000" (>5s), "<1000ms", ">5s".`,
+        description: `Per-test duration filter. Numbers are SECONDS by default; suffix with \`ms\` for milliseconds. Examples: ">10" (>10s), "<1000ms", ">5s".`,
       },
       {
         name: 'counter',
         type: 'string',
         required: false,
-        description: `Test run counter (alternative to by_testrun_id).`,
-      },
-      {
-        name: 'get_all',
-        type: 'boolean',
-        required: false,
-        description: `Return all results (max 1000).`,
+        description: `Test run counter (alternative to by_testrun_id). Single run only, e.g. 47. Use by_testrun_id for batch lookup.`,
       },
       {
         name: 'limit',
         type: 'integer',
         required: false,
-        description: `Items per page. Use 0 or -1 for all results (capped at 1000).`,
-      },
-      {
-        name: 'offset',
-        type: 'integer',
-        required: false,
-        description: `Skip N items (alternative to page).`,
+        description: `Items per page. Data Handler accepts 10, 25, 50, or 100.`,
       },
       {
         name: 'page',
@@ -1142,11 +1373,18 @@ export const tools: Tool[] = [
         required: false,
         description: `1-indexed page number (default: 1).`,
       },
+      {
+        name: 'search',
+        type: 'string',
+        required: false,
+        description: `Search test title or title path.`,
+      },
+      { name: 'sort', type: 'string', required: false, description: `Case list sort order.` },
     ],
   },
   {
     name: 'testidinomcp_list_testruns',
-    description: `Browse test runs for a project with optional filters. Returns run-level metadata: pass/fail totals, duration, branch, commit, author, and testrun_id values for follow-up calls. Prefer by_time_interval over get_all to avoid expensive full fetches.`,
+    description: `Browse test runs for a project with optional filters. Use this when you need run-level metadata: pass/fail totals, duration, branch, commit, author, or when you need testrun_id values for follow-up calls. Use specific filters and pagination instead of fetching broad result sets. You do NOT need to call this before list_testcase when you already have branch/time/author filters — list_testcase resolves runs internally. Common time values: "1d", "3d", "weekly", "monthly", or "YYYY-MM-DD,YYYY-MM-DD" for a custom range.`,
     params: [
       {
         name: 'projectId',
@@ -1167,28 +1405,35 @@ export const tools: Tool[] = [
         description: `Filter by git branch name.`,
       },
       {
+        name: 'by_commit',
+        type: 'string',
+        required: false,
+        description: `Filter by commit hash prefix.`,
+      },
+      {
+        name: 'by_environment',
+        type: 'string',
+        required: false,
+        description: `Filter by CI/deployment environment.`,
+      },
+      { name: 'by_status', type: 'string', required: false, description: `Filter by run status.` },
+      {
+        name: 'by_test_case_tags',
+        type: 'string',
+        required: false,
+        description: `Comma-separated test case tags contained in the run.`,
+      },
+      {
         name: 'by_time_interval',
         type: 'string',
         required: false,
         description: `Time filter: "1h", "1d", "weekly", "monthly", "last 5 days", or "YYYY-MM-DD,YYYY-MM-DD".`,
       },
       {
-        name: 'get_all',
-        type: 'boolean',
-        required: false,
-        description: `Return all results (max 1000).`,
-      },
-      {
         name: 'limit',
         type: 'integer',
         required: false,
-        description: `Items per page. Use 0 or -1 for all results (capped at 1000).`,
-      },
-      {
-        name: 'offset',
-        type: 'integer',
-        required: false,
-        description: `Skip N items (alternative to page).`,
+        description: `Items per page. Data Handler accepts 10, 25, 50, or 100.`,
       },
       {
         name: 'page',
@@ -1196,11 +1441,18 @@ export const tools: Tool[] = [
         required: false,
         description: `1-indexed page number (default: 1).`,
       },
+      {
+        name: 'search',
+        type: 'string',
+        required: false,
+        description: `Search run commit message, or exact counter when numeric.`,
+      },
+      { name: 'sort', type: 'string', required: false, description: `Run list sort order.` },
     ],
   },
   {
     name: 'testidinomcp_submit_audit_report',
-    description: `Final step of the TestDino Playwright audit flow — submits a completed audit report. Requires write permission. Call this only AFTER get_audit_report(action='context') and after you have analyzed the local Playwright code and produced findings. score (0-100) and markdownReport are required; include findings, recommendations, reportName, branch, scope, and target as available.`,
+    description: `FINAL STEP of the TestDino Playwright audit flow — submits a completed audit report. Requires write permission. Call this only AFTER get_audit_report(action='context') and after you have analyzed the local Playwright code and produced findings. score (0-100) and markdownReport are required; include findings, recommendations, reportName, branch, scope, and target as available. orgId is required — resolve it via health() if you do not have it. Every finding MUST include title, summary, and severity (low|medium|high|critical) — incomplete findings are rejected, not stored. category is normalized to a known bucket. target, if sent, accepts only { value, path } as non-empty strings. Use the same branch/scope/target you passed to get_audit_report(action='context') so the report attaches to the right context.`,
     params: [
       {
         name: 'markdownReport',
@@ -1228,6 +1480,12 @@ export const tools: Tool[] = [
         description: `Structured findings for the completed report.`,
       },
       {
+        name: 'orgId',
+        type: 'string',
+        required: false,
+        description: `Organization ID (required to submit). Resolve via health() if you don't have it.`,
+      },
+      {
         name: 'recommendations',
         type: 'array',
         required: false,
@@ -1249,7 +1507,7 @@ export const tools: Tool[] = [
         name: 'target',
         type: 'object',
         required: false,
-        description: `Structured target (e.g. feature area, spec path) for scoped audits.`,
+        description: `Optional scoped-audit target. Only { value, path } (non-empty strings) are stored — the dashboard reads these; any other key is rejected.`,
       },
     ],
   },
@@ -1376,6 +1634,36 @@ export const tools: Tool[] = [
         type: 'object',
         required: true,
         description: `Fields to update: name, mission, sessionType, config, environment, releaseId, assigneeUserId, state, estimate, tags, linkedIssues, attachments. status="closed" closes the session.`,
+      },
+    ],
+  },
+  {
+    name: 'testidinomcp_verify_fix',
+    description: `Check whether a fix actually held for one test, against the run you saw when you proposed it. Splits the test's run history at that baseline and compares after against before, returning "fixed" (passing with no retries since), "not_fixed" (still failing with the same error), "changed_failure" (still failing, but a different error — a new investigation, and only when every failure since carried a comparable fingerprint), "still_failing" (still failing, but the errors cannot be compared, so neither same nor different can be claimed), "unstable" (passing only after retries, which is not fixed), "no_runs_since_baseline", or "baseline_not_found" (the run id is not one this test executed in). Call this after a new run lands. An unchanged error means the fix missed, not that the test is flaky. The baseline run must be one this test actually executed in — an id from another project or another test is rejected rather than answered.`,
+    params: [
+      {
+        name: 'baseline_run_id',
+        type: 'string',
+        required: true,
+        description: `The run you saw the failure in when you proposed the fix.`,
+      },
+      {
+        name: 'projectId',
+        type: 'string',
+        required: true,
+        description: `Project ID (e.g. project_<id>).`,
+      },
+      {
+        name: 'testcase_name',
+        type: 'string',
+        required: true,
+        description: `Full test title, same identifier debug_testcase takes.`,
+      },
+      {
+        name: 'suite_file_path',
+        type: 'string',
+        required: false,
+        description: `Spec file path — only needed when the title is shared across files.`,
       },
     ],
   },

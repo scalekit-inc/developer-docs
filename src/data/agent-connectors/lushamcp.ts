@@ -20,6 +20,48 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'lushamcp_buying_group_search',
+    description: `Rank buying committee members for given companies, optionally filtered by persona.`,
+    params: [
+      {
+        name: 'companies',
+        type: 'array',
+        required: true,
+        description: `Companies to find buying group members for (1-25). Each entry must include exactly one of 'domain' or 'id', plus an optional clientReferenceId echoed back per result.`,
+      },
+      {
+        name: 'contactsLimit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of buying group contacts to return per company (1-100). Defaults to 100. Billing is per contact returned, so keep this as low as the task allows.`,
+      },
+      {
+        name: 'conversation_id',
+        type: 'string',
+        required: false,
+        description: `Conversation correlation ID. Present only when an earlier tool response in this conversation returned one; that value is carried unchanged on subsequent calls. Omitted on the first call.`,
+      },
+      {
+        name: 'pagination',
+        type: 'object',
+        required: false,
+        description: `Optional pagination over the ranked buying group members (0-based \`page\`, \`size\` 10-100). Omit to receive the provider default page.`,
+      },
+      {
+        name: 'personas',
+        type: 'array',
+        required: false,
+        description: `Persona filter — return only contacts whose primary role matches one of the supplied values. Omit to return all personas. Allowed values: 'decision_maker', 'potential_champion', 'end_user'.`,
+      },
+      {
+        name: 'reason_for_invocation',
+        type: 'string',
+        required: false,
+        description: `Brief explanation of why you chose this tool for the current task. Optional audit field; max 500 characters (longer values are truncated). Plain text only.`,
+      },
+    ],
+  },
+  {
     name: 'lushamcp_companies_search',
     description: `Look up known companies in the Lusha database by name, domain, or FQDN, supporting batches of up to 25.`,
     params: [
@@ -95,6 +137,120 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Brief explanation of why you chose this tool for the current task. Optional audit field; max 500 characters (longer values are truncated). Plain text only.`,
+      },
+    ],
+  },
+  {
+    name: 'lushamcp_conversations_search',
+    description: `Find the account's recorded sales calls by keyword, date, participant, domain, or title.`,
+    params: [
+      {
+        name: 'companyDomains',
+        type: 'array',
+        required: false,
+        description: `Domains of the external participants, such as acme.com (up to 10 values, ORed). This matches on domain rather than display name; companies_search resolves a company name to its domain.`,
+      },
+      {
+        name: 'contactNames',
+        type: 'array',
+        required: false,
+        description: `Partial, case-insensitive match on participant names (up to 10 values, ORed).`,
+      },
+      {
+        name: 'conversation_id',
+        type: 'string',
+        required: false,
+        description: `Conversation correlation ID. Present only when an earlier tool response in this conversation returned one; that value is carried unchanged on subsequent calls. Omitted on the first call.`,
+      },
+      {
+        name: 'conversationIds',
+        type: 'array',
+        required: false,
+        description: `Restricts results to these conversation ids (1-25). Unknown ids are omitted from the response rather than erroring.`,
+      },
+      {
+        name: 'dateFrom',
+        type: 'string',
+        required: false,
+        description: `Earliest meeting date, inclusive, as YYYY-MM-DD.`,
+      },
+      {
+        name: 'dateTo',
+        type: 'string',
+        required: false,
+        description: `Latest meeting date, inclusive, as YYYY-MM-DD.`,
+      },
+      {
+        name: 'detail',
+        type: 'string',
+        required: false,
+        description: `Response depth. 'compact' (default) returns the summary and flags whether coaching and chapters exist; 'full' includes them and limits pageSize to 5.`,
+      },
+      {
+        name: 'meetingTitles',
+        type: 'array',
+        required: false,
+        description: `Partial, case-insensitive match on the meeting title (up to 10 values, ORed).`,
+      },
+      {
+        name: 'page',
+        type: 'integer',
+        required: false,
+        description: `1-based page index. Defaults to 1.`,
+      },
+      {
+        name: 'pageSize',
+        type: 'integer',
+        required: false,
+        description: `Conversations per page (1-25, default 10). Capped at 25 so a page costs a single credit and fits the 25k-token response budget.`,
+      },
+      {
+        name: 'query',
+        type: 'string',
+        required: false,
+        description: `Free-text search over what was said on the call, ranked by relevance. It overrides the structural filters, so one search uses either this or them.`,
+      },
+      {
+        name: 'reason_for_invocation',
+        type: 'string',
+        required: false,
+        description: `Brief explanation of why you chose this tool for the current task. Optional audit field; max 500 characters (longer values are truncated). Plain text only.`,
+      },
+    ],
+  },
+  {
+    name: 'lushamcp_conversations_transcript_get',
+    description: `Return the speaker-attributed transcript of one recorded call, in windows.`,
+    params: [
+      {
+        name: 'conversationId',
+        type: 'string',
+        required: true,
+        description: `Id of the recorded call, as returned in conversations[].id by conversations_search. This is the call identifier and is unrelated to the chat-session conversation_id field.`,
+      },
+      {
+        name: 'conversation_id',
+        type: 'string',
+        required: false,
+        description: `Conversation correlation ID. Present only when an earlier tool response in this conversation returned one; that value is carried unchanged on subsequent calls. Omitted on the first call.`,
+      },
+      {
+        name: 'reason_for_invocation',
+        type: 'string',
+        required: false,
+        description: `Brief explanation of why you chose this tool for the current task. Optional audit field; max 500 characters (longer values are truncated). Plain text only.`,
+      },
+      {
+        name: 'segmentLimit',
+        type: 'integer',
+        required: false,
+        description: `Segments per window (1-200, default 100). A window is shortened further when its text would exceed the 25k-token response budget.`,
+      },
+      {
+        name: 'segmentOffset',
+        type: 'integer',
+        required: false,
+        description: `0-based index of the first transcript segment in the window. Defaults to 0.`,
       },
     ],
   },
@@ -214,7 +370,7 @@ export const tools: Tool[] = [
   },
   {
     name: 'lushamcp_prospecting_company_filters',
-    description: `Resolve valid filter values accepted by the company prospecting search.`,
+    description: `[STALE: upstream tool 'prospecting_company_filters' is no longer present in the live MCP tool list as of 2026-08-19; no equivalent replacement tool was found] Resolve valid filter values accepted by the company prospecting search.`,
     params: [
       {
         name: 'type',
@@ -244,7 +400,7 @@ export const tools: Tool[] = [
   },
   {
     name: 'lushamcp_prospecting_company_search',
-    description: `Find companies by firmographic filters such as industry, size, location, and technology.`,
+    description: `[STALE: upstream tool 'prospecting_company_search' is no longer present in the live MCP tool list as of 2026-08-19; it appears to have been renamed to 'prospecting_company_search_by_text' (see lushamcp_prospecting_company_search_by_text)] Find companies by firmographic filters such as industry, size, location, and technology.`,
     params: [
       {
         name: 'conversation_id',
@@ -357,6 +513,36 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'lushamcp_prospecting_company_search_by_text',
+    description: `Find companys by describing the target audience in plain language; Lusha converts the text into structured prospecting filters server-side.`,
+    params: [
+      {
+        name: 'conversation_id',
+        type: 'string',
+        required: false,
+        description: `Conversation correlation ID. Present only when an earlier tool response in this conversation returned one; that value is carried unchanged on subsequent calls. Omitted on the first call.`,
+      },
+      {
+        name: 'pagination_token',
+        type: 'string',
+        required: false,
+        description: `Opaque token returned by a prior call to this tool. Pass it back verbatim to fetch the NEXT page of that same search. Do not construct, edit, or guess it; only ever echo one this tool returned. When a response has no pagination_token, there are no more results.`,
+      },
+      {
+        name: 'reason_for_invocation',
+        type: 'string',
+        required: false,
+        description: `Brief explanation of why you chose this tool for the current task. Optional audit field; max 500 characters (longer values are truncated). Plain text only.`,
+      },
+      {
+        name: 'text',
+        type: 'string',
+        required: false,
+        description: `Lusha prospecting: a natural-language description of the target audience (e.g., 'CMOs from Apple and Google in California'). Lusha's server converts this text into structured prospecting filters and runs the search. 2-1024 characters. Provide this for a NEW search; omit it when paging with pagination_token.`,
+      },
+    ],
+  },
+  {
     name: 'lushamcp_prospecting_contact_enrich',
     description: `Reveal emails and phone numbers for one or more Lusha contact IDs.`,
     params: [
@@ -388,7 +574,7 @@ export const tools: Tool[] = [
   },
   {
     name: 'lushamcp_prospecting_contact_filters',
-    description: `Resolve valid filter values accepted by the contact prospecting search.`,
+    description: `[STALE: upstream tool 'prospecting_contact_filters' is no longer present in the live MCP tool list as of 2026-08-19; no equivalent replacement tool was found] Resolve valid filter values accepted by the contact prospecting search.`,
     params: [
       {
         name: 'type',
@@ -418,7 +604,7 @@ export const tools: Tool[] = [
   },
   {
     name: 'lushamcp_prospecting_contact_search',
-    description: `Find business contacts by filters such as job title, seniority, department, and company attributes.`,
+    description: `[STALE: upstream tool 'prospecting_contact_search' is no longer present in the live MCP tool list as of 2026-08-19; it appears to have been renamed to 'prospecting_contact_search_by_text' (see lushamcp_prospecting_contact_search_by_text)] Find business contacts by filters such as job title, seniority, department, and company attributes.`,
     params: [
       {
         name: 'companyDomains',
@@ -573,8 +759,38 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'lushamcp_prospecting_contact_search_by_text',
+    description: `Find contacts by describing the target audience in plain language; Lusha converts the text into structured prospecting filters server-side.`,
+    params: [
+      {
+        name: 'conversation_id',
+        type: 'string',
+        required: false,
+        description: `Conversation correlation ID. Present only when an earlier tool response in this conversation returned one; that value is carried unchanged on subsequent calls. Omitted on the first call.`,
+      },
+      {
+        name: 'pagination_token',
+        type: 'string',
+        required: false,
+        description: `Opaque token returned by a prior call to this tool. Pass it back verbatim to fetch the NEXT page of that same search. Do not construct, edit, or guess it; only ever echo one this tool returned. When a response has no pagination_token, there are no more results.`,
+      },
+      {
+        name: 'reason_for_invocation',
+        type: 'string',
+        required: false,
+        description: `Brief explanation of why you chose this tool for the current task. Optional audit field; max 500 characters (longer values are truncated). Plain text only.`,
+      },
+      {
+        name: 'text',
+        type: 'string',
+        required: false,
+        description: `Lusha prospecting: a natural-language description of the target audience (e.g., 'CMOs from Apple and Google in California'). Lusha's server converts this text into structured prospecting filters and runs the search. 2-1024 characters. Provide this for a NEW search; omit it when paging with pagination_token.`,
+      },
+    ],
+  },
+  {
     name: 'lushamcp_prospecting_search_guide',
-    description: `Return a step-by-step guide for structuring Lusha prospecting searches.`,
+    description: `[STALE: upstream tool 'prospecting_search_guide' is no longer present in the live MCP tool list as of 2026-08-19; no equivalent replacement tool was found] Return a step-by-step guide for structuring Lusha prospecting searches.`,
     params: [
       {
         name: 'conversation_id',
@@ -593,6 +809,152 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Target entity type for Lusha search guidance (companies or contacts). If not specified, provides guidance for both.`,
+      },
+    ],
+  },
+  {
+    name: 'lushamcp_recommendations_companies',
+    description: `Return recommended companys ranked by lead, signal, and ICP-fit scores. OAuth-only; API key sessions receive a 403.`,
+    params: [
+      {
+        name: 'conversation_id',
+        type: 'string',
+        required: false,
+        description: `Conversation correlation ID. Present only when an earlier tool response in this conversation returned one; that value is carried unchanged on subsequent calls. Omitted on the first call.`,
+      },
+      { name: 'filters', type: 'object', required: false, description: `No description.` },
+      {
+        name: 'pagination',
+        type: 'object',
+        required: false,
+        description: `0-based page index (0-1000) and page size (10-100); defaults to page 0 / size 25.`,
+      },
+      {
+        name: 'reason_for_invocation',
+        type: 'string',
+        required: false,
+        description: `Brief explanation of why you chose this tool for the current task. Optional audit field; max 500 characters (longer values are truncated). Plain text only.`,
+      },
+      {
+        name: 'sort',
+        type: 'array',
+        required: false,
+        description: `Ordering for the recommendations, up to 4 entries; all entries share a single direction (mixed asc/desc returns a 400).`,
+      },
+    ],
+  },
+  {
+    name: 'lushamcp_recommendations_companies_filters',
+    description: `Return the target ICPs and signal types accepted by recommendations_companys filters. OAuth-only; API key sessions receive a 403.`,
+    params: [
+      {
+        name: 'conversation_id',
+        type: 'string',
+        required: false,
+        description: `Conversation correlation ID. Present only when an earlier tool response in this conversation returned one; that value is carried unchanged on subsequent calls. Omitted on the first call.`,
+      },
+      {
+        name: 'reason_for_invocation',
+        type: 'string',
+        required: false,
+        description: `Brief explanation of why you chose this tool for the current task. Optional audit field; max 500 characters (longer values are truncated). Plain text only.`,
+      },
+    ],
+  },
+  {
+    name: 'lushamcp_recommendations_contacts',
+    description: `Return recommended contacts ranked by lead, signal, and ICP-fit scores. OAuth-only; API key sessions receive a 403.`,
+    params: [
+      {
+        name: 'conversation_id',
+        type: 'string',
+        required: false,
+        description: `Conversation correlation ID. Present only when an earlier tool response in this conversation returned one; that value is carried unchanged on subsequent calls. Omitted on the first call.`,
+      },
+      { name: 'filters', type: 'object', required: false, description: `No description.` },
+      {
+        name: 'pagination',
+        type: 'object',
+        required: false,
+        description: `0-based page index (0-1000) and page size (10-100); defaults to page 0 / size 25.`,
+      },
+      {
+        name: 'reason_for_invocation',
+        type: 'string',
+        required: false,
+        description: `Brief explanation of why you chose this tool for the current task. Optional audit field; max 500 characters (longer values are truncated). Plain text only.`,
+      },
+      {
+        name: 'sort',
+        type: 'array',
+        required: false,
+        description: `Ordering for the recommendations, up to 4 entries; all entries share a single direction (mixed asc/desc returns a 400).`,
+      },
+    ],
+  },
+  {
+    name: 'lushamcp_recommendations_contacts_filters',
+    description: `Return the target ICPs and signal types accepted by recommendations_contacts filters. OAuth-only; API key sessions receive a 403.`,
+    params: [
+      {
+        name: 'conversation_id',
+        type: 'string',
+        required: false,
+        description: `Conversation correlation ID. Present only when an earlier tool response in this conversation returned one; that value is carried unchanged on subsequent calls. Omitted on the first call.`,
+      },
+      {
+        name: 'reason_for_invocation',
+        type: 'string',
+        required: false,
+        description: `Brief explanation of why you chose this tool for the current task. Optional audit field; max 500 characters (longer values are truncated). Plain text only.`,
+      },
+    ],
+  },
+  {
+    name: 'lushamcp_signal_score_companies',
+    description: `Score known companies (batch of 1-50) by their currently active buying signals.`,
+    params: [
+      {
+        name: 'companies',
+        type: 'array',
+        required: true,
+        description: `Companies to score (1-50). Each entry has exactly one identifier (id, domain, name, or email) plus an optional clientReferenceId.`,
+      },
+      {
+        name: 'conversation_id',
+        type: 'string',
+        required: false,
+        description: `Conversation correlation ID. Present only when an earlier tool response in this conversation returned one; that value is carried unchanged on subsequent calls. Omitted on the first call.`,
+      },
+      {
+        name: 'reason_for_invocation',
+        type: 'string',
+        required: false,
+        description: `Brief explanation of why you chose this tool for the current task. Optional audit field; max 500 characters (longer values are truncated). Plain text only.`,
+      },
+    ],
+  },
+  {
+    name: 'lushamcp_signal_score_contacts',
+    description: `Score known contacts (batch of 1-50) by their currently active buying signals.`,
+    params: [
+      {
+        name: 'contacts',
+        type: 'array',
+        required: true,
+        description: `Contacts to score (1-50). Each entry uses one lookup path (id | linkedinUrl | email | firstName + lastName + (companyName | companyDomain)) plus an optional clientReferenceId.`,
+      },
+      {
+        name: 'conversation_id',
+        type: 'string',
+        required: false,
+        description: `Conversation correlation ID. Present only when an earlier tool response in this conversation returned one; that value is carried unchanged on subsequent calls. Omitted on the first call.`,
+      },
+      {
+        name: 'reason_for_invocation',
+        type: 'string',
+        required: false,
+        description: `Brief explanation of why you chose this tool for the current task. Optional audit field; max 500 characters (longer values are truncated). Plain text only.`,
       },
     ],
   },
@@ -845,6 +1207,619 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Start date for signal retrieval (YYYY-MM-DD). Must be a valid calendar date and not in the future. Defaults to last 6 months when omitted.`,
+      },
+    ],
+  },
+  {
+    name: 'lushamcp_table_add_column',
+    description: `Add a column (Lusha datapoint, CRM, signal, AI, or score) to a Workspace table, optionally running it immediately.`,
+    params: [
+      {
+        name: 'entity_type',
+        type: 'string',
+        required: true,
+        description: `Which Lusha entity the table holds: 'contacts' or 'companies'. Routes the call to /v3/contacts/* or /v3/companies/*; a table only ever holds one entity type.`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: true,
+        description: `Display name of the column (1-255 chars).`,
+      },
+      {
+        name: 'table_id',
+        type: 'string',
+        required: true,
+        description: `Target Workspace table id (UUID). Resolve it from table_list or a create response.`,
+      },
+      {
+        name: 'type',
+        type: 'string',
+        required: true,
+        description: `Column category: 'lusha' (a Lusha datapoint via \`key\`), 'crm', 'signal', 'ai' (prompt in \`meta\`), or 'score'.`,
+      },
+      {
+        name: 'conversation_id',
+        type: 'string',
+        required: false,
+        description: `Conversation correlation ID. Present only when an earlier tool response in this conversation returned one; that value is carried unchanged on subsequent calls. Omitted on the first call.`,
+      },
+      {
+        name: 'email',
+        type: 'string',
+        required: false,
+        description: `Owner email: the user in the account that owns the table (the API resolves it to a userId). Needed only when the credential has no associated user, such as an API key that does not resolve to a specific user. With OAuth, or an API key already scoped to a user, the caller's own userId identifies the owner and email can be omitted; it may still be passed to act on behalf of another owner.`,
+      },
+      {
+        name: 'entity_ids',
+        type: 'array',
+        required: false,
+        description: `Entity ids to run when run_scope='specific'.`,
+      },
+      {
+        name: 'key',
+        type: 'string',
+        required: false,
+        description: `Data key/datapoint for a 'lusha' column (e.g. 'jobTitle', 'emailAddress').`,
+      },
+      {
+        name: 'meta',
+        type: 'object',
+        required: false,
+        description: `Extra column configuration (AI prompt, signal id, score config, etc.).`,
+      },
+      {
+        name: 'reason_for_invocation',
+        type: 'string',
+        required: false,
+        description: `Brief explanation of why you chose this tool for the current task. Optional audit field; max 500 characters (longer values are truncated). Plain text only.`,
+      },
+      {
+        name: 'run_scope',
+        type: 'string',
+        required: false,
+        description: `Run the column immediately after creation (defaults to 'none').`,
+      },
+    ],
+  },
+  {
+    name: 'lushamcp_table_add_entities',
+    description: `Add known Lusha entity ids (contacts or companies) to a Workspace table; duplicates are deduped.`,
+    params: [
+      {
+        name: 'entity_ids',
+        type: 'array',
+        required: true,
+        description: `Lusha entity ids to add (deduped automatically). Up to 500 per call.`,
+      },
+      {
+        name: 'entity_type',
+        type: 'string',
+        required: true,
+        description: `Which Lusha entity the table holds: 'contacts' or 'companies'. Routes the call to /v3/contacts/* or /v3/companies/*; a table only ever holds one entity type.`,
+      },
+      {
+        name: 'table_id',
+        type: 'string',
+        required: true,
+        description: `Target Workspace table id (UUID). Resolve it from table_list or a create response.`,
+      },
+      {
+        name: 'company_ids',
+        type: 'array',
+        required: false,
+        description: `Contacts tables only: lushaCompanyId per contact, index-aligned with entity_ids, so the workspace can enrich the contact (person + company pair). Ignored for companies tables.`,
+      },
+      {
+        name: 'conversation_id',
+        type: 'string',
+        required: false,
+        description: `Conversation correlation ID. Present only when an earlier tool response in this conversation returned one; that value is carried unchanged on subsequent calls. Omitted on the first call.`,
+      },
+      {
+        name: 'email',
+        type: 'string',
+        required: false,
+        description: `Owner email: the user in the account that owns the table (the API resolves it to a userId). Needed only when the credential has no associated user, such as an API key that does not resolve to a specific user. With OAuth, or an API key already scoped to a user, the caller's own userId identifies the owner and email can be omitted; it may still be passed to act on behalf of another owner.`,
+      },
+      {
+        name: 'reason_for_invocation',
+        type: 'string',
+        required: false,
+        description: `Brief explanation of why you chose this tool for the current task. Optional audit field; max 500 characters (longer values are truncated). Plain text only.`,
+      },
+    ],
+  },
+  {
+    name: 'lushamcp_table_create',
+    description: `Create an empty Workspace table (contacts or companies) to collect and enrich saved records.`,
+    params: [
+      {
+        name: 'entity_type',
+        type: 'string',
+        required: true,
+        description: `Which Lusha entity the table holds: 'contacts' or 'companies'. Routes the call to /v3/contacts/* or /v3/companies/*; a table only ever holds one entity type.`,
+      },
+      { name: 'name', type: 'string', required: true, description: `Table name (1-255 chars).` },
+      {
+        name: 'conversation_id',
+        type: 'string',
+        required: false,
+        description: `Conversation correlation ID. Present only when an earlier tool response in this conversation returned one; that value is carried unchanged on subsequent calls. Omitted on the first call.`,
+      },
+      {
+        name: 'email',
+        type: 'string',
+        required: false,
+        description: `Owner email: the user in the account that owns the table (the API resolves it to a userId). Needed only when the credential has no associated user, such as an API key that does not resolve to a specific user. With OAuth, or an API key already scoped to a user, the caller's own userId identifies the owner and email can be omitted; it may still be passed to act on behalf of another owner.`,
+      },
+      {
+        name: 'reason_for_invocation',
+        type: 'string',
+        required: false,
+        description: `Brief explanation of why you chose this tool for the current task. Optional audit field; max 500 characters (longer values are truncated). Plain text only.`,
+      },
+      {
+        name: 'visibility',
+        type: 'string',
+        required: false,
+        description: `Table visibility: 'private' (default) or 'shared' with the account.`,
+      },
+    ],
+  },
+  {
+    name: 'lushamcp_table_delete',
+    description: `Permanently delete a Workspace table and its rows/columns.`,
+    params: [
+      {
+        name: 'entity_type',
+        type: 'string',
+        required: true,
+        description: `Which Lusha entity the table holds: 'contacts' or 'companies'. Routes the call to /v3/contacts/* or /v3/companies/*; a table only ever holds one entity type.`,
+      },
+      {
+        name: 'table_id',
+        type: 'string',
+        required: true,
+        description: `Target Workspace table id (UUID). Resolve it from table_list or a create response.`,
+      },
+      {
+        name: 'conversation_id',
+        type: 'string',
+        required: false,
+        description: `Conversation correlation ID. Present only when an earlier tool response in this conversation returned one; that value is carried unchanged on subsequent calls. Omitted on the first call.`,
+      },
+      {
+        name: 'email',
+        type: 'string',
+        required: false,
+        description: `Owner email: the user in the account that owns the table (the API resolves it to a userId). Needed only when the credential has no associated user, such as an API key that does not resolve to a specific user. With OAuth, or an API key already scoped to a user, the caller's own userId identifies the owner and email can be omitted; it may still be passed to act on behalf of another owner.`,
+      },
+      {
+        name: 'reason_for_invocation',
+        type: 'string',
+        required: false,
+        description: `Brief explanation of why you chose this tool for the current task. Optional audit field; max 500 characters (longer values are truncated). Plain text only.`,
+      },
+    ],
+  },
+  {
+    name: 'lushamcp_table_get_entities',
+    description: `Read a page of a Workspace table's rows, including populated column values.`,
+    params: [
+      {
+        name: 'entity_type',
+        type: 'string',
+        required: true,
+        description: `Which Lusha entity the table holds: 'contacts' or 'companies'. Routes the call to /v3/contacts/* or /v3/companies/*; a table only ever holds one entity type.`,
+      },
+      {
+        name: 'table_id',
+        type: 'string',
+        required: true,
+        description: `Target Workspace table id (UUID). Resolve it from table_list or a create response.`,
+      },
+      {
+        name: 'conversation_id',
+        type: 'string',
+        required: false,
+        description: `Conversation correlation ID. Present only when an earlier tool response in this conversation returned one; that value is carried unchanged on subsequent calls. Omitted on the first call.`,
+      },
+      {
+        name: 'email',
+        type: 'string',
+        required: false,
+        description: `Owner email: the user in the account that owns the table (the API resolves it to a userId). Needed only when the credential has no associated user, such as an API key that does not resolve to a specific user. With OAuth, or an API key already scoped to a user, the caller's own userId identifies the owner and email can be omitted; it may still be passed to act on behalf of another owner.`,
+      },
+      {
+        name: 'page',
+        type: 'integer',
+        required: false,
+        description: `Page number (0-based, max 100).`,
+      },
+      {
+        name: 'page_size',
+        type: 'integer',
+        required: false,
+        description: `Items per page (1-100, default 100).`,
+      },
+      {
+        name: 'reason_for_invocation',
+        type: 'string',
+        required: false,
+        description: `Brief explanation of why you chose this tool for the current task. Optional audit field; max 500 characters (longer values are truncated). Plain text only.`,
+      },
+    ],
+  },
+  {
+    name: 'lushamcp_table_list',
+    description: `List the caller's Workspace contacts or companies tables with pagination and name/status filters.`,
+    params: [
+      {
+        name: 'entity_type',
+        type: 'string',
+        required: true,
+        description: `Which Lusha entity the table holds: 'contacts' or 'companies'. Routes the call to /v3/contacts/* or /v3/companies/*; a table only ever holds one entity type.`,
+      },
+      {
+        name: 'conversation_id',
+        type: 'string',
+        required: false,
+        description: `Conversation correlation ID. Present only when an earlier tool response in this conversation returned one; that value is carried unchanged on subsequent calls. Omitted on the first call.`,
+      },
+      {
+        name: 'email',
+        type: 'string',
+        required: false,
+        description: `Filter to tables owned by this email. REQUIRED when authenticating with an API key (there is no signed-in user to default to); with OAuth the caller is identified by the token, so it is optional and defaults to the caller.`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: false,
+        description: `Filter by name (substring match).`,
+      },
+      {
+        name: 'page',
+        type: 'integer',
+        required: false,
+        description: `Page number (0-based, max 100).`,
+      },
+      {
+        name: 'page_size',
+        type: 'integer',
+        required: false,
+        description: `Items per page (1-100, default 100).`,
+      },
+      {
+        name: 'reason_for_invocation',
+        type: 'string',
+        required: false,
+        description: `Brief explanation of why you chose this tool for the current task. Optional audit field; max 500 characters (longer values are truncated). Plain text only.`,
+      },
+      {
+        name: 'status',
+        type: 'string',
+        required: false,
+        description: `Filter tables by lifecycle status.`,
+      },
+    ],
+  },
+  {
+    name: 'lushamcp_table_list_columns',
+    description: `List a Workspace table's columns with per-status row counts.`,
+    params: [
+      {
+        name: 'entity_type',
+        type: 'string',
+        required: true,
+        description: `Which Lusha entity the table holds: 'contacts' or 'companies'. Routes the call to /v3/contacts/* or /v3/companies/*; a table only ever holds one entity type.`,
+      },
+      {
+        name: 'table_id',
+        type: 'string',
+        required: true,
+        description: `Target Workspace table id (UUID). Resolve it from table_list or a create response.`,
+      },
+      {
+        name: 'conversation_id',
+        type: 'string',
+        required: false,
+        description: `Conversation correlation ID. Present only when an earlier tool response in this conversation returned one; that value is carried unchanged on subsequent calls. Omitted on the first call.`,
+      },
+      {
+        name: 'email',
+        type: 'string',
+        required: false,
+        description: `Owner email: the user in the account that owns the table (the API resolves it to a userId). Needed only when the credential has no associated user, such as an API key that does not resolve to a specific user. With OAuth, or an API key already scoped to a user, the caller's own userId identifies the owner and email can be omitted; it may still be passed to act on behalf of another owner.`,
+      },
+      {
+        name: 'reason_for_invocation',
+        type: 'string',
+        required: false,
+        description: `Brief explanation of why you chose this tool for the current task. Optional audit field; max 500 characters (longer values are truncated). Plain text only.`,
+      },
+    ],
+  },
+  {
+    name: 'lushamcp_table_remove_column',
+    description: `Remove a non-default column from a Workspace table.`,
+    params: [
+      {
+        name: 'column_id',
+        type: 'string',
+        required: true,
+        description: `Column id to remove (from table_list_columns).`,
+      },
+      {
+        name: 'entity_type',
+        type: 'string',
+        required: true,
+        description: `Which Lusha entity the table holds: 'contacts' or 'companies'. Routes the call to /v3/contacts/* or /v3/companies/*; a table only ever holds one entity type.`,
+      },
+      {
+        name: 'table_id',
+        type: 'string',
+        required: true,
+        description: `Target Workspace table id (UUID). Resolve it from table_list or a create response.`,
+      },
+      {
+        name: 'conversation_id',
+        type: 'string',
+        required: false,
+        description: `Conversation correlation ID. Present only when an earlier tool response in this conversation returned one; that value is carried unchanged on subsequent calls. Omitted on the first call.`,
+      },
+      {
+        name: 'email',
+        type: 'string',
+        required: false,
+        description: `Owner email: the user in the account that owns the table (the API resolves it to a userId). Needed only when the credential has no associated user, such as an API key that does not resolve to a specific user. With OAuth, or an API key already scoped to a user, the caller's own userId identifies the owner and email can be omitted; it may still be passed to act on behalf of another owner.`,
+      },
+      {
+        name: 'reason_for_invocation',
+        type: 'string',
+        required: false,
+        description: `Brief explanation of why you chose this tool for the current task. Optional audit field; max 500 characters (longer values are truncated). Plain text only.`,
+      },
+    ],
+  },
+  {
+    name: 'lushamcp_table_remove_entities',
+    description: `Remove rows (by Lusha entity id) from a Workspace table.`,
+    params: [
+      {
+        name: 'entity_ids',
+        type: 'array',
+        required: true,
+        description: `Lusha entity ids to remove. Up to 500 per call.`,
+      },
+      {
+        name: 'entity_type',
+        type: 'string',
+        required: true,
+        description: `Which Lusha entity the table holds: 'contacts' or 'companies'. Routes the call to /v3/contacts/* or /v3/companies/*; a table only ever holds one entity type.`,
+      },
+      {
+        name: 'table_id',
+        type: 'string',
+        required: true,
+        description: `Target Workspace table id (UUID). Resolve it from table_list or a create response.`,
+      },
+      {
+        name: 'conversation_id',
+        type: 'string',
+        required: false,
+        description: `Conversation correlation ID. Present only when an earlier tool response in this conversation returned one; that value is carried unchanged on subsequent calls. Omitted on the first call.`,
+      },
+      {
+        name: 'email',
+        type: 'string',
+        required: false,
+        description: `Owner email: the user in the account that owns the table (the API resolves it to a userId). Needed only when the credential has no associated user, such as an API key that does not resolve to a specific user. With OAuth, or an API key already scoped to a user, the caller's own userId identifies the owner and email can be omitted; it may still be passed to act on behalf of another owner.`,
+      },
+      {
+        name: 'reason_for_invocation',
+        type: 'string',
+        required: false,
+        description: `Brief explanation of why you chose this tool for the current task. Optional audit field; max 500 characters (longer values are truncated). Plain text only.`,
+      },
+    ],
+  },
+  {
+    name: 'lushamcp_table_run_column',
+    description: `Run (populate) a Workspace table column across all, missing-only, or specific rows.`,
+    params: [
+      {
+        name: 'column_id',
+        type: 'string',
+        required: true,
+        description: `Column id to run (from table_list_columns).`,
+      },
+      {
+        name: 'entity_type',
+        type: 'string',
+        required: true,
+        description: `Which Lusha entity the table holds: 'contacts' or 'companies'. Routes the call to /v3/contacts/* or /v3/companies/*; a table only ever holds one entity type.`,
+      },
+      {
+        name: 'run_scope',
+        type: 'string',
+        required: true,
+        description: `Which rows to run: 'all', 'missing', or 'specific' (requires entity_ids).`,
+      },
+      {
+        name: 'table_id',
+        type: 'string',
+        required: true,
+        description: `Target Workspace table id (UUID). Resolve it from table_list or a create response.`,
+      },
+      {
+        name: 'conversation_id',
+        type: 'string',
+        required: false,
+        description: `Conversation correlation ID. Present only when an earlier tool response in this conversation returned one; that value is carried unchanged on subsequent calls. Omitted on the first call.`,
+      },
+      {
+        name: 'email',
+        type: 'string',
+        required: false,
+        description: `Owner email: the user in the account that owns the table (the API resolves it to a userId). Needed only when the credential has no associated user, such as an API key that does not resolve to a specific user. With OAuth, or an API key already scoped to a user, the caller's own userId identifies the owner and email can be omitted; it may still be passed to act on behalf of another owner.`,
+      },
+      {
+        name: 'entity_ids',
+        type: 'array',
+        required: false,
+        description: `Entity ids to run when run_scope='specific'.`,
+      },
+      {
+        name: 'reason_for_invocation',
+        type: 'string',
+        required: false,
+        description: `Brief explanation of why you chose this tool for the current task. Optional audit field; max 500 characters (longer values are truncated). Plain text only.`,
+      },
+    ],
+  },
+  {
+    name: 'lushamcp_table_status',
+    description: `Return one Workspace table's entity count and per-column run aggregates (processing/success/failed rows).`,
+    params: [
+      {
+        name: 'entity_type',
+        type: 'string',
+        required: true,
+        description: `Which Lusha entity the table holds: 'contacts' or 'companies'. Routes the call to /v3/contacts/* or /v3/companies/*; a table only ever holds one entity type.`,
+      },
+      {
+        name: 'table_id',
+        type: 'string',
+        required: true,
+        description: `Target Workspace table id (UUID). Resolve it from table_list or a create response.`,
+      },
+      {
+        name: 'conversation_id',
+        type: 'string',
+        required: false,
+        description: `Conversation correlation ID. Present only when an earlier tool response in this conversation returned one; that value is carried unchanged on subsequent calls. Omitted on the first call.`,
+      },
+      {
+        name: 'email',
+        type: 'string',
+        required: false,
+        description: `Owner email: the user in the account that owns the table (the API resolves it to a userId). Needed only when the credential has no associated user, such as an API key that does not resolve to a specific user. With OAuth, or an API key already scoped to a user, the caller's own userId identifies the owner and email can be omitted; it may still be passed to act on behalf of another owner.`,
+      },
+      {
+        name: 'reason_for_invocation',
+        type: 'string',
+        required: false,
+        description: `Brief explanation of why you chose this tool for the current task. Optional audit field; max 500 characters (longer values are truncated). Plain text only.`,
+      },
+    ],
+  },
+  {
+    name: 'lushamcp_table_update',
+    description: `Rename a Workspace table, change its visibility, or archive/unarchive it.`,
+    params: [
+      {
+        name: 'entity_type',
+        type: 'string',
+        required: true,
+        description: `Which Lusha entity the table holds: 'contacts' or 'companies'. Routes the call to /v3/contacts/* or /v3/companies/*; a table only ever holds one entity type.`,
+      },
+      {
+        name: 'table_id',
+        type: 'string',
+        required: true,
+        description: `Target Workspace table id (UUID). Resolve it from table_list or a create response.`,
+      },
+      {
+        name: 'archived',
+        type: 'boolean',
+        required: false,
+        description: `Archive (true) or unarchive (false) the table.`,
+      },
+      {
+        name: 'conversation_id',
+        type: 'string',
+        required: false,
+        description: `Conversation correlation ID. Present only when an earlier tool response in this conversation returned one; that value is carried unchanged on subsequent calls. Omitted on the first call.`,
+      },
+      {
+        name: 'email',
+        type: 'string',
+        required: false,
+        description: `Owner email: the user in the account that owns the table (the API resolves it to a userId). Needed only when the credential has no associated user, such as an API key that does not resolve to a specific user. With OAuth, or an API key already scoped to a user, the caller's own userId identifies the owner and email can be omitted; it may still be passed to act on behalf of another owner.`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: false,
+        description: `New table name (1-255 chars).`,
+      },
+      {
+        name: 'reason_for_invocation',
+        type: 'string',
+        required: false,
+        description: `Brief explanation of why you chose this tool for the current task. Optional audit field; max 500 characters (longer values are truncated). Plain text only.`,
+      },
+      {
+        name: 'visibility',
+        type: 'string',
+        required: false,
+        description: `Table visibility: 'private' (default) or 'shared' with the account.`,
+      },
+    ],
+  },
+  {
+    name: 'lushamcp_website_visits_search',
+    description: `Rank companies that visited the account's tracked websites by visit engagement.`,
+    params: [
+      {
+        name: 'conversation_id',
+        type: 'string',
+        required: false,
+        description: `Conversation correlation ID. Present only when an earlier tool response in this conversation returned one; that value is carried unchanged on subsequent calls. Omitted on the first call.`,
+      },
+      {
+        name: 'domains',
+        type: 'array',
+        required: false,
+        description: `Tracked domains configured in the dashboard. Omit to use all configured tracked sites for the account.`,
+      },
+      {
+        name: 'endDate',
+        type: 'string',
+        required: false,
+        description: `Window end (YYYY-MM-DD). Optional; defaults to today (UTC). The resolved range cannot exceed 3 months.`,
+      },
+      {
+        name: 'filters',
+        type: 'object',
+        required: false,
+        description: `Optional behavioral filters applied to the ranking.`,
+      },
+      {
+        name: 'pagination',
+        type: 'object',
+        required: false,
+        description: `Pagination. Defaults to page 0, size 25.`,
+      },
+      {
+        name: 'reason_for_invocation',
+        type: 'string',
+        required: false,
+        description: `Brief explanation of why you chose this tool for the current task. Optional audit field; max 500 characters (longer values are truncated). Plain text only.`,
+      },
+      {
+        name: 'sort',
+        type: 'object',
+        required: false,
+        description: `Optional sort field and direction.`,
+      },
+      {
+        name: 'startDate',
+        type: 'string',
+        required: false,
+        description: `Window start (YYYY-MM-DD). Optional; defaults to 30 days before endDate.`,
       },
     ],
   },

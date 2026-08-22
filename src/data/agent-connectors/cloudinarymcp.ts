@@ -174,6 +174,64 @@ Creates a downloadable ZIP or other archive format containing the specified reso
     ],
   },
   {
+    name: 'cloudinarymcp_generate_image',
+    description: `Generate an image
+
+Generate an image from a text prompt using AI models.
+
+The model is selected via the optional \`model\` object:
+1. If \`model.id\` is provided, use that exact model.
+2. Else if \`model.family\` (+ optional \`model.tier\`) is provided, resolve via the model registry; a missing tier defaults to \`standard\`.
+3. If \`model\` is omitted, use the global default (nano-banana / premium, i.e. \`nano-banana-2\`).
+`,
+    params: [
+      {
+        name: 'request',
+        type: 'object',
+        required: true,
+        description: `A JSON object containing the generation request parameters.`,
+      },
+    ],
+  },
+  {
+    name: 'cloudinarymcp_generate_image_from_images',
+    description: `Generate an image from reference images
+
+Generate an image guided by one or more **reference images** — restyle,
+on-brand variants, character consistency, virtual try-on, edit/extend —
+steered by \`prompt\`.
+
+Only edit-capable models are selectable here. The model is selected via
+the optional \`model\` object, exactly like \`text_to_image\`, but IDs are
+restricted to edit models:
+1. If \`model.id\` is provided, use that exact edit model.
+2. Else if \`model.family\` (+ optional \`model.tier\`) is provided, resolve
+
+
+
+
+
+
+
+
+
+   to that family's edit model (e.g. \`nano-banana\` / \`premium\` →
+   \`nano-banana-2-edit\`).
+3. If \`model\` is omitted, use the default edit model (\`nano-banana-2-edit\`).
+
+Each reference image is either a stored managed asset (by \`asset_id\`,
+read-permission checked) or an external HTTPS \`url\`.
+`,
+    params: [
+      {
+        name: 'request',
+        type: 'object',
+        required: true,
+        description: `A JSON object containing the image-to-image generation request parameters.`,
+      },
+    ],
+  },
+  {
     name: 'cloudinarymcp_get_asset_details',
     description: `Get resource by asset ID
 
@@ -250,6 +308,20 @@ Returns the details of a single resource specified by its asset ID.`,
         type: 'boolean',
         required: false,
         description: `Whether to include details of all the backed up versions of the asset. Default: false.`,
+      },
+    ],
+  },
+  {
+    name: 'cloudinarymcp_get_generation_task',
+    description: `Get a generation task
+
+Get the status of a generation task.`,
+    params: [
+      {
+        name: 'task_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the generation task.`,
       },
     ],
   },
@@ -497,6 +569,76 @@ Retrieves a list of video assets. Results can be filtered by various criteria li
     ],
   },
   {
+    name: 'cloudinarymcp_manage_asset_context',
+    description: `Adds or clears contextual metadata on multiple assets
+
+Applies a contextual-metadata command to the given assets, addressing them by public ID.
+`,
+    params: [
+      {
+        name: 'context_update_request',
+        type: 'object',
+        required: true,
+        description: `The context command, the metadata to apply, and the assets to apply it to.`,
+      },
+      {
+        name: 'resource_type',
+        type: 'string',
+        required: true,
+        description: `The type of resource (image, video, or raw).`,
+      },
+    ],
+  },
+  {
+    name: 'cloudinarymcp_manage_asset_metadata',
+    description: `Sets structured metadata values on multiple assets
+
+Assigns structured metadata field values to the given assets, addressing them by public ID.
+
+Values are merged into each asset's existing structured metadata: fields not mentioned
+keep their current values, and an empty value clears the field. Every referenced field
+must already exist in the product environment. Conditional metadata rules are evaluated
+as part of the update.
+`,
+    params: [
+      {
+        name: 'metadata_update_request',
+        type: 'object',
+        required: true,
+        description: `The structured metadata values to assign and the assets to assign them to.`,
+      },
+      {
+        name: 'resource_type',
+        type: 'string',
+        required: true,
+        description: `The type of resource (image, video, or raw).`,
+      },
+    ],
+  },
+  {
+    name: 'cloudinarymcp_manage_asset_tags',
+    description: `Adds, removes, or replaces tags on multiple assets
+
+Applies a tag command to the given assets, addressing them by public ID.
+
+The number of tags multiplied by the number of public IDs must not exceed 10,000.
+`,
+    params: [
+      {
+        name: 'resource_type',
+        type: 'string',
+        required: true,
+        description: `The type of resource (image, video, or raw).`,
+      },
+      {
+        name: 'tags_update_request',
+        type: 'object',
+        required: true,
+        description: `The tag command, the tags to apply, and the assets to apply them to.`,
+      },
+    ],
+  },
+  {
     name: 'cloudinarymcp_move_folder',
     description: `Renames or moves an entire folder (along with all assets it contains) to a new location
 
@@ -561,6 +703,42 @@ Lists the folders that match the specified search expression. Limited to 2000 re
         type: 'array',
         required: false,
         description: `Sort order for the results. Each item maps a field name to a direction.`,
+      },
+    ],
+  },
+  {
+    name: 'cloudinarymcp_sign_upload',
+    description: `Use this tool when the user wants to upload a file to Cloudinary directly from their own machine or environment. It signs Upload API parameters so the caller can POST files straight to the Cloudinary Upload API — no API secret required on the client side.
+
+NOT suitable for large files (>100 MB) or bulk uploads — direct the user to the Cloudinary CLI (\`cld uploader upload\`) or an SDK instead, which handle chunking, retries, and progress reporting.
+
+Returns one credential object per input entry:
+  upload_params  — serialized params to echo verbatim as form fields (includes timestamp)
+  api_key        — Cloudinary API key
+  signature      — HMAC signature over upload_params; invalidated if any field is changed
+  host           — Upload API hostname (may differ from api.cloudinary.com for regional/enterprise accounts)
+  cloud_name     — Cloudinary cloud name
+
+Send only signable params in the input (public_id, folder, tags, context, metadata, eager, transformation, …). Do not include file, resource_type, api_key, or signature — these are not part of the signed parameter set and will be ignored if passed.
+
+To upload after signing, POST multipart/form-data to:
+  https://<host>/v1_1/<cloud_name>/<resource_type>/upload
+Include your file plus api_key, signature, and EVERY key from upload_params as its own form field. Any added, dropped, renamed, or re-serialized field invalidates the signature. resource_type (image/video/raw/auto) is part of the URL, not upload_params.
+
+Example (all upload_params keys must appear — shown here with public_id and timestamp only for brevity; include every key your upload_params actually contains):
+  curl https://<host>/v1_1/<cloud_name>/image/upload \\
+    -F 'file=@"/path/to/photo.jpg"' \\
+    -F 'api_key=<api_key>' -F 'signature=<signature>' \\
+    -F 'timestamp=<upload_params.timestamp>' \\
+    -F 'public_id=<upload_params.public_id>'   # one -F per upload_params key
+
+IMPORTANT — the file= argument MUST use two quoting layers: single-quotes around the entire -F value (shell), double-quotes around the path (curl): -F 'file=@"<path>"'. Paths with spaces or special characters are common and will be word-split by the shell if unquoted, silently truncating the filename at the first space.`,
+    params: [
+      {
+        name: 'uploads',
+        type: 'array',
+        required: true,
+        description: `One or more sets of Cloudinary Upload API parameters to sign. Returns one signed credential object per entry, in the same order. Only genuine Upload API params are signed; file, resource_type, api_key, and signature are excluded.`,
       },
     ],
   },

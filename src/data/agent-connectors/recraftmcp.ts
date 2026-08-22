@@ -2,6 +2,30 @@ import type { Tool } from '../../types/agent-connectors'
 
 export const tools: Tool[] = [
   {
+    name: 'recraftmcp_call_agent',
+    description: `Talk to Recraft's Design Agent in a multi-turn chat to turn a brief for a digital product into a coherent set of design assets (logo, colour palette, typography, app icon, social assets) and optionally save them as a reusable Design Kit. The agent may reply with a clarifying question instead of a final result — relay its reply to the end user verbatim and send their answer back in a follow-up call rather than answering on its behalf.`,
+    params: [
+      {
+        name: 'message',
+        type: 'string',
+        required: true,
+        description: `Text message to send to the Recraft agent.`,
+      },
+      {
+        name: 'chat_id',
+        type: 'string',
+        required: false,
+        description: `UUID of an existing chat to continue. Omit to start a new chat.`,
+      },
+      {
+        name: 'input_image_urls',
+        type: 'array',
+        required: false,
+        description: `Publicly accessible HTTPS URLs of input images to send to the agent (1–10).`,
+      },
+    ],
+  },
+  {
     name: 'recraftmcp_create_style',
     description: `Create a custom style from one or more reference images. Provide images via URLs or base64-encoded data. The style parameter defines the base style type.`,
     params: [
@@ -198,6 +222,48 @@ export const tools: Tool[] = [
     name: 'recraftmcp_get_user',
     description: `Get information about the current user including ID, email, name, and credit balance.`,
     params: [],
+  },
+  {
+    name: 'recraftmcp_image_edit',
+    description: `Edit one or more input images according to a text prompt, producing new image(s). Use for instruction-driven editing (e.g. "add a hat", "combine these images") where the model follows explicit editing instructions or uses an external model; use image_to_image instead for a strength-controlled stylistic transformation of a single image.`,
+    params: [
+      {
+        name: 'input_image_urls',
+        type: 'array',
+        required: true,
+        description: `Publicly accessible HTTPS URLs of the source images to edit (1–10).`,
+      },
+      {
+        name: 'prompt',
+        type: 'string',
+        required: true,
+        description: `Text prompt describing the edit to apply (1–10000 chars).`,
+      },
+      {
+        name: 'image_size',
+        type: 'string',
+        required: false,
+        description: `Image dimensions or aspect ratio. Defaults to the first input image's size if omitted.`,
+      },
+      {
+        name: 'input_style_id',
+        type: 'string',
+        required: false,
+        description: `ID of the style to apply. Mutually exclusive with style.`,
+      },
+      {
+        name: 'model',
+        type: 'string',
+        required: false,
+        description: `Model version to use. Default: recraftv4_1.`,
+      },
+      {
+        name: 'n',
+        type: 'integer',
+        required: false,
+        description: `Number of images to generate (1–6). Default: 1.`,
+      },
+    ],
   },
   {
     name: 'recraftmcp_image_to_image',

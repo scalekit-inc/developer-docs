@@ -2,6 +2,111 @@ import type { Tool } from '../../types/agent-connectors'
 
 export const tools: Tool[] = [
   {
+    name: 'zenrowsmcp_batch_cancel',
+    description: `Stop an in-flight ZenRows Batch job run.`,
+    params: [
+      { name: 'job_id', type: 'string', required: true, description: `Batch job id to stop.` },
+    ],
+  },
+  {
+    name: 'zenrowsmcp_batch_create',
+    description: `Submit a cloud Batch job that fans out many URLs asynchronously (ZenRows Batch API, beta). Not the same as browser_batch. Returns a job_id and latest_run status/stats; poll with batch_status or batch_wait, then fetch rows with batch_results.`,
+    params: [
+      {
+        name: 'js_render',
+        type: 'boolean',
+        required: false,
+        description: `Job-level js_render applied to all tasks.`,
+      },
+      {
+        name: 'premium_proxy',
+        type: 'boolean',
+        required: false,
+        description: `Job-level premium_proxy applied to all tasks.`,
+      },
+      {
+        name: 'proxy_country',
+        type: 'string',
+        required: false,
+        description: `Job-level ISO 3166-1 alpha-2 country code. Requires premium_proxy or mode=auto.`,
+      },
+      {
+        name: 'response_type',
+        type: 'string',
+        required: false,
+        description: `Job-level response_type applied to all tasks.`,
+      },
+      {
+        name: 'tasks',
+        type: 'array',
+        required: false,
+        description: `List of tasks, each needing a url. Prefer this over urls when you need per-task params.`,
+      },
+      {
+        name: 'urls',
+        type: 'array',
+        required: false,
+        description: `Shorthand list of URLs, converted to tasks. Ignored when tasks is provided.`,
+      },
+      {
+        name: 'wait',
+        type: 'boolean',
+        required: false,
+        description: `If true, poll until the job reaches a terminal state before returning.`,
+      },
+      {
+        name: 'wait_timeout_ms',
+        type: 'integer',
+        required: false,
+        description: `Max wait time in milliseconds when wait=true (default 600000).`,
+      },
+      {
+        name: 'zenrows_params',
+        type: 'object',
+        required: false,
+        description: `Additional job-level zenrows_params merged with the flags above.`,
+      },
+    ],
+  },
+  {
+    name: 'zenrowsmcp_batch_results',
+    description: `List result rows for a ZenRows Batch job. Each row may include task_id, external_id, status, and a short-lived result_url; download soon as presigned links expire.`,
+    params: [
+      { name: 'job_id', type: 'string', required: true, description: `Batch job id.` },
+      {
+        name: 'status',
+        type: 'string',
+        required: false,
+        description: `Filter results by status (default: all).`,
+      },
+    ],
+  },
+  {
+    name: 'zenrowsmcp_batch_status',
+    description: `Get status and stats for a ZenRows Batch job, including latest_run.status and latest_run.stats.`,
+    params: [
+      {
+        name: 'job_id',
+        type: 'string',
+        required: true,
+        description: `Batch job id returned by batch_create.`,
+      },
+    ],
+  },
+  {
+    name: 'zenrowsmcp_batch_wait',
+    description: `Poll batch_status until a ZenRows Batch job reaches a terminal state (completed, stopped, or deleted).`,
+    params: [
+      { name: 'job_id', type: 'string', required: true, description: `Batch job id.` },
+      {
+        name: 'timeout_ms',
+        type: 'integer',
+        required: false,
+        description: `Max wait time in milliseconds (default 600000).`,
+      },
+    ],
+  },
+  {
     name: 'zenrowsmcp_browser_batch',
     description: `Execute a sequence of browser actions in a single call against an existing session. Actions run sequentially and stop at the first failure unless stop_on_error is false.`,
     params: [
@@ -677,6 +782,72 @@ export const tools: Tool[] = [
         type: 'boolean',
         required: false,
         description: `If true, wait until the element is visible in the viewport; if false, wait until present in DOM.`,
+      },
+    ],
+  },
+  {
+    name: 'zenrowsmcp_extract',
+    description: `Extract structured data from a webpage using ZenRows. Prefer this over scrape when you need JSON fields (products, articles, listings) rather than a full page body. Supports auto (site-tailored Extract, open beta), autoparse (general-purpose), or css (explicit selector map) modes.`,
+    params: [
+      {
+        name: 'url',
+        type: 'string',
+        required: true,
+        description: `The webpage URL to extract data from.`,
+      },
+      {
+        name: 'css_extractor',
+        type: 'string',
+        required: false,
+        description: `Required when mode=css. JSON map of field to selector, e.g. {"title":"h1","price":".price"}.`,
+      },
+      {
+        name: 'fallback_autoparse',
+        type: 'boolean',
+        required: false,
+        description: `When mode=auto and the domain is not in the Extract open beta, retry once with autoparse.`,
+      },
+      {
+        name: 'js_render',
+        type: 'boolean',
+        required: false,
+        description: `Enable headless JavaScript rendering for SPAs and dynamically loaded content.`,
+      },
+      {
+        name: 'mode',
+        type: 'string',
+        required: false,
+        description: `Extraction mode: 'auto' (default, site-tailored Extract), 'autoparse' (general-purpose JSON), or 'css' (requires css_extractor).`,
+      },
+      {
+        name: 'mode_auto',
+        type: 'boolean',
+        required: false,
+        description: `Enable Adaptive Stealth Mode (mode=auto) for tougher, anti-bot-protected sites.`,
+      },
+      {
+        name: 'premium_proxy',
+        type: 'boolean',
+        required: false,
+        description: `Use premium residential proxies to bypass anti-bot protection. Higher credit cost.`,
+      },
+      {
+        name: 'proxy_country',
+        type: 'string',
+        required: false,
+        description: `ISO 3166-1 alpha-2 country code for geo-targeted proxy. Requires premium_proxy or mode_auto.`,
+      },
+      {
+        name: 'wait',
+        type: 'integer',
+        required: false,
+        description: `Milliseconds to wait after page load before extracting. Max 30000. Requires js_render.`,
+      },
+      {
+        name: 'wait_for',
+        type: 'string',
+        required: false,
+        description: `CSS selector to wait for before extracting. Requires js_render.`,
       },
     ],
   },

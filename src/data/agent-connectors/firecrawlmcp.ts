@@ -39,7 +39,7 @@ export const tools: Tool[] = [
   },
   {
     name: 'firecrawlmcp_firecrawl_browser_create',
-    description: `Create a persistent browser session for interactive scraping.`,
+    description: `[STALE: upstream firecrawlmcp MCP server no longer exposes a \`firecrawl_browser_create\` tool as of the 2026-08-19 refresh (SK-1675); tool_version left untouched pending removal decision] Create a persistent browser session for interactive scraping.`,
     params: [
       {
         name: 'activityTtl',
@@ -69,7 +69,7 @@ export const tools: Tool[] = [
   },
   {
     name: 'firecrawlmcp_firecrawl_browser_delete',
-    description: `Destroy a browser session and release its resources.`,
+    description: `[STALE: upstream firecrawlmcp MCP server no longer exposes a \`firecrawl_browser_delete\` tool as of the 2026-08-19 refresh (SK-1675); tool_version left untouched pending removal decision] Destroy a browser session and release its resources.`,
     params: [
       {
         name: 'sessionId',
@@ -81,7 +81,7 @@ export const tools: Tool[] = [
   },
   {
     name: 'firecrawlmcp_firecrawl_browser_list',
-    description: `List active or destroyed browser sessions for the account.`,
+    description: `[STALE: upstream firecrawlmcp MCP server no longer exposes a \`firecrawl_browser_list\` tool as of the 2026-08-19 refresh (SK-1675); tool_version left untouched pending removal decision] List active or destroyed browser sessions for the account.`,
     params: [
       {
         name: 'status',
@@ -200,8 +200,32 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'firecrawlmcp_firecrawl_developer_search',
+    description: `Search an index built for coding agents covering GitHub issues, merged pull requests, repository READMEs, and curated documentation sites.`,
+    params: [
+      {
+        name: 'query',
+        type: 'string',
+        required: true,
+        description: `The developer question to search for: code behavior, a library or framework, an API contract, an error message, or a known bug.`,
+      },
+      {
+        name: 'k',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of results to return.`,
+      },
+      {
+        name: 'skills',
+        type: 'string',
+        required: false,
+        description: `Set to only to limit the search to agent-skill files.`,
+      },
+    ],
+  },
+  {
     name: 'firecrawlmcp_firecrawl_extract',
-    description: `Extract structured data from one or more URLs using a natural-language prompt and optional JSON Schema.`,
+    description: `[STALE: upstream firecrawlmcp MCP server no longer exposes a \`firecrawl_extract\` tool as of the 2026-08-19 refresh (SK-1675); tool_version left untouched pending removal decision] Extract structured data from one or more URLs using a natural-language prompt and optional JSON Schema.`,
     params: [
       {
         name: 'urls',
@@ -238,6 +262,84 @@ export const tools: Tool[] = [
         type: 'object',
         required: false,
         description: `JSON Schema defining the structure of data to extract.`,
+      },
+    ],
+  },
+  {
+    name: 'firecrawlmcp_firecrawl_feedback',
+    description: `Submit concise quality feedback (rating, issues, tags, notes) for a completed search, scrape, parse, or map job.`,
+    params: [
+      {
+        name: 'endpoint',
+        type: 'string',
+        required: true,
+        description: `The Firecrawl endpoint the feedback relates to. Accepted values: search, scrape, parse, map.`,
+      },
+      {
+        name: 'jobId',
+        type: 'string',
+        required: true,
+        description: `The ID of the completed job this feedback relates to.`,
+      },
+      {
+        name: 'rating',
+        type: 'string',
+        required: true,
+        description: `Your overall quality rating for the job.`,
+      },
+      {
+        name: 'issues',
+        type: 'array',
+        required: false,
+        description: `Short issue codes describing what went wrong with the job.`,
+      },
+      {
+        name: 'metadata',
+        type: 'object',
+        required: false,
+        description: `Small contextual key-value fields relevant to the feedback.`,
+      },
+      {
+        name: 'missingContent',
+        type: 'array',
+        required: false,
+        description: `Content types or topics that were missing from the job's results.`,
+      },
+      {
+        name: 'note',
+        type: 'string',
+        required: false,
+        description: `Free-form note with additional feedback context.`,
+      },
+      {
+        name: 'pageNumbers',
+        type: 'array',
+        required: false,
+        description: `Page numbers the feedback refers to, for multi-page jobs.`,
+      },
+      {
+        name: 'querySuggestions',
+        type: 'string',
+        required: false,
+        description: `Alternative search queries that might yield better results.`,
+      },
+      {
+        name: 'tags',
+        type: 'array',
+        required: false,
+        description: `Short tags categorizing the feedback.`,
+      },
+      {
+        name: 'url',
+        type: 'string',
+        required: false,
+        description: `The URL the job relates to, if applicable.`,
+      },
+      {
+        name: 'valuableSources',
+        type: 'array',
+        required: false,
+        description: `URLs you found particularly useful in the job's results.`,
       },
     ],
   },
@@ -472,6 +574,258 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `The unique identifier of the resource.`,
+      },
+    ],
+  },
+  {
+    name: 'firecrawlmcp_firecrawl_parse',
+    description: `Parse a local or uploaded document (PDF, Word, RTF, OpenDocument, spreadsheet, or HTML) into markdown, HTML, links, summary, targeted answers, or JSON matching a schema.`,
+    params: [
+      {
+        name: 'contentType',
+        type: 'string',
+        required: false,
+        description: `MIME type of the uploaded file, when using the hosted two-call upload flow.`,
+      },
+      {
+        name: 'declaredSizeBytes',
+        type: 'integer',
+        required: false,
+        description: `Declared size in bytes of the file being uploaded, when using the hosted two-call upload flow.`,
+      },
+      {
+        name: 'excludeTags',
+        type: 'array',
+        required: false,
+        description: `HTML tags or CSS selectors to remove from extracted content.`,
+      },
+      {
+        name: 'filePath',
+        type: 'string',
+        required: false,
+        description: `Path to the document to parse. Local MCP reads this from the server filesystem; hosted MCP uses it for the first call of the upload flow.`,
+      },
+      {
+        name: 'formats',
+        type: 'array',
+        required: false,
+        description: `Output formats to return. Accepted values: markdown, html, rawHtml, links, summary, json, query.`,
+      },
+      {
+        name: 'includeTags',
+        type: 'array',
+        required: false,
+        description: `HTML tags or CSS selectors to restrict extraction to.`,
+      },
+      {
+        name: 'jsonOptions',
+        type: 'object',
+        required: false,
+        description: `Options for JSON extraction: prompt and optional JSON Schema.`,
+      },
+      {
+        name: 'maxAge',
+        type: 'number',
+        required: false,
+        description: `Maximum cache age in seconds; serve cached data up to this age for faster responses.`,
+      },
+      {
+        name: 'onlyMainContent',
+        type: 'boolean',
+        required: false,
+        description: `Set to true to strip navigation, headers, footers, and other boilerplate.`,
+      },
+      {
+        name: 'parsers',
+        type: 'array',
+        required: false,
+        description: `Additional parsers to apply. Accepted values: pdf.`,
+      },
+      {
+        name: 'pdfOptions',
+        type: 'object',
+        required: false,
+        description: `Options for PDF parsing, such as the maximum number of pages.`,
+      },
+      {
+        name: 'proxy',
+        type: 'string',
+        required: false,
+        description: `Proxy tier to use when the document must be fetched remotely.`,
+      },
+      {
+        name: 'queryOptions',
+        type: 'object',
+        required: false,
+        description: `Options for query-mode extraction: the prompt and response mode.`,
+      },
+      {
+        name: 'redactPII',
+        type: 'boolean',
+        required: false,
+        description: `Set to true to request redaction of personally identifiable information in the returned content.`,
+      },
+      {
+        name: 'removeBase64Images',
+        type: 'boolean',
+        required: false,
+        description: `Set to true to strip inline base64-encoded images from the output.`,
+      },
+      {
+        name: 'skipTlsVerification',
+        type: 'boolean',
+        required: false,
+        description: `Set to true to skip TLS certificate validation (use for self-signed certs).`,
+      },
+      {
+        name: 'storeInCache',
+        type: 'boolean',
+        required: false,
+        description: `Set to true to cache this response for future maxAge-based lookups.`,
+      },
+      {
+        name: 'uploadRef',
+        type: 'string',
+        required: false,
+        description: `Upload reference returned by the first call of the hosted two-call upload flow; pass it on the follow-up call instead of filePath.`,
+      },
+      {
+        name: 'zeroDataRetention',
+        type: 'boolean',
+        required: false,
+        description: `Set to true to prevent Firecrawl from storing any data for this request. Requires an eligible authenticated account.`,
+      },
+    ],
+  },
+  {
+    name: 'firecrawlmcp_firecrawl_research_inspect_paper',
+    description: `Retrieve canonical metadata (title, abstract, authors, categories, dates) for one research paper by arXiv, PMC, PMID, or DOI identifier.`,
+    params: [
+      {
+        name: 'paperId',
+        type: 'string',
+        required: true,
+        description: `The paper identifier: an arXiv, PMC, PMID, or DOI ID.`,
+      },
+    ],
+  },
+  {
+    name: 'firecrawlmcp_firecrawl_research_read_paper',
+    description: `Retrieve in-body passages from an indexed research paper relevant to a specific question.`,
+    params: [
+      {
+        name: 'paperId',
+        type: 'string',
+        required: true,
+        description: `The paper identifier: an arXiv, PMC, PMID, or DOI ID.`,
+      },
+      {
+        name: 'question',
+        type: 'string',
+        required: true,
+        description: `The specific question to find relevant passages for.`,
+      },
+      {
+        name: 'k',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of passages to return.`,
+      },
+    ],
+  },
+  {
+    name: 'firecrawlmcp_firecrawl_research_related_papers',
+    description: `Find citation-graph related papers (similar, citing, or referenced) for one to ten seed paper IDs.`,
+    params: [
+      {
+        name: 'intent',
+        type: 'string',
+        required: true,
+        description: `Free-text description of what you're looking for, used to rank candidates.`,
+      },
+      {
+        name: 'seed_ids',
+        type: 'array',
+        required: true,
+        description: `One to ten paper IDs; the first is the primary seed and later IDs are anchors.`,
+      },
+      {
+        name: 'k',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of candidate papers to return.`,
+      },
+      {
+        name: 'mode',
+        type: 'string',
+        required: false,
+        description: `How to traverse the citation graph: similar for co-citation/bibliographic coupling, citers for papers citing a seed, references for papers cited by a seed.`,
+      },
+      {
+        name: 'rerank',
+        type: 'boolean',
+        required: false,
+        description: `Set to true to rerank candidates by intent relevance.`,
+      },
+    ],
+  },
+  {
+    name: 'firecrawlmcp_firecrawl_research_search_github',
+    description: `Search indexed public GitHub issues, pull requests, and README content.`,
+    params: [
+      {
+        name: 'query',
+        type: 'string',
+        required: true,
+        description: `The search query to run against indexed GitHub issues, pull requests, and READMEs.`,
+      },
+      {
+        name: 'k',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of results to return.`,
+      },
+    ],
+  },
+  {
+    name: 'firecrawlmcp_firecrawl_research_search_papers',
+    description: `Search research paper metadata and abstracts across biomedical, life-science, clinical, and arXiv sources by natural-language query.`,
+    params: [
+      {
+        name: 'query',
+        type: 'string',
+        required: true,
+        description: `Natural-language query to search paper metadata and abstracts.`,
+      },
+      {
+        name: 'authors',
+        type: 'array',
+        required: false,
+        description: `Filter results to these authors.`,
+      },
+      {
+        name: 'categories',
+        type: 'array',
+        required: false,
+        description: `Filter results to these subject categories.`,
+      },
+      {
+        name: 'from',
+        type: 'string',
+        required: false,
+        description: `Only include papers published on or after this date.`,
+      },
+      {
+        name: 'k',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of papers to return.`,
+      },
+      {
+        name: 'to',
+        type: 'string',
+        required: false,
+        description: `Only include papers published on or before this date.`,
       },
     ],
   },

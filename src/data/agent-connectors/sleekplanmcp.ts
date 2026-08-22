@@ -2,10 +2,38 @@ import type { Tool } from '../../types/agent-connectors'
 
 export const tools: Tool[] = [
   {
+    name: 'sleekplanmcp_compare_document_versions',
+    description: `Show what changed between two versions of a document.
+
+Returns {from, to, diff}. The diff is block-level over the Markdown source:
+\`hunks\` are {op: 'equal'|'insert'|'delete', text} entries and \`summary\` counts
+blocks added/removed/equal. Very large documents come back with \`truncated: true\`
+and no hunks — fall back to reading both versions in that case.`,
+    params: [
+      { name: 'document_id', type: 'integer', required: true, description: `ID of the document.` },
+      {
+        name: 'from_version',
+        type: 'integer',
+        required: true,
+        description: `One version number to compare, 1 or higher. Get from list_document_versions.`,
+      },
+      {
+        name: 'to_version',
+        type: 'integer',
+        required: true,
+        description: `The other version number, 1 or higher. Order does not matter — the server sorts the pair.`,
+      },
+    ],
+  },
+  {
     name: 'sleekplanmcp_create_changelog',
     description: `Create a new changelog entry.
 
-To pick a valid \`type\`, read sleekplan://feedback-types (or call list_feedback_types) and filter to entries whose \`disable_changelog\` is falsy. To target a cohort, read sleekplan://segments (or call list_segments) first for the \`segment\` slug. Set \`draft=True\` to create without publishing; set \`scheduled=<unix timestamp>\` to publish automatically at a future time.`,
+To pick a valid \`type\`, read sleekplan://feedback-types (or call list_feedback_types) and
+filter to entries whose \`disable_changelog\` is falsy. To target a cohort, read
+sleekplan://segments (or call list_segments) first for the \`segment\` slug. Set
+\`draft=True\` to create without publishing; set \`scheduled=<unix timestamp>\` to publish
+automatically at a future time.`,
     params: [
       {
         name: 'title',
@@ -91,13 +119,56 @@ comment to the top — typically for moderator answers or resolution summaries.`
     ],
   },
   {
+    name: 'sleekplanmcp_create_document',
+    description: `Create a document — a plan, spec, research note, or decision record.
+
+Read sleekplan://document-types (or call list_document_types) first so the
+\`document_type\` key is one the workspace actually defines. To connect the document
+to the requests it informs, follow up with link_document_to_feedback.`,
+    params: [
+      {
+        name: 'title',
+        type: 'string',
+        required: true,
+        description: `Document title, 3-500 characters. Write it as the conclusion rather than the topic — 'Why we keep one feedback queue' beats 'Feedback queues'.`,
+      },
+      {
+        name: 'content',
+        type: 'string',
+        required: false,
+        description: `Document body as MARKDOWN (headings, lists, tables, fenced code all work). Max 2MB. Omit to create an empty document.`,
+      },
+      {
+        name: 'document_type',
+        type: 'string',
+        required: false,
+        description: `Document type key (e.g. 'prd', 'spec', 'plan'). Types are workspace-defined and renameable — read sleekplan://document-types or call list_document_types for the real keys instead of guessing. Omit to default to 'knowledge-base'.`,
+      },
+      {
+        name: 'status',
+        type: 'string',
+        required: false,
+        description: `Initial status: 'draft' (still being written), 'published' (finished and shared), or 'archived' (kept for the record, out of the way). Omit to default to 'draft'.`,
+      },
+      {
+        name: 'tags',
+        type: 'array',
+        required: false,
+        description: `Free-text labels stored on the document, max 50. These are document-local strings, NOT the workspace feedback tags from sleekplan://tags — do not pass tag_id hashes here.`,
+      },
+    ],
+  },
+  {
     name: 'sleekplanmcp_create_feedback',
     description: `Create a new feedback post.
 
 Requires a feedback type — read sleekplan://feedback-types or call list_feedback_types first for available keys.
 Optional status lets you set the initial state (call update_feedback afterwards if you
 need to set owner, effort, or estimated fields — the backend ignores those on create).
-meta_origin/meta_service tag where the post came from for later filtering.`,
+Optional component records which part of the product the post concerns — read
+sleekplan://components or call list_components for available keys.
+meta_origin/meta_service tag where the post came from for later filtering, and \`meta\`
+carries any other key/value pairs you want to attribute the post with.`,
     params: [
       { name: 'title', type: 'string', required: true, description: `Title of the feedback post` },
       {
@@ -107,10 +178,22 @@ meta_origin/meta_service tag where the post came from for later filtering.`,
         description: `Feedback type key (e.g. 'feature', 'bug'). Read sleekplan://feedback-types or call list_feedback_types first to see available keys — filter to entries whose \`disable_feedback\` is falsy.`,
       },
       {
+        name: 'component',
+        type: 'string',
+        required: false,
+        description: `Optional component key — which part of the product this post concerns, e.g. 'mobile-app' (from sleekplan://components or list_components). Independent of \`type\`: component is the product area, type is the kind of request. A post carries at most one. Omit for none. Unknown keys are silently dropped by the backend, so read the component list first rather than inventing a key.`,
+      },
+      {
         name: 'description',
         type: 'string',
         required: false,
         description: `Optional detailed description. Markdown is supported.`,
+      },
+      {
+        name: 'meta',
+        type: 'object',
+        required: false,
+        description: `Optional custom meta as arbitrary key/value pairs, e.g. {"reporter": "u_1024", "channel": "slack"}. Use this for keys beyond origin/service; those two have their own arguments and win if you pass them both ways. Meta set here is stored verbatim and is filterable later via list_feedback's \`advanced\` \`meta\` filter. To change meta on a post that already exists, use set_feedback_meta instead.`,
       },
       {
         name: 'meta_origin',
@@ -201,6 +284,21 @@ Tags can then be attached to feedback posts with tag_feedback(tag_id, action='ad
     ],
   },
   {
+    name: 'sleekplanmcp_delete_document',
+    description: `Permanently delete a document, its entire version history, and its feedback links.
+
+This cannot be undone. To take a document out of circulation while keeping it,
+set its status to 'archived' with update_document instead.`,
+    params: [
+      {
+        name: 'document_id',
+        type: 'integer',
+        required: true,
+        description: `ID of the document to delete.`,
+      },
+    ],
+  },
+  {
     name: 'sleekplanmcp_delete_feedback',
     description: `Permanently delete a feedback post.`,
     params: [
@@ -213,6 +311,26 @@ Tags can then be attached to feedback posts with tag_feedback(tag_id, action='ad
     ],
   },
   {
+    name: 'sleekplanmcp_delete_feedback_meta',
+    description: `Remove a single custom meta key from a feedback post.
+
+Deleting a key that isn't set is a no-op, not an error. Returns the post's remaining meta.`,
+    params: [
+      {
+        name: 'feedback_id',
+        type: 'integer',
+        required: true,
+        description: `ID of the feedback post`,
+      },
+      {
+        name: 'key',
+        type: 'string',
+        required: true,
+        description: `The meta key to remove (from get_feedback_meta). Other keys are left alone.`,
+      },
+    ],
+  },
+  {
     name: 'sleekplanmcp_delete_tag',
     description: `Permanently delete a workspace-level tag. Removes it from every feedback post it was attached to.`,
     params: [
@@ -220,7 +338,7 @@ Tags can then be attached to feedback posts with tag_feedback(tag_id, action='ad
         name: 'tag_id',
         type: 'string',
         required: true,
-        description: `ID of the tag to delete (from sleekplan://tags or list_tags)`,
+        description: `ID of the tag to delete, taken verbatim from sleekplan://tags or list_tags. Tag IDs are opaque hash STRINGS like 'tb059acd19eb4d8943916f547c04d98b9', never integers.`,
       },
     ],
   },
@@ -254,8 +372,50 @@ posts of this category follow the workspace's preferred structure.`,
     ],
   },
   {
+    name: 'sleekplanmcp_get_document',
+    description: `Get one document, including its full Markdown \`content\` and \`current_version\` number.`,
+    params: [
+      {
+        name: 'document_id',
+        type: 'integer',
+        required: true,
+        description: `Document ID. Get from list_documents or list_feedback_documents results.`,
+      },
+    ],
+  },
+  {
+    name: 'sleekplanmcp_get_document_version',
+    description: `Read what a document said at one specific version, body included.`,
+    params: [
+      { name: 'document_id', type: 'integer', required: true, description: `ID of the document.` },
+      {
+        name: 'version',
+        type: 'integer',
+        required: true,
+        description: `Version number (1 or higher). Get from list_document_versions.`,
+      },
+    ],
+  },
+  {
     name: 'sleekplanmcp_get_feedback',
     description: `Get a single feedback post by ID.`,
+    params: [
+      {
+        name: 'feedback_id',
+        type: 'integer',
+        required: true,
+        description: `ID of the feedback post`,
+      },
+    ],
+  },
+  {
+    name: 'sleekplanmcp_get_feedback_meta',
+    description: `Read the custom meta key/value pairs attached to a feedback post.
+
+Meta is free-form attribution (reporter, source channel, account id, campaign …) that
+list_feedback can filter on via its \`advanced\` \`meta\` filter. Read this before
+set_feedback_meta or delete_feedback_meta so you know which keys already exist.
+Returns \`{"meta": {...}}\`, or \`{"meta": false}\` when the post has no meta at all.`,
     params: [
       {
         name: 'feedback_id',
@@ -293,7 +453,8 @@ posts of this category follow the workspace's preferred structure.`,
     name: 'sleekplanmcp_get_survey',
     description: `Get a single survey by ID, including its \`settings\` (question array) and \`options\` registry.
 
-Call this before \`update_survey_questions\` to retrieve existing \`question_id\` values, which must be preserved to keep response history linked to questions.`,
+Call this before \`update_survey_questions\` to retrieve existing \`question_id\` values,
+which must be preserved to keep response history linked to questions.`,
     params: [
       {
         name: 'survey_id',
@@ -307,7 +468,9 @@ Call this before \`update_survey_questions\` to retrieve existing \`question_id\
     name: 'sleekplanmcp_get_survey_question_feed',
     description: `Paginated feed of individual answers for one question, including user info per answer.
 
-Essential for reading free-text responses: \`get_survey_summary\` tells you a free-text question has N responses but not what they said — this tool returns them. Each entry has \`answer\`, \`question\`, \`type\`, \`created\`, and a \`user\` object.`,
+Essential for reading free-text responses: \`get_survey_summary\` tells you a free-text
+question has N responses but not what they said — this tool returns them. Each entry has
+\`answer\`, \`question\`, \`type\`, \`created\`, and a \`user\` object.`,
     params: [
       {
         name: 'question_id',
@@ -342,9 +505,13 @@ Essential for reading free-text responses: \`get_survey_summary\` tells you a fr
     name: 'sleekplanmcp_get_survey_summary',
     description: `Aggregated response stats per question — the at-a-glance 'what did people answer' view.
 
-Returns a dict keyed by \`question_id\`. Each value has \`question\`, \`type\`, \`total\` (response count), and (for multiple/single/scale questions) an \`answers\` dict mapping each answer option to its count. Free-text questions expose only \`total\` — follow up with \`get_survey_question_feed\` to read the actual free-text answers.
+Returns a dict keyed by \`question_id\`. Each value has \`question\`, \`type\`, \`total\` (response
+count), and (for multiple/single/scale questions) an \`answers\` dict mapping each answer
+option to its count. Free-text questions expose only \`total\` — follow up with
+\`get_survey_question_feed\` to read the actual free-text answers.
 
-Start here when a user asks "how did people answer this survey?" Pick specific questions to drill into with \`get_survey_question_feed\`.`,
+Start here when a user asks "how did people answer this survey?" Pick specific questions
+to drill into with \`get_survey_question_feed\`.`,
     params: [
       { name: 'survey_id', type: 'string', required: true, description: `Survey ID to summarize` },
     ],
@@ -381,6 +548,28 @@ Start here when a user asks "how did people answer this survey?" Pick specific q
         type: 'integer',
         required: false,
         description: `Number of results per page`,
+      },
+    ],
+  },
+  {
+    name: 'sleekplanmcp_link_document_to_feedback',
+    description: `Attach a feedback post to a document, marking the document as informing that request.
+
+The association is many-to-many: one document can inform several posts, and one post
+can draw on several documents. Idempotent — linking the same pair twice succeeds.
+The link carries no status or progress; execution state never lives in Sleekplan.`,
+    params: [
+      {
+        name: 'document_id',
+        type: 'integer',
+        required: true,
+        description: `ID of the document. Get from list_documents.`,
+      },
+      {
+        name: 'feedback_id',
+        type: 'integer',
+        required: true,
+        description: `ID of the feedback post to attach. Get from list_feedback results.`,
       },
     ],
   },
@@ -444,20 +633,138 @@ Each returned entry includes a \`comment_id\`. Use that id as the \`parent\` val
     ],
   },
   {
+    name: 'sleekplanmcp_list_components',
+    description: `List component definitions for this workspace.
+
+Mirrors the sleekplan://components resource — use this tool when your MCP client
+doesn't auto-read resources. Returns a dict keyed by component key (e.g. 'mobile-app',
+'billing') with \`key\`, \`name\`, \`color\`, \`order\`, \`segment\` per component. Use the \`key\`
+string (not the human name) when setting a post's component via create_feedback or
+update_feedback.
+
+A component says which part of the product a post concerns — an independent axis from
+the type/category, which says what kind of request it is. A post carries at most one
+component. An empty result means this workspace has not defined any components yet, so
+leave the component unset on posts.`,
+    params: [],
+  },
+  {
+    name: 'sleekplanmcp_list_document_feedback',
+    description: `List the feedback posts one document informs — useful when a plan or spec covers several requests.
+
+Returns {items, total}, each item carrying \`feedback_id\` plus the post's title,
+status, and type. For the opposite direction, use list_feedback_documents.`,
+    params: [
+      {
+        name: 'document_id',
+        type: 'integer',
+        required: true,
+        description: `ID of the document whose linked posts you want.`,
+      },
+    ],
+  },
+  {
+    name: 'sleekplanmcp_list_document_types',
+    description: `List the document types this workspace defines.
+
+Mirrors the sleekplan://document-types resource — use this tool when your MCP client
+doesn't auto-read resources. Returns {items, total}; pass an item's \`key\` (not its
+display \`name\`) as \`document_type\` on create_document or update_document. Workspaces
+rename and add types freely, so read this rather than assuming the defaults.`,
+    params: [],
+  },
+  {
+    name: 'sleekplanmcp_list_document_versions',
+    description: `List a document's saved versions, newest first.
+
+Summaries only — no body text — so this is cheap to call. Each entry carries the
+\`version\` number to pass to get_document_version, compare_document_versions, or
+restore_document_version.`,
+    params: [
+      {
+        name: 'document_id',
+        type: 'integer',
+        required: true,
+        description: `ID of the document whose history you want.`,
+      },
+      {
+        name: 'page',
+        type: 'integer',
+        required: false,
+        description: `Page number, ZERO-based. Omit for the first page.`,
+      },
+      {
+        name: 'per_page',
+        type: 'integer',
+        required: false,
+        description: `Results per page. Default 20, capped server-side at 100.`,
+      },
+    ],
+  },
+  {
+    name: 'sleekplanmcp_list_documents',
+    description: `List documents in the workspace, newest first, with optional filtering.
+
+Returns {items, total, page, per_page}. Each item carries the full \`content\`
+body, so prefer a narrow filter over paging through everything.`,
+    params: [
+      {
+        name: 'page',
+        type: 'integer',
+        required: false,
+        description: `Page number, ZERO-based. Omit for the first page.`,
+      },
+      {
+        name: 'per_page',
+        type: 'integer',
+        required: false,
+        description: `Results per page. Default 20, capped server-side at 100.`,
+      },
+      {
+        name: 'search',
+        type: 'string',
+        required: false,
+        description: `Free-text search across document titles. Omit for no search.`,
+      },
+      {
+        name: 'status',
+        type: 'string',
+        required: false,
+        description: `Filter by status: 'draft' (still being written), 'published' (finished and shared), or 'archived' (kept for the record, out of the way). Omit for all statuses.`,
+      },
+      {
+        name: 'type',
+        type: 'string',
+        required: false,
+        description: `Document type key (e.g. 'prd', 'spec', 'plan'). Types are workspace-defined and renameable — read sleekplan://document-types or call list_document_types for the real keys instead of guessing. Omit for all types.`,
+      },
+    ],
+  },
+  {
     name: 'sleekplanmcp_list_feedback',
     description: `List feedback posts with optional filtering and sorting.
 
-Before filtering by type/status/tag/segment/owner, read the corresponding resource
-(sleekplan://feedback-types, sleekplan://feedback-statuses, sleekplan://tags,
-sleekplan://segments, sleekplan://admins) so you pick real keys/slugs/IDs. If your
-MCP client doesn't auto-read resources, call the equivalent list_* tools
-(list_feedback_types, list_feedback_statuses, list_tags, list_segments, list_admins).`,
+Before filtering by type/status/tag/component/segment/owner, read the corresponding
+resource (sleekplan://feedback-types, sleekplan://feedback-statuses, sleekplan://tags,
+sleekplan://components, sleekplan://segments, sleekplan://admins) so you pick real
+keys/slugs/IDs. If your MCP client doesn't auto-read resources, call the equivalent
+list_* tools (list_feedback_types, list_feedback_statuses, list_tags, list_components,
+list_segments, list_admins).
+
+\`type\` and \`component\` are independent axes — type is the kind of request, component is
+the part of the product it concerns — so combining them narrows on both at once.`,
     params: [
       {
         name: 'advanced',
         type: 'string',
         required: false,
         description: `Advanced filter as a STRINGIFIED JSON object. Top-level keys (all optional, combined with AND): \`meta\` and \`meta_system\` = {key: str, value: str|'NULL'|'', condition: str} filter by custom meta / system-integration meta; pass value 'NULL' or '' with condition 'eq' to match posts missing that meta key. \`votes\` and \`comments\` = {value: int, condition: str, interval?: int} filter by vote/comment count; optional \`interval\` limits the count to the last N days. \`created\` and \`updated\` = {value: int, condition: 'lt'|'gt', interval: '1'|'30'|'365'} filter by age where interval 1=DAY, 30=MONTH, 365=YEAR (value is how many units ago). \`eta_q\` = {value: 'YYYY-QN' like '2026-Q2', condition: str} filter by ETA quarter. \`eta_m\` = {value: 'YYYY-MM' like '2026-04', condition: str} filter by ETA month. \`feedback_id\` = {value: int|str, condition: str} filter by feedback id. Valid \`condition\` values: 'eq', 'neq', 'gt', 'lt', 'gte', 'lte', 'like', 'contains', 'ncontains', 'in', 'notin', 'bw' (begins with), 'ew' (ends with). Example: '{"votes": {"value": 10, "condition": "gte", "interval": 30}, "created": {"value": 7, "condition": "gt", "interval": "1"}}' finds posts created in the last 7 days with >=10 votes in the last 30 days.`,
+      },
+      {
+        name: 'component',
+        type: 'string',
+        required: false,
+        description: `Filter by component key — which part of the product a post concerns (from sleekplan://components or list_components). Pass a single key like 'mobile-app', a comma-separated list like 'mobile-app,billing', 'all' for no filter, or the literal 'none' to find posts with no component set. Omit for no filter.`,
       },
       {
         name: 'filter',
@@ -512,6 +819,21 @@ MCP client doesn't auto-read resources, call the equivalent list_* tools
     ],
   },
   {
+    name: 'sleekplanmcp_list_feedback_documents',
+    description: `List the documents that inform one feedback post — the thinking behind that request.
+
+Returns {items, total} with each document's full content. Call this before working
+on a request, so any existing plan, spec, or decision record is taken into account.`,
+    params: [
+      {
+        name: 'feedback_id',
+        type: 'integer',
+        required: true,
+        description: `ID of the feedback post. Get from list_feedback results.`,
+      },
+    ],
+  },
+  {
     name: 'sleekplanmcp_list_feedback_statuses',
     description: `List feedback status definitions for this workspace.
 
@@ -559,7 +881,9 @@ payloads.`,
     name: 'sleekplanmcp_list_survey_responses',
     description: `Paginated list of every full response to a survey — all questions per row.
 
-Use this only when you need the cross-question picture for each respondent (e.g. "show me every answer from user X"). For per-question analysis prefer \`get_survey_question_feed\` which is narrower and easier to reason over.`,
+Use this only when you need the cross-question picture for each respondent (e.g. "show
+me every answer from user X"). For per-question analysis prefer \`get_survey_question_feed\`
+which is narrower and easier to reason over.`,
     params: [
       { name: 'survey_id', type: 'string', required: true, description: `Survey ID` },
       { name: 'page', type: 'integer', required: false, description: `Page number (0-indexed)` },
@@ -595,8 +919,10 @@ Use this only when you need the cross-question picture for each respondent (e.g.
     description: `List workspace-level tags.
 
 Mirrors the sleekplan://tags resource — use this tool when your MCP client
-doesn't auto-read resources. Returns id/name per tag; use \`id\` with tag_feedback
-to attach a tag to a post, or with delete_tag to remove it from the workspace.`,
+doesn't auto-read resources. Returns \`tag_id\`/\`name\` per tag. \`tag_id\` is an opaque
+hash STRING (e.g. 'tb059acd19eb4d8943916f547c04d98b9'), not a number — pass it
+verbatim to tag_feedback to attach a tag to a post, or to delete_tag to remove it
+from the workspace.`,
     params: [],
   },
   {
@@ -659,8 +985,51 @@ Each topic typically includes an \`id\`, \`name\`, post count, and optional meta
     ],
   },
   {
+    name: 'sleekplanmcp_restore_document_version',
+    description: `Restore an earlier version, replacing the document's current title, body, type, and tags.
+
+History is append-only: this does not rewind, it writes the old content as a NEW
+version on top, so the state you are replacing stays recoverable too. Returns the
+document as it now stands.`,
+    params: [
+      { name: 'document_id', type: 'integer', required: true, description: `ID of the document.` },
+      {
+        name: 'version',
+        type: 'integer',
+        required: true,
+        description: `Version number to restore, 1 or higher. Get from list_document_versions.`,
+      },
+    ],
+  },
+  {
+    name: 'sleekplanmcp_set_feedback_meta',
+    description: `Add or update custom meta on an existing feedback post.
+
+Use this to enrich or correct a post after creation — backfilling a reporter, a source
+channel, an account id. Call get_feedback_meta first to see the current keys. Returns
+the post's full meta after the change.`,
+    params: [
+      {
+        name: 'feedback_id',
+        type: 'integer',
+        required: true,
+        description: `ID of the feedback post`,
+      },
+      {
+        name: 'meta',
+        type: 'object',
+        required: true,
+        description: `One or more meta key/value pairs to set, e.g. {"reporter": "u_1024", "channel": "slack"}. Keys you pass are added or overwritten; keys you leave out are untouched. Neither key nor value may be empty (the backend also rejects the value "0") — use delete_feedback_meta to remove a key instead. Values are normalised by the backend: spaces become hyphens and anything that is not a letter, digit, or hyphen is stripped, so "ops@acme.com" is stored as "opsacmecom". Prefer stable identifiers/slugs over free text or e-mail addresses.`,
+      },
+    ],
+  },
+  {
     name: 'sleekplanmcp_tag_feedback',
-    description: `Add or remove a tag on a feedback post.`,
+    description: `Add or remove a tag on a feedback post.
+
+Read sleekplan://tags (or call list_tags) first and pass the \`tag_id\` string exactly as
+returned — the workspace only recognises tags that already exist, and create_tag returns
+the id for new ones.`,
     params: [
       {
         name: 'feedback_id',
@@ -672,7 +1041,7 @@ Each topic typically includes an \`id\`, \`name\`, post count, and optional meta
         name: 'tag_id',
         type: 'string',
         required: true,
-        description: `ID of the tag to add or remove`,
+        description: `ID of the tag to add or remove, taken verbatim from sleekplan://tags or list_tags. Tag IDs are opaque hash STRINGS like 'tb059acd19eb4d8943916f547c04d98b9', never integers.`,
       },
       {
         name: 'action',
@@ -683,10 +1052,27 @@ Each topic typically includes an \`id\`, \`name\`, post count, and optional meta
     ],
   },
   {
+    name: 'sleekplanmcp_unlink_document_from_feedback',
+    description: `Remove the link between a document and a feedback post.
+
+Only the association is removed — both the document and the post survive.`,
+    params: [
+      { name: 'document_id', type: 'integer', required: true, description: `ID of the document.` },
+      {
+        name: 'feedback_id',
+        type: 'integer',
+        required: true,
+        description: `ID of the feedback post to detach.`,
+      },
+    ],
+  },
+  {
     name: 'sleekplanmcp_update_changelog',
     description: `Update an existing changelog entry.
 
-Only fields you pass are changed — omit to leave them alone. To CLEAR \`type\` or \`segment\`, pass an empty string (the backend treats empty-string differently from an omitted field, per class.changelog::update).`,
+Only fields you pass are changed — omit to leave them alone. To CLEAR \`type\` or
+\`segment\`, pass an empty string (the backend treats empty-string differently from
+an omitted field, per class.changelog::update).`,
     params: [
       {
         name: 'changelog_id',
@@ -772,18 +1158,73 @@ You can update text only, pin state only, or both — pass just the fields you w
     ],
   },
   {
+    name: 'sleekplanmcp_update_document',
+    description: `Update a document. Only the fields you pass change; omitted fields are left alone.
+
+Every update that actually changes something appends a version, so the previous
+text stays recoverable through list_document_versions and restore_document_version.`,
+    params: [
+      {
+        name: 'document_id',
+        type: 'integer',
+        required: true,
+        description: `ID of the document to update.`,
+      },
+      {
+        name: 'content',
+        type: 'string',
+        required: false,
+        description: `New body as MARKDOWN, max 2MB. This REPLACES the whole body — read the document first and send the complete new text, not just the changed part. Omit to keep unchanged.`,
+      },
+      {
+        name: 'document_type',
+        type: 'string',
+        required: false,
+        description: `Document type key (e.g. 'prd', 'spec', 'plan'). Types are workspace-defined and renameable — read sleekplan://document-types or call list_document_types for the real keys instead of guessing. Omit to keep unchanged.`,
+      },
+      {
+        name: 'status',
+        type: 'string',
+        required: false,
+        description: `New status: 'draft' (still being written), 'published' (finished and shared), or 'archived' (kept for the record, out of the way). Omit to keep unchanged.`,
+      },
+      {
+        name: 'tags',
+        type: 'array',
+        required: false,
+        description: `Replacement tag list, max 50. Pass [] to clear. Omit to keep unchanged.`,
+      },
+      {
+        name: 'title',
+        type: 'string',
+        required: false,
+        description: `New title, 3-500 characters. Omit to keep unchanged.`,
+      },
+    ],
+  },
+  {
     name: 'sleekplanmcp_update_feedback',
     description: `Update fields on an existing feedback post. Only the fields you pass are changed.
 
 Read sleekplan://feedback-types (or list_feedback_types), sleekplan://feedback-statuses
-(or list_feedback_statuses), and sleekplan://admins (or list_admins) first to pick valid
-keys/IDs for type/status/owner_id.`,
+(or list_feedback_statuses), sleekplan://components (or list_components), and
+sleekplan://admins (or list_admins) first to pick valid keys/IDs for
+type/status/component/owner_id.
+
+Component is the one field with a distinct "clear" value: an empty string removes the
+post's component, while omitting the argument leaves it as it is.`,
     params: [
       {
         name: 'feedback_id',
         type: 'integer',
         required: true,
         description: `ID of the feedback post to update`,
+      },
+      {
+        name: 'component',
+        type: 'string',
+        required: false,
+        description: `Component key — which part of the product this post concerns (from sleekplan://components or list_components). A post carries at most one component: pass a key to set or replace it, pass an empty string "" to remove it. Omit to leave the component unchanged. Unknown keys are silently dropped by the backend, so read the component list first rather than inventing a key.`,
       },
       {
         name: 'description',
@@ -828,7 +1269,9 @@ keys/IDs for type/status/owner_id.`,
     name: 'sleekplanmcp_update_survey_name',
     description: `Rename a survey without touching its questions.
 
-Internally fetches the survey's current questions and re-submits them alongside the new name, because the backend requires both \`name\` and \`survey\` on every update. Use this for pure renames so existing \`question_id\` values are preserved verbatim.`,
+Internally fetches the survey's current questions and re-submits them alongside the new
+name, because the backend requires both \`name\` and \`survey\` on every update. Use this
+for pure renames so existing \`question_id\` values are preserved verbatim.`,
     params: [
       {
         name: 'name',
@@ -843,7 +1286,8 @@ Internally fetches the survey's current questions and re-submits them alongside 
     name: 'sleekplanmcp_update_survey_questions',
     description: `Replace the question set of an existing survey while keeping its name.
 
-Internally fetches the current \`name\` and re-submits it alongside the new questions — required because the backend rejects partial PUTs.`,
+Internally fetches the current \`name\` and re-submits it alongside the new questions —
+required because the backend rejects partial PUTs.`,
     params: [
       {
         name: 'survey',

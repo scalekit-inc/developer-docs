@@ -72,6 +72,20 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'metaviewmcp_enrich_candidate_contacts',
+    description: `Enrich email addresses or phone numbers for one or more candidates. Uses workspace enrichment credits and starts an asynchronous contact lookup. Never call this until the user has received the required credit estimate and given a final explicit go-ahead. Pair with get_enrichment_status to check credits before calling and to poll enrichment progress after.`,
+    params: [
+      { name: 'candidate_ids', type: 'array', required: true, description: `No description.` },
+      { name: 'enrichment_type', type: 'string', required: true, description: `No description.` },
+      {
+        name: 'rationale',
+        type: 'string',
+        required: true,
+        description: `Always provide a brief explanation of why you are calling this tool`,
+      },
+    ],
+  },
+  {
     name: 'metaviewmcp_fetch_candidates',
     description: `ALWAYS use this tool to look up one or more people or candidates. This is the ONLY way to retrieve candidate scorecards, ATS feedback, resume files, application history, and professional profile data. Do NOT try to scrape LinkedIn or other websites directly — this tool fetches richer data than any public page and includes internal ATS records.
 
@@ -122,6 +136,26 @@ ATS data access requires you are a Metaview admin, ATS admin, or the candidate a
         required: false,
         description: `No description.`,
       },
+    ],
+  },
+  {
+    name: 'metaviewmcp_get_application_review_details',
+    description: `Get the full state of one Application Review: the ACTIVE ICP, any pending DRAFT edit, the RANKING version if a rerank is in progress, the version history, rerank status, a decision/calibration summary, and the fit-band distribution of the current ranking. Read this before refining an ICP with update_application_review_icp, or to poll a rerank's progress.`,
+    params: [
+      {
+        name: 'application_review_id',
+        type: 'string',
+        required: true,
+        description: `No description.`,
+      },
+      {
+        name: 'rationale',
+        type: 'string',
+        required: true,
+        description: `Always provide a brief explanation of why you are calling this tool`,
+      },
+      { name: 'detail_level', type: 'string', required: false, description: `No description.` },
+      { name: 'icp_version', type: 'string', required: false, description: `No description.` },
     ],
   },
   {
@@ -196,6 +230,49 @@ ATS data access requires you are a Metaview admin, ATS admin, or the candidate a
     ],
   },
   {
+    name: 'metaviewmcp_get_screen_details',
+    description: `Get the full state of one Screening screen: the live interview plan, whether the draft holds unpublished edits, the plan version history, the candidate roster by stage, and the distribution of overall fit across everyone interviewed. Read this before reasoning about a screen. Pair with list_screen_candidates and get_screen_interview.`,
+    params: [
+      {
+        name: 'rationale',
+        type: 'string',
+        required: true,
+        description: `Always provide a brief explanation of why you are calling this tool`,
+      },
+      { name: 'screen_id', type: 'string', required: true, description: `No description.` },
+      { name: 'detail_level', type: 'string', required: false, description: `No description.` },
+      { name: 'plan_version', type: 'string', required: false, description: `No description.` },
+    ],
+  },
+  {
+    name: 'metaviewmcp_get_screen_interview',
+    description: `Read the scorecard for one candidate's interview on a screen: overall fit, a summary, every planned question with the fit it earned, the evidence behind it, what it left unproven, and authenticity signals. Use this to justify, challenge, or compare an outcome. Find candidates with list_screen_candidates.`,
+    params: [
+      { name: 'candidate_id', type: 'string', required: true, description: `No description.` },
+      {
+        name: 'rationale',
+        type: 'string',
+        required: true,
+        description: `Always provide a brief explanation of why you are calling this tool`,
+      },
+      { name: 'screen_id', type: 'string', required: true, description: `No description.` },
+    ],
+  },
+  {
+    name: 'metaviewmcp_get_search_details',
+    description: `Get the full state of a sourcing search: the current ICP (Ideal Candidate Profile), ICP version history, calibration progress (feedback counts and acceptance rate), pack history, and the agent's current phase. Answers search questions instantly instead of messaging the agent with send_sourcing_message, which takes minutes to respond.`,
+    params: [
+      {
+        name: 'rationale',
+        type: 'string',
+        required: true,
+        description: `Always provide a brief explanation of why you are calling this tool`,
+      },
+      { name: 'search_id', type: 'string', required: true, description: `No description.` },
+      { name: 'icp_version', type: 'string', required: false, description: `No description.` },
+    ],
+  },
+  {
     name: 'metaviewmcp_get_sourcing_analytics',
     description: `Get aggregate sourcing metrics for your workspace with flexible filtering and grouping. Answers questions like: how many searches/candidates/feedback events in a time period, what is the acceptance rate overall or per user/search, who created the most searches, weekly/monthly trends of sourcing activity. Metric options: acceptance_rate, accepted, candidates, searches, seat_utilization, and more.`,
     params: [
@@ -250,8 +327,41 @@ ATS data access requires you are a Metaview admin, ATS admin, or the candidate a
     ],
   },
   {
+    name: 'metaviewmcp_give_application_review_candidate_feedback',
+    description: `Record a REJECT or PROGRESS decision on one or more admitted candidates in an Application Review, optionally with free-text feedback. This is a live decision that syncs to the customer's connected ATS — a REJECT can move the candidate's ATS stage and send a rejection email; a PROGRESS can advance their ATS stage. Only call this with decisions the user has confirmed.`,
+    params: [
+      {
+        name: 'application_review_id',
+        type: 'string',
+        required: true,
+        description: `No description.`,
+      },
+      { name: 'candidate_ids', type: 'array', required: true, description: `No description.` },
+      { name: 'decision', type: 'string', required: true, description: `No description.` },
+      {
+        name: 'rationale',
+        type: 'string',
+        required: true,
+        description: `Always provide a brief explanation of why you are calling this tool`,
+      },
+      { name: 'feedback_text', type: 'string', required: false, description: `No description.` },
+      {
+        name: 'rejection_email_template_id',
+        type: 'string',
+        required: false,
+        description: `No description.`,
+      },
+      {
+        name: 'rejection_reason_id',
+        type: 'string',
+        required: false,
+        description: `No description.`,
+      },
+    ],
+  },
+  {
     name: 'metaviewmcp_give_sourcing_feedback',
-    description: `Submit feedback on one or more candidates in a sourcing search. Feedback calibrates the sourcing agent — accepting or rejecting candidates helps it refine its search. Supports bulk feedback for up to 50 candidates per call. After submitting feedback, use send_sourcing_message to trigger the agent to refine its search.`,
+    description: `Submit feedback on one or more candidates in a sourcing search. Feedback calibrates the sourcing agent — accepting or rejecting candidates helps it refine its search. Supports bulk feedback for up to 50 candidates per call. Set request_refinement to true to have the agent refine its search immediately, or omit it and use send_sourcing_message afterward to trigger the refinement.`,
     params: [
       { name: 'feedbacks', type: 'array', required: true, description: `No description.` },
       {
@@ -261,6 +371,12 @@ ATS data access requires you are a Metaview admin, ATS admin, or the candidate a
         description: `Always provide a brief explanation of why you are calling this tool`,
       },
       { name: 'search_id', type: 'string', required: true, description: `No description.` },
+      {
+        name: 'request_refinement',
+        type: 'boolean',
+        required: false,
+        description: `No description.`,
+      },
     ],
   },
   {
@@ -294,6 +410,91 @@ ATS data access requires you are a Metaview admin, ATS admin, or the candidate a
       { name: 'search_term', type: 'string', required: false, description: `No description.` },
       { name: 'sort_ascending', type: 'boolean', required: false, description: `No description.` },
       { name: 'sort_metric', type: 'string', required: false, description: `No description.` },
+    ],
+  },
+  {
+    name: 'metaviewmcp_list_application_review_candidates',
+    description: `List the review's ADMITTED (ranked) roster, ranked against the ACTIVE ICP. Reports the coarse fit band, human decision, agent fit reasoning, and (at detail_level=full) AI column results including fraud risk. Use fetch_candidates with the candidate_id and this application_review_id for a candidate's full profile or resume.`,
+    params: [
+      {
+        name: 'application_review_id',
+        type: 'string',
+        required: true,
+        description: `No description.`,
+      },
+      {
+        name: 'rationale',
+        type: 'string',
+        required: true,
+        description: `Always provide a brief explanation of why you are calling this tool`,
+      },
+      { name: 'decision_filter', type: 'string', required: false, description: `No description.` },
+      { name: 'detail_level', type: 'string', required: false, description: `No description.` },
+      { name: 'fit_filter', type: 'string', required: false, description: `No description.` },
+      { name: 'limit', type: 'string', required: false, description: `No description.` },
+      { name: 'offset', type: 'string', required: false, description: `No description.` },
+    ],
+  },
+  {
+    name: 'metaviewmcp_list_application_review_rejection_options',
+    description: `List the rejection options for an Application Review's connected ATS: which rejection fields a REJECT requires, the valid rejection reason ids, and the valid rejection email template ids. Call this before a REJECT via give_application_review_candidate_feedback so the decision carries every field the ATS requires and only valid ids.`,
+    params: [
+      {
+        name: 'application_review_id',
+        type: 'string',
+        required: true,
+        description: `No description.`,
+      },
+      {
+        name: 'rationale',
+        type: 'string',
+        required: true,
+        description: `Always provide a brief explanation of why you are calling this tool`,
+      },
+    ],
+  },
+  {
+    name: 'metaviewmcp_list_application_reviews',
+    description: `List the Application Reviews you can access, with summary information per review: ATS job, run state, active ICP version summary, whether a pending ICP draft exists, whether a rerank is in flight, and admitted/pending candidate counts. Results are scoped to reviews you can access via ATS hiring-team membership, admin access, or an explicit share.`,
+    params: [
+      {
+        name: 'rationale',
+        type: 'string',
+        required: true,
+        description: `Always provide a brief explanation of why you are calling this tool`,
+      },
+      { name: 'include_archived', type: 'string', required: false, description: `No description.` },
+      { name: 'limit', type: 'string', required: false, description: `No description.` },
+      { name: 'offset', type: 'string', required: false, description: `No description.` },
+      { name: 'search_term', type: 'string', required: false, description: `No description.` },
+    ],
+  },
+  {
+    name: 'metaviewmcp_list_ats_jobs',
+    description: `List active jobs in the workspace's connected ATS (Applicant Tracking System). Use this to find the ATS job to post sourcing candidates to with post_sourcing_candidates_to_ats. The response also reports posting_disabled_reason if candidates currently cannot be posted to the ATS.`,
+    params: [
+      {
+        name: 'rationale',
+        type: 'string',
+        required: true,
+        description: `Always provide a brief explanation of why you are calling this tool`,
+      },
+      { name: 'limit', type: 'string', required: false, description: `No description.` },
+      { name: 'offset', type: 'string', required: false, description: `No description.` },
+      { name: 'query', type: 'string', required: false, description: `No description.` },
+    ],
+  },
+  {
+    name: 'metaviewmcp_list_ats_stages',
+    description: `List the application stages for a job in the workspace's connected ATS. Use this to find the stage_id to post sourcing candidates into with post_sourcing_candidates_to_ats. Providing a stage is optional — when omitted, candidates land in the ATS default stage for the job.`,
+    params: [
+      {
+        name: 'rationale',
+        type: 'string',
+        required: true,
+        description: `Always provide a brief explanation of why you are calling this tool`,
+      },
+      { name: 'job_id', type: 'string', required: false, description: `No description.` },
     ],
   },
   {
@@ -371,6 +572,39 @@ ATS data access requires you are a Metaview admin, ATS admin, or the candidate a
       { name: 'include_detail', type: 'boolean', required: false, description: `No description.` },
       { name: 'limit', type: 'integer', required: false, description: `No description.` },
       { name: 'offset', type: 'integer', required: false, description: `No description.` },
+      { name: 'search_term', type: 'string', required: false, description: `No description.` },
+    ],
+  },
+  {
+    name: 'metaviewmcp_list_screen_candidates',
+    description: `List the candidates on one screen with their stage, interview outcome, and decision. Filter to stage='screened' for the review queue, then call get_screen_interview to read the scorecard behind a candidate's fit. Candidates are returned best-fit first.`,
+    params: [
+      {
+        name: 'rationale',
+        type: 'string',
+        required: true,
+        description: `Always provide a brief explanation of why you are calling this tool`,
+      },
+      { name: 'screen_id', type: 'string', required: true, description: `No description.` },
+      { name: 'detail_level', type: 'string', required: false, description: `No description.` },
+      { name: 'limit', type: 'string', required: false, description: `No description.` },
+      { name: 'offset', type: 'string', required: false, description: `No description.` },
+      { name: 'stage', type: 'string', required: false, description: `No description.` },
+    ],
+  },
+  {
+    name: 'metaviewmcp_list_screens',
+    description: `List the Screening screens you can access, with summary information per screen: ATS job posts, run state, active plan version, whether the draft holds unpublished edits, and candidate roster by stage. Use this to find a screen, then call get_screen_details for its interview plan or list_screen_candidates for its roster.`,
+    params: [
+      {
+        name: 'rationale',
+        type: 'string',
+        required: true,
+        description: `Always provide a brief explanation of why you are calling this tool`,
+      },
+      { name: 'include_archived', type: 'string', required: false, description: `No description.` },
+      { name: 'limit', type: 'string', required: false, description: `No description.` },
+      { name: 'offset', type: 'string', required: false, description: `No description.` },
       { name: 'search_term', type: 'string', required: false, description: `No description.` },
     ],
   },
@@ -588,6 +822,41 @@ ATS data access requires you are a Metaview admin, ATS admin, or the candidate a
     ],
   },
   {
+    name: 'metaviewmcp_post_sourcing_candidates_to_ats',
+    description: `Post candidates from a sourcing search to the workspace's connected ATS, creating each candidate there if they don't already exist and adding an application to the given job. The sourcing agent's reasoning is posted as a note on the ATS profile. Posting is irreversible from Metaview — confirm the candidate set and ATS destination with the user first. Maximum 50 candidates per call.`,
+    params: [
+      { name: 'candidate_ids', type: 'array', required: true, description: `No description.` },
+      {
+        name: 'rationale',
+        type: 'string',
+        required: true,
+        description: `Always provide a brief explanation of why you are calling this tool`,
+      },
+      { name: 'search_id', type: 'string', required: true, description: `No description.` },
+      { name: 'job_id', type: 'string', required: false, description: `No description.` },
+      { name: 'stage_id', type: 'string', required: false, description: `No description.` },
+    ],
+  },
+  {
+    name: 'metaviewmcp_restore_application_review_icp',
+    description: `Restore a previous Application Review ICP version: the restored content becomes a new latest version, is approved on the spot, and a rerank starts against it immediately — there is no separate confirmation step. Only a previous (superseded) version can be restored. Always call get_application_review_details first and pick the target from version_history.`,
+    params: [
+      {
+        name: 'application_review_id',
+        type: 'string',
+        required: true,
+        description: `No description.`,
+      },
+      {
+        name: 'rationale',
+        type: 'string',
+        required: true,
+        description: `Always provide a brief explanation of why you are calling this tool`,
+      },
+      { name: 'version', type: 'integer', required: true, description: `No description.` },
+    ],
+  },
+  {
     name: 'metaviewmcp_search_conversations',
     description: `Search conversations with filters and get tabular data. Returns individual conversations matching the given filters, with configurable fields showing attribute values for each conversation. Scale-aware strategy: use fields=['default:transcript'] for 1-5 conversations, fields=['default:summary'] for 5-20, and AI fields for 20+. Supports report_id, filters, fields, pagination, and sorting.`,
     params: [
@@ -646,6 +915,43 @@ ATS data access requires you are a Metaview admin, ATS admin, or the candidate a
       },
       { name: 'mode', type: 'string', required: false, description: `No description.` },
       { name: 'search_id', type: 'string', required: false, description: `No description.` },
+    ],
+  },
+  {
+    name: 'metaviewmcp_update_application_review_icp',
+    description: `Replace an Application Review's ideal candidate profile (ICP) and immediately rerank every admitted candidate against the new profile. This is not a draft — the change is live the moment this tool is called, and it triggers a full rerank. Always call get_application_review_details first to read the current ICP and pass its version number as base_version so a concurrent edit isn't silently clobbered.`,
+    params: [
+      {
+        name: 'application_review_id',
+        type: 'string',
+        required: true,
+        description: `No description.`,
+      },
+      { name: 'base_version', type: 'integer', required: true, description: `No description.` },
+      { name: 'icp_text', type: 'string', required: true, description: `No description.` },
+      {
+        name: 'rationale',
+        type: 'string',
+        required: true,
+        description: `Always provide a brief explanation of why you are calling this tool`,
+      },
+    ],
+  },
+  {
+    name: 'metaviewmcp_update_screen_plan',
+    description: `Replace a screen's interview plan and publish it immediately as the next ACTIVE version. This is not a draft — new interviews run against it immediately with no separate confirmation step. Always call get_screen_details first, compose the full revised plan, and pass the active version number as base_version so a concurrent edit isn't silently clobbered.`,
+    params: [
+      { name: 'base_version', type: 'integer', required: true, description: `No description.` },
+      {
+        name: 'rationale',
+        type: 'string',
+        required: true,
+        description: `Always provide a brief explanation of why you are calling this tool`,
+      },
+      { name: 'screen_id', type: 'string', required: true, description: `No description.` },
+      { name: 'sections', type: 'array', required: true, description: `No description.` },
+      { name: 'company_context', type: 'string', required: false, description: `No description.` },
+      { name: 'role_context', type: 'string', required: false, description: `No description.` },
     ],
   },
 ]

@@ -620,6 +620,12 @@ export const tools: Tool[] = [
         description: `domains, subdomains or webpages to get links for`,
       },
       {
+        name: 'exclude_targets',
+        type: 'array',
+        required: false,
+        description: `domains, subdomains or webpages you want to exclude`,
+      },
+      {
         name: 'filters',
         type: 'array',
         required: false,
@@ -1042,6 +1048,202 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'dataforseomcp_dataforseo_labs_amazon_bulk_search_volume',
+    description: `Get Amazon search volume data for up to 1,000 keywords in a single request.`,
+    params: [
+      {
+        name: 'keywords',
+        type: 'array',
+        required: true,
+        description: `target keywords. Maximum number of keywords: 1000. The keywords will be converted to lowercase format.`,
+      },
+      { name: 'language_code', type: 'string', required: false, description: `language code` },
+      {
+        name: 'location_name',
+        type: 'string',
+        required: false,
+        description: `full name of the location`,
+      },
+    ],
+  },
+  {
+    name: 'dataforseomcp_dataforseo_labs_amazon_product_competitors',
+    description: `Find Amazon products that intersect with a target ASIN in Amazon SERPs to identify product competitors.`,
+    params: [
+      {
+        name: 'asin',
+        type: 'string',
+        required: true,
+        description: `product ID (unique product identifier on Amazon)`,
+      },
+      {
+        name: 'filters',
+        type: 'array',
+        required: false,
+        description: `Array of filter conditions and logical operators. Each filter condition is an array of [field, operator, value].`,
+      },
+      { name: 'language_code', type: 'string', required: false, description: `language code` },
+      {
+        name: 'limit',
+        type: 'number',
+        required: false,
+        description: `Maximum number of product competitors to return`,
+      },
+      {
+        name: 'location_name',
+        type: 'string',
+        required: false,
+        description: `full name of the location`,
+      },
+      {
+        name: 'offset',
+        type: 'number',
+        required: false,
+        description: `offset in the results array of returned product competitors`,
+      },
+      { name: 'order_by', type: 'array', required: false, description: `results sorting rules` },
+    ],
+  },
+  {
+    name: 'dataforseomcp_dataforseo_labs_amazon_product_kw_intersections',
+    description: `Find keywords for which multiple target Amazon products (ASINs) intersect in Amazon SERP results.`,
+    params: [
+      {
+        name: 'asins',
+        type: 'array',
+        required: true,
+        description: `target product ASINs to find keyword intersections for. Maximum number of ASINs: 20.`,
+      },
+      {
+        name: 'filters',
+        type: 'array',
+        required: false,
+        description: `Array of filter conditions and logical operators. Each filter condition is an array of [field, operator, value].`,
+      },
+      {
+        name: 'intersection_mode',
+        type: 'string',
+        required: false,
+        description: `mode for finding asin intersections`,
+      },
+      { name: 'language_code', type: 'string', required: false, description: `language code` },
+      {
+        name: 'limit',
+        type: 'number',
+        required: false,
+        description: `Maximum number of keywords to return`,
+      },
+      {
+        name: 'location_name',
+        type: 'string',
+        required: false,
+        description: `full name of the location`,
+      },
+      {
+        name: 'offset',
+        type: 'number',
+        required: false,
+        description: `offset in the results array of returned keywords`,
+      },
+      { name: 'order_by', type: 'array', required: false, description: `results sorting rules` },
+    ],
+  },
+  {
+    name: 'dataforseomcp_dataforseo_labs_amazon_product_rank_overview',
+    description: `Get organic and paid Amazon SERP ranking data for a list of target ASINs.`,
+    params: [
+      {
+        name: 'asins',
+        type: 'array',
+        required: true,
+        description: `product IDs to receive ranking data for. Maximum number of ASINs: 1000.`,
+      },
+      { name: 'language_code', type: 'string', required: false, description: `language code` },
+      {
+        name: 'location_name',
+        type: 'string',
+        required: false,
+        description: `full name of the location`,
+      },
+    ],
+  },
+  {
+    name: 'dataforseomcp_dataforseo_labs_amazon_ranked_keywords',
+    description: `Get all keywords a target Amazon product (ASIN) ranks for on Amazon.`,
+    params: [
+      {
+        name: 'asin',
+        type: 'string',
+        required: true,
+        description: `product ID (unique product identifier on Amazon)`,
+      },
+      {
+        name: 'filters',
+        type: 'array',
+        required: false,
+        description: `Array of filter conditions and logical operators. Each filter condition is an array of [field, operator, value].`,
+      },
+      { name: 'language_code', type: 'string', required: false, description: `language code` },
+      {
+        name: 'limit',
+        type: 'number',
+        required: false,
+        description: `Maximum number of keywords to return`,
+      },
+      {
+        name: 'location_name',
+        type: 'string',
+        required: false,
+        description: `full name of the location`,
+      },
+      {
+        name: 'offset',
+        type: 'number',
+        required: false,
+        description: `offset in the results array of returned keywords`,
+      },
+      { name: 'order_by', type: 'array', required: false, description: `results sorting rules` },
+    ],
+  },
+  {
+    name: 'dataforseomcp_dataforseo_labs_amazon_related_keywords',
+    description: `Get related keywords from Amazon's "Related Searches" section for a seed keyword.`,
+    params: [
+      { name: 'keyword', type: 'string', required: true, description: `target keyword` },
+      {
+        name: 'depth',
+        type: 'number',
+        required: false,
+        description: `keyword search depth (0-4); higher values return more related keyword ideas`,
+      },
+      {
+        name: 'include_seed_keyword',
+        type: 'boolean',
+        required: false,
+        description: `include data for the seed keyword in the response`,
+      },
+      { name: 'language_code', type: 'string', required: false, description: `language code` },
+      {
+        name: 'limit',
+        type: 'number',
+        required: false,
+        description: `Maximum number of keywords to return`,
+      },
+      {
+        name: 'location_name',
+        type: 'string',
+        required: false,
+        description: `full name of the location`,
+      },
+      {
+        name: 'offset',
+        type: 'number',
+        required: false,
+        description: `offset in the results array of returned keywords`,
+      },
+    ],
+  },
+  {
     name: 'dataforseomcp_dataforseo_labs_available_filters',
     description: `List available filter fields and operators for DataForSEO Labs queries.`,
     params: [
@@ -1278,6 +1480,32 @@ export const tools: Tool[] = [
     description: `Get historical Google SERP results for a keyword at a specified date.`,
     params: [
       { name: 'keyword', type: 'string', required: true, description: `target keyword` },
+      { name: 'language_code', type: 'string', required: false, description: `language code` },
+      {
+        name: 'location_name',
+        type: 'string',
+        required: false,
+        description: `full name of the location`,
+      },
+    ],
+  },
+  {
+    name: 'dataforseomcp_dataforseo_labs_google_historical_serps',
+    description: `Get historical Google SERP results for a keyword within a specified date range.`,
+    params: [
+      { name: 'keyword', type: 'string', required: true, description: `target keyword` },
+      {
+        name: 'date_from',
+        type: 'string',
+        required: false,
+        description: `starting date of the time range, date format: YYYY-MM-DD`,
+      },
+      {
+        name: 'date_to',
+        type: 'string',
+        required: false,
+        description: `ending date of the time range, date format: YYYY-MM-DD`,
+      },
       { name: 'language_code', type: 'string', required: false, description: `language code` },
       {
         name: 'location_name',
@@ -2119,12 +2347,6 @@ export const tools: Tool[] = [
     params: [
       { name: 'url', type: 'string', required: true, description: `URL of the page to parse` },
       {
-        name: 'accept_language',
-        type: 'string',
-        required: false,
-        description: `Accept-Language header value`,
-      },
-      {
         name: 'custom_user_agent',
         type: 'string',
         required: false,
@@ -2143,12 +2365,6 @@ export const tools: Tool[] = [
     description: `Get on-page SEO data for a URL including metadata, links, and content metrics.`,
     params: [
       { name: 'url', type: 'string', required: true, description: `URL to analyze` },
-      {
-        name: 'accept_language',
-        type: 'string',
-        required: false,
-        description: `language header for accessing the website`,
-      },
       {
         name: 'custom_js',
         type: 'string',
@@ -2174,12 +2390,6 @@ export const tools: Tool[] = [
     description: `Run a Lighthouse performance and SEO audit for a web page URL.`,
     params: [
       { name: 'url', type: 'string', required: true, description: `URL of the page to parse` },
-      {
-        name: 'accept_language',
-        type: 'string',
-        required: false,
-        description: `Accept-Language header value`,
-      },
       {
         name: 'custom_user_agent',
         type: 'string',

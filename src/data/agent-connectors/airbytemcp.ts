@@ -54,6 +54,42 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'airbytemcp_execute_skill_function',
+    description: `Invoke one source-controlled function declared by a library skill. PRECONDITION: call read_skill_docs(id=skill_id) first, then read the exact function:<function_name> section and follow its JSON schema. Only declared function names and fields are valid. This tool may write skill-session artifacts but does not submit Stripe evidence or perform destructive actions. The first call may omit skill_session_id; this tool returns a generated ID and the effective workspace name. Pass both values back explicitly on every related call.`,
+    params: [
+      {
+        name: 'function_name',
+        type: 'string',
+        required: true,
+        description: `The exact declared function name to invoke, as documented in the skill's function:<function_name> section.`,
+      },
+      {
+        name: 'input',
+        type: 'object',
+        required: true,
+        description: `The input payload for the function, matching the JSON schema documented for it by read_skill_docs.`,
+      },
+      {
+        name: 'skill_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the skill declaring the function to invoke.`,
+      },
+      {
+        name: 'skill_session_id',
+        type: 'string',
+        required: false,
+        description: `The skill session ID from a prior call. Omit on the first call — this tool generates and returns one to reuse on subsequent related calls.`,
+      },
+      {
+        name: 'workspace_name',
+        type: 'string',
+        required: false,
+        description: `Optional workspace name.`,
+      },
+    ],
+  },
+  {
     name: 'airbytemcp_get_connector_template',
     description: `Get detailed info about a connector type including configuration fields, auth requirements, and available auth methods. Call this before start_credential_flow to understand what authentication the connector supports.`,
     params: [

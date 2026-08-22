@@ -2,6 +2,54 @@ import type { Tool } from '../../types/agent-connectors'
 
 export const tools: Tool[] = [
   {
+    name: 'contentfulmcp_append_entry_field',
+    description: `Append one or more items to an array-typed entry field (Array of Symbols, Links, or ResourceLinks) entirely server-side, deduplicating survivors before writing back only the target field/locale. Prefer this over update_entry when adding items to large reference arrays, since update_entry replaces the full array and can silently lose items if the agent held a truncated read.`,
+    params: [
+      {
+        name: 'entryId',
+        type: 'string',
+        required: true,
+        description: `The ID of the entry to modify.`,
+      },
+      {
+        name: 'environmentId',
+        type: 'string',
+        required: true,
+        description: `The Contentful environment ID (e.g. 'master', 'staging'). Find it in Settings > Environments.`,
+      },
+      {
+        name: 'fieldId',
+        type: 'string',
+        required: true,
+        description: `The ID of the array field to append to.`,
+      },
+      {
+        name: 'locale',
+        type: 'string',
+        required: true,
+        description: `The locale key to target (e.g. 'en-US'). Fields are locale-keyed; you must supply the exact locale string.`,
+      },
+      {
+        name: 'spaceId',
+        type: 'string',
+        required: true,
+        description: `The unique identifier of the Contentful space. Find it in your Contentful dashboard under Settings > General.`,
+      },
+      {
+        name: 'values',
+        type: 'array',
+        required: true,
+        description: `One or more items to append. Each item must match the element shape of the target array field: a plain string for Array of Symbols, {sys:{type:'Link', linkType:'Entry'|'Asset', id:'...'}} for Array of Links, or {sys:{type:'ResourceLink', linkType:'...', urn:'...'}} for Array of ResourceLinks.`,
+      },
+      {
+        name: 'version',
+        type: 'number',
+        required: false,
+        description: `Optional. The entry's sys.version as returned by get_entry. If provided, the append is rejected when the entry has changed since you read it. If omitted, the append targets the current server state without a version check.`,
+      },
+    ],
+  },
+  {
     name: 'contentfulmcp_archive_asset',
     description: `Archive one or more assets that are no longer needed but should be preserved.`,
     params: [
@@ -22,6 +70,12 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `The unique identifier of the Contentful space. Find it in your Contentful dashboard under Settings > General.`,
+      },
+      {
+        name: 'dryRun',
+        type: 'boolean',
+        required: false,
+        description: `When true, returns a preview of the operation without executing it.`,
       },
     ],
   },
@@ -46,6 +100,12 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `The unique identifier of the Contentful space. Find it in your Contentful dashboard under Settings > General.`,
+      },
+      {
+        name: 'dryRun',
+        type: 'boolean',
+        required: false,
+        description: `When true, returns a preview of the operation without executing it.`,
       },
     ],
   },
@@ -473,7 +533,7 @@ export const tools: Tool[] = [
   },
   {
     name: 'contentfulmcp_delete_ai_action',
-    description: `Permanently delete an AI action from a Contentful environment.`,
+    description: `Permanently delete an AI action from a Contentful environment. This is a two-phase operation: the first call (without confirm/confirmToken) returns a preview and a confirmToken; call again with confirm: true and that confirmToken to complete the deletion.`,
     params: [
       {
         name: 'aiActionId',
@@ -493,11 +553,23 @@ export const tools: Tool[] = [
         required: true,
         description: `The unique identifier of the Contentful space. Find it in your Contentful dashboard under Settings > General.`,
       },
+      {
+        name: 'confirm',
+        type: 'boolean',
+        required: false,
+        description: `Set to true on the second call to actually perform the deletion. Required together with confirmToken.`,
+      },
+      {
+        name: 'confirmToken',
+        type: 'string',
+        required: false,
+        description: `Token returned by the preview call; must be supplied with confirm: true.`,
+      },
     ],
   },
   {
     name: 'contentfulmcp_delete_asset',
-    description: `Permanently delete an asset from a Contentful environment.`,
+    description: `Permanently delete an asset from a Contentful environment. This is a two-phase operation: the first call (without confirm/confirmToken) returns a preview and a confirmToken; call again with confirm: true and that confirmToken to complete the deletion.`,
     params: [
       {
         name: 'assetId',
@@ -517,11 +589,23 @@ export const tools: Tool[] = [
         required: true,
         description: `The unique identifier of the Contentful space. Find it in your Contentful dashboard under Settings > General.`,
       },
+      {
+        name: 'confirm',
+        type: 'boolean',
+        required: false,
+        description: `Set to true on the second call to actually perform the deletion. Required together with confirmToken.`,
+      },
+      {
+        name: 'confirmToken',
+        type: 'string',
+        required: false,
+        description: `Token returned by the preview call; must be supplied with confirm: true.`,
+      },
     ],
   },
   {
     name: 'contentfulmcp_delete_concept',
-    description: `Permanently delete a taxonomy concept by its ID and version number.`,
+    description: `Permanently delete a taxonomy concept by its ID. This is a two-phase operation: the first call (without confirm/confirmToken) returns a preview and a confirmToken; call again with confirm: true and that confirmToken to complete the deletion.`,
     params: [
       {
         name: 'conceptId',
@@ -536,16 +620,22 @@ export const tools: Tool[] = [
         description: `The unique identifier of the Contentful organization.`,
       },
       {
-        name: 'version',
-        type: 'number',
-        required: true,
-        description: `The current version number of the resource, used for optimistic concurrency control.`,
+        name: 'confirm',
+        type: 'boolean',
+        required: false,
+        description: `Set to true on the second call to actually perform the deletion. Required together with confirmToken.`,
+      },
+      {
+        name: 'confirmToken',
+        type: 'string',
+        required: false,
+        description: `Token returned by the preview call; must be supplied with confirm: true.`,
       },
     ],
   },
   {
     name: 'contentfulmcp_delete_concept_scheme',
-    description: `Permanently delete a taxonomy concept scheme by its ID and version number.`,
+    description: `Permanently delete a taxonomy concept scheme by its ID. This is a two-phase operation: the first call (without confirm/confirmToken) returns a preview and a confirmToken; call again with confirm: true and that confirmToken to complete the deletion.`,
     params: [
       {
         name: 'conceptSchemeId',
@@ -560,16 +650,22 @@ export const tools: Tool[] = [
         description: `The unique identifier of the Contentful organization.`,
       },
       {
-        name: 'version',
-        type: 'number',
-        required: true,
-        description: `The current version number of the resource, used for optimistic concurrency control.`,
+        name: 'confirm',
+        type: 'boolean',
+        required: false,
+        description: `Set to true on the second call to actually perform the deletion. Required together with confirmToken.`,
+      },
+      {
+        name: 'confirmToken',
+        type: 'string',
+        required: false,
+        description: `Token returned by the preview call; must be supplied with confirm: true.`,
       },
     ],
   },
   {
     name: 'contentfulmcp_delete_content_type',
-    description: `Permanently delete an unpublished content type from a Contentful environment.`,
+    description: `Permanently delete an unpublished content type from a Contentful environment. This is a two-phase operation: the first call (without confirm/confirmToken) returns a preview and a confirmToken; call again with confirm: true and that confirmToken to complete the deletion.`,
     params: [
       {
         name: 'contentTypeId',
@@ -589,11 +685,53 @@ export const tools: Tool[] = [
         required: true,
         description: `The unique identifier of the Contentful space. Find it in your Contentful dashboard under Settings > General.`,
       },
+      {
+        name: 'confirm',
+        type: 'boolean',
+        required: false,
+        description: `Set to true on the second call to actually perform the deletion. Required together with confirmToken.`,
+      },
+      {
+        name: 'confirmToken',
+        type: 'string',
+        required: false,
+        description: `Token returned by the preview call; must be supplied with confirm: true.`,
+      },
+    ],
+  },
+  {
+    name: 'contentfulmcp_delete_content_type_field',
+    description: `Permanently mark a single content type field as deleted. Destructive and irreversible once published. The field must not be required and must already be omitted in the published version of the content type (run omit_content_type_field then publish_content_type first). Use disable_content_type_field instead to temporarily hide a field.`,
+    params: [
+      {
+        name: 'contentTypeId',
+        type: 'string',
+        required: true,
+        description: `The ID of the content type containing the field.`,
+      },
+      {
+        name: 'environmentId',
+        type: 'string',
+        required: true,
+        description: `The Contentful environment ID (e.g. 'master', 'staging'). Find it in Settings > Environments.`,
+      },
+      {
+        name: 'fieldId',
+        type: 'string',
+        required: true,
+        description: `The ID of the field to delete.`,
+      },
+      {
+        name: 'spaceId',
+        type: 'string',
+        required: true,
+        description: `The unique identifier of the Contentful space. Find it in your Contentful dashboard under Settings > General.`,
+      },
     ],
   },
   {
     name: 'contentfulmcp_delete_entry',
-    description: `Permanently delete an entry from a Contentful environment.`,
+    description: `Permanently delete an entry from a Contentful environment. This is a two-phase operation: the first call (without confirm/confirmToken) returns a preview and a confirmToken; call again with confirm: true and that confirmToken to complete the deletion.`,
     params: [
       {
         name: 'entryId',
@@ -613,11 +751,23 @@ export const tools: Tool[] = [
         required: true,
         description: `The unique identifier of the Contentful space. Find it in your Contentful dashboard under Settings > General.`,
       },
+      {
+        name: 'confirm',
+        type: 'boolean',
+        required: false,
+        description: `Set to true on the second call to actually perform the deletion. Required together with confirmToken.`,
+      },
+      {
+        name: 'confirmToken',
+        type: 'string',
+        required: false,
+        description: `Token returned by the preview call; must be supplied with confirm: true.`,
+      },
     ],
   },
   {
     name: 'contentfulmcp_delete_environment',
-    description: `Permanently delete an environment from a Contentful space.`,
+    description: `Permanently delete an environment from a Contentful space. This is a two-phase operation: the first call (without confirm/confirmToken) returns a preview and a confirmToken; call again with confirm: true and that confirmToken to complete the deletion.`,
     params: [
       {
         name: 'environmentId',
@@ -631,11 +781,23 @@ export const tools: Tool[] = [
         required: true,
         description: `The unique identifier of the Contentful space. Find it in your Contentful dashboard under Settings > General.`,
       },
+      {
+        name: 'confirm',
+        type: 'boolean',
+        required: false,
+        description: `Set to true on the second call to actually perform the deletion. Required together with confirmToken.`,
+      },
+      {
+        name: 'confirmToken',
+        type: 'string',
+        required: false,
+        description: `Token returned by the preview call; must be supplied with confirm: true.`,
+      },
     ],
   },
   {
     name: 'contentfulmcp_delete_locale',
-    description: `Permanently delete a locale from a Contentful environment.`,
+    description: `Permanently delete a locale from a Contentful environment. This is a two-phase operation: the first call (without confirm/confirmToken) returns a preview and a confirmToken; call again with confirm: true and that confirmToken to complete the deletion.`,
     params: [
       {
         name: 'environmentId',
@@ -654,6 +816,60 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `The unique identifier of the Contentful space. Find it in your Contentful dashboard under Settings > General.`,
+      },
+      {
+        name: 'confirm',
+        type: 'boolean',
+        required: false,
+        description: `Set to true on the second call to actually perform the deletion. Required together with confirmToken.`,
+      },
+      {
+        name: 'confirmToken',
+        type: 'string',
+        required: false,
+        description: `Token returned by the preview call; must be supplied with confirm: true.`,
+      },
+    ],
+  },
+  {
+    name: 'contentfulmcp_disable_content_type_field',
+    description: `Toggle the disabled and/or omitted flags on a single content type field. Disabling hides the field from the editor UI; omitting removes it from API responses. Both flags are reversible and take effect only after the content type is published.`,
+    params: [
+      {
+        name: 'contentTypeId',
+        type: 'string',
+        required: true,
+        description: `The ID of the content type containing the field.`,
+      },
+      {
+        name: 'environmentId',
+        type: 'string',
+        required: true,
+        description: `The Contentful environment ID (e.g. 'master', 'staging'). Find it in Settings > Environments.`,
+      },
+      {
+        name: 'fieldId',
+        type: 'string',
+        required: true,
+        description: `The ID of the field to update.`,
+      },
+      {
+        name: 'spaceId',
+        type: 'string',
+        required: true,
+        description: `The unique identifier of the Contentful space. Find it in your Contentful dashboard under Settings > General.`,
+      },
+      {
+        name: 'disabled',
+        type: 'boolean',
+        required: false,
+        description: `Set to true to disable the field in the editor UI (editors cannot edit it), false to re-enable. Takes effect once the content type is published.`,
+      },
+      {
+        name: 'omitted',
+        type: 'boolean',
+        required: false,
+        description: `Set to true to omit the field from API responses, false to include it again. Takes effect once the content type is published. Prefer omit_content_type_field when only changing this flag.`,
       },
     ],
   },
@@ -840,6 +1056,36 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `The unique identifier of the Contentful space. Find it in your Contentful dashboard under Settings > General.`,
+      },
+    ],
+  },
+  {
+    name: 'contentfulmcp_get_entry_snapshot',
+    description: `Retrieve version history (snapshots) of an entry for safe rollback. Call with only an entryId to list all available snapshots, or with both entryId and snapshotId to retrieve the full field content of that specific snapshot.`,
+    params: [
+      {
+        name: 'entryId',
+        type: 'string',
+        required: true,
+        description: `The ID of the entry to retrieve snapshots for.`,
+      },
+      {
+        name: 'environmentId',
+        type: 'string',
+        required: true,
+        description: `The Contentful environment ID (e.g. 'master', 'staging'). Find it in Settings > Environments.`,
+      },
+      {
+        name: 'spaceId',
+        type: 'string',
+        required: true,
+        description: `The unique identifier of the Contentful space. Find it in your Contentful dashboard under Settings > General.`,
+      },
+      {
+        name: 'snapshotId',
+        type: 'string',
+        required: false,
+        description: `Optional snapshot ID. When provided, returns the full content of that single snapshot. When omitted, lists all available snapshots for the entry.`,
       },
     ],
   },
@@ -1366,6 +1612,42 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'contentfulmcp_omit_content_type_field',
+    description: `Mark a single content type field as omitted (or un-omitted) from API responses. Reversible via the same tool with omitted=false. This is a prerequisite for delete_content_type_field: a field must be omitted in the published version before it can be deleted. Takes effect only after the content type is published.`,
+    params: [
+      {
+        name: 'contentTypeId',
+        type: 'string',
+        required: true,
+        description: `The ID of the content type containing the field.`,
+      },
+      {
+        name: 'environmentId',
+        type: 'string',
+        required: true,
+        description: `The Contentful environment ID (e.g. 'master', 'staging'). Find it in Settings > Environments.`,
+      },
+      {
+        name: 'fieldId',
+        type: 'string',
+        required: true,
+        description: `The ID of the field to omit.`,
+      },
+      {
+        name: 'spaceId',
+        type: 'string',
+        required: true,
+        description: `The unique identifier of the Contentful space. Find it in your Contentful dashboard under Settings > General.`,
+      },
+      {
+        name: 'omitted',
+        type: 'boolean',
+        required: false,
+        description: `Whether the field should be omitted. Defaults to true. Set to false to un-omit a field.`,
+      },
+    ],
+  },
+  {
     name: 'contentfulmcp_publish_ai_action',
     description: `Publish an AI action to make it available for use in the Contentful editor.`,
     params: [
@@ -1410,6 +1692,12 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `The unique identifier of the Contentful space. Find it in your Contentful dashboard under Settings > General.`,
+      },
+      {
+        name: 'dryRun',
+        type: 'boolean',
+        required: false,
+        description: `When true, returns a preview of the operation without executing it.`,
       },
     ],
   },
@@ -1459,6 +1747,42 @@ export const tools: Tool[] = [
         required: true,
         description: `The unique identifier of the Contentful space. Find it in your Contentful dashboard under Settings > General.`,
       },
+      {
+        name: 'dryRun',
+        type: 'boolean',
+        required: false,
+        description: `When true, returns a preview of the operation without executing it.`,
+      },
+    ],
+  },
+  {
+    name: 'contentfulmcp_resolve_entry_references',
+    description: `Recursively resolve an entry's references and return the entry plus its descendant entries and linked assets, without issuing one fetch per descendant. Set 'include' (1-10, default 2) to control how many levels deep to walk.`,
+    params: [
+      {
+        name: 'entryId',
+        type: 'string',
+        required: true,
+        description: `The ID of the entry whose references should be resolved.`,
+      },
+      {
+        name: 'environmentId',
+        type: 'string',
+        required: true,
+        description: `The Contentful environment ID (e.g. 'master', 'staging'). Find it in Settings > Environments.`,
+      },
+      {
+        name: 'spaceId',
+        type: 'string',
+        required: true,
+        description: `The unique identifier of the Contentful space. Find it in your Contentful dashboard under Settings > General.`,
+      },
+      {
+        name: 'include',
+        type: 'integer',
+        required: false,
+        description: `How many levels of linked entries to walk (1-10, default: 2). The CMA caps this at 10.`,
+      },
     ],
   },
   {
@@ -1486,6 +1810,36 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'contentfulmcp_semantic_search',
+    description: `Find entries by meaning using semantic (vector) search. Provide a descriptive natural-language query of what you're looking for; phrases resembling entry content work best. Optionally restrict to specific content types. Returns up to 10 matching entry references (unranked); use get_entry to fetch full content. Requires semantic search to be enabled for the environment.`,
+    params: [
+      {
+        name: 'environmentId',
+        type: 'string',
+        required: true,
+        description: `The Contentful environment ID (e.g. 'master', 'staging'). Find it in Settings > Environments.`,
+      },
+      {
+        name: 'query',
+        type: 'string',
+        required: true,
+        description: `Natural-language description of what you are looking for. Phrases that resemble the content of the entries you want match best; avoid questions or JSON.`,
+      },
+      {
+        name: 'spaceId',
+        type: 'string',
+        required: true,
+        description: `The unique identifier of the Contentful space. Find it in your Contentful dashboard under Settings > General.`,
+      },
+      {
+        name: 'contentTypeIds',
+        type: 'array',
+        required: false,
+        description: `Restrict the search to entries of these content type IDs.`,
+      },
+    ],
+  },
+  {
     name: 'contentfulmcp_unarchive_asset',
     description: `Restore one or more archived assets to make them available for editing again.`,
     params: [
@@ -1506,6 +1860,12 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `The unique identifier of the Contentful space. Find it in your Contentful dashboard under Settings > General.`,
+      },
+      {
+        name: 'dryRun',
+        type: 'boolean',
+        required: false,
+        description: `When true, returns a preview of the operation without executing it.`,
       },
     ],
   },
@@ -1530,6 +1890,12 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `The unique identifier of the Contentful space. Find it in your Contentful dashboard under Settings > General.`,
+      },
+      {
+        name: 'dryRun',
+        type: 'boolean',
+        required: false,
+        description: `When true, returns a preview of the operation without executing it.`,
       },
     ],
   },
@@ -1579,6 +1945,12 @@ export const tools: Tool[] = [
         required: true,
         description: `The unique identifier of the Contentful space. Find it in your Contentful dashboard under Settings > General.`,
       },
+      {
+        name: 'dryRun',
+        type: 'boolean',
+        required: false,
+        description: `When true, returns a preview of the operation without executing it.`,
+      },
     ],
   },
   {
@@ -1626,6 +1998,12 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `The unique identifier of the Contentful space. Find it in your Contentful dashboard under Settings > General.`,
+      },
+      {
+        name: 'dryRun',
+        type: 'boolean',
+        required: false,
+        description: `When true, returns a preview of the operation without executing it.`,
       },
     ],
   },
@@ -1994,7 +2372,7 @@ export const tools: Tool[] = [
   },
   {
     name: 'contentfulmcp_update_entry',
-    description: `Update an existing entry by merging the provided field values with the existing ones.`,
+    description: `Update an existing entry by merging the provided field values with the existing ones. Requires the entry's current sys.version (obtained via get_entry) - the update is rejected if the version does not match, indicating the entry changed since it was last read.`,
     params: [
       {
         name: 'entryId',
@@ -2019,6 +2397,12 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `The unique identifier of the Contentful space. Find it in your Contentful dashboard under Settings > General.`,
+      },
+      {
+        name: 'version',
+        type: 'number',
+        required: true,
+        description: `REQUIRED. The entry's sys.version as returned by get_entry. You must call get_entry first to read the current state and version. The update is rejected if this does not match the entry's current version, which means the entry changed since you read it.`,
       },
       { name: 'metadata', type: 'object', required: false, description: `No description.` },
     ],

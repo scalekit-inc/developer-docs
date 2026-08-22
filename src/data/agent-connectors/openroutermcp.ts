@@ -26,9 +26,70 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'openroutermcp_generate_speech',
+    description: `Synthesize speech from text and return it inline as an audio content block (clients that can play audio render it; not all MCP clients can). This bills the authenticated user. Find TTS models via list-models with output_modalities=speech, and each model's voices via get-model (supported_voices). Cost is available afterwards via get-generation.`,
+    params: [
+      { name: 'input', type: 'string', required: true, description: `Text to synthesize` },
+      {
+        name: 'model',
+        type: 'string',
+        required: true,
+        description: `TTS model slug, e.g. "mistralai/voxtral-mini-tts-2603"`,
+      },
+      {
+        name: 'voice',
+        type: 'string',
+        required: true,
+        description: `Voice identifier (provider-specific); list a model's supported_voices via get-model`,
+      },
+      {
+        name: 'response_format',
+        type: 'string',
+        required: false,
+        description: `Audio output format; defaults to mp3`,
+      },
+      {
+        name: 'speed',
+        type: 'number',
+        required: false,
+        description: `Playback speed multiplier; only honored by models that support it`,
+      },
+    ],
+  },
+  {
     name: 'openroutermcp_get_credits',
     description: `Check the remaining account credit balance before running a workload.`,
     params: [],
+  },
+  {
+    name: 'openroutermcp_get_endpoint_uptime_history',
+    description: `Get the hourly uptime history of every provider endpoint serving a model over the last 72 hours — the same per-provider uptime timeline shown on the model page. Use it to find which provider degraded during a window (e.g. "model X was failing between 05:00 and 08:30 UTC — whose uptime dipped?").`,
+    params: [
+      {
+        name: 'author',
+        type: 'string',
+        required: true,
+        description: `The model author/organization, e.g. "deepseek"`,
+      },
+      {
+        name: 'slug',
+        type: 'string',
+        required: true,
+        description: `The model slug, optionally with a variant suffix, e.g. "deepseek-chat" or "deepseek-chat:free"`,
+      },
+      {
+        name: 'from',
+        type: 'string',
+        required: false,
+        description: `Optional ISO 8601 start of the window, e.g. "2026-07-23T05:00:00Z". Data covers the last 72 hours.`,
+      },
+      {
+        name: 'to',
+        type: 'string',
+        required: false,
+        description: `Optional ISO 8601 end of the window, e.g. "2026-07-23T09:00:00Z"`,
+      },
+    ],
   },
   {
     name: 'openroutermcp_get_generation',
@@ -53,6 +114,23 @@ export const tools: Tool[] = [
         description: `Identifies the model to fetch by author and slug.`,
       },
     ],
+  },
+  {
+    name: 'openroutermcp_get_preset',
+    description: `Get one saved preset by slug, including its designated version's config bundle (model, system prompt, temperature, and other sampling parameters), to inspect or reuse that configuration in a request. Find slugs with list-presets.`,
+    params: [
+      {
+        name: 'request',
+        type: 'object',
+        required: true,
+        description: `Identifies the preset to fetch.`,
+      },
+    ],
+  },
+  {
+    name: 'openroutermcp_install_ori_harness',
+    description: `Get the instructions for installing and using Ori Harness, then follow them. Call this tool FIRST when the user asks to install Ori, run their existing coding agent CLI through Ori, sign in to Ori, upgrade Ori, or choose an OpenRouter model for a local agent. It returns the complete recipe for installing Ori, signing in with OAuth without an API key, running an agent CLI under Ori, passing any OpenRouter model id with \`--model\`, upgrading with \`ori update\`, and verifying the installation. Do not use it for Ori model evaluations, plain unit tests, or when the user only wants to run an already-installed agent directly. Takes no arguments; the same document is published at https://openrouter.ai/skills/install-ori-harness.`,
+    params: [],
   },
   {
     name: 'openroutermcp_list_app_rankings',
@@ -111,6 +189,18 @@ export const tools: Tool[] = [
         type: 'object',
         required: false,
         description: `Search, sort, and filter parameters for the model catalog. All fields are optional; omit entirely to list all models with default ordering.`,
+      },
+    ],
+  },
+  {
+    name: 'openroutermcp_list_presets',
+    description: `List the caller's saved presets (named bundles of model, system prompt, and sampling config created in the OpenRouter dashboard), ordered by most recently updated. Use to discover which presets exist and get their slugs; use get-preset to inspect one preset's full config.`,
+    params: [
+      {
+        name: 'request',
+        type: 'object',
+        required: false,
+        description: `Optional pagination for the preset listing.`,
       },
     ],
   },
@@ -178,12 +268,75 @@ export const tools: Tool[] = [
         description: `Model slug, e.g. "openai/gpt-4o-mini"`,
       },
       {
+        name: 'max_tokens',
+        type: 'integer',
+        required: false,
+        description: `Cap the total tokens generated (including reasoning). The single most effective lever to stop a reasoning model from running unbounded on a hard prompt. Omit for the model default.`,
+      },
+      {
         name: 'provider',
         type: 'object',
         required: false,
         description: `Provider routing preferences. Leave unset for normal chats so the router picks the best provider. Set ONLY when the request needs zero provider variance — running evals, benchmarking, or reproducing a result — because providers differ in quantization, throughput, and sampling, so the same model can return different outputs depending on who serves it. To hard-pin one provider: { only: ["fireworks"], allow_fallbacks: false }.`,
       },
+      {
+        name: 'reasoning_effort',
+        type: 'string',
+        required: false,
+        description: `How hard a reasoning model should think: "max" | "xhigh" | "high" | "medium" | "low" | "minimal" | "none". Omit to use the model's own default. Use a lower value to cap cost/latency on reasoning models that over-think, or a higher value for hard prompts. Non-reasoning models ignore it. Discover a model's supported/default efforts via list-models or get-model.`,
+      },
       { name: 'system', type: 'string', required: false, description: `Optional system prompt` },
+      {
+        name: 'timeout_ms',
+        type: 'integer',
+        required: false,
+        description: `Abort the call locally after this many milliseconds. Returns a typed client_timeout error with elapsed_ms. If the timeout fires before any response, no generation id is available; if it fires while reading the response body, the generation may have completed upstream and been billed. Omit to wait for the default gateway timeout.`,
+      },
+    ],
+  },
+  {
+    name: 'openroutermcp_spawn_ori_eval',
+    description: `Get the instructions for running a model eval with Ori, then follow them. Ori runs the user's own agent on their own prompts, on a pinned harness and model, and grades what it did — so a score change means the model changed, not the environment. Call this tool FIRST, before writing any eval code: it returns a step-by-step recipe (install and auth checks, how to spawn \`ori code -p\`, how to relay Ori's scoping questions to the user, how to report results) that you carry out yourself. Do not hand-roll an eval instead.
+
+Use it when the user asks which model they should use, wants to compare or bake off models, wants to measure whether their agent or prompt does the right thing, wants to catch regressions in agent behavior, or asks how good their current model is. Works for any codebase in any language.
+
+Do not use it for plain unit tests that involve no model, and do not use it to re-run an eval that already exists (run \`ori eval <file>\` directly instead). Takes no arguments; the same document is published at https://openrouter.ai/skills/spawn-ori-eval.`,
+    params: [],
+  },
+  {
+    name: 'openroutermcp_transcribe_audio',
+    description: `Transcribe speech from an audio file to text. Pass exactly one of audio_url (preferred; fetched server-side) or audio_base64. Returns the transcript plus the cost and generation id. This bills the authenticated user. Find STT models via list-models with output_modalities=transcription.`,
+    params: [
+      {
+        name: 'model',
+        type: 'string',
+        required: true,
+        description: `STT model slug, e.g. "openai/whisper-large-v3"`,
+      },
+      {
+        name: 'audio_base64',
+        type: 'string',
+        required: false,
+        description: `Base64-encoded audio bytes, for small clips only. Requires format.`,
+      },
+      {
+        name: 'audio_url',
+        type: 'string',
+        required: false,
+        description: `HTTPS URL of the audio file to transcribe; fetched server-side (max 25 MB). Preferred over audio_base64.`,
+      },
+      {
+        name: 'format',
+        type: 'string',
+        required: false,
+        description: `Audio container format. Required with audio_base64; inferred from the URL or Content-Type otherwise.`,
+      },
+      {
+        name: 'language',
+        type: 'string',
+        required: false,
+        description: `ISO-639-1 language hint (e.g. "en", "ja"). Auto-detected if omitted.`,
+      },
     ],
   },
   {

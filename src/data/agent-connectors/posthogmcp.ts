@@ -2343,6 +2343,407 @@ and query definition.`,
     ],
   },
   {
+    name: 'posthogmcp_exec',
+    description: `### Using the \`posthog\` tool
+
+PostHog makes your product self-driving: it reads your data and ships changes with you, never without you. Spans analytics, experiments, flags, replay, and more.
+
+Pass CLI-style commands in the \`command\` parameter for all PostHog interactions.
+
+**Requirements**
+
+1. Find unknown tools with \`search\` or \`tools\`.
+2. Run \`info <tool_name>\` once if its schema is not in context. Reuse it unless the tool changes or a schema error occurs.
+
+Never guess a schema or run \`info\` before every call.
+
+**Commands (in order):**
+
+\`\`\`text
+# 1. Find unknown tools
+posthog:exec({ "command": "search <regex>" })
+posthog:exec({ "command": "tools" })            # fallback: list all
+
+# 2. Inspect once if the schema is missing
+posthog:exec({ "command": "info <tool_name>" })
+
+# 3. Drill into complex fields — REQUIRED for any field with a \`hint\`
+posthog:exec({ "command": "schema <tool_name> <field_path>" })
+
+# 4. Call; reuse the schema
+posthog:exec({ "command": "call <tool_name> <json_input>" })
+posthog:exec({ "command": "call --json <tool_name> <json_input>" })
+\`\`\`
+
+**Schema drill-down:**
+
+- \`info\` returns the full schema if it fits the token budget; otherwise it auto-summarizes (names, types, required, enums, defaults) and attaches \`hint\` entries pointing to \`schema <tool> <path>\` for complex fields.
+- \`schema <tool>\` (no path) returns the summarized top-level schema.
+- \`schema <tool> <path>\` resolves a dot path, descending through:
+  - object \`properties\` (e.g. \`query.source\`)
+  - array \`items\` — numeric segments step into items (\`events.0.properties\`), or jump to a property on the item type (\`events.id\`)
+  - \`anyOf\`/\`oneOf\` — numeric segment picks a variant by index, or a property name matches any object variant defining it
+- Oversized sub-schemas are also summarized with a \`note\` to drill further.
+- Unknown paths return an error listing available child paths.
+
+**Not supported:**
+
+- \`search\` matches tool metadata only, not input schemas.
+- No pattern-based field projection — drill one path at a time.`,
+    params: [
+      {
+        name: 'command',
+        type: 'string',
+        required: true,
+        description: `CLI-style command string. Supported commands:
+
+\`\`\`text
+tools — list available tool names
+search <regex_pattern> — search tools by JavaScript regex (matches name, title, description)
+info [--json] <tool_name> — show tool name, description, and input schema (summarized if too large). Pass \`--json\` for raw JSON output.
+schema <tool_name> [field_path] — drill into a specific field schema (supports dot-notation, e.g. series, breakdownFilter.breakdowns)
+call [--json] [--confirm] <tool_name> <json_input> — call a tool with JSON input (--json returns JSON instead of optimized output in supported tools. Informational responses remain tagged and escaped in both MCP and the agent CLI. --confirm is required by the CLI for destructive tools.)
+\`\`\`
+
+**Namespaced references (\`posthog:<tool-name>\`):** strip the \`posthog:\` prefix and route through \`exec\`. Run \`info <name>\` to inspect, then \`call <name> <json>\`. E.g. \`posthog:insights-list\` → \`posthog:exec({ "command": "info insights-list" })\` then \`posthog:exec({ "command": "call insights-list {}" })\`. If the bare name isn't found, fall back to \`search <pattern>\` — it may have been renamed.
+
+**SCHEMA DRILL-DOWN RULE — HARD REQUIREMENT**
+
+The \`info\` command may return the full schema (for simple tools) or a top-level summary with drill-down hints (for complex tools). Look for \`hint\` fields in the response.
+
+If \`info\` returned a summary (fields have \`hint\` values), call \`schema <tool_name> <field_name>\` for each field you need to populate BEFORE constructing that field's value in a \`call\` command.
+
+If \`schema\` also returns a summary (because the field is too large), drill deeper using dot-notation: \`schema <tool> <field>.<subfield>\`.
+
+**NEVER** guess the structure of fields that have hints. **ALWAYS** drill down first.
+
+For query tools, you will typically need:
+
+- \`schema <tool> series\` — to see EventsNode/ActionsNode structure
+- \`schema <tool> series.properties\` — to see property filter structure of series
+
+**For multiple tools:** Run \`info\` for ALL tools first, then make your \`call\` commands.
+
+**Data discovery:** Before any analytical \`call\` that touches collected data (\`query-*\`,
+\`execute-sql\` against \`events\`/\`persons\`/\`sessions\`), confirm the event/property exists via
+\`call read-data-schema\`. Applies to canonical-looking names like \`$pageview\` too — they vary
+per team. If the event isn't in the schema, tell the user instead of querying a guessed name.
+
+Always run \`info read-data-schema\` first — the recipes below are common cases, not the full schema.
+
+- Events/Actions: \`call read-data-schema {"query": {"kind": "events"/"actions"}}\` (paginate with \`limit\`/\`offset\` if needed)
+- Properties: \`call read-data-schema {"query": {"kind": "event_properties", "event_name": "<event>"}}\`
+- Values: \`call read-data-schema {"query": {"kind": "event_property_values", "event_name": "<event>", "property_name": "<prop>"}}\`
+
+**CORRECT usage pattern:**
+
+<example>
+User: How many weekly active users do we have?
+Assistant: I need to find the right query tool and data schema tool.
+[Runs posthog:exec({ "command": "search query-trends" }) and posthog:exec({ "command": "search read-data" }) in parallel]
+Assistant: Let me check the tool descriptions and schemas.
+[Runs posthog:exec({ "command": "info query-trends" }) and posthog:exec({ "command": "info read-data-schema" }) in parallel]
+Assistant: I see query-trends needs \`series\` (array with hint). Let me get the full field schema and discover events.
+[Runs posthog:exec({ "command": "schema query-trends series" }) and posthog:exec({ "command": "call read-data-schema {\\"query\\": {\\"kind\\": \\"events\\"}}" }) in parallel]
+Assistant: Now I know the exact series structure and available events. Let me construct the query.
+[Runs posthog:exec({ "command": "call query-trends {...}" })]
+</example>
+
+<example>
+User: Create a dashboard for our key revenue metrics
+Assistant: I'll need dashboard and query tools. Let me search for them.
+[Runs posthog:exec({ "command": "search dashboard" }) and posthog:exec({ "command": "search execute-sql" }) in parallel]
+Assistant: Let me check the schemas for the tools I'll need.
+[Runs posthog:exec({ "command": "info dashboard-create" }) and posthog:exec({ "command": "info execute-sql" }) in parallel]
+Assistant: Now I have both schemas. Let me start by searching for existing revenue insights.
+[Makes call commands with correct parameters]
+</example>
+
+**INCORRECT usage patterns — NEVER do this:**
+
+<bad-example>
+User: Show me our feature flags
+Assistant: [Directly calls posthog:exec({ "command": "call feature-flag-get-all {}" }) with guessed parameters]
+WRONG: Run \`info feature-flag-get-all\` once when its schema is missing.
+</bad-example>
+
+<bad-example>
+User: Query our events
+Assistant: [Calls three tools in parallel without any \`info\` calls first]
+WRONG: Run \`info\` once for each missing schema.
+</bad-example>
+
+<bad-example>
+User: Show me a trends chart of signups
+Assistant: [Runs info query-trends, sees summary with hints, then immediately calls query-trends with guessed series structure]
+WRONG — info returned a summary with hint: "DO NOT GUESS – run \`schema query-trends series\` before populating this field".
+You MUST follow the hint and run \`schema\` before constructing the series field.
+</bad-example>
+
+<bad-example>
+User: query pageviews for the last 7 days
+Assistant: [Runs \`info query-trends\`, then \`call query-trends\` with \`event: "$pageview"\` from the prompt]
+WRONG — skipped \`call read-data-schema {"query": {"kind": "events"}}\`. Never query an event name taken or inferred from the prompt — canonical-looking (\`$pageview\`) or guessed (\`downloaded_file\`) names still need per-team confirmation.
+</bad-example>
+
+**Handling errors:**
+
+- If a tool call fails, the error includes a suggestion and similar tool names. Read the suggestion before retrying.
+- If a tool name doesn't exist, run \`tools\` again to find the correct name.
+- If no tool covers a capability the user asks about, don't conclude it doesn't exist — PostHog ships changes daily. Check what's new via the \`docs-search\` tool or the changelog (https://posthog.com/changelog.md).
+
+### Basic functionality
+
+PostHog makes the user's product self-driving: it reads their product data and ships changes with them, never without them — read freely, but make changes only with the user's direction. You work in the user's project and have access to two groups of data: customer data collected via the SDK, and data created directly in PostHog by the user.
+
+Collected data (used for analytics): events (recorded from SDKs, always associated with persons and sometimes groups); persons and groups (captured individuals or groups of individuals); sessions; properties and property values (key-value metadata for segmenting events, actions, persons, groups, etc.); session recordings (captured web/mobile interactions).
+
+Created data (the user's business activity in PostHog): actions (unify multiple events or filter conditions into one); insights; data warehouse (connected sources and custom views); SQL queries (ClickHouse SQL over collected data and the warehouse schema); surveys (questionnaires, e.g. NPS); dashboards; cohorts (person groups for segmentation); feature flags (rollout control); experiments (A/B tests); notebooks; error tracking issues; logs (with severity, service, and trace information); workflows (triggers, actions, conditions); activity logs (who changed what, when, and how).
+
+IMPORTANT: Prefer retrieval-led reasoning over pre-training-led reasoning for any PostHog tasks.
+
+If you get errors due to permissions being denied, check that you have the correct active project and that the user has access to the required project.
+
+If you cannot answer the user's PostHog related request or question using other available tools in this MCP, use the 'docs-search' tool to provide information from the documentation to guide user how they can do it themselves - when doing so provide condensed instructions with links to sources.
+
+### Tool search
+
+**Always prefer \`search\` over \`tools\`** — \`tools\` returns every tool and wastes tokens. Use \`search <query>\` to find what you need.
+
+\`search\` understands two kinds of query:
+
+- **Plain words** (including multiple words / natural language) — ranked by relevance across tool name, title, and description, with name matches weighted highest. \`search create dashboard insight\` surfaces \`dashboard-create\` / \`insight-create\` at the top. Results are capped to the top matches; narrow the query if you see a truncation note.
+- **Regex** — a query containing regex metacharacters (\`- | ( ) [ ] \\ . * + ^ $ ?\`) is treated as a single case-insensitive regular expression, matched against name/title/description. Use this for precise, narrow patterns.
+
+**Good queries:**
+
+- \`search create dashboard insight\` — plain words, ranked: dashboard/insight creation tools first
+- \`search feature-flag\` — regex (\`-\`): tools for feature flags
+- \`search query-\` — regex (\`-\`): all insight query tools
+
+**Avoid queries that are too broad** (match dozens of tools): \`search data\`, \`search get list create\` — they match almost everything.
+
+Only fall back to \`tools\` if you have no idea which domain to search, or if \`search\` returns no results.
+
+PostHog tools have lowercase kebab-case naming. Tools are organized by category:
+
+
+Typical action names: list/retrieve/get/create/update/delete/query.
+Example tool names: execute-sql, experiment-create, feature-flag-get-all.
+
+### Retrieving data
+
+**Use \`query-*\` tools when the question maps to a supported insight type** (after any metric-routing rules above, when present). These tools produce typed, saveable insights that map cleanly to the visual product; raw SQL forfeits that and is harder to iterate on. Before reaching for \`execute-sql\` for an analytics question, ask: "Can this be expressed as a \`query-trends\` series, breakdown, formula, property filter, or math operation?" If yes, prefer the \`query-*\` tool — see \`Choosing the right query tool\` below for prompt-to-field patterns.
+
+Reach for \`execute-sql\` only when no \`query-*\` tool can express the question:
+
+- Searching PostHog entities (insights, dashboards, cohorts, flags…) via \`system.*\` tables — no \`query-*\` tool covers entity search.
+- Multi-event joins, custom CTEs, window functions, or data-warehouse joins.
+- Pre-filtering or shaping data before running a \`query-*\` call.
+
+When you do use \`execute-sql\`, run \`info execute-sql\` first for the full discovery workflow, worked examples, and column-handling rules — this section only summarizes routing.
+
+#### Searching for existing entities
+
+"find / which / do we have / what's our X chart" questions about PostHog-created entities are SQL searches against \`system.*\` (\`system.insights\`, \`system.dashboards\`, \`system.cohorts\`, \`system.feature_flags\`, \`system.experiments\`, \`system.surveys\`, \`system.notebooks\`), **not** \`*-list\` walks.
+
+This routing is for finding **saved artifacts** (a chart, dashboard, cohort, flag). "What data / tables / events do we have available?" is a schema question instead — answer it from \`system.information_schema.tables\` (and \`read-data-schema\` for events), not by searching \`system.insights\`.
+
+Required order on every run, no shortcuts — schema first, every run:
+
+1. Confirm the table's columns with an \`execute-sql\` against \`system.information_schema.columns\`, e.g. \`SELECT column_name, data_type, description FROM system.information_schema.columns WHERE table_name = 'system.insights'\`. Schema markdown in skills/references (\`models-*.md\`, \`querying-posthog-data\` docs) is documentation, **not** a substitute — query the schema.
+2. \`execute-sql\` against \`system.*\` — uses only columns confirmed in step 1.
+3. \`<entity>-get\` (e.g. \`insight-get\`, \`dashboard-get\`) — verifies the entity shape; do NOT re-\`execute-sql\` by ID.
+
+<bad-example>
+User: rename / find / list … (any \`system.*\` question)
+Assistant: [Calls \`execute-sql\` against \`system.insights\` without first confirming its columns via \`system.information_schema.columns\` — OR checks the schema partway through, only after several \`execute-sql\` calls thrashed]
+WRONG — the rule is "schema first, every run, no shortcuts." Even if early SQL happens to work (or the search is thrashing on \`WHERE name ILIKE …\` variants), you've already failed: every successful \`execute-sql\` against a \`system.*\` entity table MUST be preceded by an \`execute-sql\` against \`system.information_schema.columns\` for that table in the same run. Skipping or postponing the schema check is a hard violation.
+</bad-example>
+
+#### Available insight query tools
+
+- \`query-apm-spans\` — Query tracing spans
+- \`query-error-tracking-issue\` — Error issue details and impact (error-tracking category)
+- \`query-error-tracking-issue-events\` — Error event samples, stack traces, code variables, and session IDs (error-tracking category)
+- \`query-error-tracking-issues-list\` — Error issue filtering and aggregation (error-tracking category)
+- \`query-funnel\` — Conversion rates, drop-off analysis, time to convert
+- \`query-funnel-actors\` — List persons who converted through or dropped off at a given funnel step
+- \`query-lifecycle\` — New, returning, resurrecting, dormant user composition
+- \`query-lifecycle-actors\` — List persons in a lifecycle bucket (new/returning/resurrecting/dormant) for a given day
+- \`query-llm-trace\` — Single LLM/AI trace deep-dive
+- \`query-llm-traces-list\` — LLM/AI trace listing and inspection
+- \`query-logs\` — Log filtering by severity/service/attribute
+- \`query-mcp-harness-breakdown\` — MCP client/harness breakdown — calls, error rate, sessions per harness
+- \`query-mcp-tool-daily-stats\` — One MCP tool's day-by-day series — calls, errors, p50/p95, users, sessions
+- \`query-mcp-tool-descriptions\` — Distinct effective descriptions seen for one MCP tool
+- \`query-mcp-tool-failure-occurrences\` — Individual errored calls (with error messages) for one MCP tool's failure bucket
+- \`query-mcp-tool-failures\` — One MCP tool's top failure buckets, by harness (error type + HTTP status)
+- \`query-mcp-tool-neighbors\` — Tools co-occurring before/after one MCP tool in a conversation
+- \`query-mcp-tool-sample-intents\` — Recent sample agent intents for one MCP tool, with harness
+- \`query-mcp-tool-stats\` — One MCP tool's headline stats — calls, errors, p50/p95, users, sessions, intents
+- \`query-mcp-tool-top-users\` — One MCP tool's top callers — calls, error rate, harnesses, person email/name
+- \`query-paths\` — User navigation flows and sequences
+- \`query-paths-actors\` — List persons who traversed the paths defined by a paths insight
+- \`query-retention\` — User return patterns over time
+- \`query-retention-actors\` — List persons in a retention acquisition cohort and which intervals they returned in
+- \`query-session-recordings-list\` — Session replay metadata and activity
+- \`query-stickiness\` — Engagement frequency (how many days users do X)
+- \`query-stickiness-actors\` — List persons who were active in a given number of intervals (one stickiness bar)
+- \`query-trends\` — Time series, aggregations, formulas, comparisons
+- \`query-trends-actors\` — List persons behind a trends data point
+- \`query-web-overview\` — Web analytics KPIs — visitors, sessions, bounce rate, session duration
+- \`query-web-stats\` — Web analytics breakdowns — top pages, UTMs, devices, countries, with bounce rate
+- \`query-web-vitals\` — Core Web Vitals per page — LCP, INP, CLS, FCP bucketed into good / needs-improvement / poor
+
+#### Choosing the right query tool
+
+By insight type:
+
+- "How many / how much / over time / compare periods" -> \`query-trends\`
+- "Conversion rate / drop-off / funnel / step completion" -> \`query-funnel\`
+- "Do users come back / retention / churn" -> \`query-retention\`
+- "How frequently / how many days per week / power users" -> \`query-stickiness\`
+- "What do users do after X / before X / navigation flow" -> \`query-paths\`
+- "New vs returning vs dormant / user composition" -> \`query-lifecycle\`
+- "LLM traces / AI generations / token usage" -> \`query-llm-traces-list\`
+
+Each \`query-*\` tool's own description carries its full feature set, use cases, and schema documentation — read it (e.g. \`info query-trends\`) before constructing the query.
+
+#### Schema-first workflow
+
+Verify the data schema before constructing any insight query. Canonical-looking events
+(\`$pageview\`, \`$identify\`, \`$autocapture\`, …) still need confirmation — they can be absent,
+renamed, or filtered per team.
+
+1. **Discover events** - \`read-data-schema\` with \`kind: events\` to find events matching the user's intent.
+2. **Discover properties** - \`read-data-schema\` with \`kind: event_properties\` (or \`person_properties\`, \`session_properties\`).
+3. **Verify property values** - \`read-data-schema\` with \`kind: event_property_values\` when the value must match (e.g., "US" vs "United States").
+4. **Then construct the query** using the appropriate \`query-*\` tool.
+
+If the required events or properties don't exist, tell the user instead of running an empty query.
+
+#### Insight query workflow
+
+After the schema-first steps, choose the \`query-*\` tool matching the question, construct a minimal query (only the filters, breakdowns, and settings essential to the answer — each tool's description documents its schema with examples), execute, and analyze. Optionally save as an insight with \`insight-create\` or add to a dashboard.
+
+For complex investigations, combine multiple query types. For example, use \`query-trends\` to identify when a metric changed, then \`query-funnel\` to check if conversion was affected, then \`query-trends\` with breakdowns to isolate the segment.
+
+
+
+### Active environment
+
+You are currently in project "Default project" (id: 392442, token: phc_Dh5x9cZ75vbwvc4oxYYSMVm4abJwt2GMKcKvsRz8e4KZ) within organization "Hogflix movies" (id: 019db3ed-5c24-0000-2f2d-41fc212c69d8).
+Base URL: us.posthog.com — add /project/392442 for project-scoped paths.
+Project timezone: UTC.
+Person-on-events mode is enabled. When querying \`person.properties.*\` on the events table, values reflect what was set at the time the event was ingested, not the person's current value. The same person can have different property values across different events. Do not suggest workarounds for "query-time" person properties.
+The user's name is Pranesh (praneshtaker@gmail.com).
+
+### URL patterns
+
+PostHog app links must be full URLs (origin + path) — bare paths aren't clickable in MCP clients like Cursor or Claude Desktop. Use Markdown with descriptive anchor text, e.g. \`[Cohorts](https://us.posthog.com/project/1/cohorts)\`. Never include \`/-/\`.
+
+Choose the link source in this order:
+
+1. If a tool result has a \`*url\` field (e.g. \`_posthogUrl\`), surface it verbatim — never rewrite or strip it.
+2. Only when you actually want to link a specific entity (or the user asks for a link) and it has no \`_posthogUrl\`, call \`generate-app-url\` and surface the \`url\` verbatim — don't hand-write slugs or retype IDs into paths, both are easy to get wrong. Don't fetch a link just because a result has an ID.
+3. Only for genuinely static pages not covered by \`generate-app-url\` (some settings / data-management pages), build the link from the Base URL in the active-environment block (don't double-prefix):
+   - Project-scoped paths → Base URL + \`/project/:id\`: \`/settings/<section-id>\` (hyphenated, e.g. \`/settings/environment-replay\`, \`/settings/user-api-keys\`), \`/data-management/events\`, \`/data-management/properties\`.
+   - Org-/account-level paths → Base URL only (no \`/project/:id\`): first segment \`organization\`, \`me\`, \`account\`, or \`instance\` — e.g. billing is \`/organization/billing\`.
+
+### Sharing feedback on PostHog
+
+The \`agent-feedback\` tool is a direct channel to the PostHog team for feedback about **anything PostHog** — a product or feature you (or the user) hit a rough edge with, this MCP server itself, the docs, or a capability that's missing. Use it whenever you or the user run into something worth telling the PostHog team, on any surface.
+
+Set \`feedback_type\` to route it:
+
+- \`product\` — any PostHog product or feature: insights, session replay, feature flags, the data warehouse, web analytics, error tracking, experiments, etc. Put the area in \`product_area\` (e.g. "session replay").
+- \`mcp\` — this MCP server itself: an unclear tool description, a confusing input schema, a hard-to-consume response, wrong results, an unhelpful error, a missing tool, or these instructions. Set \`category\` for MCP feedback.
+- \`docs\` — PostHog documentation.
+- \`scout\` — reserved for scheduled scout runs: an improvement opportunity in the canonical PostHog-authored scout skill steering the run (a false positive its rules produced, a detection its instructions missed, a discriminator that doesn't hold on this class of project). Set \`scout_skill_name\`, \`scout_skill_version\`, and \`scout_category\`, and generalize the observation — describe the pattern, never this project's data.
+- \`other\` — anything that doesn't fit the above.
+
+**All sentiments are welcome** — set \`sentiment\` to \`positive\`, \`neutral\`, \`negative\`, or \`mixed\`. Unlike a bug tracker, praise and feature requests are useful signal too, not just problems. Good triggers: a confusing or broken product experience, a papercut that slowed the task down, a missing capability you had to work around, a feature request, an unhelpful error, or something that worked really well and is worth reinforcing.
+
+Keep it short and actionable: a one-sentence \`summary\`, then the detail fields (\`friction_points\`, \`suggested_improvement\`, \`details\`) as clear, concise bullet points, quoting the exact product surface, tool name, parameter, or error text where you can. Include a concrete \`suggested_improvement\` whenever you can name one — for negative or mixed feedback that's the most valuable part. Use \`task_completed: false\` when you couldn't finish the user's request. Do not include user PII or sensitive query content in any field.
+
+The user can also ask you to send feedback directly — e.g. "make a PostHog feedback for this, it's broken." When they do, capture their point faithfully and submit it.
+
+Submitting feedback is **not** a way to end your turn or skip work. It's a side report to the PostHog team — call it when warranted, then keep going and finish the user's task with the other tools.
+
+### Examples
+
+Before writing any queries, read the PostHog's skill \`querying-posthog-data\` to see if there are any relevant query examples and follow them.
+
+#### Creating an insight with segmentation
+
+<example>
+User: How many users have chatted with the AI assistant from the US?
+Assistant: I'll help you find the number of users who have chatted with the AI assistant from the US.
+1. Find the relevant events for "chatted with the AI assistant" (the \`read-data-schema\` tool)
+2. Find the relevant properties of the events and persons to narrow down data to users from a specific country (the \`read-data-schema\` tool)
+3. Retrieve the sample property values for found properties to validate they match the intent (the \`read-data-schema\` tool)
+4. Run the query with discovered events, properties, and filters (the \`query-trends\` tool or the appropriate query tool)
+5. Analyze retrieved data and provide a concise summary
+*Begins working on the first task*
+<reasoning>
+1. Creating an insight requires understanding the taxonomy: events, properties, and property values relevant to the user's query.
+2. The user query requests additional segmentation by country.
+3. Property values might not match what the user expects (e.g., "US" vs "United States"), so retrieving sample values is important.
+4. Property values sample might not contain the value the user is looking for, so searching might be necessary.
+</reasoning>
+</example>
+
+#### Investigating a metric change
+
+<example>
+User: Check why onboarding completion rate has dropped and if it is connected with a low sign-up count.
+Assistant: I'll help you analyze the reasons why the metrics have changed. Let me break this down into steps.
+1. Find the relevant events for onboarding and sign-ups (the \`read-data-schema\` tool)
+2. Run a trends query for the onboarding completion event to confirm the drop and identify when it started (the \`query-trends\` tool)
+3. Run a trends query for the sign-up event to check if sign-up counts have also changed (the \`query-trends\` tool)
+4. Run trends queries with breakdowns (e.g., by country, device, or referral source) to identify which segments are affected (the \`query-trends\` tool)
+5. Run a funnel to check the conversion rate between sign-up and onboarding completion (the \`query-funnel\` tool)
+6. Synthesize findings across all queries and explain whether the metrics are correlated
+*Begins working on the first task*
+<reasoning>
+1. The user requested analysis of multiple metrics that must be investigated separately.
+2. Multiple queries are needed to understand each trend independently.
+3. Breakdowns help isolate the root cause by identifying affected segments.
+4. A funnel connects the two metrics to check for a direct relationship.
+</reasoning>
+</example>
+
+#### Building a dashboard
+
+<example>
+User: Generate a revenue dashboard.
+Assistant: I'll help you create a revenue dashboard. Let me plan the steps.
+1. List existing dashboards to check if one already covers revenue (the \`dashboards-get-all\` tool)
+2. Search saved insights related to revenue (the \`execute-sql\` tool against \`system.insights\` — check \`execute-sql\` for SQL guidance)
+3. Validate promising insights by reading their query schemas (the \`insight-get\` tool)
+4. Retrieve the taxonomy and understand available revenue-related events and properties (the \`read-data-schema\` tool)
+5. Create new insights only for metrics not covered by existing insights (the \`query-trends\` tool or appropriate query tool)
+6. Create a new dashboard with both existing and newly created insights (the \`dashboard-create\` tool)
+7. Analyze the created dashboard and provide a concise summary of metrics
+*Begins working on the first task*
+<reasoning>
+1. The user requested creating a dashboard. This is a complex task that requires multiple steps to complete.
+2. Finding existing insights requires both listing (to discover insights with different naming) and searching.
+3. Promising insights must be validated by reading their schemas to check if they match the user's intent.
+4. New insights should only be created when no existing insight matches the requirement.
+</reasoning>
+</example>`,
+      },
+      {
+        name: 'context',
+        type: 'string',
+        required: true,
+        description: `Explain why you are calling this tool and how it fits into the user's overall goal. This parameter is used for analytics and user intent tracking. YOU MUST provide 15-25 words (count carefully). NEVER use first person ('I', 'we', 'you') - maintain third-person perspective. NEVER include sensitive information such as credentials, passwords, or personal data. Example (20 words): "Searching across the organization's repositories to find all open issues related to performance complaints and latency issues for team prioritization."`,
+      },
+    ],
+  },
+  {
     name: 'posthogmcp_experiment_archive',
     description: `Archive an ended experiment to hide it from the default list view. Returns 400 if the experiment is already archived or has not ended.`,
     params: [

@@ -62,6 +62,24 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'greptilmcp_get_knowledge_base_document',
+    description: `Get the markdown body of a single knowledge base document. Returns the content plus the section and versionId it was read from.`,
+    params: [
+      {
+        name: 'path',
+        type: 'string',
+        required: true,
+        description: `Document path obtained from List Knowledge Base Documents.`,
+      },
+      {
+        name: 'repoNamespaceExternalId',
+        type: 'string',
+        required: true,
+        description: `Repository handle obtained from List Knowledge Bases.`,
+      },
+    ],
+  },
+  {
     name: 'greptilmcp_get_merge_request',
     description: `Get detailed merge request information including metadata, statistics, Greptile comments, and review analysis.`,
     params: [
@@ -178,6 +196,48 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Filter by context type: CUSTOM_INSTRUCTION or PATTERN.`,
+      },
+    ],
+  },
+  {
+    name: 'greptilmcp_list_knowledge_base_documents',
+    description: `List the document paths in one repository's current published knowledge base. Every returned path can be passed straight to Get Knowledge Base Document.`,
+    params: [
+      {
+        name: 'repoNamespaceExternalId',
+        type: 'string',
+        required: true,
+        description: `Repository handle obtained from List Knowledge Bases.`,
+      },
+      {
+        name: 'limit',
+        type: 'number',
+        required: false,
+        description: `Maximum number of results to return (1-100). Defaults to 20.`,
+      },
+      {
+        name: 'offset',
+        type: 'number',
+        required: false,
+        description: `Number of results to skip for pagination. Defaults to 0.`,
+      },
+    ],
+  },
+  {
+    name: 'greptilmcp_list_knowledge_bases',
+    description: `List the repositories in your organization that have a published Greptile knowledge base — the per-repository documentation Greptile synthesizes from the codebase and consults while reviewing.`,
+    params: [
+      {
+        name: 'limit',
+        type: 'number',
+        required: false,
+        description: `Maximum number of results to return (1-100). Defaults to 20.`,
+      },
+      {
+        name: 'offset',
+        type: 'number',
+        required: false,
+        description: `Number of results to skip for pagination. Defaults to 0.`,
       },
     ],
   },
@@ -402,6 +462,36 @@ export const tools: Tool[] = [
         type: 'number',
         required: false,
         description: `Maximum number of results to return (1-50). Defaults to 10.`,
+      },
+    ],
+  },
+  {
+    name: 'greptilmcp_search_knowledge_base',
+    description: `Case-insensitive substring search across one repository's knowledge base. Returns matching documents with line numbers and surrounding snippets.`,
+    params: [
+      {
+        name: 'query',
+        type: 'string',
+        required: true,
+        description: `Substring to search for (2-200 characters).`,
+      },
+      {
+        name: 'repoNamespaceExternalId',
+        type: 'string',
+        required: true,
+        description: `Repository handle obtained from List Knowledge Bases.`,
+      },
+      {
+        name: 'limit',
+        type: 'number',
+        required: false,
+        description: `Maximum number of results to return (1-50). Defaults to 10.`,
+      },
+      {
+        name: 'sections',
+        type: 'array',
+        required: false,
+        description: `Knowledge base sections to search; defaults to 'docs' only.`,
       },
     ],
   },

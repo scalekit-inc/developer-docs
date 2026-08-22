@@ -115,6 +115,12 @@ export const tools: Tool[] = [
         description: `ID of the brand radar report to query.`,
       },
       {
+        name: 'search_volume_type',
+        type: 'string',
+        required: false,
+        description: `Type of search volume to use when calculating brand radar metrics, such as \`organic\` or \`ai_overview\` search volume.`,
+      },
+      {
         name: 'where',
         type: 'string',
         required: false,
@@ -137,6 +143,12 @@ export const tools: Tool[] = [
         type: 'array',
         required: true,
         description: `Comma-separated list of fields to include in the response.`,
+      },
+      {
+        name: 'brand_filter',
+        type: 'object',
+        required: false,
+        description: `Filter object to restrict results to a specific brand or competitor entity, using the same structure as the \`brands\` and \`competitors\` fields.`,
       },
       {
         name: 'brands',
@@ -197,6 +209,164 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `ID of the brand radar report to query.`,
+      },
+      {
+        name: 'search_volume_type',
+        type: 'string',
+        required: false,
+        description: `Type of search volume to use when calculating brand radar metrics, such as \`organic\` or \`ai_overview\` search volume.`,
+      },
+      { name: 'tags_filter', type: 'object', required: false, description: `No description.` },
+      {
+        name: 'volume_range',
+        type: 'object',
+        required: false,
+        description: `Filter results to items whose associated search volume falls within a numeric range. Provide optional \`from\` and/or \`to\` bounds.`,
+      },
+      {
+        name: 'where',
+        type: 'object',
+        required: false,
+        description: `Filter expression in Ahrefs API filter syntax.`,
+      },
+    ],
+  },
+  {
+    name: 'ahrefsmcp_brand_radar_citations_history_entities',
+    description: `Provides the historical number of citations for your and competitors' brand URLs in an LLM you specify. Every entity provided in \`brands\` (and \`competitors\`, when applicable) must include at least one value in \`url_groups\`; entities consisting only of \`names\` are not supported here because citations are matched against URL groups. Prefer this tool over the non-entities variant, since you can more accurately describe brands/competitors with multiple names and/or websites.`,
+    params: [
+      {
+        name: 'data_source',
+        type: 'array',
+        required: true,
+        description: `AI platform to pull data from (e.g. \`google_ai_overview\`).`,
+      },
+      {
+        name: 'date_from',
+        type: 'string',
+        required: true,
+        description: `Start date for the data range (YYYY-MM-DD).`,
+      },
+      {
+        name: 'brands',
+        type: 'array',
+        required: false,
+        description: `Array of brand domains to track.`,
+      },
+      {
+        name: 'country',
+        type: 'array',
+        required: false,
+        description: `Two-letter ISO country code to filter data (e.g. \`us\`, \`gb\`, \`de\`).`,
+      },
+      {
+        name: 'date_to',
+        type: 'string',
+        required: false,
+        description: `End date for the data range (YYYY-MM-DD).`,
+      },
+      {
+        name: 'market',
+        type: 'array',
+        required: false,
+        description: `Market or country code for brand radar data.`,
+      },
+      {
+        name: 'output',
+        type: 'string',
+        required: false,
+        description: `Response format. Use \`json\` (default) or \`csv\`.`,
+      },
+      {
+        name: 'prompts',
+        type: 'string',
+        required: false,
+        description: `Search prompt or topic to track brand mentions for.`,
+      },
+      {
+        name: 'report_id',
+        type: 'string',
+        required: false,
+        description: `ID of the brand radar report to query.`,
+      },
+      {
+        name: 'search_volume_type',
+        type: 'string',
+        required: false,
+        description: `Type of search volume to use when calculating brand radar metrics, such as \`organic\` or \`ai_overview\` search volume.`,
+      },
+      { name: 'tags_filter', type: 'object', required: false, description: `No description.` },
+      {
+        name: 'where',
+        type: 'object',
+        required: false,
+        description: `Filter expression in Ahrefs API filter syntax.`,
+      },
+    ],
+  },
+  {
+    name: 'ahrefsmcp_brand_radar_citations_overview_entities',
+    description: `Provides the number of citations for your and competitors' brands in an LLM you specify, with filters for locations, query text, URL, and more. Every entity provided in \`brands\` (and \`competitors\`, when applicable) must include at least one value in \`url_groups\`; entities consisting only of \`names\` are not supported here because citations are matched against URL groups. Prefer this tool over the non-entities variant, since you can more accurately describe brands/competitors with multiple names and/or websites.`,
+    params: [
+      {
+        name: 'data_source',
+        type: 'array',
+        required: true,
+        description: `AI platform to pull data from (e.g. \`google_ai_overview\`).`,
+      },
+      {
+        name: 'select',
+        type: 'array',
+        required: true,
+        description: `Comma-separated list of fields to include in the response.`,
+      },
+      {
+        name: 'brands',
+        type: 'array',
+        required: false,
+        description: `Array of brand domains to track.`,
+      },
+      {
+        name: 'competitors',
+        type: 'array',
+        required: false,
+        description: `Comma-separated list of competitor domains.`,
+      },
+      {
+        name: 'country',
+        type: 'array',
+        required: false,
+        description: `Two-letter ISO country code to filter data (e.g. \`us\`, \`gb\`, \`de\`).`,
+      },
+      {
+        name: 'market',
+        type: 'array',
+        required: false,
+        description: `Market or country code for brand radar data.`,
+      },
+      {
+        name: 'output',
+        type: 'string',
+        required: false,
+        description: `Response format. Use \`json\` (default) or \`csv\`.`,
+      },
+      {
+        name: 'prompts',
+        type: 'string',
+        required: false,
+        description: `Search prompt or topic to track brand mentions for.`,
+      },
+      {
+        name: 'report_id',
+        type: 'string',
+        required: false,
+        description: `ID of the brand radar report to query.`,
+      },
+      {
+        name: 'search_volume_type',
+        type: 'string',
+        required: false,
+        description: `Type of search volume to use when calculating brand radar metrics, such as \`organic\` or \`ai_overview\` search volume.`,
       },
       { name: 'tags_filter', type: 'object', required: false, description: `No description.` },
       {
@@ -278,6 +448,12 @@ export const tools: Tool[] = [
         description: `ID of the brand radar report to query.`,
       },
       {
+        name: 'search_volume_type',
+        type: 'string',
+        required: false,
+        description: `Type of search volume to use when calculating brand radar metrics, such as \`organic\` or \`ai_overview\` search volume.`,
+      },
+      {
         name: 'where',
         type: 'string',
         required: false,
@@ -300,6 +476,12 @@ export const tools: Tool[] = [
         type: 'array',
         required: true,
         description: `Comma-separated list of fields to include in the response.`,
+      },
+      {
+        name: 'brand_filter',
+        type: 'object',
+        required: false,
+        description: `Filter object to restrict results to a specific brand or competitor entity, using the same structure as the \`brands\` and \`competitors\` fields.`,
       },
       {
         name: 'brands',
@@ -355,7 +537,19 @@ export const tools: Tool[] = [
         required: false,
         description: `ID of the brand radar report to query.`,
       },
+      {
+        name: 'search_volume_type',
+        type: 'string',
+        required: false,
+        description: `Type of search volume to use when calculating brand radar metrics, such as \`organic\` or \`ai_overview\` search volume.`,
+      },
       { name: 'tags_filter', type: 'object', required: false, description: `No description.` },
+      {
+        name: 'volume_range',
+        type: 'object',
+        required: false,
+        description: `Filter results to items whose associated search volume falls within a numeric range. Provide optional \`from\` and/or \`to\` bounds.`,
+      },
       {
         name: 'where',
         type: 'object',
@@ -434,6 +628,12 @@ export const tools: Tool[] = [
         required: false,
         description: `ID of the brand radar report to query.`,
       },
+      {
+        name: 'search_volume_type',
+        type: 'string',
+        required: false,
+        description: `Type of search volume to use when calculating brand radar metrics, such as \`organic\` or \`ai_overview\` search volume.`,
+      },
       { name: 'tracked_urls', type: 'string', required: false, description: `No description.` },
       {
         name: 'where',
@@ -458,6 +658,12 @@ export const tools: Tool[] = [
         type: 'array',
         required: true,
         description: `Comma-separated list of fields to include in the response.`,
+      },
+      {
+        name: 'brand_filter',
+        type: 'object',
+        required: false,
+        description: `Filter object to restrict results to a specific brand or competitor entity, using the same structure as the \`brands\` and \`competitors\` fields.`,
       },
       {
         name: 'brands',
@@ -513,8 +719,20 @@ export const tools: Tool[] = [
         required: false,
         description: `ID of the brand radar report to query.`,
       },
+      {
+        name: 'search_volume_type',
+        type: 'string',
+        required: false,
+        description: `Type of search volume to use when calculating brand radar metrics, such as \`organic\` or \`ai_overview\` search volume.`,
+      },
       { name: 'tags_filter', type: 'object', required: false, description: `No description.` },
       { name: 'tracked_urls', type: 'array', required: false, description: `No description.` },
+      {
+        name: 'volume_range',
+        type: 'object',
+        required: false,
+        description: `Filter results to items whose associated search volume falls within a numeric range. Provide optional \`from\` and/or \`to\` bounds.`,
+      },
       {
         name: 'where',
         type: 'object',
@@ -582,6 +800,12 @@ export const tools: Tool[] = [
         description: `ID of the brand radar report to query.`,
       },
       {
+        name: 'search_volume_type',
+        type: 'string',
+        required: false,
+        description: `Type of search volume to use when calculating brand radar metrics, such as \`organic\` or \`ai_overview\` search volume.`,
+      },
+      {
         name: 'where',
         type: 'string',
         required: false,
@@ -646,6 +870,12 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `ID of the brand radar report to query.`,
+      },
+      {
+        name: 'search_volume_type',
+        type: 'string',
+        required: false,
+        description: `Type of search volume to use when calculating brand radar metrics, such as \`organic\` or \`ai_overview\` search volume.`,
       },
       { name: 'tags_filter', type: 'object', required: false, description: `No description.` },
       {
@@ -715,6 +945,12 @@ export const tools: Tool[] = [
         description: `ID of the brand radar report to query.`,
       },
       {
+        name: 'search_volume_type',
+        type: 'string',
+        required: false,
+        description: `Type of search volume to use when calculating brand radar metrics, such as \`organic\` or \`ai_overview\` search volume.`,
+      },
+      {
         name: 'where',
         type: 'string',
         required: false,
@@ -779,6 +1015,12 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `ID of the brand radar report to query.`,
+      },
+      {
+        name: 'search_volume_type',
+        type: 'string',
+        required: false,
+        description: `Type of search volume to use when calculating brand radar metrics, such as \`organic\` or \`ai_overview\` search volume.`,
       },
       { name: 'tags_filter', type: 'object', required: false, description: `No description.` },
       {
@@ -848,6 +1090,12 @@ export const tools: Tool[] = [
         description: `ID of the brand radar report to query.`,
       },
       {
+        name: 'search_volume_type',
+        type: 'string',
+        required: false,
+        description: `Type of search volume to use when calculating brand radar metrics, such as \`organic\` or \`ai_overview\` search volume.`,
+      },
+      {
         name: 'where',
         type: 'string',
         required: false,
@@ -912,6 +1160,12 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `ID of the brand radar report to query.`,
+      },
+      {
+        name: 'search_volume_type',
+        type: 'string',
+        required: false,
+        description: `Type of search volume to use when calculating brand radar metrics, such as \`organic\` or \`ai_overview\` search volume.`,
       },
       { name: 'tags_filter', type: 'object', required: false, description: `No description.` },
       {
@@ -981,6 +1235,12 @@ export const tools: Tool[] = [
         description: `ID of the brand radar report to query.`,
       },
       {
+        name: 'search_volume_type',
+        type: 'string',
+        required: false,
+        description: `Type of search volume to use when calculating brand radar metrics, such as \`organic\` or \`ai_overview\` search volume.`,
+      },
+      {
         name: 'where',
         type: 'string',
         required: false,
@@ -1045,6 +1305,12 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `ID of the brand radar report to query.`,
+      },
+      {
+        name: 'search_volume_type',
+        type: 'string',
+        required: false,
+        description: `Type of search volume to use when calculating brand radar metrics, such as \`organic\` or \`ai_overview\` search volume.`,
       },
       { name: 'tags_filter', type: 'object', required: false, description: `No description.` },
       {
@@ -1120,6 +1386,12 @@ export const tools: Tool[] = [
         description: `ID of the brand radar report to query.`,
       },
       {
+        name: 'search_volume_type',
+        type: 'string',
+        required: false,
+        description: `Type of search volume to use when calculating brand radar metrics, such as \`organic\` or \`ai_overview\` search volume.`,
+      },
+      {
         name: 'where',
         type: 'string',
         required: false,
@@ -1191,6 +1463,12 @@ export const tools: Tool[] = [
         required: false,
         description: `ID of the brand radar report to query.`,
       },
+      {
+        name: 'search_volume_type',
+        type: 'string',
+        required: false,
+        description: `Type of search volume to use when calculating brand radar metrics, such as \`organic\` or \`ai_overview\` search volume.`,
+      },
       { name: 'tags_filter', type: 'object', required: false, description: `No description.` },
       {
         name: 'where',
@@ -1253,6 +1531,12 @@ export const tools: Tool[] = [
         description: `ID of the brand radar report to query.`,
       },
       {
+        name: 'search_volume_type',
+        type: 'string',
+        required: false,
+        description: `Type of search volume to use when calculating brand radar metrics, such as \`organic\` or \`ai_overview\` search volume.`,
+      },
+      {
         name: 'where',
         type: 'string',
         required: false,
@@ -1311,6 +1595,12 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `ID of the brand radar report to query.`,
+      },
+      {
+        name: 'search_volume_type',
+        type: 'string',
+        required: false,
+        description: `Type of search volume to use when calculating brand radar metrics, such as \`organic\` or \`ai_overview\` search volume.`,
       },
       { name: 'tags_filter', type: 'object', required: false, description: `No description.` },
       {
@@ -2163,6 +2453,12 @@ export const tools: Tool[] = [
         description: `Maximum number of results to return.`,
       },
       {
+        name: 'mode',
+        type: 'string',
+        required: false,
+        description: `Scope of analysis: \`exact\`, \`prefix\`, \`domain\`, or \`subdomains\`.`,
+      },
+      {
         name: 'order_by',
         type: 'string',
         required: false,
@@ -2179,12 +2475,6 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Domain, URL, or path to analyze (e.g. \`ahrefs.com\`).`,
-      },
-      {
-        name: 'target_mode',
-        type: 'string',
-        required: false,
-        description: `Scope of analysis: \`exact\`, \`prefix\`, \`domain\`, or \`subdomains\`.`,
       },
       { name: 'target_position', type: 'string', required: false, description: `No description.` },
       {
@@ -2530,6 +2820,126 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Response format. Use \`json\` (default) or \`csv\`.`,
+      },
+    ],
+  },
+  {
+    name: 'ahrefsmcp_public_domain_rating_free',
+    description: `Retrieves the domain rating for a specified domain or URL as of today.`,
+    params: [
+      {
+        name: 'target',
+        type: 'string',
+        required: true,
+        description: `Domain, URL, or path to analyze (e.g. \`ahrefs.com\`).`,
+      },
+      {
+        name: 'output',
+        type: 'string',
+        required: false,
+        description: `Response format. Use \`json\` (default) or \`csv\`.`,
+      },
+    ],
+  },
+  {
+    name: 'ahrefsmcp_public_domain_rating_top_domains',
+    description: `Returns the top 1M domains ranked by Ahrefs Domain Rating, together with each domain's current Domain Rating.`,
+    params: [
+      {
+        name: 'from',
+        type: 'integer',
+        required: false,
+        description: `Starting position (1-based rank) in the top domains list to return results from.`,
+      },
+      {
+        name: 'output',
+        type: 'string',
+        required: false,
+        description: `Response format. Use \`json\` (default) or \`csv\`.`,
+      },
+      {
+        name: 'to',
+        type: 'integer',
+        required: false,
+        description: `Ending position (rank) in the top domains list to return results to.`,
+      },
+    ],
+  },
+  {
+    name: 'ahrefsmcp_rank_tracker_competitors_domains',
+    description: `Provides an overview of competitor domains and their share of voice for a specified project and date in Ahrefs Rank Tracker, allowing comparison between current and previous data.`,
+    params: [
+      {
+        name: 'date',
+        type: 'string',
+        required: true,
+        description: `Target date for the snapshot (YYYY-MM-DD).`,
+      },
+      {
+        name: 'device',
+        type: 'string',
+        required: true,
+        description: `Device type filter: \`desktop\`, \`mobile\`, or \`tablet\`.`,
+      },
+      {
+        name: 'project_id',
+        type: 'integer',
+        required: true,
+        description: `Numeric ID of the Ahrefs project.`,
+      },
+      {
+        name: 'select',
+        type: 'string',
+        required: true,
+        description: `Comma-separated list of fields to include in the response.`,
+      },
+      {
+        name: 'date_compared',
+        type: 'string',
+        required: false,
+        description: `Comparison date for period-over-period analysis (YYYY-MM-DD).`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of results to return.`,
+      },
+      {
+        name: 'order_by',
+        type: 'string',
+        required: false,
+        description: `Sort order as an array of \`field:asc\` or \`field:desc\` strings.`,
+      },
+      {
+        name: 'output',
+        type: 'string',
+        required: false,
+        description: `Response format. Use \`json\` (default) or \`csv\`.`,
+      },
+      {
+        name: 'target_and_tracked_competitors_only',
+        type: 'boolean',
+        required: false,
+        description: `If true, restricts results to the project's target domain and its tracked competitors only, excluding other discovered competitor domains.`,
+      },
+      {
+        name: 'timeout',
+        type: 'integer',
+        required: false,
+        description: `Request timeout in seconds.`,
+      },
+      {
+        name: 'volume_mode',
+        type: 'string',
+        required: false,
+        description: `How to calculate search volume: \`monthly\` or \`average\`.`,
+      },
+      {
+        name: 'where',
+        type: 'string',
+        required: false,
+        description: `Filter expression in Ahrefs API filter syntax.`,
       },
     ],
   },
@@ -2906,6 +3316,12 @@ export const tools: Tool[] = [
         description: `Response format. Use \`json\` (default) or \`csv\`.`,
       },
       { name: 'top_positions', type: 'integer', required: false, description: `No description.` },
+      {
+        name: 'type',
+        type: 'string',
+        required: false,
+        description: `Filter SERP results to a specific result type (e.g. \`organic\`, \`paid\`, \`featured_snippet\`).`,
+      },
     ],
   },
   {
@@ -3005,6 +3421,12 @@ export const tools: Tool[] = [
         description: `Maximum number of results to return.`,
       },
       {
+        name: 'offset',
+        type: 'integer',
+        required: false,
+        description: `Number of results to skip before returning results, for pagination alongside \`limit\`.`,
+      },
+      {
         name: 'order_by',
         type: 'string',
         required: false,
@@ -3060,6 +3482,54 @@ export const tools: Tool[] = [
       },
       { name: 'project_name', type: 'string', required: false, description: `No description.` },
       { name: 'project_url', type: 'string', required: false, description: `No description.` },
+    ],
+  },
+  {
+    name: 'ahrefsmcp_site_explorer_ai_responses_count',
+    description: `Returns how often AI search platforms cite the target, with the number of citation links and distinct cited pages per platform as of a given date. When analyzing a domain name, use \`mode=subdomains\` — \`mode=domain\` can exclude www and other subdomains. Requests using \`ahrefs.com\`, \`wordcount.com\`, or any URL under those domains as the \`target\` do not consume API units.`,
+    params: [
+      {
+        name: 'select',
+        type: 'string',
+        required: true,
+        description: `Comma-separated list of fields to include in the response.`,
+      },
+      {
+        name: 'target',
+        type: 'string',
+        required: true,
+        description: `Domain, URL, or path to analyze (e.g. \`ahrefs.com\`).`,
+      },
+      {
+        name: 'country',
+        type: 'string',
+        required: false,
+        description: `Two-letter ISO country code to filter data (e.g. \`us\`, \`gb\`, \`de\`).`,
+      },
+      {
+        name: 'date',
+        type: 'string',
+        required: false,
+        description: `Target date for the snapshot (YYYY-MM-DD).`,
+      },
+      {
+        name: 'mode',
+        type: 'string',
+        required: false,
+        description: `Scope of analysis: \`exact\`, \`prefix\`, \`domain\`, or \`subdomains\`.`,
+      },
+      {
+        name: 'output',
+        type: 'string',
+        required: false,
+        description: `Response format. Use \`json\` (default) or \`csv\`.`,
+      },
+      {
+        name: 'protocol',
+        type: 'string',
+        required: false,
+        description: `URL protocol to include: \`http\`, \`https\`, or \`both\`.`,
+      },
     ],
   },
   {
@@ -3357,12 +3827,6 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Response format. Use \`json\` (default) or \`csv\`.`,
-      },
-      {
-        name: 'protocol',
-        type: 'string',
-        required: false,
-        description: `URL protocol to include: \`http\`, \`https\`, or \`both\`.`,
       },
     ],
   },
@@ -3683,6 +4147,12 @@ export const tools: Tool[] = [
         description: `URL protocol to include: \`http\`, \`https\`, or \`both\`.`,
       },
       {
+        name: 'traffic_mode',
+        type: 'string',
+        required: false,
+        description: `How to calculate estimated organic traffic: e.g. \`monthly\` or \`average\`.`,
+      },
+      {
         name: 'volume_mode',
         type: 'string',
         required: false,
@@ -3729,6 +4199,12 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Comma-separated list of fields to include in the response.`,
+      },
+      {
+        name: 'traffic_mode',
+        type: 'string',
+        required: false,
+        description: `How to calculate estimated organic traffic: e.g. \`monthly\` or \`average\`.`,
       },
       {
         name: 'volume_mode',
@@ -3795,6 +4271,12 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Comma-separated list of fields to include in the response.`,
+      },
+      {
+        name: 'traffic_mode',
+        type: 'string',
+        required: false,
+        description: `How to calculate estimated organic traffic: e.g. \`monthly\` or \`average\`.`,
       },
       {
         name: 'volume_mode',
@@ -3873,6 +4355,12 @@ export const tools: Tool[] = [
         type: 'integer',
         required: false,
         description: `Request timeout in seconds.`,
+      },
+      {
+        name: 'traffic_mode',
+        type: 'string',
+        required: false,
+        description: `How to calculate estimated organic traffic: e.g. \`monthly\` or \`average\`.`,
       },
       {
         name: 'volume_mode',
@@ -3957,6 +4445,12 @@ export const tools: Tool[] = [
         type: 'integer',
         required: false,
         description: `Request timeout in seconds.`,
+      },
+      {
+        name: 'traffic_mode',
+        type: 'string',
+        required: false,
+        description: `How to calculate estimated organic traffic: e.g. \`monthly\` or \`average\`.`,
       },
       {
         name: 'volume_mode',
@@ -4156,6 +4650,12 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `URL protocol to include: \`http\`, \`https\`, or \`both\`.`,
+      },
+      {
+        name: 'traffic_mode',
+        type: 'string',
+        required: false,
+        description: `How to calculate estimated organic traffic: e.g. \`monthly\` or \`average\`.`,
       },
       {
         name: 'volume_mode',
@@ -4482,6 +4982,12 @@ export const tools: Tool[] = [
         type: 'integer',
         required: false,
         description: `Request timeout in seconds.`,
+      },
+      {
+        name: 'traffic_mode',
+        type: 'string',
+        required: false,
+        description: `How to calculate estimated organic traffic: e.g. \`monthly\` or \`average\`.`,
       },
       {
         name: 'volume_mode',

@@ -12360,7 +12360,6 @@ export const tools: Tool[] = [
       { name: 'property', type: 'string', required: false, description: `Property to return.` },
       { name: 'schema_version', type: 'string', required: false, description: `Schema version` },
       { name: 'sort', type: 'string', required: false, description: `Sort parameters.` },
-      { name: 'status', type: 'string', required: false, description: `Thread status.` },
       {
         name: 'thread_status',
         type: 'string',

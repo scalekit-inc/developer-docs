@@ -2,6 +2,24 @@ import type { Tool } from '../../types/agent-connectors'
 
 export const tools: Tool[] = [
   {
+    name: 'cartamcp_call_tool',
+    description: `Call a Carta MCP tool by name with the given arguments.`,
+    params: [
+      {
+        name: 'name',
+        type: 'string',
+        required: true,
+        description: `Name of the tool to call, as returned by Search Tools (use __ instead of : as a separator).`,
+      },
+      {
+        name: 'arguments',
+        type: 'string',
+        required: false,
+        description: `Arguments to pass to the tool (dict or JSON string).`,
+      },
+    ],
+  },
+  {
     name: 'cartamcp_cap_table_chart',
     description: `Show a visual cap table summary with ownership breakdown by share class.`,
     params: [
@@ -80,6 +98,12 @@ export const tools: Tool[] = [
     description: `List all companies and organizations the current user has access to.`,
     params: [
       {
+        name: 'detail',
+        type: 'string',
+        required: false,
+        description: `"summary" (default) returns up to the first 10 accounts, plus a total count when there are more. Pass "full" to force the complete list.`,
+      },
+      {
         name: 'search',
         type: 'string',
         required: false,
@@ -112,6 +136,11 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'cartamcp_list_resources',
+    description: `List all available Carta MCP resources and resource templates.`,
+    params: [],
+  },
+  {
     name: 'cartamcp_mutate',
     description: `Execute a write command (POST, PATCH, PUT, DELETE) against Carta.`,
     params: [
@@ -130,6 +159,35 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'cartamcp_read_resource',
+    description: `Read a Carta MCP resource by its URI.`,
+    params: [
+      {
+        name: 'uri',
+        type: 'string',
+        required: true,
+        description: `URI of the resource to read. For templated resources, fill in the template parameters.`,
+      },
+    ],
+  },
+  {
+    name: 'cartamcp_request_permissions',
+    description: `Generate an authorization link to grant Carta MCP access to your account.`,
+    params: [],
+  },
+  {
+    name: 'cartamcp_search_tools',
+    description: `Search for Carta MCP tools using a natural language query.`,
+    params: [
+      {
+        name: 'query',
+        type: 'string',
+        required: true,
+        description: `Natural language query describing the tool you're looking for.`,
+      },
+    ],
+  },
+  {
     name: 'cartamcp_set_context',
     description: `Switch the active firm so subsequent queries use that firm data.`,
     params: [
@@ -138,6 +196,54 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `Carta firm ID to switch context to.`,
+      },
+    ],
+  },
+  {
+    name: 'cartamcp_skill_checkpoint',
+    description: `Record a named execution milestone for a running skill (explicit invocation only).`,
+    params: [
+      {
+        name: 'checkpoint_label',
+        type: 'string',
+        required: true,
+        description: `Milestone label, e.g. "skill_started" or "skill_finished" for the first/last checkpoint, or a custom snake_case label.`,
+      },
+      {
+        name: 'skill_name',
+        type: 'string',
+        required: true,
+        description: `Full skill identifier being checkpointed.`,
+      },
+      {
+        name: 'notes',
+        type: 'string',
+        required: false,
+        description: `Optional free-text context, e.g. an error summary or a counted quantity.`,
+      },
+    ],
+  },
+  {
+    name: 'cartamcp_track_ui_event',
+    description: `Record a UI event (click, view, or other interaction) from a Carta MCP interface so it shows up in analytics.`,
+    params: [
+      {
+        name: 'contexts',
+        type: 'array',
+        required: true,
+        description: `List of small dicts giving extra context for the event. Must include one entry describing which interface sent the event, shaped as {"schema": "iglu:com.carta/mcp_interface/jsonschema/1-0-0", "data": {"interfaceType": ..., "interfaceId": ...}}, where interfaceType is one of "mcp_app", "micro_app", or "artifact".`,
+      },
+      {
+        name: 'event',
+        type: 'string',
+        required: true,
+        description: `The event to record, as a small dict shaped like {"schema": ..., "data": ...}. Passed through exactly as given.`,
+      },
+      {
+        name: 'user_id',
+        type: 'string',
+        required: false,
+        description: `Optional fallback identity for the event. The server automatically attaches the verified, logged-in user's identity when it can determine one, and that always wins over this value.`,
       },
     ],
   },
@@ -180,6 +286,13 @@ export const tools: Tool[] = [
   {
     name: 'cartamcp_welcome',
     description: `Get a welcome message and orientation guide from Carta MCP.`,
-    params: [],
+    params: [
+      {
+        name: 'role',
+        type: 'string',
+        required: false,
+        description: `Optional role to filter quick-start suggestions by (e.g. CFO, fund accountant, deal team, IR, compliance officer, general partner, fundraising lead). Leave empty to show all.`,
+      },
+    ],
   },
 ]

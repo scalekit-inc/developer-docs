@@ -330,6 +330,24 @@ export const tools: Tool[] = [
         description: `Describe the user's intent and why this tool was selected in general terms only; do not include specific field values, names, emails, or other data.`,
       },
       {
+        name: 'contact_job_changed',
+        type: 'boolean',
+        required: false,
+        description: `Filter to contacts who have a recent job-change event recorded; use with job_change_new_organization_ids to filter by the specific new employer.`,
+      },
+      {
+        name: 'contact_label_ids',
+        type: 'array',
+        required: false,
+        description: `The Apollo IDs of the lists (labels) whose contacts you want to include in your search results.`,
+      },
+      {
+        name: 'job_change_new_organization_ids',
+        type: 'array',
+        required: false,
+        description: `Apollo organization IDs of the new employer (the company the contact moved TO during their most recent job change).`,
+      },
+      {
         name: 'page',
         type: 'integer',
         required: false,
@@ -456,6 +474,588 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'apollomcp_apollo_context_center_create_product',
+    description: `Add a new product or service to the team's Context Center, which Apollo uses to personalize AI-generated outreach. Each call creates a NEW product record — calling this twice creates two separate products; to change an existing product, do not call this again — first read it with apollo_context_center_show_product (or apollo_context_center_show) and use apollo_context_center_update_product instead. Only product_or_service_name is required, but confirm the product name and description with the user before calling. After the call succeeds, echo back only the new product's id and name.`,
+    params: [
+      {
+        name: 'product_or_service_name',
+        type: 'string',
+        required: true,
+        description: `Name of the product or service being added to the Context Center. Required. Example: Apollo Sequences`,
+      },
+      {
+        name: '_conversation_ref',
+        type: 'string',
+        required: false,
+        description: `Short random token generated on your first call in a conversation; reuse the exact same value on every subsequent call to group related tool calls for analytics.`,
+      },
+      {
+        name: '_rationale',
+        type: 'string',
+        required: false,
+        description: `Describe the user's intent and why this tool was selected in general terms only; do not include specific field values, names, emails, or other data.`,
+      },
+      {
+        name: 'is_default',
+        type: 'boolean',
+        required: false,
+        description: `If true, this becomes the team's default product and any prior default product is unset. Defaults to false.`,
+      },
+      {
+        name: 'one_sentence_description',
+        type: 'string',
+        required: false,
+        description: `A single-sentence summary of the product used to help Apollo generate outreach messaging.`,
+      },
+      {
+        name: 'product_content',
+        type: 'string',
+        required: false,
+        description: `Detailed product information in Markdown — features, use cases, and value propositions Apollo can reference when generating messaging.`,
+      },
+    ],
+  },
+  {
+    name: 'apollomcp_apollo_context_center_create_profile',
+    description: `Create the team's Context Center Ideal Customer Profile (ICP) — the single team-wide profile Apollo uses to personalize AI-generated outreach: who the team sells to, the company's value proposition, the pain points it solves, and its proof points. A Context Center has two parts: this ICP (one per team) and a set of product profiles managed separately via apollo_context_center_create_product / apollo_context_center_update_product; this tool sets only the ICP. Use this when the team is setting up its Context Center for the first time — to edit an existing profile, use apollo_context_center_update_profile instead. Confirm every field value with the user before calling; never invent company positioning, value props, or competitors. No fields are strictly required, but leaving the profile mostly empty limits how well Apollo can personalize messaging.`,
+    params: [
+      {
+        name: '_conversation_ref',
+        type: 'string',
+        required: false,
+        description: `Short random token generated on your first call in a conversation; reuse the exact same value on every subsequent call to group related tool calls for analytics.`,
+      },
+      {
+        name: '_rationale',
+        type: 'string',
+        required: false,
+        description: `Describe the user's intent and why this tool was selected in general terms only; do not include specific field values, names, emails, or other data.`,
+      },
+      {
+        name: 'additional_context',
+        type: 'string',
+        required: false,
+        description: `Any other context that should inform AI-generated messaging.`,
+      },
+      {
+        name: 'approved',
+        type: 'boolean',
+        required: false,
+        description: `Whether the new Context Center is approved and active. Set true to publish it (live for AI-generated messaging); leave false to create it as a draft. Confirm the user's intent before approving. Defaults to false.`,
+      },
+      {
+        name: 'call_to_action',
+        type: 'string',
+        required: false,
+        description: `The preferred next step to ask prospects to take.`,
+      },
+      {
+        name: 'company_or_product_name',
+        type: 'string',
+        required: false,
+        description: `The company or primary product name.`,
+      },
+      {
+        name: 'company_overview',
+        type: 'string',
+        required: false,
+        description: `What the company or product does.`,
+      },
+      {
+        name: 'customer_pain_points',
+        type: 'string',
+        required: false,
+        description: `The problems the product solves for the customer.`,
+      },
+      {
+        name: 'customer_profile',
+        type: 'string',
+        required: false,
+        description: `Who the team sells to — the ideal customer. Example: RevOps leaders at 200-2000 employee B2B SaaS companies.`,
+      },
+      {
+        name: 'disqualification_criteria',
+        type: 'string',
+        required: false,
+        description: `Attributes that disqualify an account from being a fit.`,
+      },
+      {
+        name: 'domain',
+        type: 'string',
+        required: false,
+        description: `The company's primary web domain.`,
+      },
+      {
+        name: 'high_value_fit_criteria',
+        type: 'string',
+        required: false,
+        description: `Attributes that make an account an especially high-value fit.`,
+      },
+      {
+        name: 'icp_fit_criteria',
+        type: 'string',
+        required: false,
+        description: `Attributes that make an account a good fit.`,
+      },
+      {
+        name: 'primary_competitors',
+        type: 'string',
+        required: false,
+        description: `Main competitors the company is compared against.`,
+      },
+      {
+        name: 'product_differentiators',
+        type: 'string',
+        required: false,
+        description: `How the product is different from or better than competitors.`,
+      },
+      {
+        name: 'profile_name',
+        type: 'string',
+        required: false,
+        description: `A human-readable label for this ICP.`,
+      },
+      {
+        name: 'research_sources',
+        type: 'string',
+        required: false,
+        description: `Sources the team uses to research accounts.`,
+      },
+      {
+        name: 'social_proof',
+        type: 'string',
+        required: false,
+        description: `Customers, case studies, metrics, or testimonials that build credibility.`,
+      },
+      {
+        name: 'value_proposition',
+        type: 'string',
+        required: false,
+        description: `Why a customer should buy — the core value delivered.`,
+      },
+    ],
+  },
+  {
+    name: 'apollomcp_apollo_context_center_show',
+    description: `Fetch the team's full Context Center — the Ideal Customer Profile (ICP) and all product profiles Apollo uses to personalize AI-generated messaging. Returns the team's current Context Center including drafts that have not yet been approved. Always call this first before editing the profile or a product, so you read the current values and send only the fields that change. Returns a 404 if the team has no Context Center yet — in that case use apollo_context_center_create_profile to set one up.`,
+    params: [
+      {
+        name: '_conversation_ref',
+        type: 'string',
+        required: false,
+        description: `Short random token generated on your first call in a conversation; reuse the exact same value on every subsequent call to group related tool calls for analytics.`,
+      },
+      {
+        name: '_rationale',
+        type: 'string',
+        required: false,
+        description: `Describe the user's intent and why this tool was selected in general terms only; do not include specific field values, names, emails, or other data.`,
+      },
+    ],
+  },
+  {
+    name: 'apollomcp_apollo_context_center_show_product',
+    description: `Fetch a single product from the team's Context Center by its Apollo id. Use this to read a product's current details before editing it with apollo_context_center_update_product or referencing it in messaging.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `Apollo ID of the product to fetch. Must be an exact id from a prior Context Center response (e.g. apollo_context_center_show) in this session — never an id from memory or assumptions. Example: 63f53afe4ceeca00016bdd2f`,
+      },
+      {
+        name: '_conversation_ref',
+        type: 'string',
+        required: false,
+        description: `Short random token generated on your first call in a conversation; reuse the exact same value on every subsequent call to group related tool calls for analytics.`,
+      },
+      {
+        name: '_rationale',
+        type: 'string',
+        required: false,
+        description: `Describe the user's intent and why this tool was selected in general terms only; do not include specific field values, names, emails, or other data.`,
+      },
+    ],
+  },
+  {
+    name: 'apollomcp_apollo_context_center_update_product',
+    description: `Update an existing product in the team's Context Center. Each field you send REPLACES the prior value of that field; fields you omit are left unchanged. Before calling, read the product first with apollo_context_center_show_product (or apollo_context_center_show) and confirm the new values with the user — this action overwrites the prior content and is not reversible. After calling, echo back only the product id and a short summary of what changed.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `Apollo ID of the product to update. Must be an exact id from a prior Context Center response in this session — never an id from memory or assumptions. Example: 63f53afe4ceeca00016bdd2f`,
+      },
+      {
+        name: '_conversation_ref',
+        type: 'string',
+        required: false,
+        description: `Short random token generated on your first call in a conversation; reuse the exact same value on every subsequent call to group related tool calls for analytics.`,
+      },
+      {
+        name: '_rationale',
+        type: 'string',
+        required: false,
+        description: `Describe the user's intent and why this tool was selected in general terms only; do not include specific field values, names, emails, or other data.`,
+      },
+      {
+        name: 'is_default',
+        type: 'boolean',
+        required: false,
+        description: `If true, this becomes the team's default product and any prior default product is unset.`,
+      },
+      {
+        name: 'one_sentence_description',
+        type: 'string',
+        required: false,
+        description: `Updated single-sentence summary of the product.`,
+      },
+      {
+        name: 'product_content',
+        type: 'string',
+        required: false,
+        description: `Updated product detail in Markdown — features, use cases, and value propositions.`,
+      },
+      {
+        name: 'product_or_service_name',
+        type: 'string',
+        required: false,
+        description: `Updated product or service name. Example: Apollo Sequences`,
+      },
+    ],
+  },
+  {
+    name: 'apollomcp_apollo_context_center_update_profile',
+    description: `Update fields on the team's EXISTING Context Center Ideal Customer Profile (ICP). Each field you send REPLACES the prior value of that field; fields you omit are left unchanged. This requires a Context Center to already exist — if the team has no Context Center yet, use apollo_context_center_create_profile instead (it auto-creates one). This is the team's shared profile: an edit changes it for everyone on the team and overwrites prior content, so it is not reversible. Before calling, read the current profile with apollo_context_center_show, confirm the new values with the user, and send only the fields that change. After calling, echo back only the profile id and a short summary of which fields changed — do not paste the full payload.`,
+    params: [
+      {
+        name: '_conversation_ref',
+        type: 'string',
+        required: false,
+        description: `Short random token generated on your first call in a conversation; reuse the exact same value on every subsequent call to group related tool calls for analytics.`,
+      },
+      {
+        name: '_rationale',
+        type: 'string',
+        required: false,
+        description: `Describe the user's intent and why this tool was selected in general terms only; do not include specific field values, names, emails, or other data.`,
+      },
+      {
+        name: 'additional_context',
+        type: 'string',
+        required: false,
+        description: `Any other context that should inform AI-generated messaging.`,
+      },
+      {
+        name: 'approved',
+        type: 'boolean',
+        required: false,
+        description: `Whether the Context Center is approved and active after this update. Set true to publish it (live for AI-generated messaging); leave false to save as a draft. Editing without approved: true returns the profile to active, so set true when the user wants to keep it active. Confirm the user's intent before approving. Defaults to false.`,
+      },
+      {
+        name: 'call_to_action',
+        type: 'string',
+        required: false,
+        description: `The preferred next step to ask prospects to take.`,
+      },
+      {
+        name: 'company_or_product_name',
+        type: 'string',
+        required: false,
+        description: `The company or primary product name.`,
+      },
+      {
+        name: 'company_overview',
+        type: 'string',
+        required: false,
+        description: `What the company or product does.`,
+      },
+      {
+        name: 'customer_pain_points',
+        type: 'string',
+        required: false,
+        description: `The problems the product solves for the customer.`,
+      },
+      {
+        name: 'customer_profile',
+        type: 'string',
+        required: false,
+        description: `Who the team sells to — the ideal customer.`,
+      },
+      {
+        name: 'disqualification_criteria',
+        type: 'string',
+        required: false,
+        description: `Attributes that disqualify an account from being a fit.`,
+      },
+      {
+        name: 'domain',
+        type: 'string',
+        required: false,
+        description: `The company's primary web domain.`,
+      },
+      {
+        name: 'high_value_fit_criteria',
+        type: 'string',
+        required: false,
+        description: `Attributes that make an account an especially high-value fit.`,
+      },
+      {
+        name: 'icp_fit_criteria',
+        type: 'string',
+        required: false,
+        description: `Attributes that make an account a good fit.`,
+      },
+      {
+        name: 'primary_competitors',
+        type: 'string',
+        required: false,
+        description: `Main competitors the company is compared against.`,
+      },
+      {
+        name: 'product_differentiators',
+        type: 'string',
+        required: false,
+        description: `How the product is different from or better than competitors.`,
+      },
+      {
+        name: 'profile_name',
+        type: 'string',
+        required: false,
+        description: `A human-readable label for this ICP.`,
+      },
+      {
+        name: 'research_sources',
+        type: 'string',
+        required: false,
+        description: `Sources the team uses to research accounts.`,
+      },
+      {
+        name: 'social_proof',
+        type: 'string',
+        required: false,
+        description: `Customers, case studies, metrics, or testimonials that build credibility.`,
+      },
+      {
+        name: 'value_proposition',
+        type: 'string',
+        required: false,
+        description: `Why a customer should buy — the core value delivered.`,
+      },
+    ],
+  },
+  {
+    name: 'apollomcp_apollo_conversations_get_insights',
+    description: `Retrieve AI-generated insights for a single conversation — only available once insights have been fully processed (state=insights_generated). Returns four sections: summary (plaintext overview including outcome, pricing discussion, next steps, objections, and pain points), action_items (timestamped items with speaker attribution), questions (raised during the call, with speaker and timestamp), and tracker_insights (topic tracker hits such as competitor mentions or pricing triggers, with timestamp and spoken sentence). The end user will not provide a conversation id directly — call apollo_conversations_search first to find candidates, then pass the id from that result. If multiple conversations match, present topic and start_time and ask the user to confirm which one before calling this tool; when exactly one conversation clearly matches, proceed without extra confirmation.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `Conversation id from apollo_conversations_search in this session. Must be the exact id value returned by that tool call — never from memory, prior sessions, or assumptions. Example: 66e9e215ece19801b219997f`,
+      },
+      {
+        name: '_conversation_ref',
+        type: 'string',
+        required: false,
+        description: `Short random token generated on your first call in a conversation; reuse the exact same value on every subsequent call to group related tool calls for analytics.`,
+      },
+      {
+        name: '_rationale',
+        type: 'string',
+        required: false,
+        description: `Describe the user's intent and why this tool was selected in general terms only; do not include specific field values, names, emails, or other data.`,
+      },
+    ],
+  },
+  {
+    name: 'apollomcp_apollo_conversations_get_recording_links',
+    description: `Fetch temporary presigned recording links for a single conversation. Links expire when the underlying presigned URL signature expires (GCS enforces this) — expires_at on each link is parsed from that signature, so do not cache or reuse links past that time. Returns only playable media recordings (video, audio, active_speaker_view, shared_screen_view); returns an empty links array when no recordings are available or accessible. Each link includes: type, url, and expires_at (ISO 8601). The end user will not provide a conversation id directly — call apollo_conversations_search first to find candidates, then pass the id from that result. If multiple conversations match, present topic and start_time and ask the user to confirm which one before calling this tool; when exactly one conversation clearly matches, proceed without extra confirmation.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `Conversation id from apollo_conversations_search in this session. Must be the exact id value returned by that tool call — never from memory, prior sessions, or assumptions. Example: 66e9e215ece19801b219997f`,
+      },
+      {
+        name: '_conversation_ref',
+        type: 'string',
+        required: false,
+        description: `Short random token generated on your first call in a conversation; reuse the exact same value on every subsequent call to group related tool calls for analytics.`,
+      },
+      {
+        name: '_rationale',
+        type: 'string',
+        required: false,
+        description: `Describe the user's intent and why this tool was selected in general terms only; do not include specific field values, names, emails, or other data.`,
+      },
+      {
+        name: 'recording_types',
+        type: 'array',
+        required: false,
+        description: `Subset of media types to return. Valid values: video, audio, active_speaker_view, shared_screen_view. Omit to return all available media types.`,
+      },
+    ],
+  },
+  {
+    name: 'apollomcp_apollo_conversations_get_transcript',
+    description: `Retrieve the transcript for a single conversation, along with conversation metadata, in the requested format. The end user will not provide a conversation id directly — call apollo_conversations_search first to find candidates, then pass the id from that result. If multiple conversations match, present topic and start_time and ask the user to confirm which one before calling this tool; when exactly one conversation clearly matches, proceed without extra confirmation.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `Conversation id from apollo_conversations_search in this session. Must be the exact id value returned by that tool call — never from memory, prior sessions, or assumptions. Example: 66e9e215ece19801b219997f`,
+      },
+      {
+        name: '_conversation_ref',
+        type: 'string',
+        required: false,
+        description: `Short random token generated on your first call in a conversation; reuse the exact same value on every subsequent call to group related tool calls for analytics.`,
+      },
+      {
+        name: '_rationale',
+        type: 'string',
+        required: false,
+        description: `Describe the user's intent and why this tool was selected in general terms only; do not include specific field values, names, emails, or other data.`,
+      },
+      {
+        name: 'transcript_format',
+        type: 'string',
+        required: false,
+        description: `Transcript output format. Use "formatted" for readable text, "raw" for JSON segments, "hash" for structured objects. Defaults to formatted.`,
+      },
+    ],
+  },
+  {
+    name: 'apollomcp_apollo_conversations_search',
+    description: `Search conversations for the current team, sorted by start time descending. Use this to discover conversation IDs before calling apollo_conversations_get_transcript, apollo_conversations_get_insights, or apollo_conversations_get_recording_links. Returns a paginated list where each conversation includes: id, topic, start_time (ISO 8601), duration (seconds), state, host_id, participant_count, has_transcript, and source. Filters available: user_id (host), state, date_range (start_time min/max), q_keywords (topic), source. Use source=phone_call for only phone call recordings, source=meeting for video meeting recordings. Deleted and failed conversations are excluded regardless of filters. Use page (1-indexed, default 1) and per_page (default 20, max 50) for pagination; increment page while has_more is true to walk through all results. If multiple conversations match, present topic, start_time, and source for each match and ask the user to confirm which conversation they mean before calling get_transcript, get_insights, or get_recording_links — do not assume or pick one on their behalf.`,
+    params: [
+      {
+        name: '_conversation_ref',
+        type: 'string',
+        required: false,
+        description: `Short random token generated on your first call in a conversation; reuse the exact same value on every subsequent call to group related tool calls for analytics.`,
+      },
+      {
+        name: '_rationale',
+        type: 'string',
+        required: false,
+        description: `Describe the user's intent and why this tool was selected in general terms only; do not include specific field values, names, emails, or other data.`,
+      },
+      {
+        name: 'date_range',
+        type: 'object',
+        required: false,
+        description: `Filter to conversations whose start_time falls within this range. Both bounds are optional; supply one or both.`,
+      },
+      {
+        name: 'page',
+        type: 'integer',
+        required: false,
+        description: `Page number to retrieve (1-indexed). Defaults to 1.`,
+      },
+      {
+        name: 'per_page',
+        type: 'integer',
+        required: false,
+        description: `Results per page. Defaults to 20, maximum 50.`,
+      },
+      {
+        name: 'q_keywords',
+        type: 'string',
+        required: false,
+        description: `Free-text search on the conversation topic (meeting title). Case-insensitive partial match.`,
+      },
+      {
+        name: 'source',
+        type: 'string',
+        required: false,
+        description: `Filter by conversation source. Use "phone_call" for phone call recordings, "meeting" for video meeting recordings (Zoom, Teams, etc.).`,
+      },
+      {
+        name: 'state',
+        type: 'string',
+        required: false,
+        description: `Filter by conversation state. Valid values: created, downloaded, transcribed, processed.`,
+      },
+      {
+        name: 'user_id',
+        type: 'string',
+        required: false,
+        description: `Filter conversations by host user ID (MongoDB ObjectId).`,
+      },
+    ],
+  },
+  {
+    name: 'apollomcp_apollo_domain_purchase_index',
+    description: `List the domains your team has purchased through Apollo. Returns each domain's id, domain name, status, billing period, SPF/DKIM/DMARC diagnostics, and any mailboxes already provisioned on it. Call this to obtain a domain_purchase_id before purchasing a mailbox — a mailbox can only be provisioned on a domain the team already owns, and the mailbox email's domain must match the domain returned here. Never guess a domain_purchase_id; use only ids returned by this tool.`,
+    params: [
+      {
+        name: '_conversation_ref',
+        type: 'string',
+        required: false,
+        description: `Short random token generated on your first call in a conversation; reuse the exact same value on every subsequent call to group related tool calls for analytics.`,
+      },
+      {
+        name: '_rationale',
+        type: 'string',
+        required: false,
+        description: `Describe the user's intent and why this tool was selected in general terms only; do not include specific field values, names, emails, or other data.`,
+      },
+    ],
+  },
+  {
+    name: 'apollomcp_apollo_email_account_purchase_create',
+    description: `Purchase one or more Apollo-provisioned outbound mailboxes against a domain the team already owns. THIS CONSUMES CREDITS and provisions real mailboxes — it is irreversible from this tool. No deduplication is applied; provisioning fails if the mailbox address is already in use. The mailbox is automatically owned by the authenticated user. Credit cost per mailbox (unified credits): shared = 300, google = 800, outlook = 1500; total = count × per-type cost, and all mailboxes in one request must share the same mailbox_type. You MUST get explicit user confirmation of the exact credit total before calling this tool. Provisioning is asynchronous: new mailboxes start in status_cd "pending_setup" and become "active" once ready; the request is rejected if the team has insufficient credits.`,
+    params: [
+      {
+        name: 'email_accounts',
+        type: 'array',
+        required: true,
+        description: `The mailboxes to purchase. All mailboxes must share the same mailbox_type.`,
+      },
+      {
+        name: '_conversation_ref',
+        type: 'string',
+        required: false,
+        description: `Short random token generated on your first call in a conversation; reuse the exact same value on every subsequent call to group related tool calls for analytics.`,
+      },
+      {
+        name: '_rationale',
+        type: 'string',
+        required: false,
+        description: `Describe the user's intent and why this tool was selected in general terms only; do not include specific field values, names, emails, or other data.`,
+      },
+    ],
+  },
+  {
+    name: 'apollomcp_apollo_email_account_purchase_index',
+    description: `List the team's Apollo-provisioned (purchased) mailboxes. Returns each mailbox's id, email, mailbox type (type_cd), provisioning status (status_cd: pending_setup | active | inactive), assigned user, forwarding email, and billing period. Use this to check the status of a purchased mailbox, or to see what mailboxes the team already owns. This lists PURCHASED mailboxes only — not mailboxes connected via OAuth (use the email accounts list tool for those). Optionally filter by domain_purchase_id to see mailboxes on one purchased domain.`,
+    params: [
+      {
+        name: '_conversation_ref',
+        type: 'string',
+        required: false,
+        description: `Short random token generated on your first call in a conversation; reuse the exact same value on every subsequent call to group related tool calls for analytics.`,
+      },
+      {
+        name: '_rationale',
+        type: 'string',
+        required: false,
+        description: `Describe the user's intent and why this tool was selected in general terms only; do not include specific field values, names, emails, or other data.`,
+      },
+      {
+        name: 'domain_purchase_id',
+        type: 'string',
+        required: false,
+        description: `Optional. Filter mailboxes to a single purchased domain. Must be the exact id value returned by apollo_domain_purchase_index in this session. Never use an ID from memory, prior sessions, or assumptions. Example: 66e9e215ece19801b219997f`,
+      },
+    ],
+  },
+  {
     name: 'apollomcp_apollo_email_accounts_index',
     description: `Retrieve all linked email inboxes (mailboxes) for your team's Apollo account. Always call this before adding contacts to a sequence to get valid sender email account IDs — never guess or fabricate them.`,
     params: [
@@ -508,6 +1108,12 @@ export const tools: Tool[] = [
         description: `Describe the user's intent and why this tool was selected in general terms only; do not include specific field values, names, emails, or other data.`,
       },
       {
+        name: 'add_if_in_queue',
+        type: 'boolean',
+        required: false,
+        description: `Set to true if you want to add contacts even if they are currently in the queue for processing. Defaults to false.`,
+      },
+      {
         name: 'auto_unpause_at',
         type: 'string',
         required: false,
@@ -518,6 +1124,12 @@ export const tools: Tool[] = [
         type: 'array',
         required: false,
         description: `The Apollo IDs for the contacts to add to the sequence. Every ID must be a real 24-character hex string returned by a tool call in this session. Either contact_ids or label_names must be provided.`,
+      },
+      {
+        name: 'contact_verification_skipped',
+        type: 'boolean',
+        required: false,
+        description: `Set to true if you want to skip contact verification during the addition process. Defaults to false.`,
       },
       {
         name: 'contacts_without_ownership_permission',
@@ -544,10 +1156,28 @@ export const tools: Tool[] = [
         description: `Set to true if you want to add contacts to the sequence even if they have been added to other sequences. Defaults to false.`,
       },
       {
+        name: 'sequence_finished_in_other_campaigns',
+        type: 'boolean',
+        required: false,
+        description: `Set to true if you want to add contacts to the sequence if they have been marked as finished in another sequence. Defaults to false.`,
+      },
+      {
+        name: 'sequence_job_change',
+        type: 'boolean',
+        required: false,
+        description: `Set to true if you want to add contacts to the sequence even if they have recently changed jobs. Defaults to false.`,
+      },
+      {
         name: 'sequence_no_email',
         type: 'boolean',
         required: false,
         description: `Set to true if you want to add contacts to the sequence even if they do not have an email address. Defaults to false.`,
+      },
+      {
+        name: 'sequence_same_company_in_same_campaign',
+        type: 'boolean',
+        required: false,
+        description: `Set to true if you want to add contacts to the sequence even if other contacts from the same company are already in the sequence. Defaults to false.`,
       },
       {
         name: 'sequence_unverified_email',
@@ -666,6 +1296,102 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'apollomcp_apollo_emailer_messages_create',
+    description: `Create a draft email message for a contact. The draft is saved but NOT sent until apollo_emailer_messages_send_now is called with the returned emailer_message id. Before calling, look up the user's mailboxes (apollo_email_accounts_index) to identify the default sender mailbox, and confirm the recipient, subject, and body preview with the user. The recipient defaults to the contact's own email; pass a recipients array (each entry with email and recipient_type_cd of to/cc/bcc) to override or add recipients, including non-contact addresses — this changes who receives the email but not the contact it is associated with.`,
+    params: [
+      {
+        name: 'body_html',
+        type: 'string',
+        required: true,
+        description: `Email body in HTML format. Best practice: 25-85 words, plain conversational tone, single clear CTA.`,
+      },
+      {
+        name: 'contact_id',
+        type: 'string',
+        required: true,
+        description: `Apollo ID of the contact to email. Must be the exact id value returned by a tool call (e.g. apollo_contacts_search) in this session. Never use placeholders, template strings, or IDs from memory or prior sessions.`,
+      },
+      {
+        name: 'subject',
+        type: 'string',
+        required: true,
+        description: `Email subject line. Keep under 9 words for cold outreach.`,
+      },
+      {
+        name: '_conversation_ref',
+        type: 'string',
+        required: false,
+        description: `Short random token generated on your first call in a conversation; reuse the exact same value on every subsequent call to group related tool calls for analytics.`,
+      },
+      {
+        name: '_rationale',
+        type: 'string',
+        required: false,
+        description: `Describe the user's intent and why this tool was selected in general terms only; do not include specific field values, names, emails, or other data.`,
+      },
+      {
+        name: 'recipients',
+        type: 'array',
+        required: false,
+        description: `Optional. Set or override the message recipients, including non-contact email addresses. Omit to send to the contact's own email as the sole 'to' recipient.`,
+      },
+    ],
+  },
+  {
+    name: 'apollomcp_apollo_emailer_messages_email_send_status',
+    description: `Check the delivery status of an email after calling apollo_emailer_messages_send_now, using the emailer_message id from the send_now response. If status is "scheduled" or "drafted", the email is still being processed — wait 10-20 seconds and poll again (delivery typically completes within 5-30 seconds); give up after about 4 polling attempts and tell the user the email is queued. Terminal statuses are "completed" (delivered successfully) and "failed" (the response includes not_sent_reason and failure_reason, e.g. bounce, quota exceeded, spam block).`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The emailer_message id returned by apollo_emailer_messages_send_now. Must be the exact id from the send_now response in this session.`,
+      },
+      {
+        name: '_conversation_ref',
+        type: 'string',
+        required: false,
+        description: `Short random token generated on your first call in a conversation; reuse the exact same value on every subsequent call to group related tool calls for analytics.`,
+      },
+      {
+        name: '_rationale',
+        type: 'string',
+        required: false,
+        description: `Describe the user's intent and why this tool was selected in general terms only; do not include specific field values, names, emails, or other data.`,
+      },
+    ],
+  },
+  {
+    name: 'apollomcp_apollo_emailer_messages_send_now',
+    description: `Send a drafted email (created by apollo_emailer_messages_create) immediately. send_from must identify the sending mailbox with the email_account_id and email from apollo_email_accounts_index — use the mailbox where default: true unless the user explicitly requests a different one. The send completes in-process, so the response status is normally final: "completed" means it was sent; "failed" means it was NOT delivered (the response includes not_sent_reason and a human-readable failure_reason) — never report success on a failed response. If mailbox rate limits or warmup pacing defer the send, status is "scheduled"/"delayed" instead — confirm the final outcome with apollo_emailer_messages_email_send_status. THIS ACTION SENDS A REAL EMAIL from a real person's mailbox; never call it without explicit user confirmation of the recipient, subject, and body.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The emailer_message id returned by apollo_emailer_messages_create. Must be the exact id from the create response in this session.`,
+      },
+      {
+        name: 'send_from',
+        type: 'object',
+        required: true,
+        description: `Mailbox to send from. Use the email account returned by apollo_email_accounts_index.`,
+      },
+      {
+        name: '_conversation_ref',
+        type: 'string',
+        required: false,
+        description: `Short random token generated on your first call in a conversation; reuse the exact same value on every subsequent call to group related tool calls for analytics.`,
+      },
+      {
+        name: '_rationale',
+        type: 'string',
+        required: false,
+        description: `Describe the user's intent and why this tool was selected in general terms only; do not include specific field values, names, emails, or other data.`,
+      },
+    ],
+  },
+  {
     name: 'apollomcp_apollo_emailer_schedules_index',
     description: `List all sending schedules available in the user's team. A schedule defines the time windows (days of week, hours of day, time zone) during which Apollo will send emails for a sequence. Use this when the user wants to pick a non-default schedule for a new sequence.`,
     params: [
@@ -714,6 +1440,192 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'apollomcp_apollo_fields_index',
+    description: `List your team's custom or system fields so you can set them on accounts or contacts. Call this before the Create/Update/Bulk Create tools for accounts or contacts whenever you need to set a custom field. Each field is returned with its id, label, type, modality (account, contact, etc.), source, and — for picklist/multipicklist fields — its allowed options as picklist_values: [{"id": ..., "name": ...}]. The option name is what you send when setting a record's value; the option id is what you resend to the fields update tool when changing the field's option set. Pass a field's id exactly as returned as the key in the typed_custom_fields object on create/update tools, e.g. typed_custom_fields: {"<id>": "<value>"}. For picklist fields send an allowed option name; for multipicklist fields send an array of names.`,
+    params: [
+      {
+        name: '_conversation_ref',
+        type: 'string',
+        required: false,
+        description: `Short random token generated on your first call in a conversation; reuse the exact same value on every subsequent call to group related tool calls for analytics.`,
+      },
+      {
+        name: '_rationale',
+        type: 'string',
+        required: false,
+        description: `Describe the user's intent and why this tool was selected in general terms only; do not include specific field values, names, emails, or other data.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of fields to return. Must be a positive integer. Example: 50`,
+      },
+      {
+        name: 'modality',
+        type: 'string',
+        required: false,
+        description: `Restrict results to a single record type. Use 'contact' when working with contacts, 'account' for accounts, etc.`,
+      },
+      {
+        name: 'source',
+        type: 'string',
+        required: false,
+        description: `Which kind of fields to return. 'custom' (default) = team-created custom fields; 'system' = Apollo's built-in standard fields.`,
+      },
+    ],
+  },
+  {
+    name: 'apollomcp_apollo_labels_add_entity_ids_to_label_names',
+    description: `Add one or more contacts or accounts to one or more Apollo lists. Identify the records by their Apollo ids (entity_ids) and the lists by name (label_names). The modality must match the kind of records and lists — use "contacts" when adding contacts and "accounts" when adding accounts. If a supplied list name does not yet exist for that modality it is created automatically, so this tool can both create-and-populate a list in one call. Get contact ids from apollo_contacts_search and account ids from apollo_accounts_search. Adding a record that is already on a list is a no-op — no duplicates are created. The response echoes the affected lists, each with its id and app_url (a shareable deep link to the list in the Apollo web app) — surface app_url to the user.`,
+    params: [
+      {
+        name: 'entity_ids',
+        type: 'array',
+        required: true,
+        description: `Apollo IDs of the contacts or accounts to add. Must be the exact id value returned by apollo_contacts_search (for contacts) or apollo_accounts_search (for accounts). Never use an ID from memory, prior sessions, or assumptions.`,
+      },
+      {
+        name: 'label_names',
+        type: 'array',
+        required: true,
+        description: `Names of the lists to add the records to. A name that does not yet exist for this modality is created automatically.`,
+      },
+      {
+        name: 'modality',
+        type: 'string',
+        required: true,
+        description: `The kind of records and lists — one of contacts or accounts. Must match the type of the supplied entity_ids.`,
+      },
+      {
+        name: '_conversation_ref',
+        type: 'string',
+        required: false,
+        description: `Short random token generated on your first call in a conversation; reuse the exact same value on every subsequent call to group related tool calls for analytics.`,
+      },
+      {
+        name: '_rationale',
+        type: 'string',
+        required: false,
+        description: `Describe the user's intent and why this tool was selected in general terms only; do not include specific field values, names, emails, or other data.`,
+      },
+    ],
+  },
+  {
+    name: 'apollomcp_apollo_labels_create',
+    description: `Create a new, empty Apollo list (label) for your team. In Apollo terminology, a list is a named, saved group of records; supply the modality to choose whether it is a list of contacts or accounts. List names must be unique per modality within your team — creating a list whose name already exists for that modality returns an error (use apollo_labels_update to rename an existing list instead). To add records to a list use apollo_labels_add_entity_ids_to_label_names, which will also create the list on the fly if the name does not yet exist. No deduplication is applied beyond the per-modality name-uniqueness check, so check apollo_labels_index first if you may be recreating an existing list. The response includes the new list's id and its app_url (a shareable deep link to the list in the Apollo web app) — surface app_url to the user.`,
+    params: [
+      {
+        name: 'modality',
+        type: 'string',
+        required: true,
+        description: `What kind of records this list holds — one of contacts or accounts.`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: true,
+        description: `The name for the new list. Example: Q3 Enterprise Targets`,
+      },
+      {
+        name: '_conversation_ref',
+        type: 'string',
+        required: false,
+        description: `Short random token generated on your first call in a conversation; reuse the exact same value on every subsequent call to group related tool calls for analytics.`,
+      },
+      {
+        name: '_rationale',
+        type: 'string',
+        required: false,
+        description: `Describe the user's intent and why this tool was selected in general terms only; do not include specific field values, names, emails, or other data.`,
+      },
+    ],
+  },
+  {
+    name: 'apollomcp_apollo_labels_index',
+    description: `List the Apollo lists (also called labels) that belong to your team. A list is a named, saved group of contacts or accounts. Each returned list includes its id, name, modality (contacts or accounts), cached record count, and app_url — a shareable deep link to the list in the Apollo web app (format: https://app.apollo.io/#/lists/<list_id>); surface app_url to the user when they want to view or share a list. Call this first to discover existing lists and their ids before renaming a list (apollo_labels_update) or adding/removing records (apollo_labels_add_entity_ids_to_label_names, apollo_labels_remove_entity_ids_from_label_names).`,
+    params: [
+      {
+        name: '_conversation_ref',
+        type: 'string',
+        required: false,
+        description: `Short random token generated on your first call in a conversation; reuse the exact same value on every subsequent call to group related tool calls for analytics.`,
+      },
+      {
+        name: '_rationale',
+        type: 'string',
+        required: false,
+        description: `Describe the user's intent and why this tool was selected in general terms only; do not include specific field values, names, emails, or other data.`,
+      },
+    ],
+  },
+  {
+    name: 'apollomcp_apollo_labels_remove_entity_ids_from_label_names',
+    description: `Remove one or more contacts or accounts from one or more Apollo lists. Identify the records by their Apollo ids (entity_ids) and the lists by name (label_names). Get entity ids from apollo_contacts_search (contacts) or apollo_accounts_search (accounts), and list names from apollo_labels_index. The modality must match the kind of records and lists — use "contacts" for contacts and "accounts" for accounts. This is destructive: list membership is dropped immediately and the records stop appearing in any view, workflow, or automation scoped to that list. It only detaches the records from the named lists — it does NOT delete the records themselves and does NOT delete the list. Removing a record that is not on a list is a no-op.`,
+    params: [
+      {
+        name: 'entity_ids',
+        type: 'array',
+        required: true,
+        description: `Apollo IDs of the contacts or accounts to remove from the lists. Must be the exact id value returned by apollo_contacts_search (for contacts) or apollo_accounts_search (for accounts). Never use an ID from memory, prior sessions, or assumptions.`,
+      },
+      {
+        name: 'label_names',
+        type: 'array',
+        required: true,
+        description: `Names of the lists to remove the records from.`,
+      },
+      {
+        name: 'modality',
+        type: 'string',
+        required: true,
+        description: `The kind of records and lists — one of contacts or accounts. Must match the type of the supplied entity_ids.`,
+      },
+      {
+        name: '_conversation_ref',
+        type: 'string',
+        required: false,
+        description: `Short random token generated on your first call in a conversation; reuse the exact same value on every subsequent call to group related tool calls for analytics.`,
+      },
+      {
+        name: '_rationale',
+        type: 'string',
+        required: false,
+        description: `Describe the user's intent and why this tool was selected in general terms only; do not include specific field values, names, emails, or other data.`,
+      },
+    ],
+  },
+  {
+    name: 'apollomcp_apollo_labels_update',
+    description: `Rename an existing Apollo list (label). Pass the list id and the new name. Use List Lists (apollo_labels_index) to discover the id of the list you want to rename. The new name must be unique per modality within your team — reusing an existing name for that modality returns an error. This tool only renames a list; it does not add or remove records (use apollo_labels_add_entity_ids_to_label_names / apollo_labels_remove_entity_ids_from_label_names) and it cannot delete a list.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The Apollo ID of the list to rename. Must be the exact id value returned by apollo_labels_index. Never use an ID from memory, prior sessions, or assumptions. Example: 6095a710bd01d100a506d4ae`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: true,
+        description: `The new name for the list. Example: Q4 Enterprise Targets`,
+      },
+      {
+        name: '_conversation_ref',
+        type: 'string',
+        required: false,
+        description: `Short random token generated on your first call in a conversation; reuse the exact same value on every subsequent call to group related tool calls for analytics.`,
+      },
+      {
+        name: '_rationale',
+        type: 'string',
+        required: false,
+        description: `Describe the user's intent and why this tool was selected in general terms only; do not include specific field values, names, emails, or other data.`,
+      },
+    ],
+  },
+  {
     name: 'apollomcp_apollo_mixed_companies_search',
     description: `Search for companies in the Apollo database using the Organization Search endpoint. Several filters are available to narrow your search. Credit cost: 1 credit per request that returns at least one result. Must confirm with user before calling.`,
     params: [
@@ -730,10 +1642,52 @@ export const tools: Tool[] = [
         description: `Describe the user's intent and why this tool was selected in general terms only; do not include specific field values, names, emails, or other data.`,
       },
       {
+        name: 'account_label_ids',
+        type: 'array',
+        required: false,
+        description: `The Apollo IDs of the lists (labels) attached to the companies/accounts you want to filter by.`,
+      },
+      {
         name: 'currently_using_any_of_technology_uids',
         type: 'array',
         required: false,
         description: `Find organizations based on the technologies they currently use.`,
+      },
+      {
+        name: 'latest_funding_amount_range',
+        type: 'object',
+        required: false,
+        description: `Filter by the amount the company received with its most recent funding round.`,
+      },
+      {
+        name: 'latest_funding_date_range',
+        type: 'object',
+        required: false,
+        description: `Filter by the date when the company received its most recent funding round.`,
+      },
+      {
+        name: 'market_segments',
+        type: 'array',
+        required: false,
+        description: `Filter organizations by market segment terms.`,
+      },
+      {
+        name: 'not_organization_naics_codes',
+        type: 'array',
+        required: false,
+        description: `NAICS codes to exclude from results.`,
+      },
+      {
+        name: 'not_organization_sic_codes',
+        type: 'array',
+        required: false,
+        description: `4-digit SIC codes to exclude from results.`,
+      },
+      {
+        name: 'organization_department_or_subdepartment_counts',
+        type: 'object',
+        required: false,
+        description: `Filter organizations by employee headcount within a department.`,
       },
       {
         name: 'organization_founded_year_range',
@@ -742,10 +1696,40 @@ export const tools: Tool[] = [
         description: `Filter organizations by the year they were founded.`,
       },
       {
+        name: 'organization_headcount_growth_past_n_months',
+        type: 'integer',
+        required: false,
+        description: `The number of trailing months over which to measure employee headcount growth.`,
+      },
+      {
+        name: 'organization_headcount_growth_range',
+        type: 'object',
+        required: false,
+        description: `Filter organizations by their employee headcount growth percentage.`,
+      },
+      {
         name: 'organization_ids',
         type: 'array',
         required: false,
         description: `An array of Apollo organization IDs to look up.`,
+      },
+      {
+        name: 'organization_include_unknown_founded_year',
+        type: 'boolean',
+        required: false,
+        description: `When true, also include organizations whose founding year is unknown.`,
+      },
+      {
+        name: 'organization_job_locations',
+        type: 'array',
+        required: false,
+        description: `The locations of the jobs being actively recruited by the company.`,
+      },
+      {
+        name: 'organization_job_posted_at_range',
+        type: 'object',
+        required: false,
+        description: `Filter by the date when jobs were posted by the company.`,
       },
       {
         name: 'organization_locations',
@@ -754,10 +1738,34 @@ export const tools: Tool[] = [
         description: `An array of strings of organization HQ locations to filter by.`,
       },
       {
+        name: 'organization_naics_codes',
+        type: 'array',
+        required: false,
+        description: `Filter organizations by their NAICS (North American Industry Classification System) code, 2 to 5 digits.`,
+      },
+      {
+        name: 'organization_not_locations',
+        type: 'array',
+        required: false,
+        description: `An array of strings of organization locations to exclude from the search.`,
+      },
+      {
         name: 'organization_num_employees_ranges',
         type: 'array',
         required: false,
         description: `An array of intervals to include organizations of this employee size.`,
+      },
+      {
+        name: 'organization_num_jobs_range',
+        type: 'object',
+        required: false,
+        description: `Filter by the number of job postings active at the company.`,
+      },
+      {
+        name: 'organization_sic_codes',
+        type: 'array',
+        required: false,
+        description: `Filter organizations by their 4-digit SIC (Standard Industrial Classification) code.`,
       },
       {
         name: 'page',
@@ -778,6 +1786,12 @@ export const tools: Tool[] = [
         description: `An array of domains to filter by.`,
       },
       {
+        name: 'q_organization_job_titles',
+        type: 'array',
+        required: false,
+        description: `The job titles that are listed in active job postings at the company.`,
+      },
+      {
         name: 'q_organization_keyword_tags',
         type: 'array',
         required: false,
@@ -794,6 +1808,54 @@ export const tools: Tool[] = [
         type: 'object',
         required: false,
         description: `Search for organizations based on their revenue. Set min and max to define a revenue range.`,
+      },
+      {
+        name: 'show_new_companies_only',
+        type: 'boolean',
+        required: false,
+        description: `When true, only include companies whose FIRST visit falls within the selected time window.`,
+      },
+      {
+        name: 'total_funding_range',
+        type: 'object',
+        required: false,
+        description: `Filter by the total amount the company received during all of its funding rounds combined.`,
+      },
+      {
+        name: 'web_page_view_counts',
+        type: 'object',
+        required: false,
+        description: `Filter by number of page views within the selected time window.`,
+      },
+      {
+        name: 'website_visitors_domain_exact_pages',
+        type: 'array',
+        required: false,
+        description: `Filter to companies that visited pages whose path EXACTLY matches any of these strings.`,
+      },
+      {
+        name: 'website_visitors_domain_pages',
+        type: 'array',
+        required: false,
+        description: `Filter to companies that visited pages whose path CONTAINS any of these strings.`,
+      },
+      {
+        name: 'website_visitors_from_domains',
+        type: 'array',
+        required: false,
+        description: `Return only companies that visited YOUR tracked domains.`,
+      },
+      {
+        name: 'website_visitors_from_past',
+        type: 'integer',
+        required: false,
+        description: `Only include website visits within the last N days.`,
+      },
+      {
+        name: 'website_visitors_intent',
+        type: 'array',
+        required: false,
+        description: `Filter by Apollo's computed intent for the visiting company.`,
       },
     ],
   },
@@ -814,10 +1876,76 @@ export const tools: Tool[] = [
         description: `Describe the user's intent and why this tool was selected in general terms only; do not include specific field values, names, emails, or other data.`,
       },
       {
+        name: 'contact_email_status',
+        type: 'array',
+        required: false,
+        description: `An array of email statuses to filter by.`,
+      },
+      {
+        name: 'currently_not_using_any_of_technology_uids',
+        type: 'array',
+        required: false,
+        description: `Exclude people from search based on any of the technologies their current employer uses.`,
+      },
+      {
+        name: 'currently_using_all_of_technology_uids',
+        type: 'array',
+        required: false,
+        description: `Find people based on all of the technologies their current employer uses.`,
+      },
+      {
         name: 'currently_using_any_of_technology_uids',
         type: 'array',
         required: false,
         description: `Find people based on any of the technologies their current employer uses.`,
+      },
+      {
+        name: 'include_similar_titles',
+        type: 'boolean',
+        required: false,
+        description: `Set to false to return only strict matches for job titles defined in person_titles. Defaults to true.`,
+      },
+      {
+        name: 'market_segments',
+        type: 'array',
+        required: false,
+        description: `Filter people by their current employer's market segment terms.`,
+      },
+      {
+        name: 'not_organization_naics_codes',
+        type: 'array',
+        required: false,
+        description: `Exclude people whose current employer matches one of these NAICS codes (prefix match).`,
+      },
+      {
+        name: 'not_organization_sic_codes',
+        type: 'array',
+        required: false,
+        description: `Exclude people whose current employer has one of these 4-digit SIC codes.`,
+      },
+      {
+        name: 'organization_department_or_subdepartment_counts',
+        type: 'object',
+        required: false,
+        description: `Filter people by the number of employees in a specific department at their current employer. Keys are department names; each value is a {min, max} object of employee counts.`,
+      },
+      {
+        name: 'organization_founded_year_range',
+        type: 'object',
+        required: false,
+        description: `Filter people whose current employer was founded within this year range.`,
+      },
+      {
+        name: 'organization_headcount_growth_past_n_months',
+        type: 'integer',
+        required: false,
+        description: `The number of trailing months over which to measure the current employer's headcount growth.`,
+      },
+      {
+        name: 'organization_headcount_growth_range',
+        type: 'object',
+        required: false,
+        description: `Filter people by their current employer's headcount growth percentage over the window set by organization_headcount_growth_past_n_months.`,
       },
       {
         name: 'organization_ids',
@@ -826,16 +1954,52 @@ export const tools: Tool[] = [
         description: `An array of Apollo organization IDs to include in search results.`,
       },
       {
+        name: 'organization_include_unknown_founded_year',
+        type: 'boolean',
+        required: false,
+        description: `When true, also include people whose employer founding year is unknown. Defaults to false.`,
+      },
+      {
+        name: 'organization_job_locations',
+        type: 'array',
+        required: false,
+        description: `Locations of jobs being actively recruited by the person's employer.`,
+      },
+      {
+        name: 'organization_job_posted_at_range',
+        type: 'object',
+        required: false,
+        description: `Filter by the date when jobs were posted by the person's current employer.`,
+      },
+      {
         name: 'organization_locations',
         type: 'array',
         required: false,
         description: `An array of strings of organization locations to filter by.`,
       },
       {
+        name: 'organization_naics_codes',
+        type: 'array',
+        required: false,
+        description: `Filter people whose current employer has a NAICS code matching one of these, 2 to 5 digits.`,
+      },
+      {
         name: 'organization_num_employees_ranges',
         type: 'array',
         required: false,
         description: `An array of intervals to include people belonging to companies of this employee size.`,
+      },
+      {
+        name: 'organization_num_jobs_range',
+        type: 'object',
+        required: false,
+        description: `Filter by the number of job postings active at the person's current employer.`,
+      },
+      {
+        name: 'organization_sic_codes',
+        type: 'array',
+        required: false,
+        description: `Filter people whose current employer has one of these 4-digit SIC (Standard Industrial Classification) codes.`,
       },
       {
         name: 'page',
@@ -848,6 +2012,12 @@ export const tools: Tool[] = [
         type: 'integer',
         required: false,
         description: `The number of results per page. Default is 10. Max is 100.`,
+      },
+      {
+        name: 'person_days_in_current_title_range',
+        type: 'object',
+        required: false,
+        description: `Filter people by how long they have held their current job, measured in days.`,
       },
       {
         name: 'person_linkedin_urls',
@@ -874,6 +2044,12 @@ export const tools: Tool[] = [
         description: `An array of job titles to filter by.`,
       },
       {
+        name: 'person_total_yoe_range',
+        type: 'object',
+        required: false,
+        description: `Filter people by their total years of professional experience across their whole career.`,
+      },
+      {
         name: 'q_keywords',
         type: 'string',
         required: false,
@@ -884,6 +2060,84 @@ export const tools: Tool[] = [
         type: 'array',
         required: false,
         description: `An array of organization domains to filter by.`,
+      },
+      {
+        name: 'q_organization_job_titles',
+        type: 'array',
+        required: false,
+        description: `Job titles listed in active job postings at the person's current employer.`,
+      },
+      {
+        name: 'q_organization_keyword_tags',
+        type: 'array',
+        required: false,
+        description: `An array of organization keyword tags to filter by.`,
+      },
+      {
+        name: 'revenue_range',
+        type: 'object',
+        required: false,
+        description: `Filter by the revenue of the person's current employer. Set min and max to define a revenue range.`,
+      },
+      {
+        name: 'show_new_people_only',
+        type: 'boolean',
+        required: false,
+        description: `When true, only include people whose first visit falls within the selected time window.`,
+      },
+      {
+        name: 'sort_ascending',
+        type: 'boolean',
+        required: false,
+        description: `Only applies together with sort_by_field. Defaults to false so the most recent visitors appear first; set true for oldest first.`,
+      },
+      {
+        name: 'sort_by_field',
+        type: 'string',
+        required: false,
+        description: `Optional website-visitor sort. The only supported value is last_visited_at, which orders matched people by their most recent tracked website visit.`,
+      },
+      {
+        name: 'website_visitors_people_confidence_tier',
+        type: 'array',
+        required: false,
+        description: `Filter by Apollo's confidence in the person-level visitor identification.`,
+      },
+      {
+        name: 'website_visitors_people_exact_pages',
+        type: 'array',
+        required: false,
+        description: `Filter to people who visited exact stored domain/path values.`,
+      },
+      {
+        name: 'website_visitors_people_from_domains',
+        type: 'array',
+        required: false,
+        description: `Return only people who visited your team's tracked domains.`,
+      },
+      {
+        name: 'website_visitors_people_from_past',
+        type: 'integer',
+        required: false,
+        description: `Only include visits within the last supported time window.`,
+      },
+      {
+        name: 'website_visitors_people_intent',
+        type: 'array',
+        required: false,
+        description: `Filter by Apollo's computed visitor intent for the selected time window.`,
+      },
+      {
+        name: 'website_visitors_people_page_view_counts',
+        type: 'object',
+        required: false,
+        description: `Filter by visit count in the selected time window.`,
+      },
+      {
+        name: 'website_visitors_people_pages',
+        type: 'array',
+        required: false,
+        description: `Filter to people who visited pages matching these path or URL fragments.`,
       },
     ],
   },
@@ -999,6 +2253,24 @@ export const tools: Tool[] = [
         required: false,
         description: `Set to true to return personal email addresses. Default is false.`,
       },
+      {
+        name: 'reveal_phone_number',
+        type: 'boolean',
+        required: false,
+        description: `Set to true to reveal phone numbers for the matched people. Requires the apollo_webhook_result_show tool to retrieve the async result. Default is false.`,
+      },
+      {
+        name: 'run_waterfall_email',
+        type: 'boolean',
+        required: false,
+        description: `Set to true to fill missing work emails using Apollo's waterfall cascade (Apollo's own data first, then partner providers). Default is false.`,
+      },
+      {
+        name: 'run_waterfall_phone',
+        type: 'boolean',
+        required: false,
+        description: `Set to true to fill missing phone numbers using Apollo's waterfall cascade (Apollo's own data first, then partner providers). Default is false.`,
+      },
     ],
   },
   {
@@ -1076,6 +2348,24 @@ export const tools: Tool[] = [
         type: 'boolean',
         required: false,
         description: `Set to true to return personal email addresses for the person. Default is false.`,
+      },
+      {
+        name: 'reveal_phone_number',
+        type: 'boolean',
+        required: false,
+        description: `Set to true to reveal the person's phone number(s). Requires the apollo_webhook_result_show tool to retrieve the async result. Default is false.`,
+      },
+      {
+        name: 'run_waterfall_email',
+        type: 'boolean',
+        required: false,
+        description: `Set to true to fill a missing work email using Apollo's waterfall cascade (Apollo's own data first, then partner providers). Default is false.`,
+      },
+      {
+        name: 'run_waterfall_phone',
+        type: 'boolean',
+        required: false,
+        description: `Set to true to fill a missing phone number using Apollo's waterfall cascade (Apollo's own data first, then partner providers). Default is false.`,
       },
     ],
   },
@@ -1378,6 +2668,12 @@ export const tools: Tool[] = [
         description: `Filter to tasks tied to this contact. Must be the exact id value returned by a tool call in this session.`,
       },
       {
+        name: 'date_range',
+        type: 'object',
+        required: false,
+        description: `Filter to tasks whose due date falls within this range. Both bounds are optional; supply one or both to bound the due_at date.`,
+      },
+      {
         name: 'emailer_campaign_id',
         type: 'string',
         required: false,
@@ -1466,6 +2762,12 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Describe the user's intent and why this tool was selected in general terms only; do not include specific field values, names, emails, or other data.`,
+      },
+      {
+        name: 'body_format',
+        type: 'string',
+        required: false,
+        description: `For an email task, the format of the emailer_message.body in the response: plain (default) for readable plain text, or html for the raw HTML body.`,
       },
     ],
   },
@@ -1591,7 +2893,7 @@ export const tools: Tool[] = [
   },
   {
     name: 'apollomcp_apollo_users_api_profile',
-    description: `Use the Profile endpoint to get the user's profile information (name, email, title, id). Set include_credit_usage to true to include credit usage information in the response. Credit usage includes information like remaining credits and credits used. Use this endpoint when the user asks about their remaining credits or credit usage.`,
+    description: `Use the Profile endpoint to get the user's profile information (name, email, title, id). Set include_credit_usage to true to include credit usage information in the response. Credit usage includes information like remaining credits and credits used. Use this endpoint when the user asks about their remaining credits or credit usage. Set include_waterfall_capability to true to learn whether the team has waterfall email and/or phone enrichment enabled; check this before offering or running waterfall enrichment elsewhere.`,
     params: [
       {
         name: '_conversation_ref',
@@ -1610,6 +2912,182 @@ export const tools: Tool[] = [
         type: 'boolean',
         required: false,
         description: `Set to true to include credit usage information in the response. Default is false.`,
+      },
+      {
+        name: 'include_waterfall_capability',
+        type: 'boolean',
+        required: false,
+        description: `Set to true to include whether the team has waterfall email/phone enrichment enabled in the response. Default is false.`,
+      },
+    ],
+  },
+  {
+    name: 'apollomcp_apollo_webhook_result_show',
+    description: `Poll for the result of an asynchronous Apollo enrichment request: either a phone-number reveal started by apollo_people_match or apollo_people_bulk_match with reveal_phone_number=true, or a waterfall enrichment (email and/or phone) started with run_waterfall_email=true and/or run_waterfall_phone=true. Pass the top-level request_id returned by that call (not any nested id).
+
+Polling: a not-yet-ready result returns 404 with error_code "result_pending" and a retry_after_seconds value — wait that long and poll again. For a standard phone reveal (no waterfall), give up after ~5 attempts (~50s total). For waterfall enrichment, keep polling for up to ~3 minutes before giving up (waterfall can legitimately take much longer). Bulk requests take longer than single requests for either kind, so lean toward the longer end.
+
+Terminal responses — never retry these: 200 status=success (result ready; phone numbers are grouped by type — mobile_phone, direct_phone, corporate_phone, home_phone, other_phone; waterfall email results also carry an emails array per person with email, email_status_cd, position, and vendor_validation_statuses; results are available for 30 days); 200 status=failed (enrichment failed on Apollo's side, no credits charged); 404 error_code=request_id_unknown (the id was never issued or was mistyped — do not retry, do not tell the user to try again later); 410 error_code=request_id_expired (the result aged out past the 30-day retention window — start a fresh enrichment request instead); 400 error_code=invalid_request_id (malformed id). When status=success but every phone array (or the emails field) is empty, tell the user nothing was found on file; only say "no credits were charged" when the response's credits_consumed is 0.
+
+DO-NOT-CALL (MANDATORY): each returned phone number carries a dnc_status_cd (found / not_found / pending — only "found" means it is Do-Not-Call listed). When any number has dnc_status_cd="found", you MUST surface a prominent Do Not Call warning immediately next to that number (never a footnote), noting it may implicate the TCPA and other telemarketing regulations, and recommending against dialing it absent a separate legal basis.
+
+ANTI-FABRICATION: never fabricate, guess, or substitute a phone number or email address from training data, web knowledge, or any non-Apollo source — only report numbers and addresses present in this response.`,
+    params: [
+      {
+        name: 'request_id',
+        type: 'string',
+        required: true,
+        description: `The top-level request_id returned by a people match / bulk_match call made with reveal_phone_number=true, run_waterfall_email=true, and/or run_waterfall_phone=true. Must be the exact id value returned by apollo_people_match or apollo_people_bulk_match in this session. Never use an ID from memory, prior sessions, or assumptions. Example: -1783604882614419382`,
+      },
+      {
+        name: '_conversation_ref',
+        type: 'string',
+        required: false,
+        description: `Short random token generated on your first call in a conversation; reuse the exact same value on every subsequent call to group related tool calls for analytics.`,
+      },
+      {
+        name: '_rationale',
+        type: 'string',
+        required: false,
+        description: `Describe the user's intent and why this tool was selected in general terms only; do not include specific field values, names, emails, or other data.`,
+      },
+    ],
+  },
+  {
+    name: 'apollomcp_apollo_website_visitor_domain_tracker_index',
+    description: `Retrieve the website visitor domain tracker configuration for the team: the tracker id, team id, the list of active allowed referrer domains (with tracking status, contact-level tracking settings, and intent paths), the maximum domain limit for the team, and whether visitor credits are exhausted. The tracker is team-scoped — one tracker per team. If no tracker exists yet, this call creates an empty one automatically (find-or-create) and returns its id; this find-or-create is the only side effect, so once a tracker exists this becomes a pure read. Always call this first — before update or any domain changes — to obtain the tracker id and referrer _id values; never guess ids, only use values returned by this tool. Requires the team to have the can_access_website_visitors product feature and the calling user to have the can_manage_website_visitors permission.`,
+    params: [
+      {
+        name: '_conversation_ref',
+        type: 'string',
+        required: false,
+        description: `Short random token generated on your first call in a conversation; reuse the exact same value on every subsequent call to group related tool calls for analytics.`,
+      },
+      {
+        name: '_rationale',
+        type: 'string',
+        required: false,
+        description: `Describe the user's intent and why this tool was selected in general terms only; do not include specific field values, names, emails, or other data.`,
+      },
+    ],
+  },
+  {
+    name: 'apollomcp_apollo_website_visitor_domain_tracker_install_script',
+    description: `Return the ready-to-embed Apollo website visitor tracking snippet for the team, with the team's tracker id already substituted in as appId — never hand-assemble the template or guess the loader URL yourself. Also returns placement_rules describing what a correct install must satisfy (framework-agnostic requirements, not per-framework instructions). This tool reads the team's tracker directly and returns its id as app_id, so you do NOT need to call the index tool first; if the team has no tracker yet, it returns a not-found error (it does not create one). The snippet is team-scoped: one script works across ALL of the team's tracked domains. Adding a domain (via apollo_website_visitor_domain_tracker_update) is what enables visitor attribution for that domain — the script alone does not register a domain. A typical flow is: add the domain, get this script, embed it, and deploy. When answering the user, summarize in plain language; do not discuss internal configuration such as person-level visitor identification. Requires the team to have website visitors product access and the calling user to have permission to manage website visitors.`,
+    params: [
+      {
+        name: '_conversation_ref',
+        type: 'string',
+        required: false,
+        description: `Short random token generated on your first call in a conversation; reuse the exact same value on every subsequent call to group related tool calls for analytics.`,
+      },
+      {
+        name: '_rationale',
+        type: 'string',
+        required: false,
+        description: `Describe the user's intent and why this tool was selected in general terms only; do not include specific field values, names, emails, or other data.`,
+      },
+    ],
+  },
+  {
+    name: 'apollomcp_apollo_website_visitor_domain_tracker_send_install_email',
+    description: `Email the Apollo website visitor tracking JavaScript snippet to one or more recipients — typically a developer who will install it on the team's website. Returns success=true and sent_count when all emails are delivered; on partial failure, returns the successful sent_count alongside a failed_recipients list. Rate limited to 10 sends per hour per user — exceeding this returns a 429 error. Before calling: confirm the recipient email addresses and subject line with the user, and generate the script parameter by (1) calling apollo_website_visitor_domain_tracker_index, (2) taking its tracker id, and (3) substituting it into the standard tracking snippet template in place of <TRACKER_ID> — never invent a custom snippet or ask the user for script content; keep the loader URL, function names, and structure identical to the template (max 4000 characters). THIS SENDS A REAL EMAIL; never call it without explicit user confirmation of the recipients and subject.`,
+    params: [
+      {
+        name: 'recipients',
+        type: 'array',
+        required: true,
+        description: `List of email addresses to send the install script to. Each entry must be a valid email address. Example: ["dev@example.com", "eng@example.com"]`,
+      },
+      {
+        name: 'script',
+        type: 'string',
+        required: true,
+        description: `Full embed snippet for the email body. Generate it — do not copy from the user: (1) call apollo_website_visitor_domain_tracker_index, (2) take the id field, (3) paste it into the script template in place of <TRACKER_ID>. Keep the loader URL and code structure identical to the template. Max 4000 characters.`,
+      },
+      {
+        name: 'subject',
+        type: 'string',
+        required: true,
+        description: `Subject line for the install email. Example: 'Apollo Website Visitor Tracking Script'`,
+      },
+      {
+        name: '_conversation_ref',
+        type: 'string',
+        required: false,
+        description: `Short random token generated on your first call in a conversation; reuse the exact same value on every subsequent call to group related tool calls for analytics.`,
+      },
+      {
+        name: '_rationale',
+        type: 'string',
+        required: false,
+        description: `Describe the user's intent and why this tool was selected in general terms only; do not include specific field values, names, emails, or other data.`,
+      },
+    ],
+  },
+  {
+    name: 'apollomcp_apollo_website_visitor_domain_tracker_update',
+    description: `Add, edit, or delete a domain in the team's website visitor domain tracker. The action field inside domain_data controls which operation runs: 'add' registers a new domain for visitor tracking — domain and _id are required; generate a fresh UUID (e.g. via a UUID v4 generator) and pass it as _id, since the backend uses it as the referrer's identifier; if the team's domain limit is already reached the call returns an error with limit_exceeded=true, the current domain count, the maximum allowed, and whether the team has the Inbound add-on (which raises the limit). 'edit' updates an existing tracked domain's hostname, contact-level tracking flag, or intent paths — _id (the referrer's Apollo id) is required, and domain should always be included (use the current hostname from index even if you are not changing it). 'delete' soft-deletes a domain from the tracker — _id is required; the domain stops receiving visitor data but its history is preserved. Before calling: always call apollo_website_visitor_domain_tracker_index first to get the tracker id, domain_limit, and _id values for existing referrers — for 'add', generate a fresh UUID for _id and warn the user if they are at or near their domain_limit; for 'edit' and 'delete', use the exact _id from index, never guess or reuse ids from prior sessions. Requires the team to have the can_access_website_visitors product feature and the calling user to have the can_manage_website_visitors permission.`,
+    params: [
+      {
+        name: 'domain_data',
+        type: 'object',
+        required: true,
+        description: `The domain operation to perform. action controls which operation runs: 'add' requires domain and _id; 'edit' requires _id and should always include domain; 'delete' requires only _id.`,
+      },
+      {
+        name: '_conversation_ref',
+        type: 'string',
+        required: false,
+        description: `Short random token generated on your first call in a conversation; reuse the exact same value on every subsequent call to group related tool calls for analytics.`,
+      },
+      {
+        name: '_rationale',
+        type: 'string',
+        required: false,
+        description: `Describe the user's intent and why this tool was selected in general terms only; do not include specific field values, names, emails, or other data.`,
+      },
+    ],
+  },
+  {
+    name: 'apollomcp_apollo_website_visitors_domain_aggregates',
+    description: `Return visit counts, unique-visitor counts, and top visited paths for a single visiting company on one of your team's tracked websites, over a date range. Two ids have different meanings: organization_id is the visiting company you want a report on (get it from apollo_organizations_enrich's organization.id — never fabricate it); domain is one of YOUR team's tracked websites (where Apollo's tracking pixel is installed), NOT the visiting company's domain — discover valid values via apollo_website_visitor_domain_tracker_index. Only returns data for companies that actually visited your tracked site; a company with no visits returns "stats not found". from/to are optional date filters in YYYYMMDD format (from defaults to ~30 days ago, to defaults to today).`,
+    params: [
+      {
+        name: 'domain',
+        type: 'string',
+        required: true,
+        description: `One of YOUR team's tracked websites (where Apollo's tracking pixel is installed), e.g. mycompany.com. NOT the visiting company's domain. Discover valid values via apollo_website_visitor_domain_tracker_index.`,
+      },
+      {
+        name: 'organization_id',
+        type: 'string',
+        required: true,
+        description: `Apollo organization id of the visiting company. Get it from apollo_organizations_enrich (organization.id). Never fabricate it.`,
+      },
+      {
+        name: '_conversation_ref',
+        type: 'string',
+        required: false,
+        description: `Short random token generated on your first call in a conversation; reuse the exact same value on every subsequent call to group related tool calls for analytics.`,
+      },
+      {
+        name: '_rationale',
+        type: 'string',
+        required: false,
+        description: `Describe the user's intent and why this tool was selected in general terms only; do not include specific field values, names, emails, or other data.`,
+      },
+      {
+        name: 'from',
+        type: 'string',
+        required: false,
+        description: `Start date as an integer date, format YYYYMMDD, e.g. 20260601. Defaults to ~30 days ago if omitted.`,
+      },
+      {
+        name: 'to',
+        type: 'string',
+        required: false,
+        description: `End date as an integer date, format YYYYMMDD, e.g. 20260701. Defaults to today if omitted.`,
       },
     ],
   },

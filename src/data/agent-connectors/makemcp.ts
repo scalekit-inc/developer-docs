@@ -80,6 +80,48 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'makemcp_apps_list',
+    description: `Retrieves a list of Apps available for Scenario Building in the given Organization and Team.`,
+    params: [
+      {
+        name: 'organizationId',
+        type: 'integer',
+        required: true,
+        description: `The ID of the Organization to list Apps for.`,
+      },
+      {
+        name: 'teamId',
+        type: 'integer',
+        required: true,
+        description: `The ID of the Team to list Apps for.`,
+      },
+      {
+        name: 'appsKind',
+        type: 'string',
+        required: false,
+        description: `Defines which kind of Apps should be listed.`,
+      },
+      {
+        name: 'orderBy',
+        type: 'string',
+        required: false,
+        description: `Defines how the list of Apps should be sorted.`,
+      },
+      {
+        name: 'pageNumber',
+        type: 'integer',
+        required: false,
+        description: `The page number to return. This is useful for paginating through the list of Apps, especially when there are many Apps available.`,
+      },
+      {
+        name: 'pageSize',
+        type: 'integer',
+        required: false,
+        description: `The number of Apps to return per page. There are thousands of Apps available, and loading them all at once can bloat the Context very quickly.`,
+      },
+    ],
+  },
+  {
     name: 'makemcp_apps_recommend',
     description: `Based on the user's intention, recommend applications that can assist in achieving their goals. This tool should provide a list of applications that are relevant to the user's needs, including their names and versions.`,
     params: [
@@ -285,6 +327,24 @@ export const tools: Tool[] = [
   },
   {
     name: 'makemcp_credential-requests_list-app-modules-with-creden',
+    description: `List app modules with credentials (credential-requests): List all modules of a given Make app (and version) that require credentials, along with the required credential type and OAuth scopes. Use this to discover which modules exist for an app before constructing a credential request — the returned \`id\` values are what you pass in \`credentials[].appModules\` for \`credential-requests_create\`. For custom/SDK apps, prefix the app name with \`app#\` (e.g. \`app#my-custom-app\`).`,
+    params: [
+      {
+        name: 'appName',
+        type: 'string',
+        required: true,
+        description: `App name (e.g. \`slack\`). For custom/SDK apps, prefix with \`app#\` (e.g. \`app#my-custom-app\`).`,
+      },
+      {
+        name: 'appVersion',
+        type: 'string',
+        required: true,
+        description: `App major version number (e.g. \`4\`), or the literal string \`"latest"\`.`,
+      },
+    ],
+  },
+  {
+    name: 'makemcp_credential-requests_list-app-modules-with-creds',
     description: `List app modules with credentials (credential-requests): List all modules of a given Make app (and version) that require credentials, along with the required credential type and OAuth scopes. Use this to discover which modules exist for an app before constructing a credential request — the returned \`id\` values are what you pass in \`credentials[].appModules\` for \`credential-requests_create\`. For custom/SDK apps, prefix the app name with \`app#\` (e.g. \`app#my-custom-app\`).`,
     params: [
       {
@@ -923,6 +983,675 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'makemcp_custom-apps_changes-fetch',
+    description: `Fetch a single pending change by id, including the previous and proposed values.
+
+Use \`custom-apps_changes-list\` first to discover change ids, then call this tool with one of those ids to inspect what was changed.
+
+The default \`format: "diff"\` returns \`{ id, group, code, label, diff }\` where \`diff\` is a unified diff string suitable for displaying directly to the user. Pass \`format: "raw"\` to get the API payload (\`{ id, group, code, oldValue, newValue }\`) augmented with the same UI-friendly \`label\` field.`,
+    params: [
+      { name: 'appName', type: 'string', required: true, description: `The name of an app.` },
+      {
+        name: 'appVersion',
+        type: 'integer',
+        required: true,
+        description: `The version of the app`,
+      },
+      {
+        name: 'changeId',
+        type: 'integer',
+        required: true,
+        description: `The id of the change, as returned by custom-apps_changes-list.`,
+      },
+      {
+        name: 'format',
+        type: 'string',
+        required: false,
+        description: `"diff" (default) returns the change with \`oldValue\`/\`newValue\` rendered as a unified diff string. "raw" returns the API payload (oldValue/newValue verbatim) plus the UI \`label\` field.`,
+      },
+    ],
+  },
+  {
+    name: 'makemcp_custom-apps_changes-list',
+    description: `List pending (uncommitted) changes for a custom app version.
+
+Returns the stack of changes that have been made since the last commit. Each entry includes at least an \`id\` that can be passed to \`custom-apps_changes-fetch\` to retrieve the full diff (oldValue/newValue). An empty array means there are no uncommitted changes.
+
+Each entry is decorated with a \`label\` field that holds the UI-friendly section name as shown in the Make web app — e.g. \`code: "api"\` is exposed to users as "Communication". Use \`label\` when describing changes to a human; use \`code\` when calling other tools.
+
+Only meaningful for approved apps — unapproved apps don't track changes the same way.`,
+    params: [
+      { name: 'appName', type: 'string', required: true, description: `The name of an app.` },
+      {
+        name: 'appVersion',
+        type: 'integer',
+        required: true,
+        description: `The version of the app`,
+      },
+    ],
+  },
+  {
+    name: 'makemcp_custom-apps_connections-configure',
+    description: `Create new connection or update existing connection.`,
+    params: [
+      {
+        name: 'mode',
+        type: 'string',
+        required: true,
+        description: `Specify whether to create a new connection or update an existing one`,
+      },
+      {
+        name: 'appName',
+        type: 'string',
+        required: false,
+        description: `Required for CREATE mode. The name of the app to create the connection for`,
+      },
+      {
+        name: 'connectionName',
+        type: 'string',
+        required: false,
+        description: `Required for UPDATE mode only. The connection ID (auto-generated during creation, typically appName or appName with suffix)`,
+      },
+      {
+        name: 'label',
+        type: 'string',
+        required: false,
+        description: `Required for CREATE mode. The title of the connection, visible in the scenario builder. Will update when in UPDATE mode`,
+      },
+      {
+        name: 'sections',
+        type: 'object',
+        required: false,
+        description: `Configure connection sections: api, parameters, scopes, scope. Each section value can be a JSON value (object/array) or a JSONC string (to preserve comments). Example: {"api": {"baseUrl": "https://api.example.com"}, "parameters": [{"name": "apikey", "type": "text", "required": true}]}`,
+      },
+      {
+        name: 'type',
+        type: 'string',
+        required: false,
+        description: `Required for CREATE mode. The type of the connection`,
+      },
+    ],
+  },
+  {
+    name: 'makemcp_custom-apps_connections-delete',
+    description: `Delete a connection`,
+    params: [
+      {
+        name: 'connectionName',
+        type: 'string',
+        required: true,
+        description: `The name of the connection`,
+      },
+    ],
+  },
+  {
+    name: 'makemcp_custom-apps_connections-fetch',
+    description: `List all connections for an app or get metadata for a specific connection with optional sections.`,
+    params: [
+      {
+        name: 'appName',
+        type: 'string',
+        required: false,
+        description: `The name of the app. Required when listing all connections for an app.`,
+      },
+      {
+        name: 'connectionName',
+        type: 'string',
+        required: false,
+        description: `The connection ID (often identical to the app name). If provided, gets this specific connection.`,
+      },
+      {
+        name: 'sections',
+        type: 'array',
+        required: false,
+        description: `Optional sections to include when fetching a specific connection.`,
+      },
+    ],
+  },
+  {
+    name: 'makemcp_custom-apps_create',
+    description: `Create new custom app. This is is the first step in creating a new custom app for Make.com Note that the "name" that you pass in is just a prefix and the "name" in the response is  the identifier for the app that needs to be passed in later requests`,
+    params: [
+      {
+        name: 'label',
+        type: 'string',
+        required: true,
+        description: `The title of your custom app. This field is required, and users will see it in the app list.`,
+      },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `Optional short description of your custom app.`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: false,
+        description: `The prefix for the app id, the created app will contain a random string postfix, which should be included when referencing the app for later operations`,
+      },
+      {
+        name: 'theme',
+        type: 'string',
+        required: false,
+        description: `The color that Make uses for your custom app modules and forms.`,
+      },
+    ],
+  },
+  {
+    name: 'makemcp_custom-apps_delete',
+    description: `Delete a custom app by name and version`,
+    params: [
+      { name: 'name', type: 'string', required: true, description: `The name of the app` },
+      { name: 'version', type: 'number', required: true, description: `The version of the app` },
+    ],
+  },
+  {
+    name: 'makemcp_custom-apps_fetch',
+    description: `List existing custom apps or get metadata for a specific app with optional sections and/or docs.`,
+    params: [
+      {
+        name: 'appName',
+        type: 'string',
+        required: false,
+        description: `The name of the app. If not provided, all apps will be listed.`,
+      },
+      {
+        name: 'appVersion',
+        type: 'number',
+        required: false,
+        description: `The version of the app. Required only when appName is provided.`,
+      },
+      {
+        name: 'includeDocs',
+        type: 'boolean',
+        required: false,
+        description: `Whether to include app documentation (readme) in the response.`,
+      },
+      {
+        name: 'sections',
+        type: 'array',
+        required: false,
+        description: `Optional sections to include when fetching a specific app. Available sections: base, groups, install, installSpec.`,
+      },
+    ],
+  },
+  {
+    name: 'makemcp_custom-apps_functions-create',
+    description: `Create a new function`,
+    params: [
+      { name: 'appName', type: 'string', required: true, description: `The name of an app.` },
+      {
+        name: 'appVersion',
+        type: 'integer',
+        required: true,
+        description: `The version of the app`,
+      },
+      { name: 'name', type: 'string', required: true, description: `The name of the function` },
+    ],
+  },
+  {
+    name: 'makemcp_custom-apps_functions-delete',
+    description: `Delete a function`,
+    params: [
+      { name: 'appName', type: 'string', required: true, description: `The name of an app.` },
+      {
+        name: 'appVersion',
+        type: 'integer',
+        required: true,
+        description: `The version of the app`,
+      },
+      {
+        name: 'functionName',
+        type: 'string',
+        required: true,
+        description: `The name of the function`,
+      },
+    ],
+  },
+  {
+    name: 'makemcp_custom-apps_functions-fetch',
+    description: `List all functions for an app or get a specific function by name`,
+    params: [
+      { name: 'appName', type: 'string', required: true, description: `The name of the app` },
+      { name: 'appVersion', type: 'number', required: true, description: `The version of the app` },
+      {
+        name: 'functionName',
+        type: 'string',
+        required: false,
+        description: `The name of the function. If not provided, all functions will be listed.`,
+      },
+    ],
+  },
+  {
+    name: 'makemcp_custom-apps_functions-get-code',
+    description: `Get function code`,
+    params: [
+      { name: 'appName', type: 'string', required: true, description: `The name of an app.` },
+      {
+        name: 'appVersion',
+        type: 'integer',
+        required: true,
+        description: `The version of the app`,
+      },
+      {
+        name: 'functionName',
+        type: 'string',
+        required: true,
+        description: `The name of the function`,
+      },
+    ],
+  },
+  {
+    name: 'makemcp_custom-apps_functions-get-test',
+    description: `Get function test code`,
+    params: [
+      { name: 'appName', type: 'string', required: true, description: `The name of an app.` },
+      {
+        name: 'appVersion',
+        type: 'integer',
+        required: true,
+        description: `The version of the app`,
+      },
+      {
+        name: 'functionName',
+        type: 'string',
+        required: true,
+        description: `The name of the function`,
+      },
+    ],
+  },
+  {
+    name: 'makemcp_custom-apps_functions-set-code',
+    description: `Set/update function code`,
+    params: [
+      { name: 'appName', type: 'string', required: true, description: `The name of an app.` },
+      {
+        name: 'appVersion',
+        type: 'integer',
+        required: true,
+        description: `The version of the app`,
+      },
+      { name: 'code', type: 'string', required: true, description: `The function code` },
+      {
+        name: 'functionName',
+        type: 'string',
+        required: true,
+        description: `The name of the function`,
+      },
+    ],
+  },
+  {
+    name: 'makemcp_custom-apps_functions-set-test',
+    description: `Set/update function test code`,
+    params: [
+      { name: 'appName', type: 'string', required: true, description: `The name of an app.` },
+      {
+        name: 'appVersion',
+        type: 'integer',
+        required: true,
+        description: `The version of the app`,
+      },
+      {
+        name: 'functionName',
+        type: 'string',
+        required: true,
+        description: `The name of the function`,
+      },
+      { name: 'test', type: 'string', required: true, description: `The test code` },
+    ],
+  },
+  {
+    name: 'makemcp_custom-apps_get-example',
+    description: `Retrieve an example for a specific tool input.`,
+    params: [
+      {
+        name: 'tool',
+        type: 'string',
+        required: true,
+        description: `Name of tool, excluding the custom-apps_ prefix. Only connections-configure is available.`,
+      },
+      { name: 'example_key', type: 'string', required: false, description: `No description.` },
+    ],
+  },
+  {
+    name: 'makemcp_custom-apps_modules-configure',
+    description: `Create new modules or update existing modules and their sections in a single operation.`,
+    params: [
+      { name: 'appName', type: 'string', required: true, description: `The name of an app.` },
+      {
+        name: 'appVersion',
+        type: 'integer',
+        required: true,
+        description: `The version of the app`,
+      },
+      {
+        name: 'mode',
+        type: 'string',
+        required: true,
+        description: `Specify whether to create a new module or update an existing one`,
+      },
+      {
+        name: 'moduleName',
+        type: 'string',
+        required: true,
+        description: `The name (id) of the module`,
+      },
+      {
+        name: 'connection',
+        type: 'string',
+        required: false,
+        description: `The name (id) of the connection to link to this module`,
+      },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `Short description of the module`,
+      },
+      {
+        name: 'label',
+        type: 'string',
+        required: false,
+        description: `Required for CREATE mode. The title of the module, visible to users in the scenario builder`,
+      },
+      {
+        name: 'sections',
+        type: 'object',
+        required: false,
+        description: `Configure module sections: communication, mappable_parameters, interface, scope, epoch, etc. Each section value can be a JSON value (object/array) or a JSONC string (to preserve comments). Example: {"communication": {"url": "/api/endpoint", "method": "GET"}, "mappable_parameters": [{"name": "id", "type": "text", "required": true}]}`,
+      },
+      {
+        name: 'typeId',
+        type: 'number',
+        required: false,
+        description: `Required for CREATE mode. The type ID of the module - see description for mapping`,
+      },
+    ],
+  },
+  {
+    name: 'makemcp_custom-apps_modules-delete',
+    description: `Delete a module`,
+    params: [
+      { name: 'appName', type: 'string', required: true, description: `The name of an app.` },
+      {
+        name: 'appVersion',
+        type: 'integer',
+        required: true,
+        description: `The version of the app`,
+      },
+      { name: 'moduleName', type: 'string', required: true, description: `The name of the module` },
+    ],
+  },
+  {
+    name: 'makemcp_custom-apps_modules-fetch',
+    description: `List all modules for an app or get metadata for a specific module with optional sections.`,
+    params: [
+      { name: 'appName', type: 'string', required: true, description: `The name of the app` },
+      { name: 'appVersion', type: 'number', required: true, description: `The version of the app` },
+      {
+        name: 'moduleName',
+        type: 'string',
+        required: false,
+        description: `The name of the module. If not provided, all modules will be listed.`,
+      },
+      {
+        name: 'sections',
+        type: 'array',
+        required: false,
+        description: `Optional sections to include when fetching a specific module. Available sections: communication, mappable_parameters, interface, scope, epoch, samples, static_parameters.`,
+      },
+    ],
+  },
+  {
+    name: 'makemcp_custom-apps_rpcs-configure',
+    description: `Create new RPC or update existing RPC and their sections in a single operation.`,
+    params: [
+      { name: 'appName', type: 'string', required: true, description: `The name of an app.` },
+      {
+        name: 'appVersion',
+        type: 'integer',
+        required: true,
+        description: `The version of the app`,
+      },
+      {
+        name: 'mode',
+        type: 'string',
+        required: true,
+        description: `Specify whether to create a new RPC or update an existing one`,
+      },
+      {
+        name: 'rpcName',
+        type: 'string',
+        required: true,
+        description: `For CREATE mode: The identifier to assign to the new RPC. For UPDATE mode: The existing RPC identifier to modify.`,
+      },
+      { name: 'connection', type: 'string', required: false, description: `Connection name` },
+      {
+        name: 'label',
+        type: 'string',
+        required: false,
+        description: `The title of the RPC visible in the scenario builder`,
+      },
+      {
+        name: 'sections',
+        type: 'object',
+        required: false,
+        description: `Configure RPC sections: api, parameters. Each section value can be a JSON value (object/array) or a JSONC string (to preserve comments). Example: {"api": {"url": "/api/endpoint", "method": "POST"}, "parameters": [{"name": "param1", "type": "text", "required": true}]}`,
+      },
+    ],
+  },
+  {
+    name: 'makemcp_custom-apps_rpcs-delete',
+    description: `Delete an RPC`,
+    params: [
+      { name: 'appName', type: 'string', required: true, description: `The name of an app.` },
+      {
+        name: 'appVersion',
+        type: 'integer',
+        required: true,
+        description: `The version of the app`,
+      },
+      { name: 'rpcName', type: 'string', required: true, description: `The name of the RPC` },
+    ],
+  },
+  {
+    name: 'makemcp_custom-apps_rpcs-fetch',
+    description: `List all RPCs for an app or get metadata for a specific RPC with optional sections.`,
+    params: [
+      { name: 'appName', type: 'string', required: true, description: `The name of an app.` },
+      {
+        name: 'appVersion',
+        type: 'integer',
+        required: true,
+        description: `The version of the app`,
+      },
+      {
+        name: 'rpcName',
+        type: 'string',
+        required: false,
+        description: `The name of the RPC. If not provided, all RPCs will be listed.`,
+      },
+      {
+        name: 'sections',
+        type: 'array',
+        required: false,
+        description: `Optional sections to include when fetching a specific RPC. Available sections: api, parameters.`,
+      },
+    ],
+  },
+  {
+    name: 'makemcp_custom-apps_rpcs-test',
+    description: `Test an RPC with provided data and schema`,
+    params: [
+      { name: 'appName', type: 'string', required: true, description: `The name of an app.` },
+      {
+        name: 'appVersion',
+        type: 'integer',
+        required: true,
+        description: `The version of the app`,
+      },
+      { name: 'data', type: 'object', required: true, description: `Test data object` },
+      { name: 'rpcName', type: 'string', required: true, description: `The name of the RPC` },
+      { name: 'schema', type: 'array', required: true, description: `Schema definition array` },
+    ],
+  },
+  {
+    name: 'makemcp_custom-apps_set-base',
+    description: `Set the base section of a custom app. This is the structure all modules and remote procedures inherit from.`,
+    params: [
+      { name: 'appName', type: 'string', required: true, description: `The name of an app.` },
+      {
+        name: 'appVersion',
+        type: 'integer',
+        required: true,
+        description: `The version of the app`,
+      },
+      {
+        name: 'base',
+        type: 'string',
+        required: true,
+        description: `The base section data. Can be a JSON object or a JSONC string (to preserve comments). Key properties: baseUrl (required, the base URL prefix for modules), headers (optional, object of header key-value pairs), qs (optional, query string key-value pairs), log (optional, { sanitize: string[] } for redacting sensitive paths).`,
+      },
+    ],
+  },
+  {
+    name: 'makemcp_custom-apps_set-docs',
+    description: `Set app documentation (readme)`,
+    params: [
+      {
+        name: 'docs',
+        type: 'string',
+        required: true,
+        description: `The documentation content in markdown format`,
+      },
+      { name: 'name', type: 'string', required: true, description: `The name of the app` },
+      { name: 'version', type: 'number', required: true, description: `The version of the app` },
+    ],
+  },
+  {
+    name: 'makemcp_custom-apps_set-groups',
+    description: `Set the groups section of an custom app. This defines module groupings for the app.`,
+    params: [
+      { name: 'appName', type: 'string', required: true, description: `The name of an app.` },
+      {
+        name: 'appVersion',
+        type: 'integer',
+        required: true,
+        description: `The version of the app`,
+      },
+      { name: 'groups', type: 'array', required: true, description: `No description.` },
+    ],
+  },
+  {
+    name: 'makemcp_custom-apps_update',
+    description: `Update an existing custom app`,
+    params: [
+      { name: 'name', type: 'string', required: true, description: `The name of the app` },
+      { name: 'version', type: 'number', required: true, description: `The version of the app` },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `The description of the app`,
+      },
+      {
+        name: 'label',
+        type: 'string',
+        required: false,
+        description: `The label of the app visible in the scenario builder`,
+      },
+      { name: 'theme', type: 'string', required: false, description: `The color of the app logo` },
+    ],
+  },
+  {
+    name: 'makemcp_custom-apps_webhooks-create',
+    description: `Create a new webhook for an app`,
+    params: [
+      { name: 'appName', type: 'string', required: true, description: `The name of the app` },
+      {
+        name: 'label',
+        type: 'string',
+        required: true,
+        description: `The label of the webhook visible in the scenario builder`,
+      },
+      { name: 'type', type: 'string', required: true, description: `The type of the webhook` },
+    ],
+  },
+  {
+    name: 'makemcp_custom-apps_webhooks-delete',
+    description: `Delete a webhook`,
+    params: [
+      {
+        name: 'webhookName',
+        type: 'string',
+        required: true,
+        description: `The name of the webhook`,
+      },
+    ],
+  },
+  {
+    name: 'makemcp_custom-apps_webhooks-fetch',
+    description: `List all webhooks for an app or get metadata for a specific webhook with optional sections.`,
+    params: [
+      {
+        name: 'appName',
+        type: 'string',
+        required: false,
+        description: `The name of the app. Required when listing all webhooks.`,
+      },
+      {
+        name: 'sections',
+        type: 'array',
+        required: false,
+        description: `Optional sections to include when fetching a specific webhook. Available sections: api, parameters, attach, detach, scope.`,
+      },
+      {
+        name: 'webhookName',
+        type: 'string',
+        required: false,
+        description: `The webhook ID (often identical to the app name). If provided, gets this specific webhook.`,
+      },
+    ],
+  },
+  {
+    name: 'makemcp_custom-apps_webhooks-set-section',
+    description: `Set a specific section of a webhook.`,
+    params: [
+      {
+        name: 'body',
+        type: 'string',
+        required: true,
+        description: `The section data to set. Can be a JSON object or a JSONC string (to preserve comments).`,
+      },
+      { name: 'section', type: 'string', required: true, description: `The section to set` },
+      {
+        name: 'webhookName',
+        type: 'string',
+        required: true,
+        description: `The name of the webhook`,
+      },
+    ],
+  },
+  {
+    name: 'makemcp_custom-apps_webhooks-update',
+    description: `Update an existing webhook`,
+    params: [
+      {
+        name: 'webhookName',
+        type: 'string',
+        required: true,
+        description: `The name of the webhook`,
+      },
+      {
+        name: 'label',
+        type: 'string',
+        required: false,
+        description: `The label of the webhook visible in the scenario builder`,
+      },
+    ],
+  },
+  {
     name: 'makemcp_data-store-records_create',
     description: `Create data store record (data-store-records): Create a new record in a data store.`,
     params: [
@@ -1473,6 +2202,30 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'makemcp_hooks_learn_start',
+    description: `Starts learning mode ("Detect new values") on a webhook/mailhook: the hook determines its incoming data structure from the next request it receives, without the scenario running. Learning stops automatically once data arrives.`,
+    params: [
+      {
+        name: 'hookId',
+        type: 'integer',
+        required: true,
+        description: `The ID of the Hook (webhook/mailhook).`,
+      },
+    ],
+  },
+  {
+    name: 'makemcp_hooks_learn_stop',
+    description: `Stops learning mode ("Detect new values") on a webhook/mailhook without waiting for data.`,
+    params: [
+      {
+        name: 'hookId',
+        type: 'integer',
+        required: true,
+        description: `The ID of the Hook (webhook/mailhook).`,
+      },
+    ],
+  },
+  {
     name: 'makemcp_hooks_list',
     description: `List webhooks/mailhooks (hooks): List webhooks/mailhooks for a specific team.`,
     params: [
@@ -1481,6 +2234,18 @@ export const tools: Tool[] = [
         type: 'number',
         required: true,
         description: `The team ID to list hooks for`,
+      },
+    ],
+  },
+  {
+    name: 'makemcp_hooks_ping',
+    description: `Returns the live status of a webhook/mailhook: its address, whether it is attached to a scenario, whether learning mode ("Detect new values") is active, and whether it is gone. \`learning: false\` after a learn-start means the data structure was captured (or learning was stopped).`,
+    params: [
+      {
+        name: 'hookId',
+        type: 'integer',
+        required: true,
+        description: `The ID of the Hook (webhook/mailhook).`,
       },
     ],
   },
@@ -1684,6 +2449,84 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'makemcp_scenario-custom-properties_create',
+    description: `Fill in scenario custom properties data (scenario-custom-properties): Fill in custom properties data for a scenario for the first time. Fails with IM005 if the scenario already has data — use scenario-custom-properties_update or scenario-custom-properties_replace instead. Every item marked required in the custom property structure must be given a value. Use custom-property-structure-items_list to see the available items.`,
+    params: [
+      {
+        name: 'customProperties',
+        type: 'object',
+        required: true,
+        description: `Custom properties keyed by structure item name, e.g. { "highPriority": true, "category": ["eshop"] }.`,
+      },
+      {
+        name: 'scenarioId',
+        type: 'number',
+        required: true,
+        description: `The scenario ID to fill in custom properties data for`,
+      },
+    ],
+  },
+  {
+    name: 'makemcp_scenario-custom-properties_delete',
+    description: `Delete scenario custom properties data (scenario-custom-properties): Delete all custom properties data for a scenario. This is irreversible.`,
+    params: [
+      {
+        name: 'scenarioId',
+        type: 'number',
+        required: true,
+        description: `The scenario ID to delete custom properties data for`,
+      },
+    ],
+  },
+  {
+    name: 'makemcp_scenario-custom-properties_get',
+    description: `Get scenario custom properties data (scenario-custom-properties): Get the custom properties data filled in for a scenario.`,
+    params: [
+      {
+        name: 'scenarioId',
+        type: 'number',
+        required: true,
+        description: `The scenario ID to get custom properties data for`,
+      },
+    ],
+  },
+  {
+    name: 'makemcp_scenario-custom-properties_replace',
+    description: `Replace scenario custom properties data (scenario-custom-properties): Replace all custom properties data for a scenario. Fails with IM013 if the scenario has no data yet — use scenario-custom-properties_create first. Every item marked required in the structure must be given a value.`,
+    params: [
+      {
+        name: 'customProperties',
+        type: 'object',
+        required: true,
+        description: `Complete set of custom properties keyed by structure item name; replaces all existing data.`,
+      },
+      {
+        name: 'scenarioId',
+        type: 'number',
+        required: true,
+        description: `The scenario ID to replace custom properties data for`,
+      },
+    ],
+  },
+  {
+    name: 'makemcp_scenario-custom-properties_update',
+    description: `Update scenario custom properties data (scenario-custom-properties): Merge-update custom properties data for a scenario; only the specified items are changed. Fails with IM013 if the scenario has no data yet — use scenario-custom-properties_create first.`,
+    params: [
+      {
+        name: 'customProperties',
+        type: 'object',
+        required: true,
+        description: `Custom properties to update, keyed by structure item name; unspecified items are left unchanged.`,
+      },
+      {
+        name: 'scenarioId',
+        type: 'number',
+        required: true,
+        description: `The scenario ID to update custom properties data for`,
+      },
+    ],
+  },
+  {
     name: 'makemcp_scenarios_activate',
     description: `Activate scenario (scenarios): Activate a scenario.`,
     params: [
@@ -1880,6 +2723,78 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Updated scheduling configuration`,
+      },
+    ],
+  },
+  {
+    name: 'makemcp_show_execution_result',
+    description: `Renders a scenario execution’s outcome — status, outputs, and consumption — as an interactive widget in the chat, for a past or in-progress run. Only call this when the user explicitly wants the result displayed. Do NOT call this to check on a run you just triggered — \`scenarios_run\` already renders its own live-updating result and needs no follow-up call. For headless status/output checks while iterating, use \`executions_get\`/\`executions_get-detail\` instead. A \`RUNNING\` status means the execution is still in progress. Requires the \`scenarios:read\` scope on the scenario’s team: on “Insufficient rights” or “Access denied”, verify the scenarioId via \`scenarios_list\` instead of retrying — the scenario likely belongs to a team your token cannot read. On “Too Many Requests”, stop polling and wait before the next call.`,
+    params: [
+      {
+        name: 'scenarioId',
+        type: 'integer',
+        required: true,
+        description: `The ID of the scenario the execution belongs to.`,
+      },
+      {
+        name: 'executionId',
+        type: 'string',
+        required: false,
+        description: `The execution to inspect; omit to fetch only the scenario name/team.`,
+      },
+      {
+        name: 'includeOutputs',
+        type: 'boolean',
+        required: false,
+        description: `Whether to include the execution's outputs in the response. Defaults to true.`,
+      },
+    ],
+  },
+  {
+    name: 'makemcp_show_executions_list',
+    description: `Renders a scenario’s execution history as an interactive widget in the chat — each past run with its status, trigger type, duration, and consumption. Only call this when the user explicitly wants the history displayed. Do NOT call this while iterating/debugging — use \`executions_list\` instead, which returns the same data without rendering a UI.`,
+    params: [
+      {
+        name: 'scenarioId',
+        type: 'integer',
+        required: true,
+        description: `The ID of the scenario whose execution history to display.`,
+      },
+    ],
+  },
+  {
+    name: 'makemcp_show_scenarios_list',
+    description: `Renders an interactive UI in the chat — a searchable, folder-filterable, sortable list of the team's scenarios showing each scenario's status, used apps, and usage. Only call this when the user explicitly wants the list displayed. Do NOT call this while iterating/authoring — use \`scenarios_list\` instead, which returns the same data without rendering a UI.`,
+    params: [
+      {
+        name: 'teamId',
+        type: 'integer',
+        required: true,
+        description: `The ID of the Team whose scenarios should be listed.`,
+      },
+      {
+        name: 'folderId',
+        type: 'integer',
+        required: false,
+        description: `Optional. Restrict the listing to scenarios in this single folder. Applied as a server-side filter on the underlying query.`,
+      },
+      {
+        name: 'orderBy',
+        type: 'string',
+        required: false,
+        description: `Optional. Sort order — one of \`lastEdited\` (most recently edited first), \`nameAsc\` (A→Z), \`nameDesc\` (Z→A), \`createdNewest\`, \`createdOldest\`, or \`creditsHighest\` (heaviest usage of the last 30 days first — ordered by operations, mirroring Make's own "Credit usage: highest (30d)" option, while the rows display credits); any other value falls back to the default ordering. Applied server-side; the rendered list always shows active scenarios first.`,
+      },
+      {
+        name: 'search',
+        type: 'string',
+        required: false,
+        description: `Optional. Restrict the listing to scenarios matching this term. Case-insensitive; split on whitespace into tokens, and a scenario matches when EVERY token is a substring of its NAME, its FOLDER name, or one of the APP names it uses (different tokens may match different fields). Applied in memory over the team's fetched scenarios, mirroring Make's own scenario list.`,
+      },
+      {
+        name: 'status',
+        type: 'string',
+        required: false,
+        description: `Optional. Restrict the listing — one of \`all\` (default, no filter), \`active\` (turned on), \`inactive\` (turned off — this includes scenarios that were stopped because of an error), or \`shared\` (shared with other teams); any other value is treated as \`all\`. Applied server-side.`,
       },
     ],
   },
@@ -2178,6 +3093,30 @@ export const tools: Tool[] = [
         type: 'boolean',
         required: false,
         description: `Enables generation of Field States, which can be fed into Make Frontend Components for better user experience.`,
+      },
+      {
+        name: 'strict',
+        type: 'boolean',
+        required: false,
+        description: `Enforces strict validation mode, which is guarding against unknown parameters in the configuration. Don't turn off unless necessary.`,
+      },
+    ],
+  },
+  {
+    name: 'makemcp_validate_scenario_interface',
+    description: `Use this tool to validate a typed Scenario Interface before applying changes. Either side (\`input\`, \`output\`) may be omitted; only the side(s) supplied are validated.`,
+    params: [
+      {
+        name: 'input',
+        type: 'array',
+        required: false,
+        description: `Scenario inputs as a Forman Schema definition. Each item must declare \`name\` (unique within the array, matches /^[a-zA-Z0-9_-]+$/) and \`type\` (one of \`text\`, \`number\`, \`boolean\`, \`date\`, \`buffer\`, \`array\`, \`collection\`). \`help\`, \`required\`, \`default\` are optional; \`multiline\` is required for \`text\` items; nested \`spec\` arrays are required for \`collection\` / \`array\` items.`,
+      },
+      {
+        name: 'output',
+        type: 'array',
+        required: false,
+        description: `Scenario outputs as a Forman Schema definition. Each item must declare \`name\` (unique within the array, matches /^[a-zA-Z0-9_-]+$/) and \`type\` (one of \`text\`, \`number\`, \`boolean\`, \`date\`, \`buffer\`, \`array\`, \`collection\`). \`help\`, \`required\`, \`default\` are optional; \`multiline\` is required for \`text\` items; nested \`spec\` arrays are required for \`collection\` / \`array\` items.`,
       },
       {
         name: 'strict',

@@ -2,6 +2,11 @@ import type { Tool } from '../../types/agent-connectors'
 
 export const tools: Tool[] = [
   {
+    name: 'twelvedatamcp_auth_status',
+    description: `Show current authentication state, useful for debugging. Reports which credentials are configured, whether OAuth tokens exist, and whether the API token was successfully fetched from the user profile.`,
+    params: [],
+  },
+  {
     name: 'twelvedatamcp_currency_conversion',
     description: `Get exchange rate or convert an amount between currencies (fiat or crypto). Provide the currency pair as symbol (e.g. 'EUR/USD', 'BTC/USD', 'GBP/JPY'). Optionally provide an amount to get the converted value, or a date (YYYY-MM-DD) for a historical rate. Omit date for the real-time rate. Use for: 'EUR to USD', 'convert 1000 JPY to GBP', 'BTC price in EUR'.`,
     params: [
@@ -1217,6 +1222,19 @@ export const tools: Tool[] = [
         description: `Ticker symbol of the instrument, e.g. 'AAPL'. Use as the primary identifier.`,
       },
     ],
+  },
+  {
+    name: 'twelvedatamcp_oauth_configure',
+    description: `Save Twelve Data OAuth credentials to local config so they can be used by oauth_login. Run this once before oauth_login if credentials are not yet configured.`,
+    params: [
+      { name: 'client_id', type: 'string', required: true, description: `No description.` },
+      { name: 'client_secret', type: 'string', required: true, description: `No description.` },
+    ],
+  },
+  {
+    name: 'twelvedatamcp_oauth_login',
+    description: `Authenticate with Twelve Data via OAuth 2.0. Opens a browser window for the user to authorize access; after login the API token is fetched from the user profile and saved locally. Requires OAuth client credentials to be configured (see oauth_configure), or a TWELVE_DATA_API_KEY to skip OAuth entirely.`,
+    params: [],
   },
   {
     name: 'twelvedatamcp_search_symbol',

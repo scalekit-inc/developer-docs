@@ -1,0 +1,84 @@
+---
+title: 'Google Ads connector'
+tableOfContents: true
+description: 'Connect to Google Ads to manage advertising campaigns, analyze performance metrics, and optimize ad spending across Google''s advertising platform'
+sidebar:
+  label: 'Google Ads'
+overviewTitle: 'Quickstart'
+connectorIcon: https://cdn.scalekit.com/sk-connect/assets/provider-icons/google_ads.png
+connectorAuthType: OAuth 2.0
+connectorCategories: [Marketing, CRM & Sales]
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
+---
+
+import ToolList from '@/components/ToolList.astro'
+import { tools } from '@/data/agent-connectors/googleads'
+import { Steps, Tabs, TabItem } from '@astrojs/starlight/components'
+import { AgentKitCredentials } from '@components/templates'
+import { SetupGoogleAdsSection } from '@components/templates'
+import { QuickstartGenericOauthSection } from '@components/templates'
+
+<Steps>
+
+1. ### Install the SDK
+
+   <Tabs syncKey="tech-stack">
+     <TabItem label="Node.js">
+       ```bash frame="terminal"
+       npm install @scalekit-sdk/node
+       ```
+     </TabItem>
+     <TabItem label="Python">
+       ```bash frame="terminal"
+       pip install scalekit
+       ```
+     </TabItem>
+   </Tabs>
+
+   Full SDK reference: [Node.js](/agentkit/sdks/node/) | [Python](/agentkit/sdks/python/)
+
+2. ### Set your credentials
+
+   <AgentKitCredentials />
+
+3. ### Set up the connector
+
+   Register your Google Ads credentials with Scalekit so it handles the token lifecycle. You do this once per environment.
+
+   <details>
+   <summary>Dashboard setup steps</summary>
+
+   <SetupGoogleAdsSection />
+
+   </details>
+
+4. ### Authorize and make your first call
+
+   <QuickstartGenericOauthSection connector="googleads" toolName="googleads_customers_list" providerName="Google Ads" toolInputNode="{ developer_token: 'YOUR_DEVELOPER_TOKEN' }" toolInputPython='{"developer_token":"YOUR_DEVELOPER_TOKEN"}' />
+
+</Steps>
+
+## What you can do
+
+Connect this agent connector to let your agent:
+
+- **Suggest geo target constant** — Look up Google Ads geo target constant resource names for location names (cities, regions, countries) or geo-target IDs
+- **Get ad group, customer, campaign** — Retrieve the full details of a single Google Ads ad group by ID, including its status, campaign, targeting type, and default bid amounts
+- **List user, customers** — Update a remarketing audience list's name, description, or membership duration
+- **Search responsive** — Execute a GAQL (Google Ads Query Language) query to retrieve campaigns, ad groups, keywords, metrics, and any other Google Ads data
+- **Create label, keyword, conversion action** — Create a label that can be applied to campaigns, ad groups, ads, or keywords for organization and filtering
+- **Update keyword, conversion action, campaign** — Update a keyword's bid amount or status
+
+## Tool list
+
+Use the exact tool names from the **Tool list** below when you call `execute_tool`. If you're not sure which name to use, list the tools available for the current user first.
+
+<ToolList tools={tools} />

@@ -240,6 +240,36 @@ When NOT to use:
     ],
   },
   {
+    name: 'apifymcp_report_problem',
+    description: `Report a problem with Apify's MCP tools or Actors to the Apify team. Call it when a tool or Actor is missing, errors, times out, or returns a confusing, wrong, or empty result, or when you cannot complete the user's request with the available tools. Put what you were doing and what went wrong in \`message\`. Do NOT include personal data, credentials, secrets, or verbatim private conversation content — describe the issue in your own words.`,
+    params: [
+      {
+        name: 'message',
+        type: 'string',
+        required: true,
+        description: `What happened: the problem you hit. Required. Keep it to a few sentences (max 2000 characters).`,
+      },
+      {
+        name: 'actorId',
+        type: 'string',
+        required: false,
+        description: `Optional. The Actor this problem is about, e.g. apify/rag-web-browser.`,
+      },
+      {
+        name: 'actorRunId',
+        type: 'string',
+        required: false,
+        description: `Optional. The Actor run this problem is about.`,
+      },
+      {
+        name: 'relatedTools',
+        type: 'array',
+        required: false,
+        description: `Optional. Names of the MCP tools involved in this problem (up to 20).`,
+      },
+    ],
+  },
+  {
     name: 'apifymcp_search_actors',
     description: `Search the Apify Store to FIND and DISCOVER what scraping tools/Actors exist for specific platforms or use cases. This tool provides INFORMATION about available Actors — it does NOT retrieve actual data or run any scraping tasks.
 
@@ -264,7 +294,7 @@ Always do at least two searches: first with broad keywords, then with more speci
         name: 'limit',
         type: 'integer',
         required: false,
-        description: `Maximum number of Actors to return (1-100, default: 5)`,
+        description: `Maximum number of Actors to return (1-10, default: 5)`,
       },
       {
         name: 'offset',

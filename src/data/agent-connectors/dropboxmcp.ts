@@ -24,16 +24,16 @@ export const tools: Tool[] = [
     description: `Copy one or more files or folders to a new location in Dropbox.`,
     params: [
       {
+        name: 'entries',
+        type: 'array',
+        required: true,
+        description: `List of file or folder paths to operate on.`,
+      },
+      {
         name: 'autorename',
         type: 'boolean',
         required: false,
         description: `If true, renames the destination if a conflict exists.`,
-      },
-      {
-        name: 'entries',
-        type: 'array',
-        required: false,
-        description: `List of file or folder paths to operate on.`,
       },
     ],
   },
@@ -60,6 +60,18 @@ export const tools: Tool[] = [
     description: `Create a file request so others can upload files to your Dropbox.`,
     params: [
       {
+        name: 'destination',
+        type: 'string',
+        required: true,
+        description: `The Dropbox folder path where uploaded files will be saved.`,
+      },
+      {
+        name: 'title',
+        type: 'string',
+        required: true,
+        description: `The title of the file request shown to uploaders.`,
+      },
+      {
         name: 'closed',
         type: 'boolean',
         required: false,
@@ -82,18 +94,6 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `An optional description shown to uploaders.`,
-      },
-      {
-        name: 'destination',
-        type: 'string',
-        required: false,
-        description: `The Dropbox folder path where uploaded files will be saved.`,
-      },
-      {
-        name: 'title',
-        type: 'string',
-        required: false,
-        description: `The title of the file request shown to uploaders.`,
       },
       { name: 'video_project_id', type: 'string', required: false, description: `No description.` },
     ],
@@ -155,7 +155,7 @@ export const tools: Tool[] = [
       {
         name: 'entries',
         type: 'array',
-        required: false,
+        required: true,
         description: `List of file or folder paths to operate on.`,
       },
     ],
@@ -209,8 +209,38 @@ export const tools: Tool[] = [
       {
         name: 'id',
         type: 'string',
-        required: false,
+        required: true,
         description: `The unique ID of the file request.`,
+      },
+    ],
+  },
+  {
+    name: 'dropboxmcp_get_markdown',
+    description: `Convert a Dropbox document to markdown, optionally polling an in-progress async conversion job.`,
+    params: [
+      {
+        name: 'async_job_id',
+        type: 'string',
+        required: false,
+        description: `Opaque token from a previous in_progress get_markdown response. Send this alone to poll for completion.`,
+      },
+      {
+        name: 'embed_images',
+        type: 'boolean',
+        required: false,
+        description: `Embed images as base64 data URIs in the markdown output. Can significantly increase output size. Omit to disable.`,
+      },
+      {
+        name: 'enable_ocr',
+        type: 'boolean',
+        required: false,
+        description: `Run OCR on PDF documents. Processing is slower when enabled. Omit to disable.`,
+      },
+      {
+        name: 'path_or_file_id',
+        type: 'string',
+        required: false,
+        description: `Document to convert to markdown. Required on a new request; omit when polling with async_job_id.`,
       },
     ],
   },
@@ -223,6 +253,36 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `The shared link URL to retrieve metadata for.`,
+      },
+    ],
+  },
+  {
+    name: 'dropboxmcp_get_transcript',
+    description: `Transcribe a Dropbox audio or video file, optionally polling an in-progress async transcription job.`,
+    params: [
+      {
+        name: 'async_job_id',
+        type: 'string',
+        required: false,
+        description: `Opaque token from a previous in_progress get_transcript response. Send this alone to poll for completion.`,
+      },
+      {
+        name: 'audio_language',
+        type: 'string',
+        required: false,
+        description: `ISO 639-1 two-letter language code such as "en". Omit for auto-detection.`,
+      },
+      {
+        name: 'path_or_file_id',
+        type: 'string',
+        required: false,
+        description: `Audio or video file to transcribe. Required on a new request; omit when polling with async_job_id.`,
+      },
+      {
+        name: 'timestamp_level',
+        type: 'string',
+        required: false,
+        description: `Granularity of segment timestamps. Omit for the default of "sentence".`,
       },
     ],
   },
@@ -246,6 +306,24 @@ export const tools: Tool[] = [
         type: 'integer',
         required: false,
         description: `Maximum number of results to return per page.`,
+      },
+    ],
+  },
+  {
+    name: 'dropboxmcp_list_file_revisions',
+    description: `List the revision history of a file in Dropbox.`,
+    params: [
+      {
+        name: 'path_or_file_id',
+        type: 'string',
+        required: true,
+        description: `The Dropbox path or file ID of the file or folder.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of revisions to return. Valid range is 1-100. Omit to use the default of 10.`,
       },
     ],
   },
@@ -286,6 +364,42 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'dropboxmcp_list_restore_events',
+    description: `List restorable file and folder history events in Dropbox, optionally scoped to a path.`,
+    params: [
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Opaque cursor from a previous list_restore_events response. Reuse only with list_restore_events pagination; send cursor only.`,
+      },
+      {
+        name: 'direction',
+        type: 'string',
+        required: false,
+        description: `Time direction to traverse. Empty or omitted defaults to "PAST".`,
+      },
+      {
+        name: 'only_rewindable',
+        type: 'boolean',
+        required: false,
+        description: `If true, only include events that can still be rewound.`,
+      },
+      {
+        name: 'path',
+        type: 'string',
+        required: false,
+        description: `Optional folder path to scope history. Accepts "" or "/" for root.`,
+      },
+      {
+        name: 'timestamp',
+        type: 'integer',
+        required: false,
+        description: `Starting point in time, in seconds since epoch UTC.`,
+      },
+    ],
+  },
+  {
     name: 'dropboxmcp_list_shared_links',
     description: `List shared links for the account or a specific path with pagination.`,
     params: [
@@ -308,16 +422,48 @@ export const tools: Tool[] = [
     description: `Move one or more files or folders to a new location in Dropbox.`,
     params: [
       {
+        name: 'entries',
+        type: 'array',
+        required: true,
+        description: `List of file or folder paths to operate on.`,
+      },
+      {
         name: 'autorename',
         type: 'boolean',
         required: false,
         description: `If true, renames the destination if a conflict exists.`,
       },
+    ],
+  },
+  {
+    name: 'dropboxmcp_restore_file_revision',
+    description: `Restore a file to a previous revision in Dropbox.`,
+    params: [
       {
-        name: 'entries',
-        type: 'array',
+        name: 'destination_path',
+        type: 'string',
+        required: true,
+        description: `Destination path to restore. Accepts fq_path such as "/Documents/file.txt" or ns_path such as "ns:123//Documents/file.txt".`,
+      },
+      { name: 'rev', type: 'string', required: true, description: `Revision hash to restore.` },
+    ],
+  },
+  {
+    name: 'dropboxmcp_restore_folder',
+    description: `Restore a folder to a previous point in time in Dropbox.`,
+    params: [
+      { name: 'path', type: 'string', required: true, description: `Folder path to restore.` },
+      {
+        name: 'target_ts_microseconds',
+        type: 'integer',
+        required: true,
+        description: `Target timestamp to restore to, in microseconds since epoch UTC.`,
+      },
+      {
+        name: 'is_team',
+        type: 'boolean',
         required: false,
-        description: `List of file or folder paths to operate on.`,
+        description: `If true, restore the folder as a team-owned resource.`,
       },
     ],
   },

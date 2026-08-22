@@ -1,0 +1,72 @@
+---
+title: 'Grain connector'
+tableOfContents: true
+description: 'Grain''s REST API for managing meeting recordings, transcripts, webhooks, and workspace data. Search and retrieve recordings and transcripts, upload and...'
+sidebar:
+  label: 'Grain'
+overviewTitle: 'Quickstart'
+connectorIcon: https://cdn.scalekit.com/sk-connect/assets/provider-icons/grain.svg
+connectorAuthType: Bearer Token
+connectorCategories: [Transcription, Collaboration, AI]
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
+---
+
+import ToolList from '@/components/ToolList.astro'
+import { tools } from '@/data/agent-connectors/grain'
+import { Steps, Tabs, TabItem } from '@astrojs/starlight/components'
+import { AgentKitCredentials } from '@components/templates'
+import { QuickstartGenericApikeySection } from '@components/templates'
+
+<Steps>
+
+1. ### Install the SDK
+
+   <Tabs syncKey="tech-stack">
+     <TabItem label="Node.js">
+       ```bash frame="terminal"
+       npm install @scalekit-sdk/node
+       ```
+     </TabItem>
+     <TabItem label="Python">
+       ```bash frame="terminal"
+       pip install scalekit
+       ```
+     </TabItem>
+   </Tabs>
+
+   Full SDK reference: [Node.js](/agentkit/sdks/node/) | [Python](/agentkit/sdks/python/)
+
+2. ### Set your credentials
+
+   <AgentKitCredentials />
+
+3. ### Make your first call
+
+   <QuickstartGenericApikeySection connector="grain" toolName="grain_hooks_list" providerName="Grain" />
+
+</Steps>
+
+## What you can do
+
+Connect this agent connector to let your agent:
+
+- **List users, teams, recordings** — List the users in the Grain workspace, with their id, name, and email
+- **Create recording upload url, hook** — Generate a one-time upload URL for adding a new recording to Grain
+- **Update recording** — Update a Grain recording's title
+- **User recording unshare, recording share** — Revoke a workspace user's shared access to a Grain recording
+- **Team recording unshare, recording share** — Revoke a team's shared access to a Grain recording
+- **Get recording transcript text, recording transcript, recording** — Get a Grain recording's transcript as plain text, WebVTT, or SRT — ready to display or feed into subtitle/captioning tools, instead of the structured JSON segments returned by grain_recording_transcript_get
+
+## Tool list
+
+Use the exact tool names from the **Tool list** below when you call `execute_tool`. If you're not sure which name to use, list the tools available for the current user first.
+
+<ToolList tools={tools} />

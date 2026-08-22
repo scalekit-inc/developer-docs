@@ -1810,6 +1810,18 @@ the sub-account to one or more groups and set language and timezone preferences.
         description: `Filter deals by owner. Pass the account email of the deal owner.`,
       },
       {
+        name: 'filters_attributes_deal_stage',
+        type: 'string',
+        required: false,
+        description: `Filter by the deal stage. Pass the stage id, retrievable from GET /crm/pipeline/details/{pipelineID}.`,
+      },
+      {
+        name: 'filters_attributes_pipeline',
+        type: 'string',
+        required: false,
+        description: `Filter by the pipeline. Pass the pipeline id, retrievable from GET /crm/pipeline/details/{pipelineID}.`,
+      },
+      {
         name: 'filters_linkedCompaniesIds',
         type: 'string',
         required: false,
