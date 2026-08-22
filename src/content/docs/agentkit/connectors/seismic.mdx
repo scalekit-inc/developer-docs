@@ -1,0 +1,72 @@
+---
+title: 'Seismic connector'
+tableOfContents: true
+description: 'Connect to Seismic to manage sales enablement content — browse and manage teamsites and library content, work with personal workspace files, search...'
+sidebar:
+  label: 'Seismic'
+overviewTitle: 'Quickstart'
+connectorIcon: https://seismic.com/favicon.ico
+connectorAuthType: OAuth 2.0
+connectorCategories: [CRM & Sales, Files & Documents]
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
+---
+
+import ToolList from '@/components/ToolList.astro'
+import { tools } from '@/data/agent-connectors/seismic'
+import { Steps, Tabs, TabItem } from '@astrojs/starlight/components'
+import { AgentKitCredentials } from '@components/templates'
+import { QuickstartGenericOauthSection } from '@components/templates'
+
+<Steps>
+
+1. ### Install the SDK
+
+   <Tabs syncKey="tech-stack">
+     <TabItem label="Node.js">
+       ```bash frame="terminal"
+       npm install @scalekit-sdk/node
+       ```
+     </TabItem>
+     <TabItem label="Python">
+       ```bash frame="terminal"
+       pip install scalekit
+       ```
+     </TabItem>
+   </Tabs>
+
+   Full SDK reference: [Node.js](/agentkit/sdks/node/) | [Python](/agentkit/sdks/python/)
+
+2. ### Set your credentials
+
+   <AgentKitCredentials />
+
+3. ### Authorize and make your first call
+
+   <QuickstartGenericOauthSection connector="seismic" toolName="seismic_generative_search" providerName="Seismic" />
+
+</Steps>
+
+## What you can do
+
+Connect this agent connector to let your agent:
+
+- **Version upload workspace file, upload library file** — Upload new content for an existing workspace file, creating a new version while preserving version history
+- **Update workspace file, library folder, library file** — Update a workspace file's metadata: rename it and/or move it to a different folder by changing its parentFolderId
+- **Document unpublish, submit, recall** — Unpublish a previously published library content item, reverting it to draft state so it is no longer visible to end-users on the published channel
+- **Search content, generative** — Search Seismic content (library and workspace) that the authenticated user has access to, using a full-text search term, optional field-level search/return field selection, filter expressions (by repository, format, dates, custom properties, etc.), and sort order
+- **Documents publish teamsite** — Immediately publish or schedule publication of up to 10 unpublished Library documents within a teamsite
+- **List users, user teamsites, user recents** — Get a list of users in the Seismic tenant (legacy endpoint)
+
+## Tool list
+
+Use the exact tool names from the **Tool list** below when you call `execute_tool`. If you're not sure which name to use, list the tools available for the current user first.
+
+<ToolList tools={tools} />

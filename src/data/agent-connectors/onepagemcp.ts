@@ -1043,6 +1043,54 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'onepagemcp_patch_section',
+    description: `Apply a sparse DSL patch to an existing native no-code section, using a revision read from get_section in patch mode.`,
+    params: [
+      {
+        name: 'dsl',
+        type: 'string',
+        required: true,
+        description: `Sparse <section_patch> using the exact ref/within markers from the matching patch-mode read.`,
+      },
+      {
+        name: 'page_id',
+        type: 'string',
+        required: true,
+        description: `Page UUID identifying which page the section belongs to.`,
+      },
+      {
+        name: 'revision',
+        type: 'string',
+        required: true,
+        description: `Opaque revision returned by get_section when called with mode "patch", read immediately before this call.`,
+      },
+      {
+        name: 'section_id',
+        type: 'string',
+        required: true,
+        description: `Section ID identifying the specific section to patch, from get_page_overview.`,
+      },
+      {
+        name: 'site_id',
+        type: 'string',
+        required: true,
+        description: `Site UUID identifying which site the page belongs to.`,
+      },
+      {
+        name: '_conversation_ref',
+        type: 'string',
+        required: false,
+        description: `Short random token generated on your first call in a conversation; reuse the exact same value on every subsequent call to group related tool calls for analytics.`,
+      },
+      {
+        name: '_rationale',
+        type: 'string',
+        required: false,
+        description: `Describe the user's intent and why this tool was selected in general terms only; do not include specific field values, names, emails, or other data.`,
+      },
+    ],
+  },
+  {
     name: 'onepagemcp_publish_page',
     description: `Publish a page. The page becomes publicly visible with your latest changes.`,
     params: [

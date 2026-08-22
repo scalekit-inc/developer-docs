@@ -2,8 +2,22 @@ import type { Tool } from '../../types/agent-connectors'
 
 export const tools: Tool[] = [
   {
+    name: 'circlebackmcp_findcompanies',
+    description: `Find companies matching the given search terms.
+      Searches match company names and company domains.
+      The data returned will be an array of objects with each company's domain and name when available.`,
+    params: [
+      {
+        name: 'searchTerms',
+        type: 'array',
+        required: true,
+        description: `Array of search terms to find matching company names or domains.`,
+      },
+    ],
+  },
+  {
     name: 'circlebackmcp_finddomains',
-    description: `Find company domains matching the given search terms. The data returned will be an array of domain strings representing companies accessible through meetings.`,
+    description: `[STALE: not present in the live upstream tools/list as of 2026-08-21 - likely replaced by FindCompanies, which returns the same domain data plus company name] Find company domains matching the given search terms. The data returned will be an array of domain strings representing companies accessible through meetings.`,
     params: [
       {
         name: 'searchTerms',
@@ -27,7 +41,12 @@ export const tools: Tool[] = [
   },
   {
     name: 'circlebackmcp_gettranscriptsformeetings',
-    description: `Get the full transcripts for given meeting IDs. Use string IDs like Vd6Pz_kWqLm3xY-c8RhTn. The data returned will be an array of objects, each representing a full transcript for a meeting. Each transcript object will contain the meetingId, meetingName, and an array of transcript segments. Each segment is formatted with timestamps like: {startTimestamp: 123.45, endTimestamp: 128.00, speaker: 'John Doe', words: 'This is a test.'}. This should be used to get detailed transcript information for one or many meetings at once.`,
+    description: `Get the full transcripts for given meeting IDs.
+       Use string IDs like Vd6Pz_kWqLm3xY-c8RhTn.
+       The data returned will be an array of objects, each representing a full transcript for a meeting.
+       Each transcript object will contain the meetingId, meetingName, and an array of transcript segments.
+       Each segment is formatted with timestamps like: {startTimestamp: 123.45, endTimestamp: 128.00, speaker: 'John Doe', words: 'This is a test.'}
+       This should be used to get detailed transcript information for one or many meetings at once.`,
     params: [
       {
         name: 'intent',
@@ -75,7 +94,11 @@ export const tools: Tool[] = [
   },
   {
     name: 'circlebackmcp_searchactionitems',
-    description: `Find action items that match a given search term or filter. Returns action items with their title, description, status, assignee, and related meeting details. By default, only action items assigned to the user are returned. To find action items assigned to someone else, use FindProfiles to resolve their name to a profile ID and pass it as assigneeProfileId. Action items can be filtered by search terms, status (PENDING or DONE), tags, and meeting date range (startDate/endDate). Only 25 action items are returned per page, so this function may need to be called multiple times if there are more than that many results.`,
+    description: `Find action items that match a given search term or filter. Returns action items with their title, description, status, assignee, and related meeting details.
+       By default, only action items assigned to the user are returned. To find action items assigned to someone else, use FindProfiles to resolve their name to a profile ID and pass it as assigneeProfileId.
+       Action items can be filtered by search terms, status (PENDING or DONE), tags, and meeting date range (startDate/endDate).
+       Only 25 action items are returned per page, so this function may need to be called multiple times if there are more than that many results.
+      If 25 action items are returned, call this function again with the next pageIndex to ensure you get all results.`,
     params: [
       {
         name: 'intent',
@@ -129,7 +152,14 @@ export const tools: Tool[] = [
   },
   {
     name: 'circlebackmcp_searchcalendarevents',
-    description: `Get calendar events from the user's connected calendars. When searching for calendar events, the tool will extract relevant excerpts based on the intent instead of returning the entire data. Each calendar event excerpt includes comprehensive details: event title, date (in the user's timezone), organizer email, attendees (with names, emails, and status), calendar description (if present), meeting platform (Zoom, Google Meet, Microsoft Teams, etc.), meeting platform link, whether it's a recurring event, Circleback join status, and any associated meeting data from Circleback (meeting ID, status, tag IDs, user notes). You can filter events by providing a date range using startDate and endDate parameters. This is useful for finding upcoming meetings, scheduled calls, or calendar events that the user has. Note: This should be primarily used for searching calendar events happening in the future. Past calendar events have a meeting record if they were captured with Circleback. Only 50 calendar events are returned per page, so this function may need to be called multiple times if there are more than that many results.`,
+    description: `Get calendar events from the user's connected calendars.
+       When searching for calendar events, the tool will extract relevant excerpts based on the intent instead of returning the entire data.
+       Each calendar event excerpt includes comprehensive details: event title, date (in the user's timezone), organizer email, attendees (with names, emails, and status), calendar description (if present), meeting platform (Zoom, Google Meet, Microsoft Teams, etc.), meeting platform link, whether it's a recurring event, Circleback join status, and any associated meeting data from the Circleback (meeting ID, status, tag IDs, user notes).
+       You can filter events by providing a date range using startDate and endDate parameters.
+       This is useful for finding upcoming meetings, scheduled calls, or calendar events that the user has.
+       Note: This should be primarily used for searching calendar events happening in the future. Past calendar events have a meeting record if they were captured with Circleback. The only reason to use this to search past calendar events is if searching for the meeting with SearchMeetings yielded no relevant results.
+      Only 50 calendar events are returned per page, so this function may need to be called multiple times if there are more than that many results.
+      If 50 events are returned, call this function again with the next pageIndex to ensure you get all results.`,
     params: [
       {
         name: 'intent',
@@ -261,7 +291,12 @@ export const tools: Tool[] = [
   },
   {
     name: 'circlebackmcp_searchtranscripts',
-    description: `Search meeting transcripts to find transcript chunks that match a given search term. If the user's question requires searching for multiple distinct search terms, you should call this function multiple times. The data returned will be an array of objects, with each containing the meeting ID, name, creator user ID, when it was created, the chunk matching the search term, and the start and end timestamps of the matching chunk. Search results can be further filtered by including tags, profiles (attendees), or domains. This function is useful to find relevant meetings where a search term was mentioned. We can find more details about those meetings using the ReadMeetings tool.`,
+    description: `Search meeting transcripts to find transcript chunks that match a given search term.
+
+       If the user's question requires searching for multiple distinct search terms, you should call this function multiple times.
+       The data returned will be an an array of objects, with each containing the meeting ID, name, creator user ID, when it was created, the chunk matching the search term, and the start and end timestamps of the matching chunk.
+       Search results can be further filtered by including tags, profiles (attendees), or domains.
+       This function is useful to find relevant meetings where a search term was mentioned. We can find more details about those meetings using the ReadMeetings tool.`,
     params: [
       {
         name: 'intent',

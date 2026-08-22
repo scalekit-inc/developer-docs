@@ -3,9 +3,15 @@ import type { Tool } from '../../types/agent-connectors'
 export const tools: Tool[] = [
   {
     name: 'convertapimcp_convert',
-    description: `Convert a file from one format to another using ConvertAPI. Call 'get_conversion_parameters' first to discover supported parameters, then submit a conversion request with the source format, target format, and any additional parameters.`,
+    description: `Convert a file from one format to another using ConvertAPI. Call 'get_conversion_parameters' first to discover supported parameters, then submit a conversion request with the source format, target format, and any additional parameters. If the file was attached to the conversation, pass it via 'file'; for a public URL or an uploaded FileId, pass it in clientRequest.parameters['File'] instead.`,
     params: [
       { name: 'clientRequest', type: 'object', required: true, description: `No description.` },
+      {
+        name: 'file',
+        type: 'object',
+        required: false,
+        description: `The file to convert, when the user attached it to the conversation. Leave unset if passing a URL or FileId via clientRequest.parameters['File'].`,
+      },
     ],
   },
   {

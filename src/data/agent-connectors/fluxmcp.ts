@@ -2,6 +2,38 @@ import type { Tool } from '../../types/agent-connectors'
 
 export const tools: Tool[] = [
   {
+    name: 'fluxmcp_enhance_video',
+    description: `Render a prior DRAFT video at full quality. The draft's cached
+generation plan is replayed with more denoising steps — same
+composition, seed, and prompt plan, sharper detail — on an
+\`fhd\` (1080p-class) canvas by default, or \`hd\` via
+\`resolution\`. Everything else is pinned by the draft.
+
+Only works on a draft (\`draft: true\`) generation that has
+reached \`status: "ready"\`. Use when the user picks a draft they
+like ("make this one full quality", "finalize it", "enhance
+it"). To change the CONTENT instead, submit a new
+\`generate_video\` call.
+
+Returns immediately with a pending item, exactly like
+\`generate_video\`; the full-quality render takes minutes and the
+widget (or \`get_result\`) resolves it.`,
+    params: [
+      {
+        name: 'request_id',
+        type: 'string',
+        required: true,
+        description: `The \`request_id\` of a READY draft generation (submitted with \`draft: true\` on \`generate_video\`).`,
+      },
+      {
+        name: 'resolution',
+        type: 'string',
+        required: false,
+        description: `Output canvas for the enhanced render. Defaults to \`fhd\` (1080p-class, upsampled) when omitted; pass \`hd\` only when the user wants to keep the draft's 704p-class canvas.`,
+      },
+    ],
+  },
+  {
     name: 'fluxmcp_generate_image',
     description: `Submit one or more FLUX.2 image generations. Returns immediately after BFL accepts each submit; the iframe streams the actual images in as they finish.
 
@@ -42,6 +74,66 @@ Returns the same shape as \`generate_image\`: \`{data: {items: [{status: "pendin
         type: 'integer',
         required: false,
         description: `Number of variations to generate. Defaults to 4. Pass a different value only if the user specifically asked for it. Hard cap 8.`,
+      },
+    ],
+  },
+  {
+    name: 'fluxmcp_generate_video',
+    description: `Generate videos with FLUX.3. Each \`requests\` entry picks an
+explicit \`mode\`:
+
+  * \`t2v\` — text-to-video, prompt only.
+  * \`i2v\` — image-to-video via \`keyframes\`: 1 keyframe animates
+    a still (it becomes the opening frame); 2 keyframes
+    transition/morph from the first to the second; 3-10 form a
+    storyboard spread across the clip (needs explicit
+    \`duration\`). Per-keyframe \`timestamp\` (seconds, all-or-none)
+    pins exact positions.
+  * \`v2v\` — video continuation via \`start_video\`: the output
+    picks up from the source clip's final seconds (video AND
+    audio). Chain results for longer sequences.
+
+When the user PROVIDES media, it MUST go into \`keyframes\` or
+\`start_video\` — never describe provided images/videos in prose
+and call with \`t2v\` (the output would look unrelated to the
+user's media). Media uses the same \`{id}\` / \`{url}\` shapes as
+\`generate_image\`; upload user-attached files via
+\`request_upload_url\` first (\`kind: "video"\` for MP4s).
+
+Reference-based conditioning (keep a subject's identity from
+reference images / borrow motion from a reference video) is NOT
+available on this endpoint yet — tell the user so instead of
+faking it with t2v.
+
+Clips are 5-20s at 24fps, \`hd\` or \`fhd\`, with synchronized
+audio by default. The harness reasons about the prompt before
+rendering and picks \`duration\` / \`aspect_ratio\` itself when
+they're \`auto\`.
+
+DRAFT WORKFLOW: pass \`draft: true\` for a fast, cheap preview of
+the exact planned generation. When the user likes a draft, call
+\`enhance_video(request_id=<draft's id>)\` to re-render the SAME
+clip (same composition, seed, and prompt plan) at full quality.
+Prefer drafts when the user is exploring ideas or wants
+variants — submit a batch of drafts, let them pick, enhance the
+winner. Drafts render at hd; \`enhance_video\` finishes the
+winner at \`fhd\` (default) or \`hd\`.
+
+VIDEO TAKES TIME: minutes for short clips, up to ~an hour for
+long ones. The response returns IMMEDIATELY with pending items.
+In hosts with the video-viewer widget the widget polls and
+renders automatically — do not poll yourself; tell the user the
+video is rendering. In text-only hosts, call
+\`get_result(request_id=...)\` per item to check progress (each
+call waits up to ~45s and returns \`pending\` again with a
+\`progress\` fraction until done). Results survive chat closes —
+the same \`request_id\` resumes from the server even days later.`,
+    params: [
+      {
+        name: 'requests',
+        type: 'array',
+        required: true,
+        description: `List of video generation requests. Pass a single-item list for one video; pass up to 4 to generate a batch in one call (each entry is submitted to BFL in parallel). Each entry carries its own mode / prompt / media, so a batch can mix variations of one idea or entirely different clips.`,
       },
     ],
   },

@@ -405,6 +405,12 @@ export const tools: Tool[] = [
         description: `Max character length for each context message. Longer messages are truncated.`,
       },
       {
+        name: 'only_my_channels',
+        type: 'boolean',
+        required: false,
+        description: `Limit results to public channels the user is a member of. Set to true when the user asks to search only their own or joined channels. Default: false.`,
+      },
+      {
         name: 'response_format',
         type: 'string',
         required: false,
@@ -490,6 +496,12 @@ export const tools: Tool[] = [
         description: `Max character length for each context message. Longer messages are truncated.`,
       },
       {
+        name: 'only_my_channels',
+        type: 'boolean',
+        required: false,
+        description: `Limit results to channels the user is a member of. Set to true when the user asks to search only their own or joined channels. Default: false.`,
+      },
+      {
         name: 'response_format',
         type: 'string',
         required: false,
@@ -563,6 +575,12 @@ export const tools: Tool[] = [
         required: false,
         description: `Timestamp of the parent message to reply in a thread. Get it from slack_read_channel.`,
       },
+      {
+        name: 'unfurl_app_links',
+        type: 'boolean',
+        required: false,
+        description: `Set to true to enable link previews from installed apps (e.g. GitHub, Jira) in the message.`,
+      },
     ],
   },
   {
@@ -591,31 +609,37 @@ export const tools: Tool[] = [
   },
   {
     name: 'slackmcp_slack_update_canvas',
-    description: `Update an existing Slack Canvas document by appending, replacing, or deleting content.`,
+    description: `Update an existing Slack Canvas document by appending, replacing, or deleting content. Prefer \`sections\` for atomic multi-edit operations; \`action\`/\`content\`/\`section_id\` remain as a legacy single-edit path.`,
     params: [
-      {
-        name: 'action',
-        type: 'string',
-        required: true,
-        description: `One of "append", "prepend", or "replace". Defaults to "append"`,
-      },
       {
         name: 'canvas_id',
         type: 'string',
         required: true,
-        description: `ID of the Slack canvas document. Get it from slack_search_public.`,
+        description: `ID of the canvas to update. Get it from slack_search_public.`,
+      },
+      {
+        name: 'action',
+        type: 'string',
+        required: false,
+        description: `Legacy single-edit type. Prefer \`sections\`. One of append, prepend, replace.`,
       },
       {
         name: 'content',
         type: 'string',
-        required: true,
-        description: `Canvas-flavored Markdown content for the canvas body.`,
+        required: false,
+        description: `Legacy single-edit markdown content. Prefer \`sections\`.`,
       },
       {
         name: 'section_id',
         type: 'string',
         required: false,
-        description: `ID of the canvas section to update. Get it from slack_read_canvas.`,
+        description: `Legacy single-edit target section ID from slack_read_canvas. Prefer \`sections\`.`,
+      },
+      {
+        name: 'sections',
+        type: 'array',
+        required: false,
+        description: `Preferred: array of edit operations applied atomically against a single document snapshot. Max 100 operations. Use this for any update with one or more edits.`,
       },
     ],
   },

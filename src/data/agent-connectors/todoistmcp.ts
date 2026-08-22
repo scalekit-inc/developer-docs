@@ -3,7 +3,7 @@ import type { Tool } from '../../types/agent-connectors'
 export const tools: Tool[] = [
   {
     name: 'todoistmcp_add-comments',
-    description: `Add multiple comments to tasks or projects. Each comment must specify either taskId or projectId.`,
+    description: `Add multiple comments to tasks or projects, optionally notifying collaborators. Each comment must specify either taskId or projectId.`,
     params: [
       {
         name: 'comments',
@@ -27,7 +27,7 @@ export const tools: Tool[] = [
   },
   {
     name: 'todoistmcp_add-goals',
-    description: `Create one or more goals. Omit workspaceId for personal goals.`,
+    description: `[STALE - upstream Todoist MCP no longer exposes the Goals feature as of 2026-08-19; this tool is flagged for removal and hidden from public listing, not deleted] Create one or more goals. Omit workspaceId for personal goals.`,
     params: [
       {
         name: 'goals',
@@ -111,7 +111,7 @@ export const tools: Tool[] = [
   },
   {
     name: 'todoistmcp_complete-goals',
-    description: `Complete or uncomplete one or more goals by their IDs.`,
+    description: `[STALE - upstream Todoist MCP no longer exposes the Goals feature as of 2026-08-19; this tool is flagged for removal and hidden from public listing, not deleted] Complete or uncomplete one or more goals by their IDs.`,
     params: [
       {
         name: 'action',
@@ -141,7 +141,7 @@ export const tools: Tool[] = [
   },
   {
     name: 'todoistmcp_delete-object',
-    description: `Delete a project, section, task, comment, label, filter, goal, reminder, or location_reminder by its ID.`,
+    description: `Delete a project, section, task, comment, label, filter, reminder, or location_reminder by its ID. Projects can be deleted whether active or archived; note a workspace project must be archived before it can be deleted, while personal projects can be deleted regardless.`,
     params: [
       {
         name: 'id',
@@ -154,6 +154,30 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `Entity type to reorder. Accepted values: project, section.`,
+      },
+    ],
+  },
+  {
+    name: 'todoistmcp_export-project-template',
+    description: `Export an existing project as a Todoist template, either as CSV content or as a shareable URL. Use it to duplicate a project, share its structure, or hand the CSV to import-project-template. To read a project rather than export it, use find-tasks instead - it returns structured tasks rather than raw CSV. Nothing is modified.`,
+    params: [
+      {
+        name: 'projectId',
+        type: 'string',
+        required: true,
+        description: `The ID of the project to export as a template.`,
+      },
+      {
+        name: 'format',
+        type: 'string',
+        required: false,
+        description: `How to return the template. "file" returns the CSV content, which can be passed straight back to import-project-template. "url" returns a shareable download link instead, and is the better choice for large projects because it does not return the whole file.`,
+      },
+      {
+        name: 'useRelativeDates',
+        type: 'boolean',
+        required: false,
+        description: `Export due dates relative to the import date (e.g. "day 3") instead of absolute dates. Defaults to false.`,
       },
     ],
   },
@@ -171,7 +195,7 @@ export const tools: Tool[] = [
   },
   {
     name: 'todoistmcp_fetch-object',
-    description: `Fetch a single task, project, comment, section, or goal by its ID. Use this when you have a specific object ID and want to retrieve its full details.`,
+    description: `Fetch a single task, project, comment, or section by its ID. Use this when you have a specific object ID and want to retrieve its full details. Set includeChildren to also get its direct subtasks or sub-projects.`,
     params: [
       {
         name: 'id',
@@ -185,17 +209,35 @@ export const tools: Tool[] = [
         required: true,
         description: `Entity type to reorder. Accepted values: project, section.`,
       },
+      {
+        name: 'includeChildren',
+        type: 'boolean',
+        required: false,
+        description: `Also return the direct children of the object: subtasks for a task, sub-projects for a project. Returns childCount plus a compact list, flagging each child that has children of its own. Ignored for comments and sections.`,
+      },
     ],
   },
   {
     name: 'todoistmcp_find-activity',
-    description: `Retrieve recent activity logs to monitor and audit changes in Todoist. Shows events from all users by default (use initiatorId to filter by specific user). Track task completions, updates, deletions, project changes, and more with flexible filtering. Note: Date-based filtering is not supported by the Todoist API.`,
+    description: `Retrieve activity logs to monitor and audit changes in Todoist. Shows events from all users by default (use initiatorId to filter by specific user). To answer what someone completed in a period, use objectType "task", eventType "completed", and dateFrom/dateTo. Track task completions, updates, deletions, project changes, and more with flexible filtering. Activity history availability and retention depend on the user plan.`,
     params: [
       {
         name: 'cursor',
         type: 'string',
         required: false,
         description: `Pagination cursor from the previous response to fetch the next page.`,
+      },
+      {
+        name: 'dateFrom',
+        type: 'string',
+        required: false,
+        description: `Inclusive start of the activity range, as an ISO 8601 date or date-time.`,
+      },
+      {
+        name: 'dateTo',
+        type: 'string',
+        required: false,
+        description: `Exclusive end of the activity range, as an ISO 8601 date or date-time.`,
       },
       { name: 'eventType', type: 'string', required: false, description: `Filter by event type.` },
       {
@@ -364,7 +406,7 @@ export const tools: Tool[] = [
   },
   {
     name: 'todoistmcp_find-goals',
-    description: `Search for goals by name or list all accessible goals. Results are paginated — use the returned \`nextCursor\` to fetch subsequent pages.`,
+    description: `[STALE - upstream Todoist MCP no longer exposes the Goals feature as of 2026-08-19; this tool is flagged for removal and hidden from public listing, not deleted] Search for goals by name or list all accessible goals. Results are paginated — use the returned \`nextCursor\` to fetch subsequent pages.`,
     params: [
       {
         name: 'cursor',
@@ -436,8 +478,14 @@ export const tools: Tool[] = [
   },
   {
     name: 'todoistmcp_find-projects',
-    description: `List all projects or search for projects by name. When searching, all matching projects are returned (pagination is ignored). When not searching, projects are returned with pagination.`,
+    description: `List all projects or search for projects by name. By default only active projects are returned; use archivedStatus ('archived' or 'all') to include archived projects. When searching or when archivedStatus is 'all', all matching projects are returned (pagination is ignored). Otherwise projects are returned with pagination.`,
     params: [
+      {
+        name: 'archivedStatus',
+        type: 'string',
+        required: false,
+        description: `Which projects to return by archive status: 'active' (default, non-archived only), 'archived' (archived only), or 'all' (both active and archived).`,
+      },
       {
         name: 'cursor',
         type: 'string',
@@ -716,8 +764,38 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'todoistmcp_import-project-template',
+    description: `Import a template into an existing project, adding its tasks, sections and comments to whatever is already there. Source it by template ID/URL or by passing CSV content from export-project-template. To start a new project from a template, create the project with add-projects first, then import into it. This writes immediately and cannot be undone, so only run it against a project the user named.`,
+    params: [
+      {
+        name: 'projectId',
+        type: 'string',
+        required: true,
+        description: `The ID of the existing project to import the template into.`,
+      },
+      {
+        name: 'csvFileContent',
+        type: 'string',
+        required: false,
+        description: `Raw CSV template content, as produced by export-project-template. Provide either this or templateId, not both.`,
+      },
+      {
+        name: 'locale',
+        type: 'string',
+        required: false,
+        description: `Locale for the imported content when using templateId. Defaults to "en".`,
+      },
+      {
+        name: 'templateId',
+        type: 'string',
+        required: false,
+        description: `The template to import - either a gallery slug ("product-launch"), a personal template ID ("UT_28Ex..."), or a full Todoist template URL, which is reduced to the ID automatically. Gallery templates work for anyone; personal templates only for the account that owns them. There is no way to list templates through this server, so only use the ID or URL the user supplied. Provide either this or csvFileContent, not both.`,
+      },
+    ],
+  },
+  {
     name: 'todoistmcp_link-goal-tasks',
-    description: `Link or unlink tasks to/from a goal.`,
+    description: `[STALE - upstream Todoist MCP no longer exposes the Goals feature as of 2026-08-19; this tool is flagged for removal and hidden from public listing, not deleted] Link or unlink tasks to/from a goal.`,
     params: [
       {
         name: 'action',
@@ -904,7 +982,7 @@ export const tools: Tool[] = [
   },
   {
     name: 'todoistmcp_update-goals',
-    description: `Update one or more goals by their IDs.`,
+    description: `[STALE - upstream Todoist MCP no longer exposes the Goals feature as of 2026-08-19; this tool is flagged for removal and hidden from public listing, not deleted] Update one or more goals by their IDs.`,
     params: [
       {
         name: 'goals',

@@ -467,13 +467,13 @@ export const tools: Tool[] = [
         description: `The unique ID of the OneDrive file or folder whose activity feed to retrieve. Obtain item IDs from list or get drive item operations.`,
       },
       {
-        name: '$filter',
+        name: 'filter',
         type: 'string',
         required: false,
         description: `OData filter expression to narrow activity results. Example: "times/recordedTime ge 2024-01-01T00:00:00Z" to filter by date.`,
       },
       {
-        name: '$top',
+        name: 'top',
         type: 'integer',
         required: false,
         description: `Maximum number of activity records to return per page. Accepts an integer between 1 and 1000. Default: 25.`,
@@ -503,31 +503,31 @@ export const tools: Tool[] = [
         description: `The ID of the folder whose children to list. Use "root" to list top-level OneDrive contents. Obtain item IDs from other list or search operations.`,
       },
       {
-        name: '$filter',
+        name: 'filter',
         type: 'string',
         required: false,
         description: `OData filter expression to narrow results. Example: "file ne null" returns only files; "folder ne null" returns only folders.`,
       },
       {
-        name: '$orderby',
+        name: 'orderby',
         type: 'string',
         required: false,
         description: `Property to sort results by. Example: "name asc" or "lastModifiedDateTime desc".`,
       },
       {
-        name: '$select',
+        name: 'select',
         type: 'string',
         required: false,
         description: `Comma-separated list of properties to return. Example: "id,name,size,lastModifiedDateTime" reduces response payload.`,
       },
       {
-        name: '$skip',
+        name: 'skip',
         type: 'integer',
         required: false,
         description: `Number of items to skip for pagination. Use with $top to page through results.`,
       },
       {
-        name: '$top',
+        name: 'top',
         type: 'integer',
         required: false,
         description: `Maximum number of items to return per page (default: 25). Accepts values 1–999.`,
@@ -539,13 +539,13 @@ export const tools: Tool[] = [
     description: `List all drives accessible to the signed-in user, including personal OneDrive, SharePoint document libraries, and shared drives. Supports OData $top for pagination and $select for field selection.`,
     params: [
       {
-        name: '$select',
+        name: 'select',
         type: 'string',
         required: false,
         description: `Comma-separated list of drive properties to return. Example: "id,name,driveType,quota" reduces response payload to only those fields.`,
       },
       {
-        name: '$top',
+        name: 'top',
         type: 'integer',
         required: false,
         description: `Maximum number of drives to return per page. Accepts values 1–999. Defaults to server-side limit if omitted.`,
@@ -605,31 +605,31 @@ export const tools: Tool[] = [
         description: `The ID of the folder whose children to list. Use "root" to list top-level contents of the drive.`,
       },
       {
-        name: '$filter',
+        name: 'filter',
         type: 'string',
         required: false,
         description: `OData filter expression to narrow results. Example: "file ne null" returns only files; "folder ne null" returns only folders.`,
       },
       {
-        name: '$orderby',
+        name: 'orderby',
         type: 'string',
         required: false,
         description: `Property to sort results by. Example: "name asc" or "lastModifiedDateTime desc".`,
       },
       {
-        name: '$select',
+        name: 'select',
         type: 'string',
         required: false,
         description: `Comma-separated list of properties to return. Example: "id,name,size,lastModifiedDateTime" reduces response payload.`,
       },
       {
-        name: '$skip',
+        name: 'skip',
         type: 'integer',
         required: false,
         description: `Number of items to skip for pagination. Use with $top to page through results.`,
       },
       {
-        name: '$top',
+        name: 'top',
         type: 'integer',
         required: false,
         description: `Maximum number of items to return per page (default: 25). Accepts values 1–999.`,
@@ -659,7 +659,7 @@ export const tools: Tool[] = [
     description: `List files recently viewed or modified by the signed-in user in OneDrive. Returns the most recently accessed items across all drives the user has access to.`,
     params: [
       {
-        name: '$top',
+        name: 'top',
         type: 'integer',
         required: false,
         description: `Maximum number of recent items to return. Accepts values 1–999.`,
@@ -671,7 +671,7 @@ export const tools: Tool[] = [
     description: `List files and folders that have been shared with the signed-in user from other people's OneDrive accounts or SharePoint sites.`,
     params: [
       {
-        name: '$top',
+        name: 'top',
         type: 'integer',
         required: false,
         description: `Maximum number of shared items to return. Accepts values 1–999.`,
@@ -809,13 +809,13 @@ export const tools: Tool[] = [
         description: `Search query string to find files or folders by name or content. Example: "budget 2024" searches for items containing that text.`,
       },
       {
-        name: '$select',
+        name: 'select',
         type: 'string',
         required: false,
         description: `Comma-separated list of properties to return. Example: "id,name,size,webUrl" reduces response payload.`,
       },
       {
-        name: '$top',
+        name: 'top',
         type: 'integer',
         required: false,
         description: `Maximum number of results to return. Accepts values 1–999.`,
@@ -839,13 +839,13 @@ export const tools: Tool[] = [
         description: `Search query string to find files or folders by name or content. Example: "budget 2024" searches for items containing that text.`,
       },
       {
-        name: '$select',
+        name: 'select',
         type: 'string',
         required: false,
         description: `Comma-separated list of properties to return. Example: "id,name,size,webUrl" reduces response payload.`,
       },
       {
-        name: '$top',
+        name: 'top',
         type: 'integer',
         required: false,
         description: `Maximum number of results to return. Accepts values 1–999.`,

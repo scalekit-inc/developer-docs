@@ -12,18 +12,6 @@ export const tools: Tool[] = [
         description: `Project id to add the task to.`,
       },
       { name: 'task_id', type: 'integer', required: true, description: `Task id to add.` },
-      {
-        name: 'billable',
-        type: 'boolean',
-        required: false,
-        description: `Whether the task is billable on this project. Defaults to the task's billable_by_default.`,
-      },
-      {
-        name: 'hourly_rate',
-        type: 'number',
-        required: false,
-        description: `Hourly rate for this task on this project.`,
-      },
     ],
   },
   {
@@ -37,24 +25,6 @@ export const tools: Tool[] = [
         description: `Project id to assign the user to.`,
       },
       { name: 'user_id', type: 'integer', required: true, description: `User id to assign.` },
-      {
-        name: 'budget',
-        type: 'number',
-        required: false,
-        description: `Optional user-level budget in hours.`,
-      },
-      {
-        name: 'hourly_rate',
-        type: 'number',
-        required: false,
-        description: `Hourly rate for this user on this project.`,
-      },
-      {
-        name: 'is_project_manager',
-        type: 'boolean',
-        required: false,
-        description: `Whether to grant project manager role for this project.`,
-      },
     ],
   },
   {
@@ -64,7 +34,7 @@ export const tools: Tool[] = [
       { name: 'name', type: 'string', required: true, description: `Client name.` },
       { name: 'address', type: 'string', required: false, description: `Client mailing address.` },
       {
-        name: 'currency',
+        name: 'currency_code',
         type: 'string',
         required: false,
         description: `ISO 4217 currency code (e.g. USD).`,
@@ -73,7 +43,7 @@ export const tools: Tool[] = [
   },
   {
     name: 'harvestmcp_create_expense',
-    description: `Log a new expense. project_id, expense_category_id, spent_date, and total_cost are required.`,
+    description: `Log a new expense. project_id and expense_category_id are required. Provide total_cost for amount-based categories, or units for unit-based categories.`,
     params: [
       {
         name: 'expense_category_id',
@@ -88,18 +58,6 @@ export const tools: Tool[] = [
         description: `Project id to log the expense against.`,
       },
       {
-        name: 'spent_date',
-        type: 'string',
-        required: true,
-        description: `Date the expense was incurred (YYYY-MM-DD).`,
-      },
-      {
-        name: 'total_cost',
-        type: 'number',
-        required: true,
-        description: `Total cost of the expense.`,
-      },
-      {
         name: 'billable',
         type: 'boolean',
         required: false,
@@ -110,6 +68,30 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Optional description of the expense.`,
+      },
+      {
+        name: 'spent_at',
+        type: 'string',
+        required: false,
+        description: `Date the expense was incurred (YYYY-MM-DD). Defaults to today in the user's timezone.`,
+      },
+      {
+        name: 'total_cost',
+        type: 'number',
+        required: false,
+        description: `Total cost of the expense. Use for amount-based categories.`,
+      },
+      {
+        name: 'units',
+        type: 'number',
+        required: false,
+        description: `Number of units. Use for unit-based categories; cost is computed from the category's unit price.`,
+      },
+      {
+        name: 'user_id',
+        type: 'integer',
+        required: false,
+        description: `Create on behalf of another user. Requires manager/admin permissions; defaults to the authenticated user.`,
       },
     ],
   },
@@ -129,6 +111,12 @@ export const tools: Tool[] = [
         required: false,
         description: `ISO 4217 currency code (e.g. USD, EUR).`,
       },
+      {
+        name: 'discount',
+        type: 'number',
+        required: false,
+        description: `Optional discount as a percentage.`,
+      },
       { name: 'due_date', type: 'string', required: false, description: `Due date (YYYY-MM-DD).` },
       {
         name: 'issue_date',
@@ -140,7 +128,7 @@ export const tools: Tool[] = [
         name: 'line_items',
         type: 'array',
         required: false,
-        description: `Invoice line items. Each item: {kind, description, quantity, unit_price}.`,
+        description: `Invoice line items. Each item: {kind, description, quantity, unit_price, taxed, taxed2, project_id}.`,
       },
       {
         name: 'notes',
@@ -149,10 +137,40 @@ export const tools: Tool[] = [
         description: `Optional notes shown on the invoice.`,
       },
       {
+        name: 'payment_options',
+        type: 'array',
+        required: false,
+        description: `Online payment methods to accept. Defaults to the company's default accepted methods.`,
+      },
+      {
+        name: 'payment_term',
+        type: 'string',
+        required: false,
+        description: `Payment term (e.g. "net 30", "upon receipt"); ignored when due_date is given.`,
+      },
+      {
+        name: 'purchase_order',
+        type: 'string',
+        required: false,
+        description: `Optional purchase order reference.`,
+      },
+      {
         name: 'subject',
         type: 'string',
         required: false,
         description: `Optional invoice subject line.`,
+      },
+      {
+        name: 'tax',
+        type: 'number',
+        required: false,
+        description: `Optional first tax rate as a percentage.`,
+      },
+      {
+        name: 'tax2',
+        type: 'number',
+        required: false,
+        description: `Optional second tax rate as a percentage.`,
       },
     ],
   },
@@ -173,12 +191,18 @@ export const tools: Tool[] = [
         description: `Billable project ids to import activity from.`,
       },
       { name: 'currency', type: 'string', required: false, description: `ISO 4217 currency code.` },
+      {
+        name: 'discount',
+        type: 'number',
+        required: false,
+        description: `Optional discount as a percentage.`,
+      },
       { name: 'due_date', type: 'string', required: false, description: `Due date (YYYY-MM-DD).` },
       {
         name: 'expenses',
         type: 'object',
         required: false,
-        description: `Import expenses. Properties: summary_type (required, enum: project/people/category/detailed), from (YYYY-MM-DD), to (YYYY-MM-DD).`,
+        description: `Import expenses. Properties: summary_type (required, enum: project/people/category/detailed), from (YYYY-MM-DD), to (YYYY-MM-DD), attach_receipts (boolean).`,
       },
       {
         name: 'issue_date',
@@ -187,10 +211,46 @@ export const tools: Tool[] = [
         description: `Issue date (YYYY-MM-DD).`,
       },
       {
+        name: 'notes',
+        type: 'string',
+        required: false,
+        description: `Optional notes shown on the invoice.`,
+      },
+      {
+        name: 'payment_options',
+        type: 'array',
+        required: false,
+        description: `Online payment methods to accept. Defaults to the company's default accepted methods.`,
+      },
+      {
+        name: 'payment_term',
+        type: 'string',
+        required: false,
+        description: `Payment term (e.g. "net 30", "upon receipt"); ignored when due_date is given.`,
+      },
+      {
+        name: 'purchase_order',
+        type: 'string',
+        required: false,
+        description: `Optional purchase order reference.`,
+      },
+      {
         name: 'subject',
         type: 'string',
         required: false,
         description: `Optional invoice subject.`,
+      },
+      {
+        name: 'tax',
+        type: 'number',
+        required: false,
+        description: `Optional first tax rate as a percentage.`,
+      },
+      {
+        name: 'tax2',
+        type: 'number',
+        required: false,
+        description: `Optional second tax rate as a percentage.`,
       },
       {
         name: 'time',
@@ -212,47 +272,28 @@ export const tools: Tool[] = [
       },
       { name: 'name', type: 'string', required: true, description: `Project name.` },
       {
-        name: 'budget',
-        type: 'number',
-        required: false,
-        description: `Optional budget amount in hours or currency.`,
-      },
-      {
-        name: 'budget_by',
-        type: 'string',
-        required: false,
-        description: `How the budget is tracked.`,
-      },
-      {
         name: 'code',
         type: 'string',
         required: false,
         description: `Optional project code or short identifier.`,
       },
       {
-        name: 'ends_on',
-        type: 'string',
-        required: false,
-        description: `Project end date (YYYY-MM-DD).`,
-      },
-      {
         name: 'hourly_rate',
         type: 'number',
         required: false,
-        description: `Default hourly rate for the project.`,
+        description: `Default hourly rate. Requires billable-rate permission; ignored otherwise.`,
       },
       {
         name: 'is_billable',
         type: 'boolean',
         required: false,
-        description: `Whether the project is billable. Defaults to true.`,
+        description: `Whether the project is billable. Defaults to the account's project defaults.`,
       },
-      { name: 'notes', type: 'string', required: false, description: `Optional project notes.` },
       {
-        name: 'starts_on',
-        type: 'string',
+        name: 'is_fixed_fee',
+        type: 'boolean',
         required: false,
-        description: `Project start date (YYYY-MM-DD).`,
+        description: `Whether the project bills a fixed fee.`,
       },
     ],
   },
@@ -261,6 +302,12 @@ export const tools: Tool[] = [
     description: `Create a new task in the account. name is required.`,
     params: [
       { name: 'name', type: 'string', required: true, description: `Task name.` },
+      {
+        name: 'add_to_all_projects',
+        type: 'boolean',
+        required: false,
+        description: `Also assign this task to every active project. Runs asynchronously.`,
+      },
       {
         name: 'billable_by_default',
         type: 'boolean',
@@ -272,12 +319,6 @@ export const tools: Tool[] = [
         type: 'number',
         required: false,
         description: `Default hourly rate for this task.`,
-      },
-      {
-        name: 'is_active',
-        type: 'boolean',
-        required: false,
-        description: `Whether the task is active. Defaults to true.`,
       },
       {
         name: 'is_default',
@@ -324,7 +365,14 @@ export const tools: Tool[] = [
   {
     name: 'harvestmcp_get_running_timer',
     description: `Return the currently running timer for the authenticated user, or null if no timer is running.`,
-    params: [],
+    params: [
+      {
+        name: 'user_id',
+        type: 'integer',
+        required: false,
+        description: `Positive integer id of a user whose running timer to check. Requires manager/admin permission for that user; defaults to the authenticated user.`,
+      },
+    ],
   },
   {
     name: 'harvestmcp_get_time_report',
@@ -377,17 +425,30 @@ export const tools: Tool[] = [
   {
     name: 'harvestmcp_list_expense_categories',
     description: `List expense categories in the account, ordered by name. Used to look up expense_category_id before creating an expense.`,
-    params: [],
+    params: [
+      {
+        name: 'is_active',
+        type: 'boolean',
+        required: false,
+        description: `Filter to active (true) or archived (false) categories. Omit for active categories only — pass false explicitly to see archived ones.`,
+      },
+    ],
   },
   {
     name: 'harvestmcp_list_expenses',
-    description: `List expenses, most recent first. Filter by project_id, client_id, date range, or billable status.`,
+    description: `List expenses, most recent first. Filter by project_id, user_id, date range, or billable status.`,
     params: [
       {
-        name: 'client_id',
-        type: 'integer',
+        name: 'billable',
+        type: 'boolean',
         required: false,
-        description: `Filter to expenses for this client.`,
+        description: `Filter by billable status.`,
+      },
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Opaque pagination token from prior response's next_cursor. Omit on first request.`,
       },
       {
         name: 'from',
@@ -396,10 +457,10 @@ export const tools: Tool[] = [
         description: `Inclusive start date (YYYY-MM-DD).`,
       },
       {
-        name: 'is_billable',
-        type: 'boolean',
+        name: 'limit',
+        type: 'integer',
         required: false,
-        description: `Filter by billable status.`,
+        description: `Page size, whole number 1–500. Omit to use the default of 100.`,
       },
       {
         name: 'project_id',
@@ -412,6 +473,12 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Inclusive end date (YYYY-MM-DD).`,
+      },
+      {
+        name: 'user_id',
+        type: 'integer',
+        required: false,
+        description: `Filter to expenses for this user id. Omit to include everyone you're allowed to see.`,
       },
     ],
   },
@@ -478,6 +545,24 @@ export const tools: Tool[] = [
         type: 'integer',
         required: true,
         description: `Project id to list assignments for.`,
+      },
+      {
+        name: 'assignment_type',
+        type: 'string',
+        required: false,
+        description: `Which roster to return: users (default) or tasks.`,
+      },
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Opaque pagination token from prior response's next_cursor. Omit on first request.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Page size, whole number 1–500. Omit to use the default of 100.`,
       },
     ],
   },
@@ -555,7 +640,13 @@ export const tools: Tool[] = [
         name: 'project_id',
         type: 'integer',
         required: false,
-        description: `Positive integer id of a project to filter to. Omit to include all projects.`,
+        description: `Deprecated single-id alias of project_ids; prefer project_ids. Folded into project_ids when both are given.`,
+      },
+      {
+        name: 'project_ids',
+        type: 'array',
+        required: false,
+        description: `Positive integer project ids to filter to. Omit to include all projects.`,
       },
       {
         name: 'to',
@@ -567,7 +658,13 @@ export const tools: Tool[] = [
         name: 'user_id',
         type: 'integer',
         required: false,
-        description: `Positive integer id of a user to filter to. Omit to default to yourself.`,
+        description: `Deprecated single-id alias of user_ids; prefer user_ids. Folded into user_ids when both are given.`,
+      },
+      {
+        name: 'user_ids',
+        type: 'array',
+        required: false,
+        description: `Positive integer user ids to filter to. Omit to include everyone you're allowed to see.`,
       },
     ],
   },
@@ -591,14 +688,8 @@ export const tools: Tool[] = [
   },
   {
     name: 'harvestmcp_log_time',
-    description: `Log a duration-based time entry (not a timer). project_id, task_id, and hours are required.`,
+    description: `Log a completed time entry. project_id and task_id are required, plus either hours or a started_time/ended_time pair.`,
     params: [
-      {
-        name: 'hours',
-        type: 'number',
-        required: true,
-        description: `Duration in hours (e.g. 1.5 for 1h30m).`,
-      },
       {
         name: 'project_id',
         type: 'integer',
@@ -612,10 +703,40 @@ export const tools: Tool[] = [
         description: `Task id within the project.`,
       },
       {
+        name: 'ended_time',
+        type: 'string',
+        required: false,
+        description: `Clock-out time in the same format as started_time. Required alongside started_time.`,
+      },
+      {
+        name: 'hours',
+        type: 'number',
+        required: false,
+        description: `Hours worked as a decimal. Provide this OR started_time + ended_time, not both.`,
+      },
+      {
         name: 'notes',
         type: 'string',
         required: false,
         description: `Optional notes describing the work.`,
+      },
+      {
+        name: 'spent_at',
+        type: 'string',
+        required: false,
+        description: `Date the work was performed (YYYY-MM-DD). Defaults to today in the user's timezone.`,
+      },
+      {
+        name: 'started_time',
+        type: 'string',
+        required: false,
+        description: `Clock-in time, e.g. "9:00am" or "14:30". Provide together with ended_time instead of hours.`,
+      },
+      {
+        name: 'user_id',
+        type: 'integer',
+        required: false,
+        description: `Log on behalf of another user. Requires manager/admin permission for that user; defaults to the authenticated user.`,
       },
     ],
   },
@@ -655,40 +776,58 @@ export const tools: Tool[] = [
         description: `Optional notes for the time entry.`,
       },
       {
-        name: 'spent_date',
-        type: 'string',
+        name: 'user_id',
+        type: 'integer',
         required: false,
-        description: `Date the time is being logged for (YYYY-MM-DD). Defaults to today.`,
+        description: `Start the timer on behalf of another user. Requires manager/admin permission for that user; defaults to the authenticated user.`,
       },
     ],
   },
   {
     name: 'harvestmcp_stop_timer',
     description: `Stop the currently running timer for the authenticated user. Returns the stopped time entry. No-ops if no timer is running.`,
-    params: [],
+    params: [
+      {
+        name: 'time_entry_id',
+        type: 'integer',
+        required: false,
+        description: `Specific time entry to stop. Optional.`,
+      },
+    ],
   },
   {
     name: 'harvestmcp_submit_feedback',
-    description: `Submit feedback or a support message to Harvest. message is required.`,
+    description: `Submit feedback or a support message to Harvest. feedback is required.`,
     params: [
-      { name: 'message', type: 'string', required: true, description: `Feedback message text.` },
+      {
+        name: 'feedback',
+        type: 'string',
+        required: true,
+        description: `The feedback message, in the user's own words. Up to 2000 characters.`,
+      },
     ],
   },
   {
     name: 'harvestmcp_submit_timesheet',
-    description: `Submit a timesheet period for approval. week_of is required (YYYY-MM-DD of any day in the target week).`,
+    description: `Submit a timesheet period for approval. period_start and period_end are required (YYYY-MM-DD).`,
     params: [
       {
-        name: 'week_of',
+        name: 'period_end',
         type: 'string',
         required: true,
-        description: `Any date (YYYY-MM-DD) within the week to submit for approval.`,
+        description: `Last day of the range to submit (YYYY-MM-DD).`,
       },
       {
-        name: 'note',
+        name: 'period_start',
         type: 'string',
+        required: true,
+        description: `First day of the range to submit (YYYY-MM-DD).`,
+      },
+      {
+        name: 'user_id',
+        type: 'integer',
         required: false,
-        description: `Optional note to the approver.`,
+        description: `Submit on behalf of another user. Requires manager/admin permissions; defaults to the authenticated user.`,
       },
     ],
   },
@@ -712,7 +851,7 @@ export const tools: Tool[] = [
       { name: 'id', type: 'integer', required: true, description: `Client id to update.` },
       { name: 'address', type: 'string', required: false, description: `New mailing address.` },
       {
-        name: 'currency',
+        name: 'currency_code',
         type: 'string',
         required: false,
         description: `New ISO 4217 currency code.`,
@@ -738,6 +877,12 @@ export const tools: Tool[] = [
         description: `Whether the expense is billable.`,
       },
       {
+        name: 'delete_receipt',
+        type: 'boolean',
+        required: false,
+        description: `Remove the attached receipt.`,
+      },
+      {
         name: 'expense_category_id',
         type: 'integer',
         required: false,
@@ -745,13 +890,9 @@ export const tools: Tool[] = [
       },
       { name: 'notes', type: 'string', required: false, description: `New notes.` },
       { name: 'project_id', type: 'integer', required: false, description: `New project id.` },
-      {
-        name: 'spent_date',
-        type: 'string',
-        required: false,
-        description: `New date (YYYY-MM-DD).`,
-      },
+      { name: 'spent_at', type: 'string', required: false, description: `New date (YYYY-MM-DD).` },
       { name: 'total_cost', type: 'number', required: false, description: `New total cost.` },
+      { name: 'units', type: 'number', required: false, description: `New number of units.` },
     ],
   },
   {
@@ -759,13 +900,18 @@ export const tools: Tool[] = [
     description: `Update an existing project. id is required. Only provided fields are changed.`,
     params: [
       { name: 'id', type: 'integer', required: true, description: `Project id to update.` },
-      { name: 'budget', type: 'number', required: false, description: `New budget amount.` },
-      { name: 'code', type: 'string', required: false, description: `New project code.` },
       {
-        name: 'ends_on',
+        name: 'bill_by',
         type: 'string',
         required: false,
-        description: `New end date (YYYY-MM-DD).`,
+        description: `How the project bills (Tasks, People, Project, none).`,
+      },
+      { name: 'code', type: 'string', required: false, description: `New project code.` },
+      {
+        name: 'hourly_rate',
+        type: 'number',
+        required: false,
+        description: `Hourly rate when bill_by is Project. Requires billable-rate permission.`,
       },
       {
         name: 'is_active',
@@ -773,14 +919,8 @@ export const tools: Tool[] = [
         required: false,
         description: `Set to false to archive the project.`,
       },
-      {
-        name: 'is_billable',
-        type: 'boolean',
-        required: false,
-        description: `Whether the project is billable.`,
-      },
       { name: 'name', type: 'string', required: false, description: `New project name.` },
-      { name: 'notes', type: 'string', required: false, description: `New project notes.` },
+      { name: 'project_type', type: 'string', required: false, description: `Project type.` },
     ],
   },
   {
@@ -788,12 +928,6 @@ export const tools: Tool[] = [
     description: `Update an existing task. id is required. Only provided fields are changed.`,
     params: [
       { name: 'id', type: 'integer', required: true, description: `Task id to update.` },
-      {
-        name: 'billable_by_default',
-        type: 'boolean',
-        required: false,
-        description: `Whether the task is billable by default.`,
-      },
       {
         name: 'default_hourly_rate',
         type: 'number',
@@ -814,14 +948,26 @@ export const tools: Tool[] = [
     description: `Update an existing time entry. id is required. Only provided fields are changed.`,
     params: [
       { name: 'id', type: 'integer', required: true, description: `Time entry id to update.` },
-      { name: 'hours', type: 'number', required: false, description: `New duration in hours.` },
-      { name: 'notes', type: 'string', required: false, description: `New notes.` },
-      { name: 'project_id', type: 'integer', required: false, description: `New project id.` },
       {
-        name: 'spent_date',
+        name: 'ended_time',
         type: 'string',
         required: false,
-        description: `New date (YYYY-MM-DD).`,
+        description: `New clock-out time in the same format as started_time. Required alongside started_time.`,
+      },
+      {
+        name: 'hours',
+        type: 'number',
+        required: false,
+        description: `New hours value. Provide this OR started_time + ended_time, not both.`,
+      },
+      { name: 'notes', type: 'string', required: false, description: `New notes.` },
+      { name: 'project_id', type: 'integer', required: false, description: `New project id.` },
+      { name: 'spent_at', type: 'string', required: false, description: `New date (YYYY-MM-DD).` },
+      {
+        name: 'started_time',
+        type: 'string',
+        required: false,
+        description: `New clock-in time, e.g. "9:00am" or "14:30". Provide together with ended_time instead of hours.`,
       },
       { name: 'task_id', type: 'integer', required: false, description: `New task id.` },
     ],

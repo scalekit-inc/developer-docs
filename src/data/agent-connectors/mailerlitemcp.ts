@@ -363,7 +363,7 @@ export const tools: Tool[] = [
   },
   {
     name: 'mailerlitemcp_generate_email_content',
-    description: `Generate email body content from a subject line and optional plain text.`,
+    description: `[STALE: upstream tool 'generate_email_content' is no longer present in the MailerLite MCP tool list as of 2026-08-19; it appears to have been renamed to 'validate_email_content' (added as mailerlitemcp_validate_email_content).] Generate email body content from a subject line and optional plain text.`,
     params: [
       {
         name: 'plain_text',
@@ -559,6 +559,18 @@ export const tools: Tool[] = [
         type: 'integer',
         required: false,
         description: `Number of subscribers to return (1-100)`,
+      },
+    ],
+  },
+  {
+    name: 'mailerlitemcp_get_more_tools',
+    description: `Check for additional tools whenever your task might benefit from specialized capabilities - even if existing tools could work as a fallback.`,
+    params: [
+      {
+        name: 'context',
+        type: 'string',
+        required: true,
+        description: `A description of your goal and what kind of tool would help accomplish it.`,
       },
     ],
   },
@@ -819,6 +831,332 @@ export const tools: Tool[] = [
     params: [],
   },
   {
+    name: 'mailerlitemcp_manage_ecommerce_cart_items',
+    description: `List, fetch, create, update or delete the line items of a cart. Requires \`shop_id\` and \`cart_id\`.`,
+    params: [
+      {
+        name: 'action',
+        type: 'string',
+        required: true,
+        description: `Operation to perform: list, get, create, update, delete`,
+      },
+      {
+        name: 'cart_id',
+        type: 'string',
+        required: true,
+        description: `Parent cart id (required for all actions)`,
+      },
+      {
+        name: 'shop_id',
+        type: 'string',
+        required: true,
+        description: `Parent shop id (required for all actions)`,
+      },
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Pagination cursor for list`,
+      },
+      {
+        name: 'data',
+        type: 'object',
+        required: false,
+        description: `Request body for create and update actions. Fields: ecommerce_product_id (integer, required), variant (string), quantity (integer, default 1), price (float)`,
+      },
+      {
+        name: 'id',
+        type: 'string',
+        required: false,
+        description: `Resource id — required for get, update and delete actions`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Page size for list (1-100)`,
+      },
+    ],
+  },
+  {
+    name: 'mailerlitemcp_manage_ecommerce_carts',
+    description: `List, fetch or update shopping carts within a shop (carts cannot be created or deleted via the API). Requires \`shop_id\`.`,
+    params: [
+      {
+        name: 'action',
+        type: 'string',
+        required: true,
+        description: `Operation to perform: list, get, update`,
+      },
+      {
+        name: 'shop_id',
+        type: 'string',
+        required: true,
+        description: `Parent shop id (required for all actions)`,
+      },
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Pagination cursor for list`,
+      },
+      {
+        name: 'data',
+        type: 'object',
+        required: false,
+        description: `Request body for update actions. Fields: checkout_url (string), cart_total (float)`,
+      },
+      {
+        name: 'id',
+        type: 'string',
+        required: false,
+        description: `Resource id — required for get and update actions`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Page size for list (1-100)`,
+      },
+    ],
+  },
+  {
+    name: 'mailerlitemcp_manage_ecommerce_categories',
+    description: `List, fetch, create, update, delete or bulk-import product categories within a shop. Requires \`shop_id\`.`,
+    params: [
+      {
+        name: 'action',
+        type: 'string',
+        required: true,
+        description: `Operation to perform: list, get, create, update, delete, import`,
+      },
+      {
+        name: 'shop_id',
+        type: 'string',
+        required: true,
+        description: `Parent shop id (required for all actions)`,
+      },
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Pagination cursor for list`,
+      },
+      {
+        name: 'data',
+        type: 'object',
+        required: false,
+        description: `Request body for create, update and import actions. Fields: name (string, required), exclude_from_automations (boolean)`,
+      },
+      {
+        name: 'id',
+        type: 'string',
+        required: false,
+        description: `Resource id — required for get, update and delete actions`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Page size for list (1-100)`,
+      },
+    ],
+  },
+  {
+    name: 'mailerlitemcp_manage_ecommerce_category_products',
+    description: `List the products in a category, or attach/detach a product to/from a category. Requires \`shop_id\` and \`category_id\`; attach/detach also require \`product_id\`.`,
+    params: [
+      {
+        name: 'action',
+        type: 'string',
+        required: true,
+        description: `Operation: list, attach, detach`,
+      },
+      { name: 'category_id', type: 'string', required: true, description: `Category id` },
+      { name: 'shop_id', type: 'string', required: true, description: `Parent shop id` },
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Pagination cursor for list`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Page size for list (1-100)`,
+      },
+      {
+        name: 'product_id',
+        type: 'string',
+        required: false,
+        description: `Product id — required for attach and detach`,
+      },
+    ],
+  },
+  {
+    name: 'mailerlitemcp_manage_ecommerce_customers',
+    description: `List, fetch, create, update or delete customers within a shop. Requires \`shop_id\`.`,
+    params: [
+      {
+        name: 'action',
+        type: 'string',
+        required: true,
+        description: `Operation to perform: list, get, create, update, delete`,
+      },
+      {
+        name: 'shop_id',
+        type: 'string',
+        required: true,
+        description: `Parent shop id (required for all actions)`,
+      },
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Pagination cursor for list`,
+      },
+      {
+        name: 'data',
+        type: 'object',
+        required: false,
+        description: `Request body for create and update actions. Fields: email (string, required), accepts_marketing (boolean), total_spent (float), create_subscriber (boolean)`,
+      },
+      {
+        name: 'id',
+        type: 'string',
+        required: false,
+        description: `Resource id — required for get, update and delete actions`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Page size for list (1-100)`,
+      },
+    ],
+  },
+  {
+    name: 'mailerlitemcp_manage_ecommerce_orders',
+    description: `List, fetch, create, update, delete or bulk-import orders within a shop. Requires \`shop_id\`.`,
+    params: [
+      {
+        name: 'action',
+        type: 'string',
+        required: true,
+        description: `Operation to perform: list, get, create, update, delete, import`,
+      },
+      {
+        name: 'shop_id',
+        type: 'string',
+        required: true,
+        description: `Parent shop id (required for all actions)`,
+      },
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Pagination cursor for list`,
+      },
+      {
+        name: 'data',
+        type: 'object',
+        required: false,
+        description: `Request body for create and update actions. Fields: customer (object, required, see customer fields), cart (array, required, list of cart items), status (string, pending|complete), total_price (float)`,
+      },
+      {
+        name: 'id',
+        type: 'string',
+        required: false,
+        description: `Resource id — required for get, update and delete actions`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Page size for list (1-100)`,
+      },
+    ],
+  },
+  {
+    name: 'mailerlitemcp_manage_ecommerce_products',
+    description: `List, fetch, create, update, delete or bulk-import products within a shop. Requires \`shop_id\`.`,
+    params: [
+      {
+        name: 'action',
+        type: 'string',
+        required: true,
+        description: `Operation to perform: list, get, create, update, delete, import`,
+      },
+      {
+        name: 'shop_id',
+        type: 'string',
+        required: true,
+        description: `Parent shop id (required for all actions)`,
+      },
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Pagination cursor for list`,
+      },
+      {
+        name: 'data',
+        type: 'object',
+        required: false,
+        description: `Request body for create, update and import actions. Fields: name (string, required), price (float), url (string), image (string, image url), short_description (string, max 255), description (string), exclude_from_automations (boolean)`,
+      },
+      {
+        name: 'id',
+        type: 'string',
+        required: false,
+        description: `Resource id — required for get, update and delete actions`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Page size for list (1-100)`,
+      },
+    ],
+  },
+  {
+    name: 'mailerlitemcp_manage_ecommerce_shops',
+    description: `List, fetch, create, update or delete MailerLite e-commerce shops. Use \`id\` as the shop id for get/update/delete.`,
+    params: [
+      {
+        name: 'action',
+        type: 'string',
+        required: true,
+        description: `Operation to perform: list, get, create, update, delete`,
+      },
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Pagination cursor for list`,
+      },
+      {
+        name: 'data',
+        type: 'object',
+        required: false,
+        description: `Request body for create and update actions. Fields: name (string, required), url (string, required), currency (string, required, ISO 4217 e.g. EUR), platform (string), group_id (integer), enable_popups (boolean), enabled (boolean), access_data (string)`,
+      },
+      {
+        name: 'id',
+        type: 'string',
+        required: false,
+        description: `Resource id — required for get, update and delete actions`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Page size for list (1-100)`,
+      },
+    ],
+  },
+  {
     name: 'mailerlitemcp_schedule_campaign',
     description: `Schedule a campaign for immediate or future delivery. Use delivery 'instant' to send now.`,
     params: [
@@ -916,7 +1254,7 @@ export const tools: Tool[] = [
   },
   {
     name: 'mailerlitemcp_suggest_subject_lines',
-    description: `Generate and return improved subject line suggestions based on provided input.`,
+    description: `[STALE: upstream tool 'suggest_subject_lines' is no longer present in the MailerLite MCP tool list as of 2026-08-19; it appears to have been renamed to 'validate_subject_lines' (added as mailerlitemcp_validate_subject_lines).] Generate and return improved subject line suggestions based on provided input.`,
     params: [
       {
         name: 'subject_lines',
@@ -1101,6 +1439,36 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `The URL to send webhook payloads to`,
+      },
+    ],
+  },
+  {
+    name: 'mailerlitemcp_validate_email_content',
+    description: `Validate email content (subject and body) against MailerLite best practices. Provide the subject and plain_text you have drafted, and this tool will check for issues like subject length, spam trigger words, missing call-to-action, and body length limits.`,
+    params: [
+      {
+        name: 'plain_text',
+        type: 'string',
+        required: true,
+        description: `The plain text email body to validate`,
+      },
+      {
+        name: 'subject',
+        type: 'string',
+        required: true,
+        description: `The email subject line to validate`,
+      },
+    ],
+  },
+  {
+    name: 'mailerlitemcp_validate_subject_lines',
+    description: `Validate a list of email subject line candidates against MailerLite best practices. Provide subject lines you have drafted, and this tool will check each one for length, spam trigger words, and other issues.`,
+    params: [
+      {
+        name: 'subject_lines',
+        type: 'array',
+        required: true,
+        description: `Array of subject line candidates to validate`,
       },
     ],
   },

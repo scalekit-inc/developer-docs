@@ -15,7 +15,7 @@ export const tools: Tool[] = [
   },
   {
     name: 'tinyfishmcp_batch_create',
-    description: `Start up to 8 web automations simultaneously and return all run IDs immediately. Poll progress with batch_status.`,
+    description: `[STALE-2026-08-19: not found in the live upstream tools/list; may have been removed or renamed by TinyFish. Kept here for review, not deleted, pending confirmation.] Start up to 8 web automations simultaneously and return all run IDs immediately. Poll progress with batch_status.`,
     params: [
       {
         name: 'runs',
@@ -52,6 +52,18 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `The unique run ID to retrieve or cancel.`,
+      },
+    ],
+  },
+  {
+    name: 'tinyfishmcp_close_browser_session',
+    description: `Only use when the user explicitly wants to stop or close a remote browser session. Closes a session by ID. Idempotent — already-ended sessions return success.`,
+    params: [
+      {
+        name: 'session_id',
+        type: 'string',
+        required: true,
+        description: `ID of the browser session to close`,
       },
     ],
   },
@@ -102,22 +114,64 @@ export const tools: Tool[] = [
         description: `Set to true to extract all image URLs from each page.`,
       },
       {
-        name: 'include_html_head',
-        type: 'boolean',
-        required: true,
-        description: `Set to true to return a full HTML document with <head> when format is html.`,
-      },
-      {
         name: 'links',
         type: 'boolean',
         required: true,
         description: `Set to true to extract all hyperlinks from each page.`,
       },
       {
+        name: 'page_metadata',
+        type: 'boolean',
+        required: true,
+        description: `Return page-head metadata for each page in the page_metadata object of each result: canonical URL, favicon, robots directive, generator, viewport, keywords, all Open Graph (og), Twitter card (twitter), and article tags, and remaining named meta tags under other. Useful for SEO/technical audits and link-preview generation.`,
+      },
+      {
         name: 'urls',
         type: 'array',
         required: true,
         description: `List of URLs to fetch content from.`,
+      },
+      {
+        name: 'exclude_selectors',
+        type: 'array',
+        required: false,
+        description: `Array of CSS selectors (1-20 entries, each 1-1000 characters) for elements to remove before extraction — applied before include_selectors scopes what remains, so it also prunes inside selected regions. Entries that match nothing are a no-op, never an error, but URLs that resolve to direct PDF/CSV downloads fail with selector_unsupported. Invalid CSS selector syntax is rejected with a 422.`,
+      },
+      {
+        name: 'if_modified_since',
+        type: 'string',
+        required: false,
+        description: `Last-Modified validator from a prior fetch of this URL, forwarded verbatim as the If-Modified-Since header on the origin request. Only valid with a single URL — combining with a batch of URLs returns a 400. tf-fetch does not persist validators; the caller owns replaying them.`,
+      },
+      {
+        name: 'if_none_match',
+        type: 'string',
+        required: false,
+        description: `ETag validator from a prior fetch of this URL, forwarded verbatim as the If-None-Match header on the origin request. Only valid with a single URL — combining with a batch of URLs returns a 400. tf-fetch does not persist validators; the caller owns replaying them.`,
+      },
+      {
+        name: 'include_etag_and_last_modified',
+        type: 'boolean',
+        required: false,
+        description: `Opt-in to receiving etag / last_modified validators (and not_modified detection) on each result. Defaults to false — tf-fetch omits these fields unless requested. Independent of if_none_match / if_modified_since: works with a single URL or a batch.`,
+      },
+      {
+        name: 'include_selectors',
+        type: 'array',
+        required: false,
+        description: `Array of CSS selectors (1-20 entries, each 1-1000 characters) that scope extracted content (text, links, image_links) to elements matching ANY entry, concatenated in document order. Selected content is returned verbatim in the requested format (scripts/styles stripped) — automatic boilerplate removal is bypassed. When no entry matches anything, that URL fails with the per-URL error code selector_not_matched. URLs that resolve to direct PDF/CSV downloads fail with selector_unsupported. Invalid CSS selector syntax is rejected with a 422.`,
+      },
+      {
+        name: 'per_url_timeout_ms',
+        type: 'integer',
+        required: false,
+        description: `Wall-clock timeout budget in milliseconds applied independently to each URL. If one URL exceeds this budget, it returns a per-URL timeout error while other URLs in the same request continue.`,
+      },
+      {
+        name: 'purpose',
+        type: 'string',
+        required: false,
+        description: `Why these URLs are being fetched — the underlying goal or task the content will be used for. Used to better tailor fetching and extraction to your intent.`,
       },
       {
         name: 'ttl',
@@ -186,6 +240,16 @@ export const tools: Tool[] = [
         description: `The unique run ID to retrieve steps or poll status for.`,
       },
     ],
+  },
+  {
+    name: 'tinyfishmcp_get_wallet',
+    description: `Read-only. Returns the caller's current wallet balance, auto-reload state, per-product contract rates, and any in-flight top-up. Wallet top-ups and auto-reload changes happen in the dashboard, not through this tool.`,
+    params: [],
+  },
+  {
+    name: 'tinyfishmcp_guide_next_step',
+    description: `Returns the next interactive TinyFish onboarding step based on the user's real usage. Ask for the user's input and wait before running the suggested tool.`,
+    params: [],
   },
   {
     name: 'tinyfishmcp_list_browser_sessions',
@@ -384,6 +448,12 @@ export const tools: Tool[] = [
         description: `Feature flags to enable for this run.`,
       },
       {
+        name: 'output_schema',
+        type: 'object',
+        required: false,
+        description: `Optional provider-supported structured-output schema subset for the run result. Unsupported fields are rejected before the request is accepted.`,
+      },
+      {
         name: 'profile_id',
         type: 'string',
         required: false,
@@ -474,6 +544,12 @@ export const tools: Tool[] = [
         description: `Feature flags to enable for this run.`,
       },
       {
+        name: 'output_schema',
+        type: 'object',
+        required: false,
+        description: `Optional provider-supported structured-output schema subset for the run result. Unsupported fields are rejected before the request is accepted.`,
+      },
+      {
         name: 'profile_id',
         type: 'string',
         required: false,
@@ -511,10 +587,40 @@ export const tools: Tool[] = [
     params: [
       { name: 'query', type: 'string', required: true, description: `Search query to run.` },
       {
+        name: 'after_date',
+        type: 'string',
+        required: false,
+        description: `Return results after this date (YYYY-MM-DD). Do not combine with recency_minutes.`,
+      },
+      {
+        name: 'before_date',
+        type: 'string',
+        required: false,
+        description: `Return results before this date (YYYY-MM-DD). Do not combine with recency_minutes.`,
+      },
+      {
+        name: 'domain_type',
+        type: 'string',
+        required: false,
+        description: `Type of search to perform: "web" for standard results, "news" for news articles, "research_paper" for academic papers. Defaults to "web".`,
+      },
+      {
+        name: 'exclude_domains',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of domains to exclude from results.`,
+      },
+      {
         name: 'fetch',
         type: 'string',
         required: false,
         description: `Fetch mode for search results. Accepted values: none, snippet, full.`,
+      },
+      {
+        name: 'include_domains',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of domains to restrict results to.`,
       },
       {
         name: 'include_thumbnail',
@@ -539,6 +645,30 @@ export const tools: Tool[] = [
         type: 'integer',
         required: false,
         description: `Page number for paginated results.`,
+      },
+      {
+        name: 'pub_year_max',
+        type: 'integer',
+        required: false,
+        description: `Return research papers published on or before this year (0-9999, inclusive). Only supported for domain_type=research_paper.`,
+      },
+      {
+        name: 'pub_year_min',
+        type: 'integer',
+        required: false,
+        description: `Return research papers published on or after this year (0-9999, inclusive). Only supported for domain_type=research_paper.`,
+      },
+      {
+        name: 'purpose',
+        type: 'string',
+        required: false,
+        description: `Why this search is being run — the underlying goal or task the results will be used for. Used to better rank results against your intent.`,
+      },
+      {
+        name: 'recency_minutes',
+        type: 'integer',
+        required: false,
+        description: `Return results from the past N minutes (1 to 5,256,000). Do not combine with after_date or before_date.`,
       },
     ],
   },

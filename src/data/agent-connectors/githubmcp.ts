@@ -66,12 +66,6 @@ export const tools: Tool[] = [
     name: 'githubmcp_add_issue_comment',
     description: `Add a comment to a specific issue in a GitHub repository.`,
     params: [
-      {
-        name: 'body',
-        type: 'string',
-        required: true,
-        description: `The text content of the comment, review, or description.`,
-      },
       { name: 'issue_number', type: 'number', required: true, description: `The issue number.` },
       {
         name: 'owner',
@@ -80,18 +74,30 @@ export const tools: Tool[] = [
         description: `The GitHub repository owner (username or organization name).`,
       },
       { name: 'repo', type: 'string', required: true, description: `The GitHub repository name.` },
+      {
+        name: 'body',
+        type: 'string',
+        required: false,
+        description: `Comment content. Required unless reaction is provided.`,
+      },
+      {
+        name: 'comment_id',
+        type: 'number',
+        required: false,
+        description: `The numeric ID of the issue or pull request comment to react to. Use this for reactions to comments; omit it to react to the issue or pull request itself. Cannot be combined with body.`,
+      },
+      {
+        name: 'reaction',
+        type: 'string',
+        required: false,
+        description: `Emoji reaction to add. Required unless body is provided.`,
+      },
     ],
   },
   {
     name: 'githubmcp_add_reply_to_pull_request_comment',
     description: `Add a reply to an existing pull request review comment.`,
     params: [
-      {
-        name: 'body',
-        type: 'string',
-        required: true,
-        description: `The text content of the comment, review, or description.`,
-      },
       {
         name: 'commentId',
         type: 'number',
@@ -104,13 +110,25 @@ export const tools: Tool[] = [
         required: true,
         description: `The GitHub repository owner (username or organization name).`,
       },
+      { name: 'repo', type: 'string', required: true, description: `The GitHub repository name.` },
+      {
+        name: 'body',
+        type: 'string',
+        required: false,
+        description: `The text of the reply. Required unless reaction is provided.`,
+      },
       {
         name: 'pullNumber',
         type: 'number',
-        required: true,
-        description: `The pull request number.`,
+        required: false,
+        description: `Pull request number. Required when body is provided.`,
       },
-      { name: 'repo', type: 'string', required: true, description: `The GitHub repository name.` },
+      {
+        name: 'reaction',
+        type: 'string',
+        required: false,
+        description: `Emoji reaction to add. Required unless body is provided.`,
+      },
     ],
   },
   {
@@ -213,6 +231,12 @@ export const tools: Tool[] = [
         required: false,
         description: `Whether maintainers can modify the pull request.`,
       },
+      {
+        name: 'reviewers',
+        type: 'array',
+        required: false,
+        description: `GitHub usernames or ORG/team-slug team reviewers to request reviews from`,
+      },
     ],
   },
   {
@@ -304,10 +328,10 @@ export const tools: Tool[] = [
         description: `The blob SHA of the file being replaced. Required when updating an existing file.`,
       },
       {
-        name: 'include_diff',
-        type: 'boolean',
+        name: 'detail',
+        type: 'string',
         required: false,
-        description: `Whether to include the diff in the commit details.`,
+        description: `Level of detail to include for changed files. "none" omits stats and files entirely. "stats" (default) includes per-file metadata: filename, status, and lines-of-code counts (additions, deletions, changes), with no patch content. "full_patch" additionally includes the unified diff content for each file and can be very large.`,
       },
       {
         name: 'page',
@@ -334,6 +358,12 @@ export const tools: Tool[] = [
         description: `The GitHub repository owner (username or organization name).`,
       },
       { name: 'repo', type: 'string', required: true, description: `The GitHub repository name.` },
+      {
+        name: 'fields',
+        type: 'array',
+        required: false,
+        description: `Subset of fields to return for each entry when the path is a directory. If omitted, all fields are returned. Ignored when the path is a single file. Use this to reduce response size when listing directories and you only need specific fields, e.g. just 'name' and 'type'.`,
+      },
       {
         name: 'path',
         type: 'string',
@@ -506,6 +536,12 @@ export const tools: Tool[] = [
         required: false,
         description: `The issue number this issue is a duplicate of.`,
       },
+      {
+        name: 'issue_fields',
+        type: 'array',
+        required: false,
+        description: `Issue field values to set or clear. Each item requires 'field_name' and exactly one of 'value', 'field_option_name', or 'delete: true'.`,
+      },
       { name: 'issue_number', type: 'number', required: false, description: `The issue number.` },
       {
         name: 'labels',
@@ -588,6 +624,12 @@ export const tools: Tool[] = [
         description: `Filter commits by author username or email.`,
       },
       {
+        name: 'fields',
+        type: 'array',
+        required: false,
+        description: `Subset of fields to return for each commit. If omitted, all fields are returned. Use this to reduce response size when you only need specific fields, e.g. just 'sha' and 'html_url'.`,
+      },
+      {
         name: 'page',
         type: 'number',
         required: false,
@@ -626,6 +668,24 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'githubmcp_list_issue_fields',
+    description: `List custom issue fields available for a GitHub repository or organization.`,
+    params: [
+      {
+        name: 'owner',
+        type: 'string',
+        required: true,
+        description: `The account owner of the repository or organization. The name is not case sensitive.`,
+      },
+      {
+        name: 'repo',
+        type: 'string',
+        required: false,
+        description: `The name of the repository. When provided, returns fields for this specific repository (inherited from its organization). When omitted, returns org-level fields directly.`,
+      },
+    ],
+  },
+  {
     name: 'githubmcp_list_issue_types',
     description: `List supported issue types for a GitHub organization.`,
     params: [
@@ -634,6 +694,12 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `The GitHub repository owner (username or organization name).`,
+      },
+      {
+        name: 'repo',
+        type: 'string',
+        required: false,
+        description: `The name of the repository. When provided, returns issue types for this specific repository. When omitted, returns org-level issue types directly.`,
       },
     ],
   },
@@ -659,6 +725,18 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `The sort direction: asc or desc.`,
+      },
+      {
+        name: 'field_filters',
+        type: 'array',
+        required: false,
+        description: `Filter by custom issue field values. Each entry takes a field_name and a value; the server looks up the field and coerces the value to its type (single-select option name, text, number, or YYYY-MM-DD date).`,
+      },
+      {
+        name: 'fields',
+        type: 'array',
+        required: false,
+        description: `Subset of fields to return for each issue. If omitted, all fields are returned. Use this to reduce response size when you only need specific fields; omitting 'body' and 'field_values' in particular drops the largest per-result data.`,
       },
       {
         name: 'labels',
@@ -716,6 +794,12 @@ export const tools: Tool[] = [
         description: `The sort direction: asc or desc.`,
       },
       {
+        name: 'fields',
+        type: 'array',
+        required: false,
+        description: `Subset of fields to return for each pull request. If omitted, all fields are returned. Use this to reduce response size when you only need specific fields; omitting 'body' in particular drops the largest per-result data.`,
+      },
+      {
         name: 'head',
         type: 'string',
         required: false,
@@ -758,6 +842,12 @@ export const tools: Tool[] = [
         description: `The GitHub repository owner (username or organization name).`,
       },
       { name: 'repo', type: 'string', required: true, description: `The GitHub repository name.` },
+      {
+        name: 'fields',
+        type: 'array',
+        required: false,
+        description: `Subset of fields to return for each release. If omitted, all fields are returned. Use this to reduce response size when you only need specific fields; omitting 'body' in particular drops the largest per-release data.`,
+      },
       {
         name: 'page',
         type: 'number',
@@ -873,7 +963,18 @@ export const tools: Tool[] = [
         name: 'method',
         type: 'string',
         required: true,
-        description: `The operation to perform. Check the tool description for available methods.`,
+        description: `Action to specify what pull request data needs to be retrieved from GitHub. 
+Possible options: 
+ 1. get - Get details of a specific pull request.
+ 2. get_diff - Get the diff of a pull request.
+ 3. get_status - Get combined commit status of a head commit in a pull request.
+ 4. get_files - Get the list of files changed in a pull request. Use with pagination parameters to control the number of results returned.
+ 5. get_commits - Get the list of commits on a pull request. Use with pagination parameters to control the number of results returned.
+ 6. get_review_comments - Get review threads on a pull request. Each thread contains logically grouped review comments made on the same code location during pull request reviews. Returns threads with metadata (isResolved, isOutdated, isCollapsed) and their associated comments. Use cursor-based pagination (perPage, after) to control results.
+ 7. get_reviews - Get the reviews on a pull request. When asked for review comments, use get_review_comments method. Use with pagination parameters to control the number of results returned.
+ 8. get_comments - Get comments on a pull request. Use this if user doesn't specifically want review comments. Use with pagination parameters to control the number of results returned.
+ 9. get_check_runs - Get check runs for the head commit of a pull request. Check runs are the individual CI/CD jobs and checks that run on the PR.
+`,
       },
       {
         name: 'owner',
@@ -888,6 +989,12 @@ export const tools: Tool[] = [
         description: `The pull request number.`,
       },
       { name: 'repo', type: 'string', required: true, description: `The GitHub repository name.` },
+      {
+        name: 'after',
+        type: 'string',
+        required: false,
+        description: `Cursor for pagination, used only by the get_review_comments method. Pass the endCursor from the previous page's PageInfo to fetch the next page.`,
+      },
       {
         name: 'page',
         type: 'number',
@@ -1016,6 +1123,12 @@ export const tools: Tool[] = [
     params: [
       { name: 'query', type: 'string', required: true, description: `The search query string.` },
       {
+        name: 'fields',
+        type: 'array',
+        required: false,
+        description: `Subset of fields to return for each code search result. If omitted, all fields are returned. Use this to reduce response size when you only need specific fields; omitting 'repository' and 'text_matches' in particular drops the largest per-result data.`,
+      },
+      {
         name: 'order',
         type: 'string',
         required: false,
@@ -1042,10 +1155,52 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'githubmcp_search_commits',
+    description: `Search for GitHub commits by commit message and other metadata.`,
+    params: [
+      {
+        name: 'query',
+        type: 'string',
+        required: true,
+        description: `Commit search query (GitHub commit search REST). Searches commit messages on the default branch only. Scope the search with \`repo:owner/repo\`, \`org:\`, or \`user:\` (queries without a scope qualifier match across all of GitHub and are usually not what you want). Other qualifiers: \`author:\`, \`committer:\`, \`author-name:\`, \`committer-name:\`, \`author-email:\`, \`committer-email:\`, \`author-date:\`, \`committer-date:\` (supports \`>\`, \`<\`, \`>=\`, \`<=\`, and \`YYYY-MM-DD..YYYY-MM-DD\` ranges), \`merge:true|false\`, \`hash:\`, \`tree:\`, \`parent:\`, \`is:public\`.`,
+      },
+      {
+        name: 'order',
+        type: 'string',
+        required: false,
+        description: `The sort order: asc or desc.`,
+      },
+      {
+        name: 'page',
+        type: 'number',
+        required: false,
+        description: `The page number for pagination.`,
+      },
+      {
+        name: 'perPage',
+        type: 'number',
+        required: false,
+        description: `The number of results per page (max 100).`,
+      },
+      {
+        name: 'sort',
+        type: 'string',
+        required: false,
+        description: `Sort by author or committer date (defaults to best match).`,
+      },
+    ],
+  },
+  {
     name: 'githubmcp_search_issues',
     description: `Search for issues across GitHub repositories using GitHub issues search syntax.`,
     params: [
       { name: 'query', type: 'string', required: true, description: `The search query string.` },
+      {
+        name: 'fields',
+        type: 'array',
+        required: false,
+        description: `Subset of fields to return for each issue result. If omitted, all fields are returned. Use this to reduce response size when you only need specific fields; omitting 'body', 'reactions', and 'labels' in particular drops the largest per-result data.`,
+      },
       {
         name: 'order',
         type: 'string',
@@ -1084,6 +1239,12 @@ export const tools: Tool[] = [
     description: `Search for pull requests across GitHub repositories using GitHub search syntax.`,
     params: [
       { name: 'query', type: 'string', required: true, description: `The search query string.` },
+      {
+        name: 'fields',
+        type: 'array',
+        required: false,
+        description: `Subset of fields to return for each pull request result. If omitted, all fields are returned. Use this to reduce response size when you only need specific fields; omitting 'body', 'reactions', and 'labels' in particular drops the largest per-result data.`,
+      },
       {
         name: 'order',
         type: 'string',

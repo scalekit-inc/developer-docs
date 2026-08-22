@@ -2,6 +2,30 @@ import type { Tool } from '../../types/agent-connectors'
 
 export const tools: Tool[] = [
   {
+    name: 'bonsaimcp_create_comment',
+    description: `Post a user-authored comment on a task or a deal. Provide exactly one parent — \`task_id\` (a task UUID) or \`deal_id\` (a deal id) — and a \`body\`. The comment is attributed to the authenticated member and stored with unsafe HTML stripped. Mentions and attachments are not supported: "@Name" in \`body\` is stored as literal text and notifies no one; notifications are automatic and determined by the parent record. Returns the created comment. Returns a \`not_found\` error when the parent does not exist or is not accessible.`,
+    params: [
+      {
+        name: 'body',
+        type: 'string',
+        required: true,
+        description: `The comment body, as plain text. Required. Mentions are NOT supported: "@Name" is stored literally and does not link, mention, or notify anyone, and there is no way to notify a specific recipient. Notifications are automatic and determined by the parent record (a comment on a task notifies its subscribers/assignees; a comment on a deal notifies no one).`,
+      },
+      {
+        name: 'deal_id',
+        type: 'integer',
+        required: false,
+        description: `Integer id of the parent deal to comment on. Provide exactly one of \`task_id\` or \`deal_id\`. Resolve deal ids via \`list_deals\`.`,
+      },
+      {
+        name: 'task_id',
+        type: 'string',
+        required: false,
+        description: `UUID of the parent task to comment on. Provide exactly one of \`task_id\` or \`deal_id\`. Resolve task UUIDs via \`list_tasks\`, \`get_task\`, or \`list_subtasks\`.`,
+      },
+    ],
+  },
+  {
     name: 'bonsaimcp_create_company',
     description: `Create a CRM company in the user's Bonsai account. Requires name. Optionally set a default contact and domains. Search with list_companies first to avoid duplicates.`,
     params: [
@@ -148,6 +172,42 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'bonsaimcp_create_note',
+    description: `Write a note in the user's current company. Only \`content\` is required, and it is Markdown — Bonsai stores it as rich text, so headings, bold/italic, bullet, numbered and task lists, links, quotes, tables and code blocks all survive; leave a blank line between paragraphs, since a single newline is only a soft break. Attach the note to a client company, a project or a contact by passing \`record_type\` and \`record_id\` together (resolve ids via \`list_companies\`, \`list_projects\` or \`list_contacts\`); omit both for a note that stands on its own in the workspace. \`title\` defaults to empty and \`date\` — the day the note is about, which is what the app sorts and groups by — defaults to today in the account timezone. Notes written through the API are visible to everyone in the account. Returns the created note with its body as \`content_plain_text\`. Each call writes a new note.`,
+    params: [
+      {
+        name: 'content',
+        type: 'string',
+        required: true,
+        description: `The note body, in Markdown. Required. Bonsai stores it as rich text, so headings, **bold**, *italic*, ~~strikethrough~~, bullet/numbered/\`- [ ]\` task lists, links, > quotes, --- dividers, tables, inline code and fenced code blocks all round-trip. A single newline is a soft break within one paragraph — leave a blank line between paragraphs. Raw HTML and images are reduced to their text. The response returns the body as \`content_plain_text\`, not Markdown.`,
+      },
+      {
+        name: 'date',
+        type: 'string',
+        required: false,
+        description: `The day the note is about (YYYY-MM-DD), which is what the app sorts and groups notes by. Pass \`null\` or omit to default to today in the account's timezone.`,
+      },
+      {
+        name: 'record_id',
+        type: 'integer',
+        required: false,
+        description: `Id of the record to attach the note to, in the resource named by \`record_type\` — resolve via \`list_companies\`, \`list_projects\`, or \`list_contacts\`. Required when \`record_type\` is set.`,
+      },
+      {
+        name: 'record_type',
+        type: 'string',
+        required: false,
+        description: `What to attach the note to: \`company\` (a CRM client), \`project\`, or \`contact\`. Requires \`record_id\`. Omit both for a note that stands on its own in the workspace.`,
+      },
+      {
+        name: 'title',
+        type: 'string',
+        required: false,
+        description: `Note title. Pass \`null\` or omit to leave it empty.`,
+      },
+    ],
+  },
+  {
     name: 'bonsaimcp_create_project',
     description: `Create a project for an existing client company in Bonsai. Requires title, company_id (resolve via list_companies), and billing_type (time/fixed_fee/retainer/not_billable). billing_fee required for fixed_fee/retainer; billing_cycle required for retainer.`,
     params: [
@@ -212,10 +272,22 @@ export const tools: Tool[] = [
         description: `Company member ID to assign the task to, or 'me' for the authenticated user.`,
       },
       {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `Task description. Accepts an HTML fragment for rich-text formatting (e.g. <p>, <strong>, <ul>/<li>, <a>), stored verbatim. Plain text is fine too.`,
+      },
+      {
         name: 'due_date',
         type: 'string',
         required: false,
-        description: `Due date for the task in YYYY-MM-DD format.`,
+        description: `Due date for the task in YYYY-MM-DD format. Must be on or after start_date when both are supplied.`,
+      },
+      {
+        name: 'parent_task_uuid',
+        type: 'string',
+        required: false,
+        description: `Parent task UUID — set this to create the task as a subtask of an existing task. The subtask inherits its parent's project, contractor company, and billable setting, so project_id must not be supplied alongside it. Resolve UUIDs via list_tasks, get_task, or list_subtasks (the task uuid). Tasks nest at most two levels below a top-level task; a parent already at the deepest level is rejected upstream.`,
       },
       {
         name: 'priority',
@@ -228,6 +300,30 @@ export const tools: Tool[] = [
         type: 'integer',
         required: false,
         description: `Optional ID of the project to associate this task with.`,
+      },
+      {
+        name: 'start_date',
+        type: 'string',
+        required: false,
+        description: `Date the task starts, in YYYY-MM-DD format. Must be on or before due_date when both are supplied.`,
+      },
+      {
+        name: 'tag_ids',
+        type: 'array',
+        required: false,
+        description: `Company tag ids to set on the task — resolve via list_company_tags (task-type tags). Omit or pass [] to create the task with no tags.`,
+      },
+      {
+        name: 'task_status_id',
+        type: 'string',
+        required: false,
+        description: `TaskStatus UUID for the board column the task lands in. Resolve ids via list_task_statuses. Null or omitted defaults to the company's "To Do" column.`,
+      },
+      {
+        name: 'time_estimate_in_minutes',
+        type: 'integer',
+        required: false,
+        description: `Estimated effort in whole minutes (e.g. 90 for 1h30m). Positive integer.`,
       },
     ],
   },
@@ -286,6 +382,55 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'bonsaimcp_destroy_invoice_item',
+    description: `Remove a single line item from an invoice; any linked time entries are unbilled and the invoice total is recomputed. Requires \`invoice_id\` (the invoice — use the \`id\` from a prior \`create_invoice\` call or resolve via \`list_invoices\`) and \`id\` (the line item to remove — use the \`id\` from a prior \`create_invoice_item\` call). The invoice must still be editable — a paid, pending, or partially paid invoice is rejected. Returns the deleted line item.`,
+    params: [
+      {
+        name: 'id',
+        type: 'integer',
+        required: true,
+        description: `Id of the line item to remove. Required, in the path. Use the \`id\` returned by a prior \`create_invoice_item\` call, or read it off the invoice \`invoice_items\`.`,
+      },
+      {
+        name: 'invoice_id',
+        type: 'integer',
+        required: true,
+        description: `Id of the invoice the line item belongs to. Required, in the path. Use the \`id\` returned by a prior \`create_invoice\` call, or resolve it via \`list_invoices\`.`,
+      },
+    ],
+  },
+  {
+    name: 'bonsaimcp_destroy_note',
+    description: `Delete a note by its id. The note stops appearing in every subsequent read, and there is no way to restore it, so confirm with the user before calling this. Returns the deleted note's final state — \`title\`, \`date\`, \`visibility\`, \`created_by_member_id\`, \`created_at\`, \`updated_at\`, its body as \`content_plain_text\`, and the \`note_links\` it was attached to — so you can tell the user what went. Resolve ids via \`list_notes\`, and read a note with \`get_note\` first if you need to check what it says before deleting. Anyone can delete a note they wrote; deleting someone else's needs permission to delete notes. Notes the caller cannot see return not-found, as does a note that is already deleted; a visible note the caller may not delete returns a permission error.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `Id of the note to delete. Resolve via \`list_notes\`.`,
+      },
+    ],
+  },
+  {
+    name: 'bonsaimcp_destroy_task',
+    description: `Soft-delete a task in Bonsai by its UUID. The task is removed from every subsequent read; archived tasks can be deleted directly. Returns the deleted task's final state. Tasks the caller cannot see return not-found; visible tasks the caller is not allowed to delete return a permission error.`,
+    params: [
+      { name: 'uuid', type: 'string', required: true, description: `UUID of the task to delete.` },
+    ],
+  },
+  {
+    name: 'bonsaimcp_get_note',
+    description: `Fetch a single note by its id, including what it says as \`content_plain_text\` — the field a list response always leaves out, so read a note here whenever you need its body. Also returns \`title\`, \`date\` (the day the note is about, which is what the app sorts and groups by), \`visibility\` (\`everyone\` or \`author_only\`), \`created_by_member_id\`, \`created_at\`, \`updated_at\`, and \`note_links\` — the company, project or contact records the note is attached to, empty for a note that stands on its own in the workspace or whose records this user cannot reach. Resolve ids via \`list_notes\`. Anyone can read a note they wrote; reading someone else's needs permission to read notes.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `Id of the note to fetch. Resolve via \`list_notes\`.`,
+      },
+    ],
+  },
+  {
     name: 'bonsaimcp_get_task',
     description: `Fetch a single task from Bonsai by its UUID.`,
     params: [
@@ -323,6 +468,42 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'bonsaimcp_list_comments',
+    description: `List the comments on a task or a deal, paginated, newest first. Provide exactly one parent — \`task_id\` (a task UUID) or \`deal_id\` (a deal id). By default only user-authored comments are returned; pass \`kind\` = \`events\` for system-generated activity (status changes, assignments) or \`all\` for both. Each comment carries \`body_plain_text\` (HTML stripped), its \`kind\`, \`created_at\`, the parent \`commentable_id\`, and \`author_member_id\` (null when the author is not a company member). Returns a \`not_found\` error when the parent does not exist or is not accessible.`,
+    params: [
+      {
+        name: 'deal_id',
+        type: 'integer',
+        required: false,
+        description: `Integer id of the parent deal whose comments to list. Provide exactly one of \`task_id\` or \`deal_id\`. Resolve deal ids via \`list_deals\`.`,
+      },
+      {
+        name: 'kind',
+        type: 'string',
+        required: false,
+        description: `Which comment kinds to return: \`user_created\` (default) for user-authored comments, \`events\` for system-generated activity (status changes, assignments), or \`all\` for both. Omit to default to \`user_created\`.`,
+      },
+      {
+        name: 'page',
+        type: 'integer',
+        required: false,
+        description: `Page number (1-indexed). Default 1.`,
+      },
+      {
+        name: 'page_size',
+        type: 'integer',
+        required: false,
+        description: `Items per page (max 100). Default 25.`,
+      },
+      {
+        name: 'task_id',
+        type: 'string',
+        required: false,
+        description: `UUID of the parent task whose comments to list. Provide exactly one of \`task_id\` or \`deal_id\`. Resolve task UUIDs via \`list_tasks\`, \`get_task\`, or \`list_subtasks\`.`,
+      },
+    ],
+  },
+  {
     name: 'bonsaimcp_list_companies',
     description: `List CRM companies in the user's Bonsai account. Use to find existing companies before creating new ones or when resolving company_id for projects and invoices.`,
     params: [
@@ -343,6 +524,36 @@ export const tools: Tool[] = [
         type: 'integer',
         required: false,
         description: `Number of companies per page. Maximum 100.`,
+      },
+    ],
+  },
+  {
+    name: 'bonsaimcp_list_company_tags',
+    description: `List the caller's company tags as a single flat collection across every tag type, paginated. A company tag is a reusable label attached to Bonsai records. Each entry exposes id (the integer CompanyTag id accepted by the list_tasks tag_id filter), name, tag_type (which record type the tag applies to), and color. Supports filtering by name (case-insensitive substring match) and tag_type (exact match — one of client, deal, project, vendor, task, time_entry, expense, supplier). An unknown tag_type returns a bad_request error. Only the tag types whose underlying records the caller may list come back, so a narrower role sees fewer types — an empty result for a given tag_type can mean "no permission" rather than "no tags".`,
+    params: [
+      {
+        name: 'name',
+        type: 'string',
+        required: false,
+        description: `Case-insensitive substring match on the tag name.`,
+      },
+      {
+        name: 'page',
+        type: 'integer',
+        required: false,
+        description: `Page number (1-indexed). Default 1.`,
+      },
+      {
+        name: 'page_size',
+        type: 'integer',
+        required: false,
+        description: `Items per page (max 100). Default 25.`,
+      },
+      {
+        name: 'tag_type',
+        type: 'string',
+        required: false,
+        description: `Exact match on the tag type. One of client, deal, project, vendor, task, time_entry, expense, supplier. Omit to return every tag type.`,
       },
     ],
   },
@@ -461,6 +672,54 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'bonsaimcp_list_notes',
+    description: `List notes in the user's current company, paginated, ordered by when each note was written (newest first) — not by \`date\`, so a note backdated to last year still leads the page if it was written today. There is no way to sort by \`date\`; narrow with \`date_from\`/\`date_to\` instead. Each note exposes \`id\`, \`title\`, \`date\` (the day the note is about, which is what the app sorts and groups by), \`visibility\` (\`everyone\` or \`author_only\`), \`created_by_member_id\`, \`created_at\`, \`updated_at\`, and \`note_links\` — the company, project or contact records the note is attached to, empty for a note that stands on its own in the workspace or whose records this user cannot reach. The note body is never part of a list response; read a single note to get it. Filter by the attached record with \`record_type\` plus \`record_id\` (both together, or neither), by author with \`created_by_member_id\` (member id(s) or the literal "me"), and by a \`date_from\`/\`date_to\` window over the day each note is about (both bounds inclusive, either works alone).`,
+    params: [
+      {
+        name: 'created_by_member_id',
+        type: 'integer',
+        required: false,
+        description: `Filter by note author. Pass a Company member id (e.g. 42), the literal "me" to resolve to the authenticated user's member, or an array for several authors. Resolve member ids via \`list_team_members\` (the \`company_member_id\` field).`,
+      },
+      {
+        name: 'date_from',
+        type: 'string',
+        required: false,
+        description: `Notes dated on or after this day (YYYY-MM-DD), inclusive.`,
+      },
+      {
+        name: 'date_to',
+        type: 'string',
+        required: false,
+        description: `Notes dated on or before this day (YYYY-MM-DD), inclusive.`,
+      },
+      {
+        name: 'page',
+        type: 'integer',
+        required: false,
+        description: `Page number (1-indexed). Default 1.`,
+      },
+      {
+        name: 'page_size',
+        type: 'integer',
+        required: false,
+        description: `Items per page (max 100). Default 25.`,
+      },
+      {
+        name: 'record_id',
+        type: 'integer',
+        required: false,
+        description: `Return only notes attached to this record, in the resource named by \`record_type\` — resolve via \`list_companies\`, \`list_projects\`, or \`list_contacts\`. Requires \`record_type\`.`,
+      },
+      {
+        name: 'record_type',
+        type: 'string',
+        required: false,
+        description: `Return only notes attached to this kind of record: \`company\` (a CRM client), \`project\`, or \`contact\`. Requires \`record_id\` — neither narrows anything on its own.`,
+      },
+    ],
+  },
+  {
     name: 'bonsaimcp_list_projects',
     description: `List active projects in the user's Bonsai company, paginated. Supports filtering by title (free-text), public_url_token, and board_group_id (Project Group UUID).`,
     params: [
@@ -489,10 +748,58 @@ export const tools: Tool[] = [
         description: `Exact public URL token lookup for a project.`,
       },
       {
+        name: 'status',
+        type: 'string',
+        required: false,
+        description: `Project lifecycle status. Omit to default to active; not_archived returns active and completed, and all returns every status (active, archived, not_archived, completed, all).`,
+      },
+      {
         name: 'title',
         type: 'string',
         required: false,
         description: `Free-text search on project title.`,
+      },
+    ],
+  },
+  {
+    name: 'bonsaimcp_list_subtasks',
+    description: `List a parent task's subtasks (its child tasks), paginated, ordered by the manual subtask order. Each subtask carries the same summary fields as list_tasks (including assignee_member_name, due_date, task_status, and company_tags), plus parent_task_uuid pointing back at the parent. Archived and deleted subtasks are excluded; completed subtasks remain visible. Returns a not_found error when the parent task does not exist, belongs to another company, or is archived, deleted, or a template. Task descriptions are not included here — call get_task with a subtask's uuid to fetch its full description.`,
+    params: [
+      {
+        name: 'task_id',
+        type: 'string',
+        required: true,
+        description: `UUID of the parent task whose subtasks to list.`,
+      },
+      {
+        name: 'page',
+        type: 'integer',
+        required: false,
+        description: `Page number (1-indexed). Default 1.`,
+      },
+      {
+        name: 'page_size',
+        type: 'integer',
+        required: false,
+        description: `Items per page (max 100). Default 25.`,
+      },
+    ],
+  },
+  {
+    name: 'bonsaimcp_list_task_statuses',
+    description: `List the caller's company task statuses, paginated. A task status is a board column a task can occupy (e.g. "To Do" / "In Progress" / "Done", plus any custom columns), ordered by board position. Each entry exposes id (the task_status_id accepted by create_task and the list_tasks task_status_id filter), status (the column name), state ("active" or "complete", where "complete" marks a done column), color (nullable), and position. Use this to resolve a status name to the task_status_id those endpoints expect.`,
+    params: [
+      {
+        name: 'page',
+        type: 'integer',
+        required: false,
+        description: `Page number (1-indexed). Default 1.`,
+      },
+      {
+        name: 'page_size',
+        type: 'integer',
+        required: false,
+        description: `Items per page (max 100). Default 25.`,
       },
     ],
   },
@@ -550,12 +857,30 @@ export const tools: Tool[] = [
       },
       { name: 'scope', type: 'string', required: false, description: `Scope of tasks to return.` },
       { name: 'tag_id', type: 'integer', required: false, description: `Filter tasks by tag ID.` },
+      {
+        name: 'task_status_id',
+        type: 'string',
+        required: false,
+        description: `Filter by task status (board column). Pass a TaskStatus UUID (the id from list_task_statuses). Filtering by status returns tasks in any state (active, completed, or archived), overriding the default active scope.`,
+      },
+      {
+        name: 'title',
+        type: 'string',
+        required: false,
+        description: `Free-text search over task title (case-insensitive).`,
+      },
     ],
   },
   {
     name: 'bonsaimcp_list_team_members',
     description: `List team members in the user's current Bonsai company. Returns company_member_id (for task assignment), role, permission_profile, and lifecycle timestamps.`,
     params: [
+      {
+        name: 'id',
+        type: 'integer',
+        required: false,
+        description: `Company member id(s) to filter by. Pass a single id or an array. Use the company_member_id field returned here when assigning tasks via assignee_member_id.`,
+      },
       {
         name: 'name',
         type: 'string',
@@ -573,6 +898,78 @@ export const tools: Tool[] = [
         type: 'integer',
         required: false,
         description: `Number of team members per page. Maximum 100.`,
+      },
+      {
+        name: 'project_id',
+        type: 'integer',
+        required: false,
+        description: `Project id(s). Returns only team members assigned to the given project(s). Single value or array.`,
+      },
+      {
+        name: 'user_id',
+        type: 'integer',
+        required: false,
+        description: `User id(s) to filter by. Pass a single id or an array. For creating tasks, use company_member_id instead.`,
+      },
+    ],
+  },
+  {
+    name: 'bonsaimcp_list_time_entries',
+    description: `List time entries in the user's current company, paginated, newest first. Each entry exposes key, seconds, formatted_time, date, notes, rate, non_billable, billable_amount, billing_status (billed, unbilled, or non_billable), status, currency, project_id, task_uuid, owner_member_id, and created_at. Supports filtering by date_from/date_to (inclusive YYYY-MM-DD window), owner_member_id (Company member id(s) or the literal "me"; listing other members needs the "all time entries" permission), project_id, company_id (client company billed — resolve via list_companies), billing_status, and currency. Multi-value filters accept a single value or an array. Without the billing permission rate, non_billable, billable_amount and billing_status are omitted from every entry, and billing_status is refused as a filter — retry without it rather than reading the refusal as "no access to time entries".`,
+    params: [
+      {
+        name: 'billing_status',
+        type: 'string',
+        required: false,
+        description: `One or more of billed, unbilled, non_billable. Single value or array. Needs the billing permission; without it the call is refused.`,
+      },
+      {
+        name: 'company_id',
+        type: 'integer',
+        required: false,
+        description: `Filter by client company id(s), matched through the entry's project — the company being billed, not your own account. Resolve via list_companies. Single value or array.`,
+      },
+      {
+        name: 'currency',
+        type: 'string',
+        required: false,
+        description: `ISO 4217 currency code(s), e.g. "USD". Single value or array.`,
+      },
+      {
+        name: 'date_from',
+        type: 'string',
+        required: false,
+        description: `Entries on or after this date (YYYY-MM-DD), inclusive.`,
+      },
+      {
+        name: 'date_to',
+        type: 'string',
+        required: false,
+        description: `Entries on or before this date (YYYY-MM-DD), inclusive.`,
+      },
+      {
+        name: 'owner_member_id',
+        type: 'string',
+        required: false,
+        description: `Filter by the entry owner. Pass a Company member id (e.g. 42), the literal "me" to resolve to the authenticated user's member, or an array for multiple owners. Resolve member ids via list_team_members (the company_member_id field). Listing other members' time requires the "all time entries" permission.`,
+      },
+      {
+        name: 'page',
+        type: 'integer',
+        required: false,
+        description: `Page number (1-indexed). Default 1.`,
+      },
+      {
+        name: 'page_size',
+        type: 'integer',
+        required: false,
+        description: `Items per page (max 100). Default 25.`,
+      },
+      {
+        name: 'project_id',
+        type: 'integer',
+        required: false,
+        description: `Filter by project id(s) — resolve via list_projects. Single value or array.`,
       },
     ],
   },
@@ -629,6 +1026,228 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Updated phone number for the contact. Pass null to clear.`,
+      },
+    ],
+  },
+  {
+    name: 'bonsaimcp_update_invoice',
+    description: `Partially update an existing invoice in the user's current company. Requires \`id\` (the invoice — use the \`id\` from a prior \`create_invoice\` call or resolve via \`list_invoices\`); every other field is optional and only the ones supplied are changed. Supports \`contact_id\` (the billing contact — must belong to the invoice's existing client company; resolve via \`list_contacts\`), \`currency\` (ISO 4217), \`title\` (blank rejected), and \`due\`/\`due_date\` (\`custom\` requires \`due_date\`; \`upon_receipt\` rejects it; a standalone \`due_date\` sets a custom date). The client company, project, and line items cannot be changed here — the client and project are fixed at creation, and line items are managed with \`create_invoice_item\`, \`update_invoice_item\`, and \`destroy_invoice_item\`. A paid or pending invoice is not editable. Returns the full updated invoice. Includes \`url\`, a direct link to the record in Bonsai — share it with the user so they can open it.`,
+    params: [
+      {
+        name: 'id',
+        type: 'integer',
+        required: true,
+        description: `Id of the invoice to update. Required, in the path. Use the \`id\` returned by a prior \`create_invoice\` call, or resolve it via \`list_invoices\`.`,
+      },
+      {
+        name: 'contact_id',
+        type: 'integer',
+        required: false,
+        description: `New billing contact id — must belong to the invoice's existing client company (resolve via \`list_contacts\`). Omit to leave it unchanged. The client company and project are fixed at creation and cannot be changed here.`,
+      },
+      {
+        name: 'currency',
+        type: 'string',
+        required: false,
+        description: `New ISO 4217 currency code (e.g. "USD"). Omit to leave it unchanged.`,
+      },
+      {
+        name: 'due',
+        type: 'string',
+        required: false,
+        description: `Due-date term. \`custom\` requires \`due_date\`; \`upon_receipt\` rejects \`due_date\`. Omit to leave it unchanged.`,
+      },
+      {
+        name: 'due_date',
+        type: 'string',
+        required: false,
+        description: `Invoice due date (YYYY-MM-DD). Required when \`due\` is \`custom\`; rejected when \`due\` is \`upon_receipt\`. Supplying it alone (without \`due\`) sets a custom due date.`,
+      },
+      {
+        name: 'title',
+        type: 'string',
+        required: false,
+        description: `New invoice title. Omit to leave it unchanged; a blank string is rejected.`,
+      },
+    ],
+  },
+  {
+    name: 'bonsaimcp_update_invoice_item',
+    description: `Update the supplied fields of a single line item on an invoice; the invoice total is recomputed. Requires \`invoice_id\` (the invoice — use the \`id\` from a prior \`create_invoice\` call or resolve via \`list_invoices\`) and \`id\` (the line item — use the \`id\` from a prior \`create_invoice_item\` call); every other field is optional and only the ones supplied are changed. Supports \`name\` (blank rejected), \`description\`, \`amount\`, \`rate\` (non-negative decimal strings), and \`unit_type\` (\`flat\`/\`per_hour\`/\`per_day\`/\`per_item\`/\`per_word\`/\`per_week\`/\`per_month\`/\`per_year\`/\`per_quarter\`). The invoice must still be editable — a paid, pending, or partially paid invoice is rejected. Returns the updated line item including its server-computed \`total\`.`,
+    params: [
+      {
+        name: 'id',
+        type: 'integer',
+        required: true,
+        description: `Id of the line item to update. Required, in the path. Use the \`id\` returned by a prior \`create_invoice_item\` call, or read it off the invoice \`invoice_items\`.`,
+      },
+      {
+        name: 'invoice_id',
+        type: 'integer',
+        required: true,
+        description: `Id of the invoice the line item belongs to. Required, in the path. Use the \`id\` returned by a prior \`create_invoice\` call, or resolve it via \`list_invoices\`.`,
+      },
+      {
+        name: 'amount',
+        type: 'string',
+        required: false,
+        description: `New line quantity as a non-negative decimal string (e.g. "3"). Omit to leave it unchanged.`,
+      },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `New line item description. Omit to leave it unchanged.`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: false,
+        description: `New line item name. Omit to leave it unchanged; a blank string is rejected.`,
+      },
+      {
+        name: 'rate',
+        type: 'string',
+        required: false,
+        description: `New per-unit amount as a non-negative decimal string (e.g. "100"). Omit to leave it unchanged.`,
+      },
+      {
+        name: 'unit_type',
+        type: 'string',
+        required: false,
+        description: `New unit of the line: \`flat\`, \`per_hour\`, \`per_day\`, \`per_item\`, \`per_word\`, \`per_week\`, \`per_month\`, \`per_year\`, or \`per_quarter\`. Omit to leave it unchanged.`,
+      },
+    ],
+  },
+  {
+    name: 'bonsaimcp_update_task',
+    description: `Update an existing task in the user's current company. Requires uuid (resolve via list_tasks, get_task, or list_subtasks); every other field is optional and only the ones supplied are changed. Supports title, project_id (null detaches), assignee_member_id (Company member id or the literal "me"; null unassigns), priority (urgent/high/medium/low), due_date and start_date (YYYY-MM-DD; null clears), description (HTML fragment or plain text; null clears), time_estimate_in_minutes (positive integer; null clears), task_status_id (TaskStatus UUID — resolve via list_task_statuses), and tag_ids (full-replace set of company tag ids; [] clears). Clearing title, priority, or the status is not supported. Returns the full updated task. Includes url, a direct link to the record in Bonsai — share it with the user so they can open it.`,
+    params: [
+      {
+        name: 'uuid',
+        type: 'string',
+        required: true,
+        description: `UUID of the task to update. Required. Resolve via list_tasks, get_task, or list_subtasks.`,
+      },
+      {
+        name: 'assignee_member_id',
+        type: 'string',
+        required: false,
+        description: `Company member id of the assignee, or the literal "me" to assign to the caller. Resolve people via list_team_members (the company_member_id field). Pass null to unassign, or omit to leave the assignee unchanged.`,
+      },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `Task description. Accepts an HTML fragment for rich-text formatting, stored verbatim. Pass null to clear it, or omit to leave it unchanged.`,
+      },
+      {
+        name: 'due_date',
+        type: 'string',
+        required: false,
+        description: `ISO 8601 date (YYYY-MM-DD). Pass null to clear it, or omit to leave it unchanged.`,
+      },
+      {
+        name: 'priority',
+        type: 'string',
+        required: false,
+        description: `Priority bucket: urgent, high, medium, or low. Omit to leave it unchanged; this endpoint cannot clear a priority once set.`,
+      },
+      {
+        name: 'project_id',
+        type: 'integer',
+        required: false,
+        description: `Re-point the task to another project, or null to detach it from its project. Resolve via list_projects. Omit to leave the project unchanged.`,
+      },
+      {
+        name: 'start_date',
+        type: 'string',
+        required: false,
+        description: `ISO 8601 date (YYYY-MM-DD). Pass null to clear it, or omit to leave it unchanged.`,
+      },
+      {
+        name: 'tag_ids',
+        type: 'array',
+        required: false,
+        description: `Full-replace set of company tag ids on the task — resolve via list_company_tags. Pass [] to remove all tags. Omit to leave the tags unchanged.`,
+      },
+      {
+        name: 'task_status_id',
+        type: 'string',
+        required: false,
+        description: `TaskStatus UUID for the board column the task moves to. Resolve ids via list_task_statuses. Omit to leave the status unchanged.`,
+      },
+      {
+        name: 'time_estimate_in_minutes',
+        type: 'integer',
+        required: false,
+        description: `Estimated effort in whole minutes (positive integer). Pass null to clear it, or omit to leave it unchanged.`,
+      },
+      {
+        name: 'title',
+        type: 'string',
+        required: false,
+        description: `New task title. Omit to leave it unchanged. Clearing the title is not supported by this endpoint; a blank string is rejected.`,
+      },
+    ],
+  },
+  {
+    name: 'bonsaimcp_update_time_entry',
+    description: `Update an existing time entry in the user's current company. Requires key (resolve via list_time_entries); every other field is optional and only the ones supplied are changed. Supports seconds (duration), date (YYYY-MM-DD), project_id (null detaches; ignored when linked to a task), task_uuid (null unlinks and clears the derived project), notes (empty string or null clears), rate (a non-negative decimal string) and non_billable (both honored only with the billing permission), and owner_member_id (Company member id or the literal "me"; reassigning to another member needs the "all time entries" permission). Entries billed on a finalized invoice cannot be edited. Returns the full updated time entry including the server-computed status and, with the billing permission, billable_amount.`,
+    params: [
+      {
+        name: 'key',
+        type: 'string',
+        required: true,
+        description: `Key of the time entry to update (the key field on a time entry). Required. Resolve via list_time_entries.`,
+      },
+      {
+        name: 'date',
+        type: 'string',
+        required: false,
+        description: `Date the work was done (YYYY-MM-DD). Omit to leave it unchanged.`,
+      },
+      {
+        name: 'non_billable',
+        type: 'boolean',
+        required: false,
+        description: `Whether the entry is non-billable. Honored only with the billing permission. Omit to leave it unchanged.`,
+      },
+      {
+        name: 'notes',
+        type: 'string',
+        required: false,
+        description: `Free-text description of the work. Pass an empty string or null to clear it, or omit to leave it unchanged.`,
+      },
+      {
+        name: 'owner_member_id',
+        type: 'string',
+        required: false,
+        description: `Reassign who logged the time: a Company member id or the literal "me" for the caller. Resolve people via list_team_members (its company_member_id). Reassigning to another member requires the "all time entries" permission. Omit to leave it unchanged.`,
+      },
+      {
+        name: 'project_id',
+        type: 'integer',
+        required: false,
+        description: `Re-point the entry to another project — resolve via list_projects. Ignored when the entry is linked to a task. Pass null to detach the project, or omit to leave it unchanged.`,
+      },
+      {
+        name: 'rate',
+        type: 'string',
+        required: false,
+        description: `Hourly rate as a non-negative decimal string (e.g. "150.00"). Honored only with the billing permission. Omit to leave it unchanged.`,
+      },
+      {
+        name: 'seconds',
+        type: 'integer',
+        required: false,
+        description: `New duration of the entry, in whole seconds. Omit to leave it unchanged. Users rarely state seconds, so convert their stated duration first — minutes × 60, hours × 3600 (e.g. "2h30m" → 9000, "1.5h" → 5400), rounding to the nearest whole second.`,
+      },
+      {
+        name: 'task_uuid',
+        type: 'string',
+        required: false,
+        description: `Link the entry to a task — resolve via list_tasks / get_task. When set, the project is taken from the task. Pass null to unlink the task (and clear the derived project), or omit to leave it unchanged.`,
       },
     ],
   },

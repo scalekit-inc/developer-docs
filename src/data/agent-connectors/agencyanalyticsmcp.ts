@@ -120,16 +120,70 @@ export const tools: Tool[] = [
     description: `Fetch a single public web page or document by URL and return its readable text. HTML is reduced to plain text; JSON, plain-text, and XML responses are returned as-is. Output is truncated to maxLength characters (default 30000).`,
     params: [
       {
+        name: 'url',
+        type: 'string',
+        required: true,
+        description: `Absolute http(s) URL to fetch, e.g. 'https://example.com/article'.`,
+      },
+      {
         name: 'maxLength',
         type: 'integer',
         required: false,
         description: `Maximum characters of extracted text to return. Defaults to 30000; clamped to [1000, 100000].`,
       },
+    ],
+  },
+  {
+    name: 'agencyanalyticsmcp_read_client_ad_manager',
+    description: `Fetch a client's Google Ad Manager (sell-side / publisher ad-serving) analytics, broken down by a dimension. Returns one row per dimension value with the publisher's ad-revenue metrics (revenue, impressions, clicks, CTR, eCPM, fill rate, and more). This is the client-as-PUBLISHER earning ad revenue — NOT the client buying ads (use read_client_ads for spend-side campaign performance). Supported providers (1): google-ad-manager-v1.`,
+    params: [
       {
-        name: 'url',
+        name: 'applyMarkup',
+        type: 'boolean',
+        required: false,
+        description: `Whether to apply the client's agency markup to revenue and eCPM figures.`,
+      },
+      {
+        name: 'clientId',
+        type: 'integer',
+        required: false,
+        description: `The client (campaign) ID.`,
+      },
+      {
+        name: 'endDate',
         type: 'string',
         required: false,
-        description: `Absolute http(s) URL to fetch, e.g. 'https://example.com/article'.`,
+        description: `End date in YYYY-MM-DD format.`,
+      },
+      {
+        name: 'entityType',
+        type: 'string',
+        required: false,
+        description: `The dimension to break down Ad Manager revenue by.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum rows to return (default 50).`,
+      },
+      {
+        name: 'provider',
+        type: 'string',
+        required: false,
+        description: `The Ad Manager provider slug.`,
+      },
+      {
+        name: 'startDate',
+        type: 'string',
+        required: false,
+        description: `Start date in YYYY-MM-DD format.`,
+      },
+      {
+        name: 'testMode',
+        type: 'boolean',
+        required: false,
+        description: `Set to true to return sample data without a live API call.`,
       },
     ],
   },
@@ -137,6 +191,12 @@ export const tools: Tool[] = [
     name: 'agencyanalyticsmcp_read_client_ads',
     description: `Fetch ad data broken down by campaign, ad group, or ad for a specific platform. Returns one row per entity — NOT a time series. Use ONLY when the user asks for a per-entity breakdown. Supported platforms (21): googleadwords, facebook-ads, linked-in-ads, snapchat-ads, tiktok-ads, adroll, amazon-ads, bing-ads, twitter-ads, spotify-ads, stack-adapt, google-display-video360, pinterest-ads, reddit-ads-v1, simpli-fi, centro, centro-basis, choozle, adform, yelp-ads, ground-truth-v1.`,
     params: [
+      {
+        name: 'applyMarkup',
+        type: 'boolean',
+        required: false,
+        description: `Whether to apply the client's agency markup to cost/spend figures.`,
+      },
       {
         name: 'clientId',
         type: 'integer',
@@ -166,6 +226,102 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `The ad platform provider slug.`,
+      },
+      {
+        name: 'startDate',
+        type: 'string',
+        required: false,
+        description: `Start date in YYYY-MM-DD format.`,
+      },
+      {
+        name: 'testMode',
+        type: 'boolean',
+        required: false,
+        description: `Set to true to return sample data without a live API call.`,
+      },
+    ],
+  },
+  {
+    name: 'agencyanalyticsmcp_read_client_ai_tracker',
+    description: `Fetch a client's AI Tracker analytics — how visible the brand is inside AI assistants' answers (ChatGPT, Google AI Overview, Google AI Mode, Claude, Perplexity, Gemini), broken down by a dimension. Returns one row per dimension value with AI-visibility metrics (visibility, citations, position, sentiment, citation_rate, prompts). This is AI-answer visibility — NOT Google SERP keyword rankings (use read_client_keywords for that). Supported providers (1): agency-analytics-ai-tracker-v1.`,
+    params: [
+      {
+        name: 'clientId',
+        type: 'integer',
+        required: false,
+        description: `The client (campaign) ID.`,
+      },
+      {
+        name: 'endDate',
+        type: 'string',
+        required: false,
+        description: `End date in YYYY-MM-DD format.`,
+      },
+      {
+        name: 'entityType',
+        type: 'string',
+        required: false,
+        description: `The dimension to break down AI visibility by.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum rows to return (default 50).`,
+      },
+      {
+        name: 'provider',
+        type: 'string',
+        required: false,
+        description: `The AI Tracker provider slug.`,
+      },
+      {
+        name: 'startDate',
+        type: 'string',
+        required: false,
+        description: `Start date in YYYY-MM-DD format.`,
+      },
+      {
+        name: 'testMode',
+        type: 'boolean',
+        required: false,
+        description: `Set to true to return sample data without a live API call.`,
+      },
+    ],
+  },
+  {
+    name: 'agencyanalyticsmcp_read_client_audience',
+    description: `Fetch a client's audience demographics broken down by a demographic dimension for a specific connected platform. Returns one row per segment with the platform's audience metric. Use for 'who is the audience?' questions such as audience by age, gender, or country. Not a time-series tool and not ad performance by demographic. Supported platforms (5): instagram, youtube, tiktok-v1, pinterest-ads, linked-in.`,
+    params: [
+      {
+        name: 'clientId',
+        type: 'integer',
+        required: false,
+        description: `The client (campaign) ID.`,
+      },
+      {
+        name: 'endDate',
+        type: 'string',
+        required: false,
+        description: `End date in YYYY-MM-DD format.`,
+      },
+      {
+        name: 'entityType',
+        type: 'string',
+        required: false,
+        description: `The demographic dimension to break audience down by.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum rows to return (default 50).`,
+      },
+      {
+        name: 'provider',
+        type: 'string',
+        required: false,
+        description: `The audience platform provider slug.`,
       },
       {
         name: 'startDate',
@@ -274,6 +430,97 @@ export const tools: Tool[] = [
         type: 'boolean',
         required: false,
         description: `Set to true to return sample data.`,
+      },
+    ],
+  },
+  {
+    name: 'agencyanalyticsmcp_read_client_conversions',
+    description: `Fetch conversion analytics broken down by conversion type for a specific platform connected to a client. Returns one row per conversion type with counts and (where the platform tracks it) value/cost. Not a time-series tool — use read_client_metrics for conversions over time, or read_client_ads for per-campaign totals. Supported platforms (6): google-analytics4, facebook-ads, stack-adapt, google-local-services-ads, bing-ads, simpli-fi.`,
+    params: [
+      {
+        name: 'applyMarkup',
+        type: 'boolean',
+        required: false,
+        description: `Whether to apply the client's agency markup to cost/value figures.`,
+      },
+      {
+        name: 'clientId',
+        type: 'integer',
+        required: false,
+        description: `The client (campaign) ID.`,
+      },
+      {
+        name: 'endDate',
+        type: 'string',
+        required: false,
+        description: `End date in YYYY-MM-DD format.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum rows to return (default 50).`,
+      },
+      {
+        name: 'provider',
+        type: 'string',
+        required: false,
+        description: `The conversion platform provider slug.`,
+      },
+      {
+        name: 'startDate',
+        type: 'string',
+        required: false,
+        description: `Start date in YYYY-MM-DD format.`,
+      },
+      {
+        name: 'testMode',
+        type: 'boolean',
+        required: false,
+        description: `Set to true to return sample data without a live API call.`,
+      },
+    ],
+  },
+  {
+    name: 'agencyanalyticsmcp_read_client_crm',
+    description: `Fetch CRM data for a specific platform connected to a client. Returns one row per entity (deal stage, company, contact segment, campaign, appointment, etc.). Use for sales-pipeline / CRM questions such as deals by stage, pipeline value, or contacts by lifecycle stage. Not a time-series tool — use read_client_metrics for pipeline/revenue trends over time. Supported platforms (5): hub-spot, salesforce, keap, high-level, sharp-spring.`,
+    params: [
+      {
+        name: 'clientId',
+        type: 'integer',
+        required: false,
+        description: `The client (campaign) ID.`,
+      },
+      {
+        name: 'endDate',
+        type: 'string',
+        required: false,
+        description: `End date in YYYY-MM-DD format.`,
+      },
+      {
+        name: 'entityType',
+        type: 'string',
+        required: false,
+        description: `The CRM entity type to fetch.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum rows to return (default 50).`,
+      },
+      { name: 'provider', type: 'string', required: false, description: `The CRM provider slug.` },
+      {
+        name: 'startDate',
+        type: 'string',
+        required: false,
+        description: `Start date in YYYY-MM-DD format.`,
+      },
+      {
+        name: 'testMode',
+        type: 'boolean',
+        required: false,
+        description: `Set to true to return sample data without a live API call.`,
       },
     ],
   },
@@ -394,6 +641,144 @@ export const tools: Tool[] = [
         description: `The integration provider slug.`,
       },
       { name: 'sort', type: 'object', required: false, description: `Sort configuration.` },
+      {
+        name: 'testMode',
+        type: 'boolean',
+        required: false,
+        description: `Serve the provider's demo data instead of the client's live data, so a source can be read without a live integration.`,
+      },
+    ],
+  },
+  {
+    name: 'agencyanalyticsmcp_read_client_ecommerce',
+    description: `Fetch ecommerce data for a specific platform connected to a client. Returns one row per entity (product, order status, channel, subscription, payment, etc.). Use for online-store questions such as best-selling products, orders by status, sales by channel, or subscription revenue. Not a time-series tool — use read_client_metrics for revenue/sales trends over time. Metrics are provider-native and not directly comparable across platforms. Supported platforms (6): shopify, woocommerce, big-commerce-v1, stripe, keap, google-analytics4.`,
+    params: [
+      {
+        name: 'clientId',
+        type: 'integer',
+        required: false,
+        description: `The client (campaign) ID.`,
+      },
+      {
+        name: 'endDate',
+        type: 'string',
+        required: false,
+        description: `End date in YYYY-MM-DD format.`,
+      },
+      {
+        name: 'entityType',
+        type: 'string',
+        required: false,
+        description: `The ecommerce entity type to fetch.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum rows to return (default 50).`,
+      },
+      {
+        name: 'provider',
+        type: 'string',
+        required: false,
+        description: `The ecommerce provider slug.`,
+      },
+      {
+        name: 'startDate',
+        type: 'string',
+        required: false,
+        description: `Start date in YYYY-MM-DD format.`,
+      },
+      {
+        name: 'testMode',
+        type: 'boolean',
+        required: false,
+        description: `Set to true to return sample data without a live API call.`,
+      },
+    ],
+  },
+  {
+    name: 'agencyanalyticsmcp_read_client_email',
+    description: `Fetch email-campaign performance for a specific platform connected to a client. Returns one row per email campaign with engagement metrics (sent, delivered, opens, clicks, open_rate, click_rate, unsubscribes, bounce_rate). Not a time-series tool — use read_client_metrics for email metrics over time. Sendinblue/Brevo ignores the date range and always returns all campaigns. Supported platforms (3): mail-chimp, hub-spot, sendinblue.`,
+    params: [
+      {
+        name: 'clientId',
+        type: 'integer',
+        required: false,
+        description: `The client (campaign) ID.`,
+      },
+      {
+        name: 'endDate',
+        type: 'string',
+        required: false,
+        description: `End date in YYYY-MM-DD format.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum rows to return (default 50).`,
+      },
+      {
+        name: 'provider',
+        type: 'string',
+        required: false,
+        description: `The email platform provider slug.`,
+      },
+      {
+        name: 'startDate',
+        type: 'string',
+        required: false,
+        description: `Start date in YYYY-MM-DD format.`,
+      },
+      {
+        name: 'testMode',
+        type: 'boolean',
+        required: false,
+        description: `Set to true to return sample data without a live API call.`,
+      },
+    ],
+  },
+  {
+    name: 'agencyanalyticsmcp_read_client_forms',
+    description: `Fetch web-form submission analytics for a specific platform connected to a client. Returns one row per form with its submission count (and, for HubSpot, views + submission/clickthrough rates). Not a time-series tool, call tracking, or conversions-by-type data — use read_client_metrics, read_client_calls, or read_client_conversions respectively. GravityForms reports an all-time count per form (its date range is ignored); HubSpot honors the date range. Supported platforms (2): gravity-forms-v1, hub-spot.`,
+    params: [
+      {
+        name: 'clientId',
+        type: 'integer',
+        required: false,
+        description: `The client (campaign) ID.`,
+      },
+      {
+        name: 'endDate',
+        type: 'string',
+        required: false,
+        description: `End date in YYYY-MM-DD format.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum rows to return (default 50).`,
+      },
+      {
+        name: 'provider',
+        type: 'string',
+        required: false,
+        description: `The form platform provider slug.`,
+      },
+      {
+        name: 'startDate',
+        type: 'string',
+        required: false,
+        description: `Start date in YYYY-MM-DD format.`,
+      },
+      {
+        name: 'testMode',
+        type: 'boolean',
+        required: false,
+        description: `Set to true to return sample data without a live API call.`,
+      },
     ],
   },
   {
@@ -442,6 +827,12 @@ export const tools: Tool[] = [
     name: 'agencyanalyticsmcp_read_client_keywords',
     description: `Fetch keyword data for a specific platform connected to a client. Returns one row per keyword. Supported platforms (9): googleadwords, bing-ads, amazon-ads, pinterest-ads, simpli-fi, bing-webmaster-tools, google-search-console, rank-tracker, se-ranking-v1.`,
     params: [
+      {
+        name: 'applyMarkup',
+        type: 'boolean',
+        required: false,
+        description: `Whether to apply the client's agency markup to cost/cpc figures (ad-platform providers only; no effect on organic/rank providers).`,
+      },
       {
         name: 'clientId',
         type: 'integer',
@@ -625,6 +1016,54 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'agencyanalyticsmcp_read_client_reputation',
+    description: `Fetch a client's aggregate review/reputation analytics for a specific connected review platform. Returns review counts broken down by a dimension, or an overall rating summary. This is aggregate reputation analytics, NOT the individual reviews themselves (use read_client_reviews for review text/authors) and not a time-series tool. TrustPilot and Yelp return the current snapshot regardless of the requested dates. Supported platforms (5): bird-eye, trust-pilot, grade-us, gather-up, yelp.`,
+    params: [
+      {
+        name: 'clientId',
+        type: 'integer',
+        required: false,
+        description: `The client (campaign) ID.`,
+      },
+      {
+        name: 'endDate',
+        type: 'string',
+        required: false,
+        description: `End date in YYYY-MM-DD format.`,
+      },
+      {
+        name: 'entityType',
+        type: 'string',
+        required: false,
+        description: `The dimension to break reputation data down by. 'overall' is the only option that returns average_rating.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum rows to return (default 50).`,
+      },
+      {
+        name: 'provider',
+        type: 'string',
+        required: false,
+        description: `The reputation/review platform provider slug.`,
+      },
+      {
+        name: 'startDate',
+        type: 'string',
+        required: false,
+        description: `Start date in YYYY-MM-DD format.`,
+      },
+      {
+        name: 'testMode',
+        type: 'boolean',
+        required: false,
+        description: `Set to true to return sample data without a live API call.`,
+      },
+    ],
+  },
+  {
     name: 'agencyanalyticsmcp_read_client_reviews',
     description: `Fetch individual customer reviews for a specific review platform connected to a client. Returns one row per review. Supported platforms (7): google-my-business, vendasta, bird-eye, gather-up, grade-us, trust-pilot, yelp.`,
     params: [
@@ -663,6 +1102,54 @@ export const tools: Tool[] = [
         type: 'boolean',
         required: false,
         description: `Set to true to return sample data.`,
+      },
+    ],
+  },
+  {
+    name: 'agencyanalyticsmcp_read_client_site_audit',
+    description: `Fetch a client's technical site-audit data for a specific connected provider. Returns page-speed / Lighthouse scores and audit findings, or Search Console sitemap health. This is technical site health — NOT keyword rankings (use read_client_keywords) or page traffic (use read_client_pages), and not a time-series tool. startDate/endDate are ignored — results are always the current snapshot. Supported providers (2): google-page-speed-v1, google-search-console.`,
+    params: [
+      {
+        name: 'clientId',
+        type: 'integer',
+        required: false,
+        description: `The client (campaign) ID.`,
+      },
+      {
+        name: 'endDate',
+        type: 'string',
+        required: false,
+        description: `End date in YYYY-MM-DD format. Ignored by this tool — site-audit results are always the current snapshot.`,
+      },
+      {
+        name: 'entityType',
+        type: 'string',
+        required: false,
+        description: `The site-audit breakdown to fetch.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum rows to return (default 50).`,
+      },
+      {
+        name: 'provider',
+        type: 'string',
+        required: false,
+        description: `The site-audit provider slug.`,
+      },
+      {
+        name: 'startDate',
+        type: 'string',
+        required: false,
+        description: `Start date in YYYY-MM-DD format. Ignored by this tool — site-audit results are always the current snapshot.`,
+      },
+      {
+        name: 'testMode',
+        type: 'boolean',
+        required: false,
+        description: `Set to true to return sample data without a live API call.`,
       },
     ],
   },
@@ -761,6 +1248,12 @@ export const tools: Tool[] = [
     description: `Search the live web and return a compact keyword-research result set: organic results (position, title, link, domain, snippet), related searches, People Also Ask questions, and the answer box when present. Use for keyword research, SERP inspection, and competitor discovery. Not client-scoped — no clientId required.`,
     params: [
       {
+        name: 'query',
+        type: 'string',
+        required: true,
+        description: `The search query — a keyword phrase to research.`,
+      },
+      {
         name: 'countryCode',
         type: 'string',
         required: false,
@@ -789,12 +1282,6 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Optional free-form location to localize results, e.g. 'Toronto, Ontario, Canada'.`,
-      },
-      {
-        name: 'query',
-        type: 'string',
-        required: false,
-        description: `The search query — a keyword phrase to research.`,
       },
     ],
   },

@@ -190,6 +190,84 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'listenlabsmcp_manage_folder',
+    description: `Create, rename, re-nest, or delete a dashboard folder. Folders only: it never creates, moves, or deletes a study. Use move_study to file a study in a folder. Delete only removes an EMPTY folder, and only when the user explicitly asked to delete it.`,
+    params: [
+      {
+        name: 'action',
+        type: 'string',
+        required: true,
+        description: `create makes a new folder, rename changes a folder's name, move re-nests it under another folder, delete permanently removes an empty one.`,
+      },
+      {
+        name: 'folderName',
+        type: 'string',
+        required: true,
+        description: `The folder to act on, or a "/"-separated path for nested folders (e.g. "Research / Q3 2026"). For create, this is the folder to make.`,
+      },
+      {
+        name: 'folderId',
+        type: 'string',
+        required: false,
+        description: `Folder UUID from list_studies folders[] or a previous error. Takes precedence over folderName; use it when a name was reported as ambiguous.`,
+      },
+      {
+        name: 'newName',
+        type: 'string',
+        required: false,
+        description: `New folder name. Required for action="rename", ignored otherwise.`,
+      },
+      {
+        name: 'orgId',
+        type: 'string',
+        required: false,
+        description: `Organization UUID when known (e.g. from list_creatable_orgs). Prefer orgName when the user gave a name.`,
+      },
+      {
+        name: 'orgName',
+        type: 'string',
+        required: false,
+        description: `Organization name. Required when the user belongs to multiple organizations and did not specify one.`,
+      },
+      {
+        name: 'parentFolderId',
+        type: 'string',
+        required: false,
+        description: `Destination folder UUID for action="move". Takes precedence over parentFolderName; use it when the parent name was reported as ambiguous.`,
+      },
+      {
+        name: 'parentFolderName',
+        type: 'string',
+        required: false,
+        description: `Folder to nest under, matched like folderName. Used by action="move"; omit it to move the folder to the dashboard root.`,
+      },
+    ],
+  },
+  {
+    name: 'listenlabsmcp_move_study',
+    description: `Move a study into a folder, or back out to the dashboard root. Pass folderName to move it into an existing folder; omit both folderName and folderId to move the study out of its folder and back to the dashboard root. The folder must already exist.`,
+    params: [
+      {
+        name: 'studyId',
+        type: 'string',
+        required: true,
+        description: `Study identifier: the UUID from list_studies, the short link id from a Listen Labs study URL (e.g. zy4GuhxP), or the full pasted URL (e.g. https://listenlabs.ai/p/zy4GuhxP/).`,
+      },
+      {
+        name: 'folderId',
+        type: 'string',
+        required: false,
+        description: `Destination folder UUID from a previous move_study error. Use instead of folderName when selecting by ID.`,
+      },
+      {
+        name: 'folderName',
+        type: 'string',
+        required: false,
+        description: `Existing destination folder name, or a "/"-separated path to pick between folders sharing a name (e.g. "Research / Q3 2026"). Rejected if no such folder exists. Omit to move the study to the dashboard root.`,
+      },
+    ],
+  },
+  {
     name: 'listenlabsmcp_publish_study',
     description: `Publish the study's current draft revision so respondents see the latest version. No-op when the draft is identical to prod. Does not start recruitments — use launch_study to begin sourcing respondents.`,
     params: [

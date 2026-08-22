@@ -88,6 +88,18 @@ Docs urls like https://dev.wix.com/docs/... are not API urls, if you want to rea
     ],
   },
   {
+    name: 'wixmcp_createsitefromtemplate',
+    description: `Create a Wix site from a specific template by templateId, publish it when possible, and return links to the editor and the published site.`,
+    params: [
+      {
+        name: 'templateId',
+        type: 'string',
+        required: true,
+        description: `The selected template metaSiteId to create a site from.`,
+      },
+    ],
+  },
+  {
     name: 'wixmcp_createwixbusinessguide',
     description: `Generate a guided plan for creating a new Wix site from a template, with the Wix Editor, or as a headless site.`,
     params: [
@@ -142,6 +154,24 @@ Use ["other"] ONLY IF YOU HAVE A VERY GOOD REASON TO DO SO`,
     ],
   },
   {
+    name: 'wixmcp_getsitecontext',
+    description: `Fetch deep context for a specific Wix site (ID, URL, publish status, plan, properties, and installed apps) as structured markdown. Resolve by siteName when the ID is unknown.`,
+    params: [
+      {
+        name: 'siteId',
+        type: 'string',
+        required: false,
+        description: `The ID of the site to fetch context for. One of siteId or siteName is required. Preferred when the ID is already known.`,
+      },
+      {
+        name: 'siteName',
+        type: 'string',
+        required: false,
+        description: `The display name of the site to fetch context for. One of siteId or siteName is required. Use when the site ID is unknown.`,
+      },
+    ],
+  },
+  {
     name: 'wixmcp_getsuggesteddomains',
     description: `Suggest available domain names based on a search query or an existing Wix site's name.`,
     params: [
@@ -168,6 +198,30 @@ Use ["other"] ONLY IF YOU HAVE A VERY GOOD REASON TO DO SO`,
         type: 'array',
         required: false,
         description: `Filter by specific TLDs (e.g. ["com", "net"]). Do not include the dot.`,
+      },
+    ],
+  },
+  {
+    name: 'wixmcp_import_claude_design_from_url',
+    description: `Import a design into Wix from a publicly fetchable URL. The file is a self-contained HTML bundle with all images, fonts, and styles inlined. Creates a live Wix-hosted site and returns its URL.`,
+    params: [
+      {
+        name: 'url',
+        type: 'string',
+        required: true,
+        description: `Public HTTPS URL to the design file. Valid for ~1 hour. Fetched server-side.`,
+      },
+      {
+        name: 'claude_design_project_id',
+        type: 'string',
+        required: false,
+        description: `Stable Claude Design project id.`,
+      },
+      {
+        name: 'title',
+        type: 'string',
+        required: false,
+        description: `Suggested title for the imported design.`,
       },
     ],
   },
@@ -257,6 +311,30 @@ Use ["other"] ONLY IF YOU HAVE A VERY GOOD REASON TO DO SO`,
         type: 'number',
         required: false,
         description: `The maximum number of results to return, default is 10, max is 15`,
+      },
+    ],
+  },
+  {
+    name: 'wixmcp_searchsitetemplates',
+    description: `Search the Wix template gallery (Harmony or Studio) by keyword and return matching templates. Call only after the user has chosen to build from a template; follow up with CreateSiteFromTemplate once one is selected.`,
+    params: [
+      {
+        name: 'query',
+        type: 'string',
+        required: true,
+        description: `The few most important keywords describing the site, used to search templates — e.g. "yoga studio", "wedding photographer".`,
+      },
+      {
+        name: 'builder',
+        type: 'string',
+        required: false,
+        description: `Which builder's templates to return: "studio" if the user asked for Wix Studio in this site creation flow, otherwise "harmony" (the default).`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of templates to return (capped at 28).`,
       },
     ],
   },

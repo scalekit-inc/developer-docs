@@ -7,6 +7,81 @@ export interface ProviderMeta {
 }
 
 export const catalog: Record<string, ProviderMeta> = {
+  googlecontacts: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/googlecontacts.svg',
+    authType: 'OAuth 2.0',
+    categories: ['Productivity'],
+  },
+  wordpressmcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/wordpress.svg',
+    authType: 'OAuth 2.1/DCR',
+    categories: ['Marketing', 'Media'],
+  },
+  smtp2gomcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/smtp2go.svg',
+    authType: 'API Key',
+    categories: ['Communication', 'Developer Tools'],
+  },
+  resendmcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/resend.svg',
+    authType: 'Bearer Token',
+    categories: ['Communication', 'Developer Tools', 'Marketing'],
+  },
+  trellomcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/trello_n.svg',
+    authType: 'OAuth2.1/DCR',
+    categories: ['Project Management', 'Collaboration', 'Productivity'],
+  },
+  prohostaimcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/prohostai.svg',
+    authType: 'OAuth2.1/DCR',
+    categories: ['Customer Support', 'Automation'],
+  },
+  reddit: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/reddit.svg',
+    authType: 'OAuth 2.0',
+    categories: ['Communication', 'Media'],
+  },
+  crossbeammcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/crossbeam.svg',
+    authType: 'OAuth 2.1/DCR',
+    categories: ['CRM & Sales', 'Collaboration'],
+  },
+  grain: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/grain.svg',
+    authType: 'Bearer Token',
+    categories: ['Transcription', 'Collaboration', 'AI'],
+  },
+  deepwikimcp: {
+    iconUrl: 'https://deepwiki.com/favicon.ico',
+    authType: 'No Auth',
+    categories: ['Developer Tools'],
+  },
+  proshortai: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/proshortai.svg',
+    authType: 'API Key',
+    categories: ['Transcription', 'Analytics'],
+  },
+  builtwithmcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/builtwith.svg',
+    authType: 'Bearer Token',
+    categories: ['Analytics', 'Marketing', 'Developer Tools'],
+  },
+  seismic: {
+    iconUrl: 'https://seismic.com/favicon.ico',
+    authType: 'OAuth 2.0',
+    categories: ['CRM & Sales', 'Files & Documents'],
+  },
+  front: {
+    iconUrl: 'https://app.frontapp.com/v2/favicon192.external-BvfUPbjy.png',
+    authType: 'OAuth 2.0',
+    categories: ['Communication', 'Customer Support'],
+  },
+  frontmcp: {
+    iconUrl: 'https://app.frontapp.com/favicon.ico',
+    authType: 'OAuth 2.1',
+    categories: ['Communication', 'Customer Support'],
+  },
   twitteroauth: {
     iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/X.svg',
     authType: 'OAuth 2.0',
@@ -1567,7 +1642,7 @@ export const catalog: Record<string, ProviderMeta> = {
     authType: 'Basic Auth',
     categories: ['CRM & Sales', 'AI', 'Automation', 'Transcription'],
   },
-  google_ads: {
+  googleads: {
     iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/google_ads.png',
     authType: 'OAuth 2.0',
     categories: ['Marketing', 'CRM & Sales'],

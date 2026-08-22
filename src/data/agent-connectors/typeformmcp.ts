@@ -7,6 +7,1021 @@ export const tools: Tool[] = [
     params: [],
   },
   {
+    name: 'typeformmcp_automations_public_add_delay_step',
+    description: `Add a delay step to an existing automation (workflow/flow).
+
+A delay step pauses the automation for a fixed duration before the following step runs.
+
+## Prerequisites
+- \`account_id\` — obtain via \`accounts-list_accounts\`.
+- \`automation_id\` — obtain via \`public_list_automations\`.
+- \`after_step_id\` — obtain via \`public_get_automation\` (\`workflow.steps[].id\`).
+
+## Positioning
+- position: "entrypoint" (insert at start; new step becomes entrypoint, pointing at the old one) |
+  "tail" (append after the last step; no lookup needed) | "after" (insert after after_step_id).
+- after_step_id: required only for "after". Id of the step to follow. null for "entrypoint"/"tail".
+- No "before" position: to insert before step X, use "entrypoint" if X is the entrypoint, else
+  "after" with after_step_id set to the step whose next_ids contains X.
+`,
+    params: [
+      {
+        name: 'account_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Organization.`,
+      },
+      {
+        name: 'after_step_id',
+        type: 'string',
+        required: true,
+        description: `Step id to insert after; only used when position is "after". See tool description.`,
+      },
+      {
+        name: 'automation_id',
+        type: 'string',
+        required: true,
+        description: `The automation's ULID (e.g., '01H3JY5FWFM3YXBCPF2BQ9JYZ2')`,
+      },
+      {
+        name: 'duration',
+        type: 'string',
+        required: true,
+        description: `Go duration string (e.g. "30m", "24h"). Must be between 10 minutes (10m) and 30 days (720h).`,
+      },
+      {
+        name: 'position',
+        type: 'string',
+        required: true,
+        description: `Where to insert the step. See tool description for positioning rules.`,
+      },
+    ],
+  },
+  {
+    name: 'typeformmcp_automations_public_add_email_step',
+    description: `Add an email step to an existing automation (workflow/flow).
+
+## Prerequisites
+- \`account_id\` — obtain via \`accounts-list_accounts\`.
+- \`automation_id\` — obtain via \`public_list_automations\`.
+- \`after_step_id\` — obtain via \`public_get_automation\` (\`workflow.steps[].id\`).
+- Field refs used in \`to\`/\`subject\`/\`body\` (\`{{field:<REF>}}\`) — obtain via \`public_list_referenceable_fields\`.
+
+## Parameters notes
+- subject: The email subject line. See "Field refs" below for dynamic content.
+- body: The email body HTML. See "Body HTML structure" below.
+- to: Recipient email addresses or field refs, if scope="respondent" "{{field:<EMAIL_FIELD_REF>}}".
+  When scope="respondent" and "to" is empty, it defaults to the automation's first email field ("{{field:<EMAIL_FIELD_REF>}}").
+- scope: "self" (sends to fixed addresses in "to") or "respondent" (sends to the email field refs in "to" - "{{field:<EMAIL_FIELD_REF>}}").
+
+## Positioning
+- position: "entrypoint" (insert at start; new step becomes entrypoint, pointing at the old one) |
+  "tail" (append after the last step; no lookup needed) | "after" (insert after after_step_id).
+- after_step_id: required only for "after". Id of the step to follow. null for "entrypoint"/"tail".
+- No "before" position: to insert before step X, use "entrypoint" if X is the entrypoint, else
+  "after" with after_step_id set to the step whose next_ids contains X.
+
+## Sender
+- sender / reply_to: Optional. If both null, the tool auto-fills them from the account's first authorized email domain
+
+
+## Field refs (dynamic content)
+
+CRITICAL: Use the field's 'ref' property (from list_referenceable_fields)
+
+Mustache syntax \`{{field:<FIELD_REF>}}\` works in three placements:
+- Subject: plain mustache, e.g. \`"Welcome {{field:01KH3G1C7Z5SVWQ3ZATVHEDAWE}}"\`
+- "to" array entries: plain mustache (the respondent's email field, for "respondent" scope)
+- Body HTML: must be wrapped in a span (see below)
+
+## Body HTML structure
+
+These are strict rules, not general guidelines. Always follow these:
+
+All body content MUST be wrapped in \`<div id="email-builder">...</div>\` — the email renderer requires this.
+
+### Field reference span (body only)
+
+\`\`\`html
+<span data-ref="FIELD_REF" data-title="FIELD_NAME" data-variable-type="field">{{field:FIELD_REF}}</span>
+\`\`\`
+
+- \`data-ref\`: field ref (not id)
+- \`data-title\`: human-readable field name (e.g., "Email", "Name")
+- \`data-variable-type\`: must be \`"field"\`
+- Inner text: \`{{field:FIELD_REF}}\`
+
+### CTA buttons
+
+When the user requests a button, CTA, call to action, action link, or similar, use this exact
+structure inside the body:
+
+\`\`\`html
+<p data-id="UUID" class="email-cta-wrapper"><a href="URL" target="_blank" rel="noopener noreferrer nofollow" class="email-cta" >LABEL</a></p>
+\`\`\`
+
+- \`data-id\`: unique UUID v4 on the \`<p>\`
+- \`class="email-cta-wrapper"\` on the \`<p>\` (required)
+- \`href\`: destination URL on the \`<a>\`
+- \`target="_blank" rel="noopener noreferrer nofollow"\` on the \`<a>\` (required)
+- \`class="email-cta"\` on the \`<a>\` (required)
+- Inner text of \`<a>\`: button label
+
+### Plain links
+
+For a plain inline hyperlink (no button styling), use this structure inside the body:
+
+\`\`\`html
+<p data-id="UUID" class=""><a href="URL" target="_blank" rel="noopener noreferrer nofollow">LINK_TEXT</a></p>
+\`\`\`
+
+- \`data-id\`: unique UUID v4 on the \`<p>\`
+- \`href\`: destination URL on the \`<a>\`
+- \`target="_blank" rel="noopener noreferrer nofollow"\` on the \`<a>\` (required)
+- No \`class\` on the \`<a>\` (distinguishes link from CTA button)
+- Inner text of \`<a>\`: link label (often the URL itself)
+
+Use plain links for inline references; use the CTA structure above when the user asks for a button
+or prominent call-to-action.
+
+## "self" scope validation
+
+When scope is "self", the "to" array MUST contain at least one real, valid email address.
+Do NOT use placeholders like \`<EMAIL_ADDRESS>\`, \`TODO\`, or template strings. Ask the user if you
+don't know the address.
+`,
+    params: [
+      {
+        name: 'account_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Organization.`,
+      },
+      {
+        name: 'after_step_id',
+        type: 'string',
+        required: true,
+        description: `Step id to insert after; only used when position is "after". See tool description.`,
+      },
+      {
+        name: 'automation_id',
+        type: 'string',
+        required: true,
+        description: `The automation's ULID (e.g., '01H3JY5FWFM3YXBCPF2BQ9JYZ2')`,
+      },
+      {
+        name: 'body',
+        type: 'string',
+        required: true,
+        description: `The email body HTML, wrapped in <div id="email-builder">...</div>. Always follow the formatting rules found in the tool description.`,
+      },
+      {
+        name: 'persist',
+        type: 'string',
+        required: true,
+        description: `Lifecycle event on which to persist a copy of the dispatched email. Empty string or null means never persist.`,
+      },
+      {
+        name: 'position',
+        type: 'string',
+        required: true,
+        description: `Where to insert the step. See tool description for positioning rules.`,
+      },
+      {
+        name: 'reply_to',
+        type: 'array',
+        required: true,
+        description: `Reply-to addresses. Null or empty auto-fills from the account's first authorized email domain when sender is also empty.`,
+      },
+      {
+        name: 'scope',
+        type: 'string',
+        required: true,
+        description: `"self" sends to the fixed addresses in "to"; "respondent" sends to the form respondent.`,
+      },
+      {
+        name: 'sender',
+        type: 'string',
+        required: true,
+        description: `Sender email address. Null or empty auto-fills from the account's first authorized email domain when reply_to is also empty.`,
+      },
+      { name: 'subject', type: 'string', required: true, description: `The email subject line.` },
+      {
+        name: 'theme_id',
+        type: 'string',
+        required: true,
+        description: `Optional theme id for the email notification.`,
+      },
+      {
+        name: 'to',
+        type: 'array',
+        required: true,
+        description: `List of recipient email addresses. Can either be an email address or a reference to available email fields.`,
+      },
+    ],
+  },
+  {
+    name: 'typeformmcp_automations_public_add_integration_step',
+    description: `Adds a placeholder send-to-integration step to an automation (workflow/flow).
+
+Use this whenever the user wants to send data to ANY third-party app (e.g., Slack, HubSpot, Google Sheets, Zapier, Microsoft Teams, Airtable, Excel, Mailchimp).
+
+Important: This tool does NOT configure, select, or authorize the integration. Afterward, instruct the user to open the Typeform UI to select their destination app
+and complete the setup.
+
+## Prerequisites
+- \`account_id\` — obtain via \`accounts-list_accounts\`.
+- \`automation_id\` — obtain via \`public_list_automations\`.
+- \`after_step_id\` — obtain via \`public_get_automation\` (\`workflow.steps[].id\`).
+
+## Positioning
+- position: "entrypoint" (insert at start; new step becomes entrypoint, pointing at the old one) |
+  "tail" (append after the last step; no lookup needed) | "after" (insert after after_step_id).
+- after_step_id: required only for "after". Id of the step to follow. null for "entrypoint"/"tail".
+- No "before" position: to insert before step X, use "entrypoint" if X is the entrypoint, else
+  "after" with after_step_id set to the step whose next_ids contains X.
+`,
+    params: [
+      {
+        name: 'account_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Organization.`,
+      },
+      {
+        name: 'after_step_id',
+        type: 'string',
+        required: true,
+        description: `Step id to insert after; only used when position is "after". See tool description.`,
+      },
+      {
+        name: 'automation_id',
+        type: 'string',
+        required: true,
+        description: `The automation's ULID (e.g., '01H3JY5FWFM3YXBCPF2BQ9JYZ2')`,
+      },
+      {
+        name: 'position',
+        type: 'string',
+        required: true,
+        description: `Where to insert the step. See tool description for positioning rules.`,
+      },
+    ],
+  },
+  {
+    name: 'typeformmcp_automations_public_add_webhook_step',
+    description: `Add a webhook step to an existing automation (workflow/flow).
+
+## Prerequisites
+- \`account_id\` — obtain via \`accounts-list_accounts\`.
+- \`automation_id\` — obtain via \`public_list_automations\`.
+- \`after_step_id\` — obtain via \`public_get_automation\` (\`workflow.steps[].id\`).
+
+## Positioning
+- position: "entrypoint" (insert at start; new step becomes entrypoint, pointing at the old one) |
+  "tail" (append after the last step; no lookup needed) | "after" (insert after after_step_id).
+- after_step_id: required only for "after". Id of the step to follow. null for "entrypoint"/"tail".
+- No "before" position: to insert before step X, use "entrypoint" if X is the entrypoint, else
+  "after" with after_step_id set to the step whose next_ids contains X.
+
+
+`,
+    params: [
+      {
+        name: 'account_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Organization.`,
+      },
+      {
+        name: 'after_step_id',
+        type: 'string',
+        required: true,
+        description: `Step id to insert after; only used when position is "after". See tool description.`,
+      },
+      {
+        name: 'automation_id',
+        type: 'string',
+        required: true,
+        description: `The automation's ULID (e.g., '01H3JY5FWFM3YXBCPF2BQ9JYZ2')`,
+      },
+      {
+        name: 'position',
+        type: 'string',
+        required: true,
+        description: `Where to insert the step. See tool description for positioning rules.`,
+      },
+      {
+        name: 'secret',
+        type: 'string',
+        required: true,
+        description: `Shared secret used to sign webhook deliveries. Pass null to leave unset.`,
+      },
+      {
+        name: 'url',
+        type: 'string',
+        required: true,
+        description: `The HTTPS endpoint that will receive webhook deliveries.`,
+      },
+      {
+        name: 'verify_ssl',
+        type: 'boolean',
+        required: true,
+        description: `Whether to verify the destination's SSL certificate.`,
+      },
+    ],
+  },
+  {
+    name: 'typeformmcp_automations_public_create_automation',
+    description: `Create a new Automation (also called "workflows") with an associated trigger.
+
+Creates empty automation (no steps, no condition). Use add_<step_type>_step tools to add steps to it, and patch_trigger to set a trigger condition.
+
+See the input schema's field descriptions for per-trigger_type semantics of trigger_form_id, filter_contact_list_ids, filter_partial_submit_refs and filter_ending_refs.
+
+## Prerequisites
+- \`account_id\` — obtain via \`accounts-list_accounts\`.
+- \`trigger_form_id\` — obtain via \`forms-public_list_forms\`.
+- \`filter_contact_list_ids\` — obtain via \`contacts-public_list_contacts_lists\`.
+## Responding
+On success, always include this link in your response. Substitute {account_id} with the account_id input value and {automation_id} with the id field from the tool output:
+"👉 Open in Typeform: https://admin.typeform.com/accounts/{account_id}/workflows/{automation_id}"
+`,
+    params: [
+      {
+        name: 'account_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Organization.`,
+      },
+      {
+        name: 'filter_contact_list_ids',
+        type: 'array',
+        required: true,
+        description: `Contact list IDs that scope the trigger. Semantics depend on trigger_type:
+  - CONTACT_ADDED_TO_LIST / CONTACT_REMOVED_FROM_LIST: REQUIRED. The list(s) whose add/remove events fire the trigger. Always set to the target list IDs; never null for these trigger types.
+  - CONTACT_CREATED / CONTACT_PROPERTY_UPDATED: optional. Restricts firing to contacts that belong to ALL listed lists (AND). Use null for no restriction.
+  - FORM_SUBMITTED: use null.
+`,
+      },
+      {
+        name: 'filter_ending_refs',
+        type: 'array',
+        required: true,
+        description: `Form thankyou_screen refs to filter by ending field. Only applies to FORM_SUBMITTED triggers. Use null for no filter or for contact triggers.`,
+      },
+      {
+        name: 'filter_partial_submit_refs',
+        type: 'array',
+        required: true,
+        description: `Field refs (that exist in a form milestones) to filter by partial submission. Only applies to FORM_SUBMITTED triggers. Use null for no filter or for contact triggers.`,
+      },
+      { name: 'name', type: 'string', required: true, description: `Name of the automation.` },
+      {
+        name: 'trigger_form_id',
+        type: 'string',
+        required: true,
+        description: `Form ID for FORM_SUBMITTED trigger type. Required when trigger_type is FORM_SUBMITTED, must be null for contact triggers.`,
+      },
+      {
+        name: 'trigger_type',
+        type: 'string',
+        required: true,
+        description: `Type of trigger event for an automation (contact or form).`,
+      },
+    ],
+  },
+  {
+    name: 'typeformmcp_automations_public_get_authorized_email_domains',
+    description: `Get authorized email domains for the current account, typically used as senders in
+an automation (workflow/flow) email step.
+
+## Prerequisites
+- \`account_id\` — obtain via \`accounts-list_accounts\`.
+`,
+    params: [
+      {
+        name: 'account_id',
+        type: 'string',
+        required: true,
+        description: `The account whose authorized email domains to list.`,
+      },
+    ],
+  },
+  {
+    name: 'typeformmcp_automations_public_get_automation',
+    description: `Get automation (workflow/flow) by its ID. Returns the working state (published baseline + any pending draft operations).
+
+## Prerequisites
+- \`account_id\` — obtain via \`accounts-list_accounts\`.
+- \`automation_id\` — obtain via \`public_list_automations\`.
+
+## Output
+- workflow:
+  - id
+  - name
+  - status: DRAFT | ACTIVE | PAUSED
+  - entrypoint_id: ID of the first step to execute
+  - steps: Array of step objects
+    - id
+    - type: DELAY | SEND_EMAIL | SEND_WEBHOOK | SEND_TO_INTEGRATION | TERMINATE
+    - next_ids: Downstream step IDs
+  - triggers: Trigger associations (id, type, enabled)
+  - triggered: Total run count
+- last_patch_id: Pass as last_patch_id on the next patch`,
+    params: [
+      {
+        name: 'account_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Organization.`,
+      },
+      {
+        name: 'automation_id',
+        type: 'string',
+        required: true,
+        description: `The automation's ULID (e.g., '01H3JY5FWFM3YXBCPF2BQ9JYZ2')`,
+      },
+    ],
+  },
+  {
+    name: 'typeformmcp_automations_public_get_email_notification',
+    description: `Get the working state of an email notification template (used by an automation/workflow/flow email step).
+
+## Prerequisites
+- \`account_id\` — obtain via \`accounts-list_accounts\`.
+- \`headless_form_id\` and \`template_id\` — obtain via \`public_get_automation\` (the email step's \`email_notifications\` map: key is the headless form id, value has \`template_id\`).
+
+## Use cases
+- Retrieve the current email notification content before making updates
+- Inspect pending changes that haven't been published yet
+- Review edit history of modifications
+`,
+    params: [
+      {
+        name: 'account_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Organization.`,
+      },
+      {
+        name: 'headless_form_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the headless form associated with the email notification.`,
+      },
+      {
+        name: 'template_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the email notification template to retrieve.`,
+      },
+    ],
+  },
+  {
+    name: 'typeformmcp_automations_public_get_trigger',
+    description: `Get a trigger of an automation (workflow/flow) by its ID. Returns the working state (published baseline + any pending draft operations). The trigger_type determines which kind of trigger to fetch.
+
+## Prerequisites
+- \`account_id\` — obtain via \`accounts-list_accounts\`.
+- \`trigger_id\` and \`trigger_type\` — obtain via \`public_list_automations\` (each automation's \`triggers[].id\`/\`.type\`) or from the \`public_create_automation\` output.
+`,
+    params: [
+      {
+        name: 'account_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Organization.`,
+      },
+      {
+        name: 'trigger_id',
+        type: 'string',
+        required: true,
+        description: `The triggers's ULID (e.g., '01H3JY5FWFM3YXBCPF2BQ9JYZ2')`,
+      },
+      {
+        name: 'trigger_type',
+        type: 'string',
+        required: true,
+        description: `The type of the trigger.`,
+      },
+    ],
+  },
+  {
+    name: 'typeformmcp_automations_public_list_automations',
+    description: `List all automations (workflows/flows) for the authenticated account.
+
+## Prerequisites
+- \`account_id\` — obtain via \`accounts-list_accounts\`.
+
+## Use cases
+- Find an automation by name before inspecting or updating it
+- Discover which automations exist for the account
+- Get automation IDs needed by other tools (get_automation, publish_automation, pause_automation)
+`,
+    params: [
+      {
+        name: 'account_id',
+        type: 'string',
+        required: true,
+        description: `The account that owns the automations.`,
+      },
+    ],
+  },
+  {
+    name: 'typeformmcp_automations_public_list_referenceable_fields',
+    description: `List the fields available to reference for a given automation (workflow/flow).
+
+## Prerequisites
+- \`account_id\` — obtain via \`accounts-list_accounts\`.
+- \`automation_id\` — obtain via \`public_list_automations\`.
+
+## Use cases
+- Discover the fields (and their refs) usable in the automation. Useful in email notifications, automation conditions, etc.
+
+## Important notes
+- When referencing a field, use its 'ref' property.
+- For choice-typed fields, reference a specific option by the choice's 'ref'.
+`,
+    params: [
+      {
+        name: 'account_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Organization.`,
+      },
+      {
+        name: 'automation_id',
+        type: 'string',
+        required: true,
+        description: `The automation's ULID (e.g., '01H3JY5FWFM3YXBCPF2BQ9JYZ2')`,
+      },
+    ],
+  },
+  {
+    name: 'typeformmcp_automations_public_patch_trigger',
+    description: `Patch a trigger of an automation (workflow/flow) via JSON Patch operations (add/replace/remove). See the input schema for the "value"
+field's rules and for concrete examples. Prefer add/remove over replace — they're safer and more precise.
+
+## Prerequisites
+- \`account_id\` — obtain via \`accounts-list_accounts\`.
+- \`trigger_id\` and \`trigger_type\` — obtain via \`public_list_automations\` (each automation's \`triggers[].id\`/\`.type\`) or from the \`public_create_automation\` output.
+- \`last_patch_id\` — obtain via \`public_get_trigger\`.
+
+### Contact trigger paths
+- /type, /condition
+- /list_ids — only for CONTACT_ADDED_TO_LIST / CONTACT_REMOVED_FROM_LIST
+- /filter_list_ids — only for CONTACT_CREATED / CONTACT_PROPERTY_UPDATED (optional AND-filter)
+
+Switching /type requires removing the old type's fields (e.g. ADDED_TO_LIST → CREATED removes /list_ids).
+
+### Form trigger paths
+/workspace_id, /form_id, /condition, /filter_ending_refs, /filter_partial_submit_refs
+
+## Condition two-slot layout (CRITICAL)
+The condition root is either null or {"op": "and", "vars": [slot0, slot1]} with exactly 2 vars.
+- slot0 (path /condition/vars/0): reserved for "becomes"/"changed" conditions. Use {"op": "always"} as a placeholder when unused.
+- slot1 (path /condition/vars/1): reserved for every other condition type (is, is_not, equal, not_equal,
+  begins_with, ends_with, contains, not_contains, is_any_of). Use {"op": "always"} as a placeholder when unused.
+- Never put becomes/changed in slot1, never put other types in slot0, never patch /condition/vars directly.
+- Nest multiple conditions within a slot under "and"/"or".
+- If condition is null, "replace" /condition with the full root (both slots). To clear all conditions, "remove" /condition.
+
+## Operators
+- Comparison ops take exactly 2 vars: [field_var, value_var].
+- "changed": value_var is {"type": "constant", "value": ""}.
+- "is_any_of": value_var must be a JSON array, e.g. {"type": "choice", "value": ["subscribed", "unsubscribed"]}.
+- The field var value is always the field "ref" (from the form or headless form), never the field "id".
+- "becomes" and "changed" are only valid for CONTACT_PROPERTY_UPDATED triggers.
+- Numeric comparisons (lower_than, lower_equal_than, greater_than, greater_equal_than):
+  value_var must be a JSON number, e.g. {"type": "constant", "value": 3} — never the string "3".
+
+### Ops by property type
+- multiple_choice: value_var uses {"type": "choice", ...} (not "constant"). Supported: is, is_not, becomes, changed, is_any_of.
+- number: equal, not_equal, lower_than, lower_equal_than, greater_than, greater_equal_than, is_any_of
+  (plus becomes, changed for CONTACT_PROPERTY_UPDATED). Range comparisons take a JSON number operand.
+- text (default): equal, not_equal, begins_with, ends_with, contains, not_contains, is_any_of (plus becomes, changed for CONTACT_PROPERTY_UPDATED).
+
+Compose filters via is_any_of/and/or before treating something as unsupported.
+`,
+    params: [
+      {
+        name: 'account_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Organization.`,
+      },
+      {
+        name: 'last_patch_id',
+        type: 'string',
+        required: true,
+        description: `Pass as last_patch_id on next patch.`,
+      },
+      {
+        name: 'patches',
+        type: 'array',
+        required: true,
+        description: `Array of JSON Patch operations to apply to the trigger draft.`,
+      },
+      {
+        name: 'trigger_id',
+        type: 'string',
+        required: true,
+        description: `Unique identifier of the trigger (ULID format).`,
+      },
+      {
+        name: 'trigger_type',
+        type: 'string',
+        required: true,
+        description: `The type of the trigger.`,
+      },
+    ],
+  },
+  {
+    name: 'typeformmcp_automations_public_pause_automation',
+    description: `Pause an automation (workflow/flow) by disabling its trigger and, optionally, its current runs.
+
+## Prerequisites
+- \`account_id\` — obtain via \`accounts-list_accounts\`.
+- \`automation_id\` — obtain via \`public_list_automations\`.
+`,
+    params: [
+      {
+        name: 'account_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Organization.`,
+      },
+      {
+        name: 'automation_id',
+        type: 'string',
+        required: true,
+        description: `The automation's ULID (e.g., '01H3JY5FWFM3YXBCPF2BQ9JYZ2')`,
+      },
+      {
+        name: 'stop_existing_runs',
+        type: 'boolean',
+        required: true,
+        description: `DESTRUCTIVE AND IRREVERSIBLE. When true, all currently running workflow executions will be permanently stopped and cannot be resumed. When false, only the trigger is disabled (no new executions will start), but existing runs continue to completion. Has no safe default — always ask the user before setting it.`,
+      },
+    ],
+  },
+  {
+    name: 'typeformmcp_automations_public_publish_automation',
+    description: `Publish an automation (workflow/flow) by enabling its trigger and publishing all drafts.
+
+IMPORTANT: Only call this tool when the user has explicitly asked to publish, deploy, go live, enable, or activate this automation.
+If the user asks to create an automation without explicitly requesting one of the above, use create_automation instead.
+
+## Prerequisites
+- \`account_id\` — obtain via \`accounts-list_accounts\`.
+- \`automation_id\` — obtain via \`public_list_automations\`.
+`,
+    params: [
+      {
+        name: 'account_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Organization.`,
+      },
+      {
+        name: 'automation_id',
+        type: 'string',
+        required: true,
+        description: `The automation's ULID (e.g., '01H3JY5FWFM3YXBCPF2BQ9JYZ2')`,
+      },
+    ],
+  },
+  {
+    name: 'typeformmcp_automations_public_remove_steps',
+    description: `Remove one or more steps from an existing automation (workflow/flow)
+
+## Prerequisites
+- \`account_id\` — obtain via \`accounts-list_accounts\`.
+- \`automation_id\` — obtain via \`public_list_automations\`.
+- \`step_ids\` — obtain via \`public_get_automation\` (\`workflow.steps[].id\`).
+`,
+    params: [
+      {
+        name: 'account_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Organization.`,
+      },
+      {
+        name: 'automation_id',
+        type: 'string',
+        required: true,
+        description: `The automation's ULID (e.g., '01H3JY5FWFM3YXBCPF2BQ9JYZ2')`,
+      },
+      {
+        name: 'step_ids',
+        type: 'array',
+        required: true,
+        description: `The ids of the steps to remove. All must exist in the automation;`,
+      },
+    ],
+  },
+  {
+    name: 'typeformmcp_automations_public_reorder_step',
+    description: `Move an existing step to a new position in an automation (workflow/flow) in one call.
+
+The step is relocated, not recreated: its id and full configuration are preserved.
+
+## Prerequisites
+- \`account_id\` — obtain via \`accounts-list_accounts\`.
+- \`automation_id\` — obtain via \`public_list_automations\`.
+- \`step_id\` and \`after_step_id\` — obtain via \`public_get_automation\` (\`workflow.steps[].id\`).
+
+## Positioning
+- position: "entrypoint" (step becomes first; previous entrypoint becomes its successor) | "tail"
+  (step becomes last) | "after" (placed immediately after after_step_id).
+- after_step_id: required only for "after". Id of the step to follow; must not equal step_id. null for "entrypoint"/"tail".
+- No "before" position: to move before step X, use "entrypoint" if X is the entrypoint, else
+  "after" with after_step_id set to the step whose next_ids contains X.
+`,
+    params: [
+      {
+        name: 'account_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Organization.`,
+      },
+      {
+        name: 'after_step_id',
+        type: 'string',
+        required: true,
+        description: `Step id to move after; only used when position is "after". Must not equal step_id. See tool description.`,
+      },
+      {
+        name: 'automation_id',
+        type: 'string',
+        required: true,
+        description: `The automation's ULID (e.g., '01H3JY5FWFM3YXBCPF2BQ9JYZ2')`,
+      },
+      {
+        name: 'position',
+        type: 'string',
+        required: true,
+        description: `Where to move the step. See tool description for positioning rules.`,
+      },
+      {
+        name: 'step_id',
+        type: 'string',
+        required: true,
+        description: `The id of the existing step to move. Must exist in the automation.`,
+      },
+    ],
+  },
+  {
+    name: 'typeformmcp_automations_public_update_delay_step',
+    description: `Update an existing delay step's duration (in an automation/workflow/flow).
+
+## Prerequisites
+- \`account_id\` — obtain via \`accounts-list_accounts\`.
+- \`automation_id\` — obtain via \`public_list_automations\`.
+- \`step_id\` — obtain via \`public_get_automation\` (\`workflow.steps[].id\`).
+`,
+    params: [
+      {
+        name: 'account_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Organization.`,
+      },
+      {
+        name: 'automation_id',
+        type: 'string',
+        required: true,
+        description: `The automation's ULID (e.g., '01H3JY5FWFM3YXBCPF2BQ9JYZ2')`,
+      },
+      {
+        name: 'duration',
+        type: 'string',
+        required: true,
+        description: `Go duration string (e.g. "30m", "24h"). Must be between 10 minutes (10m) and 30 days (720h).`,
+      },
+      {
+        name: 'step_id',
+        type: 'string',
+        required: true,
+        description: `The id of the DELAY step to update.`,
+      },
+    ],
+  },
+  {
+    name: 'typeformmcp_automations_public_update_email_step',
+    description: `Update an existing email step (in an automation/workflow/flow) and content.
+
+## Prerequisites
+- \`account_id\` — obtain via \`accounts-list_accounts\`.
+- \`automation_id\` — obtain via \`public_list_automations\`.
+- \`step_id\` — obtain via \`public_get_automation\` (\`workflow.steps[].id\`).
+
+## Editable fields (only the ones you set are changed)
+- subject: New subject line. Null leaves it unchanged. See "Field refs" below for dynamic content.
+- body: New body HTML. See "Body HTML structure" below. Updating this value will rewrite the entire existing email body. Null leaves it unchanged.
+- to: New recipient list. Email addresses for "self" scope, or "{{field:<EMAIL_FIELD_REF>}}" refs for "respondent" scope.
+  Null leaves it unchanged. Defaults to first email field if to=null and scope=respondent
+- scope: "self" (fixed addresses in "to") or "respondent" (email field refs in "to"). Null leaves it unchanged.
+- reply_to: Reply-to addresses. Three-state: null = unchanged; {"value": ["a@b.com"]} = set; {"value": null} = clear.
+- theme_id: Theme id. Three-state: null = unchanged; {"value": "x"} = set; {"value": null} = clear.
+- sender: Sender email — who the email is FROM (not reply_to). Three-state: null = unchanged;
+  {"value": "from@acme.com"} = set a custom sender; {"value": null} = reset to the default sender
+  
+
+## Field refs (dynamic content)
+
+CRITICAL: Use the field's 'ref' property (from list_referenceable_fields)
+
+Mustache syntax \`{{field:<FIELD_REF>}}\` works in three placements:
+- Subject: plain mustache, e.g. \`"Welcome {{field:01KH3G1C7Z5SVWQ3ZATVHEDAWE}}"\`
+- "to" array entries: plain mustache (the respondent's email field, for "respondent" scope)
+- Body HTML: must be wrapped in a span (see below)
+
+## Body HTML structure
+
+These are strict rules, not general guidelines. Always follow these:
+
+All body content MUST be wrapped in \`<div id="email-builder">...</div>\` — the email renderer requires this.
+
+### Field reference span (body only)
+
+\`\`\`html
+<span data-ref="FIELD_REF" data-title="FIELD_NAME" data-variable-type="field">{{field:FIELD_REF}}</span>
+\`\`\`
+
+- \`data-ref\`: field ref (not id)
+- \`data-title\`: human-readable field name (e.g., "Email", "Name")
+- \`data-variable-type\`: must be \`"field"\`
+- Inner text: \`{{field:FIELD_REF}}\`
+
+### CTA buttons
+
+When the user requests a button, CTA, call to action, action link, or similar, use this exact
+structure inside the body:
+
+\`\`\`html
+<p data-id="UUID" class="email-cta-wrapper"><a href="URL" target="_blank" rel="noopener noreferrer nofollow" class="email-cta" >LABEL</a></p>
+\`\`\`
+
+- \`data-id\`: unique UUID v4 on the \`<p>\`
+- \`class="email-cta-wrapper"\` on the \`<p>\` (required)
+- \`href\`: destination URL on the \`<a>\`
+- \`target="_blank" rel="noopener noreferrer nofollow"\` on the \`<a>\` (required)
+- \`class="email-cta"\` on the \`<a>\` (required)
+- Inner text of \`<a>\`: button label
+
+### Plain links
+
+For a plain inline hyperlink (no button styling), use this structure inside the body:
+
+\`\`\`html
+<p data-id="UUID" class=""><a href="URL" target="_blank" rel="noopener noreferrer nofollow">LINK_TEXT</a></p>
+\`\`\`
+
+- \`data-id\`: unique UUID v4 on the \`<p>\`
+- \`href\`: destination URL on the \`<a>\`
+- \`target="_blank" rel="noopener noreferrer nofollow"\` on the \`<a>\` (required)
+- No \`class\` on the \`<a>\` (distinguishes link from CTA button)
+- Inner text of \`<a>\`: link label (often the URL itself)
+
+Use plain links for inline references; use the CTA structure above when the user asks for a button
+or prominent call-to-action.
+`,
+    params: [
+      {
+        name: 'account_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Organization.`,
+      },
+      {
+        name: 'automation_id',
+        type: 'string',
+        required: true,
+        description: `The automation's ULID (e.g., '01H3JY5FWFM3YXBCPF2BQ9JYZ2')`,
+      },
+      {
+        name: 'body',
+        type: 'string',
+        required: true,
+        description: `New email body HTML, wrapped in <div id="email-builder">...</div>. Always follow the formatting rules found in the tool description. Null leaves it unchanged.`,
+      },
+      {
+        name: 'persist',
+        type: 'string',
+        required: true,
+        description: `Lifecycle event on which to persist a copy of the dispatched email. Null leaves it unchanged; empty string disables persistence.`,
+      },
+      {
+        name: 'reply_to',
+        type: 'string',
+        required: true,
+        description: `Three-state field edit. null = leave untouched; {"value": [...]} = set; {"value": null} = clear.`,
+      },
+      {
+        name: 'scope',
+        type: 'string',
+        required: true,
+        description: `"self" sends to the fixed addresses in "to"; "respondent" sends to the email field refs in "to". Null leaves it unchanged.`,
+      },
+      {
+        name: 'sender',
+        type: 'string',
+        required: true,
+        description: `Three-state field edit. null = leave untouched; {"value": "x"} = set to x; {"value": null} = clear.`,
+      },
+      {
+        name: 'step_id',
+        type: 'string',
+        required: true,
+        description: `The id of the SEND_EMAIL step to update.`,
+      },
+      {
+        name: 'subject',
+        type: 'string',
+        required: true,
+        description: `New email subject line. Null leaves it unchanged.`,
+      },
+      {
+        name: 'theme_id',
+        type: 'string',
+        required: true,
+        description: `Three-state field edit. null = leave untouched; {"value": "x"} = set to x; {"value": null} = clear.`,
+      },
+      {
+        name: 'to',
+        type: 'array',
+        required: true,
+        description: `New recipient list (email addresses, or "{{field:<EMAIL_FIELD_ID>}}" refs for respondent scope). Null leaves it unchanged. Defaults to first email field if to=null and scope=respondent`,
+      },
+    ],
+  },
+  {
+    name: 'typeformmcp_automations_public_update_webhook_step',
+    description: `Update an existing webhook (SEND_WEBHOOK) step's configuration (in an automation/workflow/flow) in one call, without delete + re-add.
+
+## Prerequisites
+- \`account_id\` — obtain via \`accounts-list_accounts\`.
+- \`automation_id\` — obtain via \`public_list_automations\`.
+- \`step_id\` — obtain via \`public_get_automation\` (\`workflow.steps[].id\`).
+
+## Required parameters
+- automation_id: The ID of the automation containing the step.
+- step_id: The id of the SEND_WEBHOOK step to update.
+
+## Editable fields
+- url: New HTTPS endpoint for deliveries. Pass null to leave it unchanged.
+- verify_ssl: Whether to verify the destination's SSL certificate. Pass null to leave it unchanged.
+- secret: Shared secret used to sign deliveries. This is a three-state field:
+  - null: leave the secret unchanged.
+  - {"value": "my-secret"}: set the secret.
+  - {"value": null}: clear the secret.
+  The secret is write-only and is never returned in the output.
+
+At least one of url, verify_ssl, or secret must change. Errors if step_id is unknown or is not a webhook step.
+`,
+    params: [
+      {
+        name: 'account_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Organization.`,
+      },
+      {
+        name: 'automation_id',
+        type: 'string',
+        required: true,
+        description: `The automation's ULID (e.g., '01H3JY5FWFM3YXBCPF2BQ9JYZ2')`,
+      },
+      {
+        name: 'secret',
+        type: 'string',
+        required: true,
+        description: `Three-state field edit. null = leave untouched; {"value": "x"} = set to x; {"value": null} = clear.`,
+      },
+      {
+        name: 'step_id',
+        type: 'string',
+        required: true,
+        description: `The id of the SEND_WEBHOOK step to update.`,
+      },
+      {
+        name: 'url',
+        type: 'string',
+        required: true,
+        description: `New HTTPS endpoint for webhook deliveries. Null leaves it unchanged.`,
+      },
+      {
+        name: 'verify_ssl',
+        type: 'boolean',
+        required: true,
+        description: `Whether to verify the destination's SSL certificate. Null leaves it unchanged.`,
+      },
+    ],
+  },
+  {
     name: 'typeformmcp_contacts_public_bulk_create_contacts_lists',
     description: `Create one or more contacts lists (segments) in the Contacts database in a single call.
 
@@ -1095,6 +2110,79 @@ Returns empty response on success.`,
     ],
   },
   {
+    name: 'typeformmcp_forms_public_duplicate_form',
+    description: `Duplicate an existing Typeform form.
+
+Creates a new form that is a copy of the source form. The new form is unpublished
+regardless of the source form's published state.
+
+## Prerequisites
+- form_id: Required. Call forms-public_list_forms to find it, or use the id returned by forms-public_create_form.
+- account_id: Required. Call accounts-list_accounts to obtain this value if not already known.
+
+## What is preserved
+- All fields, logic, variables, hidden fields
+- Theme, settings, welcome/thank-you/consent screens, outcome, CUI settings
+- Attachments, layouts, and media (re-referenced to the new form)
+- Knowledge entries (duplicated with remapped IDs)
+- Translations/messages (best-effort; may be absent if copying fails)
+
+## What is reset
+- New form ID and timestamps (CreatedAt, UpdatedAt)
+- PayPal merchant_id and Google Calendar calendar_id are cleared
+- Email consent notification config reset to account default
+- Form is always created as unpublished (IsPublic = false)
+
+## Parameters
+- account_id: Account ID (required)
+- form_id: ID of the source form to duplicate (required)
+- title: Title for the new form. Omit to inherit the source form's title.
+- workspace_id: Workspace for the new form. Always ask the user which workspace to duplicate
+  into before calling this tool.`,
+    params: [
+      { name: 'account_id', type: 'string', required: true, description: `Account ID (required)` },
+      {
+        name: 'form_id',
+        type: 'string',
+        required: true,
+        description: `ID of the form to duplicate (required)`,
+      },
+      {
+        name: 'title',
+        type: 'string',
+        required: true,
+        description: `Title for the new form. Omit or null to inherit the source form's title.`,
+      },
+      {
+        name: 'workspace_id',
+        type: 'string',
+        required: true,
+        description: `Workspace ID for the new form. Required — always ask the user which workspace to duplicate into.`,
+      },
+    ],
+  },
+  {
+    name: 'typeformmcp_forms_public_get_capabilities',
+    description: `Return the capability matrix for the Typeform form editing tools.
+
+Call once before authoring any ops, and use the response instead of guessing field types, op names, or validation keys.
+
+### Response fields
+- supported_types: field types accepted by forms-public_patch_form
+- container_types: types that accept nested fields. Containers have no settable property keys
+  and do not appear in property_keys_by_type. Their children are managed via add_field (set
+  parent_ref to the container's ref), move_field (move an existing field into the container via
+  parent_ref, or reorder within it via before_ref), and delete_field — not through a properties bag.
+- choice_bearing_types / choices_required_on_add: types that carry or require choices
+- validation_keys_by_type: accepted validation keys per field type
+- property_keys_by_type: accepted property keys per field type
+- patch_ops: op verbs grouped by domain (field / logic)
+- condition_ops_by_type: valid ops per field type. Use this to author logic rules.
+- logic_actions: accepted action types for logic rules
+- error_codes / side_effect_codes / concurrency_codes: with recovery hints`,
+    params: [],
+  },
+  {
     name: 'typeformmcp_forms_public_get_form',
     description: `Retrieve a form.
 
@@ -1180,6 +2268,204 @@ Returns paginated list of forms with total count and form metadata.`,
         type: 'string',
         required: true,
         description: `Filter by workspace ID`,
+      },
+    ],
+  },
+  {
+    name: 'typeformmcp_forms_public_patch_form',
+    description: `Commit a validated batch of patch operations to a form draft.
+
+Must be preceded by forms-public_validate_patch; pass the same ops plus its validation_token. If this call fails, re-validate for a fresh token.
+On CONCURRENT_REQUESTS_CONFLICT: discard the token, re-read with forms-public_get_form, re-validate, and retry.
+
+Changes land on the draft only; a published form needs forms-public_publish_form for them to go live.
+When reporting success to the user, describe what changed rather than quoting patch IDs or version numbers unless they ask.
+
+## Prerequisites
+- form_id: Required. Call forms-public_list_forms to find it, or use the id returned by forms-public_create_form.
+- account_id: Required. Call accounts-list_accounts to obtain this value if not already known.
+
+### Parameters
+- account_id: Account ID (required)
+- form_id: The form ID (required)
+- ops: The same ops passed to forms-public_validate_patch (required)
+- validation_token: The token returned by forms-public_validate_patch (required)`,
+    params: [
+      { name: 'account_id', type: 'string', required: true, description: `Account ID (required)` },
+      { name: 'form_id', type: 'string', required: true, description: `Form ID (required)` },
+      {
+        name: 'ops',
+        type: 'array',
+        required: true,
+        description: `Same ops array passed to validate_patch. Required.`,
+      },
+      {
+        name: 'validation_token',
+        type: 'string',
+        required: true,
+        description: `Token returned by validate_patch. Required.`,
+      },
+    ],
+  },
+  {
+    name: 'typeformmcp_forms_public_publish_form',
+    description: `Make the form live and publicly accessible. Each call promotes the draft and snapshots a new version,
+so only call when the user explicitly wants to go live; never to re-confirm. Drafts save automatically,
+so this is not a save. Resolve form names to IDs with forms-public_list_forms.
+
+## Prerequisites
+- form_id: Required. Call forms-public_list_forms to find it, or use the id returned by forms-public_create_form.
+- account_id: Required. Call accounts-list_accounts to obtain this value if not already known.
+
+### Parameters
+- account_id: Account ID (required)
+- form_id: Form ID to publish (required)
+
+### Errors
+- PAYMENT_REQUIRED: plan-gated features are blocking. Tell the user which, in plain language, and suggest upgrading or removing them.
+
+### Output
+form_id, version, share_url. An empty share_url still means success; fetch the URL via forms-public_get_form.`,
+    params: [
+      { name: 'account_id', type: 'string', required: true, description: `Account ID (required)` },
+      {
+        name: 'form_id',
+        type: 'string',
+        required: true,
+        description: `Form ID to publish (required)`,
+      },
+    ],
+  },
+  {
+    name: 'typeformmcp_forms_public_update_form_metadata',
+    description: `Update the form title. Takes effect immediately on the live form - no publish needed.
+## Prerequisites
+- form_id: Required. Call forms-public_list_forms to find it, or use the id returned by forms-public_create_form.
+- account_id: Required. Call accounts-list_accounts to obtain this value if not already known.
+`,
+    params: [
+      { name: 'account_id', type: 'string', required: true, description: `Account ID (required)` },
+      {
+        name: 'form_id',
+        type: 'string',
+        required: true,
+        description: `Form ID to update (required)`,
+      },
+      {
+        name: 'title',
+        type: 'string',
+        required: true,
+        description: `New form title. Omit or null to leave unchanged. Must be non-empty if provided.`,
+      },
+    ],
+  },
+  {
+    name: 'typeformmcp_forms_public_validate_patch',
+    description: `Validate a batch of patch operations against a form draft without persisting anything.
+
+IMPORTANT: This does not save. You MUST call forms-public_patch_form with the returned validation_token immediately after to persist.
+If side_effects is non-empty, explain them to the user in plain language and warn them before committing.
+
+Ops run sequentially in memory, so order add_field / add_ending before any add_logic ops that reference them;
+anything not committed and not earlier in the batch does not exist yet. First failure stops validation and returns no token.
+
+## Prerequisites
+- form_id: Required. Call forms-public_list_forms to find it, or use the id returned by forms-public_create_form.
+- account_id: Required. Call accounts-list_accounts to obtain this value if not already known.
+
+### Parameters
+- account_id: Account ID (required)
+- form_id: The form ID (required)
+- ops: The batch of patch operations to validate (required)
+
+### Common mistakes
+- Choice conditions: condition.value must be a choice REF, not a label. Read refs via forms-public_get_form(view=fields) first.
+- add_ending: set screen_ref explicitly if add_logic in the same batch references it; omit for an auto-generated ref.
+
+Call forms-public_get_capabilities for supported types, validation keys, and error codes.`,
+    params: [
+      { name: 'account_id', type: 'string', required: true, description: `Account ID (required)` },
+      { name: 'form_id', type: 'string', required: true, description: `Form ID (required)` },
+      {
+        name: 'ops',
+        type: 'array',
+        required: true,
+        description: `Operations to validate in sequence.`,
+      },
+    ],
+  },
+  {
+    name: 'typeformmcp_insights_public_aggregate',
+    description: `## What this tool does
+Computes aggregate measures (counts, averages, sums, NPS scores, and more) for a single field or an entire dataset.
+
+Call insights-public_discover first to resolve form_id / audience_id / field_id / property_id and to
+learn each field's filter_type, filter_operators, and filter_values before filtering.
+
+## Use when
+- User asks for summary statistics, totals, averages, counts, or scores
+- User wants aggregated data rather than individual rows
+- User asks about NPS score, response count, average rating, or similar rolled-up metrics
+
+## Also known as
+summary statistics, totals, counts, averages, sums, NPS scores, aggregate analytics, rolled-up metrics
+
+## Constraints
+- Provide exactly one of form_id or audience_id — never both, never neither.
+- Every optional parameter must be sent as null when unset.
+
+## Supported field types
+- forms dataset: text, number, scale, boolean, choices, dropdown, nps, date, multi_format, transcript, payment, matrix, ranking.
+- contacts dataset: text, text_list, number.
+`,
+    params: [
+      {
+        name: 'account_id',
+        type: 'string',
+        required: true,
+        description: `Account identifier. Always required.`,
+      },
+      {
+        name: 'audience_id',
+        type: 'string',
+        required: true,
+        description: `Audience ID selecting the "contacts" dataset. Value when scoping to contacts (combined with account_id); null when form_id is set instead. Mutually exclusive with form_id.`,
+      },
+      {
+        name: 'field_id',
+        type: 'string',
+        required: true,
+        description: `Field ID to aggregate. "forms" dataset only. Value when aggregating a specific field; null for dataset-level totals or contacts dataset.`,
+      },
+      {
+        name: 'filters',
+        type: 'string',
+        required: true,
+        description: `Cross-field filter conditions. Null for no filtering.`,
+      },
+      {
+        name: 'form_id',
+        type: 'string',
+        required: true,
+        description: `Form ID selecting the "forms" dataset. Value when scoping to a form; null when audience_id is set instead. Mutually exclusive with audience_id.`,
+      },
+      {
+        name: 'measures',
+        type: 'array',
+        required: true,
+        description: `Measure names to compute (e.g. "count", "average", "sum", "nps_score"). Call insights-public_discover first to learn which measures each field supports.`,
+      },
+      {
+        name: 'property_id',
+        type: 'string',
+        required: true,
+        description: `Property ID to aggregate. Required together with audience_id for the "contacts" dataset; null for the "forms" dataset.`,
+      },
+      {
+        name: 'time_range',
+        type: 'string',
+        required: true,
+        description: `Time window for the query as unix seconds. Interval is closed (both bounds inclusive). Null when no time filtering is provided. If provided, any missing bound is filled with its default (start=1, end=current unix time).`,
       },
     ],
   },
@@ -1308,6 +2594,247 @@ Use this tool when the user wants to see individual records (text responses, num
         description: `Text search filter applied to values (ILIKE match).`,
       },
       { name: 'sort', type: 'string', required: false, description: `Sort order for results.` },
+    ],
+  },
+  {
+    name: 'typeformmcp_insights_public_timeseries',
+    description: `## What this tool does
+Computes measures bucketed over time for a single field or an entire dataset.
+
+Call insights-public_discover first to resolve form_id / audience_id / field_id / property_id and to
+learn each field's filter_type, filter_operators, and filter_values before filtering.
+
+## Use when
+- User asks how responses, counts, scores, or averages changed over time
+- User wants a trend, chart, or time series of any metric
+- User asks about monthly/weekly/daily breakdowns of responses or scores
+
+## Also known as
+trend, time series, time-series, over time, by month, by week, by day, timeline, chart data, historical data
+
+## Constraints
+- Provide exactly one of form_id or audience_id — never both, never neither.
+- Every optional parameter must be sent as null when unset.
+
+## Supported field types
+- forms dataset: text, number, scale, boolean, choices, dropdown, nps, date, multi_format, transcript, payment, matrix, ranking.
+- contacts dataset: text, text_list, number.
+`,
+    params: [
+      {
+        name: 'account_id',
+        type: 'string',
+        required: true,
+        description: `Account identifier. Always required.`,
+      },
+      {
+        name: 'audience_id',
+        type: 'string',
+        required: true,
+        description: `Audience ID selecting the "contacts" dataset. Value when scoping to contacts; null when form_id is set instead. Mutually exclusive with form_id - provide exactly one, never both, never neither.`,
+      },
+      {
+        name: 'dimensions',
+        type: 'array',
+        required: true,
+        description: `Optional list of dimensions to break down each time bucket by (max 2). Null for no breakdown when no dimensions are provided. Call insights-public_discover to learn which dimensions each field supports.`,
+      },
+      {
+        name: 'field_id',
+        type: 'string',
+        required: true,
+        description: `Field ID to compute timeseries for. Value when form_id is set; null otherwise.`,
+      },
+      {
+        name: 'filters',
+        type: 'string',
+        required: true,
+        description: `Cross-field filter conditions. Null for no filtering.`,
+      },
+      {
+        name: 'form_id',
+        type: 'string',
+        required: true,
+        description: `Form ID selecting the "forms" dataset. Value when scoping to a form; null when audience_id is set instead. Mutually exclusive with audience_id - provide exactly one, never both, never neither.`,
+      },
+      {
+        name: 'granularity',
+        type: 'string',
+        required: true,
+        description: `Time bucket size. One of: hour, day, week, month, quarter, year.`,
+      },
+      {
+        name: 'measures',
+        type: 'array',
+        required: true,
+        description: `Measure names to compute (e.g. "count", "average", "nps_score"). Call insights-public_discover first to learn which measures each field supports.`,
+      },
+      {
+        name: 'property_id',
+        type: 'string',
+        required: true,
+        description: `Property ID to compute timeseries for. Value when audience_id is set; null otherwise.`,
+      },
+      {
+        name: 'time_range',
+        type: 'string',
+        required: true,
+        description: `Time window for the query as unix seconds. Interval is closed (both bounds inclusive). Null when no time filtering is provided. If provided, any missing bound is filled with its default (start=1, end=current unix time).`,
+      },
+      {
+        name: 'timezone_offset',
+        type: 'integer',
+        required: true,
+        description: `Timezone offset in seconds to apply when bucketing by day/week/month/quarter/year. Null for UTC (offset=0). Example: 3600 for UTC+1, -18000 for UTC-5.`,
+      },
+    ],
+  },
+  {
+    name: 'typeformmcp_insights_public_toplist',
+    description: `## What this tool does
+Ranks groups of rows by a measure — e.g. "top 5 lead sources by contact count" or "which NPS category has the most responses."
+
+Call insights-public_discover first to resolve form_id / audience_id / field_id / property_id and to
+learn each field's dimensions, measures, filter_type, filter_operators, and filter_values before filtering.
+
+## Use when
+- User asks for a ranking, "top N", breakdown by category, or "most/least common" answer
+- User wants rows grouped by one or two dimensions and sorted by a measure
+- User wants to compare groups/choices/values against each other, not a single rolled-up number
+
+## Also known as
+top N, ranking, leaderboard, breakdown by category, grouped counts, most common, least common
+
+## Constraints
+- Provide exactly one of form_id or audience_id — never both, never neither.
+- dimensions: 1-2 entries. Each name must be a dimension the selected field supports (see insights-public_discover).
+- Every optional parameter must be sent as null when unset.
+
+## Supported field types
+- forms dataset: number, nps, scale, boolean, choices, text_list, payment, dropdown, multi_format, matrix, transcript, ranking.
+- contacts dataset: text_list.
+`,
+    params: [
+      {
+        name: 'account_id',
+        type: 'string',
+        required: true,
+        description: `Account identifier. Always required.`,
+      },
+      {
+        name: 'audience_id',
+        type: 'string',
+        required: true,
+        description: `Audience ID selecting the "contacts" dataset. Value when scoping to contacts (combined with account_id); null when form_id is set instead. Mutually exclusive with form_id.`,
+      },
+      {
+        name: 'dimensions',
+        type: 'array',
+        required: true,
+        description: `1-2 dimensions to group rows by, in order. Each name must be a dimension the selected field supports — call insights-public_discover first to learn which.`,
+      },
+      {
+        name: 'field_id',
+        type: 'string',
+        required: true,
+        description: `Field ID to rank. "forms" dataset only. Value when form_id is set; null for the contacts dataset.`,
+      },
+      {
+        name: 'filters',
+        type: 'string',
+        required: true,
+        description: `Cross-field filter conditions. Null for no filtering.`,
+      },
+      {
+        name: 'form_id',
+        type: 'string',
+        required: true,
+        description: `Form ID selecting the "forms" dataset. Value when scoping to a form; null when audience_id is set instead. Mutually exclusive with audience_id.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: true,
+        description: `Maximum number of ranked rows to return. Integer between 1 and 100.`,
+      },
+      {
+        name: 'measures',
+        type: 'array',
+        required: true,
+        description: `Measure names to compute per group (e.g. "count", "average", "nps_score"). Call insights-public_discover first to learn which measures each field supports.`,
+      },
+      {
+        name: 'property_id',
+        type: 'string',
+        required: true,
+        description: `Property ID to rank. Required together with audience_id for the "contacts" dataset; null for the "forms" dataset.`,
+      },
+      {
+        name: 'sort',
+        type: 'string',
+        required: true,
+        description: `Sort order applied to the ranked groups. Null for no explicit order (rows come back in unspecified group order).`,
+      },
+      {
+        name: 'time_range',
+        type: 'string',
+        required: true,
+        description: `Time window for the query as unix seconds. Interval is closed (both bounds inclusive). Null when no time filtering is provided. If provided, any missing bound is filled with its default (start=1, end=current unix time).`,
+      },
+    ],
+  },
+  {
+    name: 'typeformmcp_submit_feedback',
+    description: `Call this any time a task cannot be completed as literally requested — missing feature, false
+premise, permission error, API failure, etc.
+
+ALWAYS call when blocked: if the user's literal request could not be fulfilled by
+available tools, you MUST call this — even if you explained the limitation or
+proposed a workaround. A workaround or explanation is not a substitute for logging
+the gap; call this in addition to it, not instead of it. Set blocker_category to the reason:
+- Missing Tool (a capability you needed did not exist),
+- API Error (a backend call failed),
+- Lack of Context (you were missing information you needed),
+- Policy Restriction (an action was disallowed), or
+- Other (any other blocker).
+
+OPTIONAL when not blocked: if you completed the task, calling this is encouraged.
+Set blocker_category to "Not Blocked" and share observations, suggestions, or
+anything that could improve the tools.
+
+The feedback is used to improve the available tools and the agent experience, so be
+specific and concrete.`,
+    params: [
+      {
+        name: 'attempted_actions',
+        type: 'string',
+        required: true,
+        description: `What steps or tools were tried?`,
+      },
+      {
+        name: 'blocker_category',
+        type: 'string',
+        required: true,
+        description: `What high-level issue prevented task completion? Select Not Blocked if nothing blocked you but you still have feedback to share.`,
+      },
+      {
+        name: 'feedback_specifics',
+        type: 'string',
+        required: true,
+        description: `Provide the exact name of the tool you wished you had, the specific context you were missing, or the name of the failing API. If you were not blocked, describe your observation or suggestion.`,
+      },
+      {
+        name: 'user_goal',
+        type: 'string',
+        required: true,
+        description: `What was the user ultimately trying to achieve?`,
+      },
+      {
+        name: 'technical_logs',
+        type: 'string',
+        required: false,
+        description: `Any relevant error messages, logs, or system output. Leave empty if not applicable.`,
+      },
     ],
   },
   {

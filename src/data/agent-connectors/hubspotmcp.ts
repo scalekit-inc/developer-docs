@@ -2,6 +2,18 @@ import type { Tool } from '../../types/agent-connectors'
 
 export const tools: Tool[] = [
   {
+    name: 'hubspotmcp_discover_hubspot_schema',
+    description: `Searches HubSpot schema to discover available data types or look up known types directly. Use SEARCH_OBJECT_TYPES when you don't know the exact type name, or GET_OBJECT_TYPES when you already know the type names (e.g. CONTACT, DEAL), or with an empty typeNameFilter list to retrieve all available types. Check readAccess/writeAccess before attempting operations on a type.`,
+    params: [
+      {
+        name: 'query',
+        type: 'string',
+        required: true,
+        description: `The schema query to run. Choose SEARCH_OBJECT_TYPES to discover types by natural language, or GET_OBJECT_TYPES to fetch known type names directly (or all types when typeNameFilter is empty).`,
+      },
+    ],
+  },
+  {
     name: 'hubspotmcp_get_campaign_analytics',
     description: `Retrieve engagement analytics (sessions, new contacts, influenced contacts) for one or more HubSpot campaigns.`,
     params: [
@@ -46,6 +58,96 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Start of the date range in YYYY-MM-DD format.`,
+      },
+    ],
+  },
+  {
+    name: 'hubspotmcp_get_campaign_attribution_reports',
+    description: `REQUIRED FIRST STEP: before your first call, invoke tool_guidance for "get_campaign_attribution_reports" and follow it. The dimension names, filter syntax, date-range semantics, grouping rules, and query patterns live in tool_guidance, not in this description; calling this tool without them produces wrong or failed queries. Attribution data tool: all metrics (revenue, deal amounts, deal counts, contact counts) are scoped to the closed-won deal attribution pipeline. Use for revenue, attributed deal, and attributed contact questions. For non-attribution contact queries (new contacts, influenced contacts, sessions), use read_campaign_data with GET_ANALYTICS. For deals at any stage, use read_campaign_data with operation=GET_ASSET_METRICS and assetType=DEAL, or search_crm_objects with a campaign association filter. For long-running queries, this returns a PROCESSING status with a taskId to poll for results.`,
+    params: [
+      {
+        name: 'attributionModel',
+        type: 'string',
+        required: false,
+        description: `Revenue attribution model for the REVENUE metric. Defaults to LINEAR. See instructions for valid values.`,
+      },
+      {
+        name: 'campaignCrmObjectIds',
+        type: 'array',
+        required: false,
+        description: `Campaign CRM object IDs to scope the query. Empty for cross-campaign analysis.`,
+      },
+      {
+        name: 'dimensions',
+        type: 'array',
+        required: false,
+        description: `How to group data (AGGREGATION mode). Max 2 per query. Omit for ungrouped totals. Key mappings: 'channels' or 'content types' (emails, ads, landing pages) -> ASSET_TYPE; specific asset names -> ASSET_TITLE; 'influence types' or 'engagement types' -> INTERACTION_TYPE; traffic/referral source -> INTERACTION_SOURCE; deal names -> DEAL_NAME; deal IDs (for links) -> DEAL.`,
+      },
+      {
+        name: 'endDate',
+        type: 'string',
+        required: false,
+        description: `End of date range filter (YYYY-MM-DD). Must pair with startDate or both omitted.`,
+      },
+      {
+        name: 'filters',
+        type: 'array',
+        required: false,
+        description: `Server-side filters on any dimension property. See instructions for examples.`,
+      },
+      {
+        name: 'hasReadToolInstructions',
+        type: 'boolean',
+        required: false,
+        description: `Set to true if you have already read the usage instructions for get_campaign_attribution_reports (via tool_guidance or a prior error response). If you have not read them yet, leave this unset or set it to false and you will receive an error response containing the full instructions. Not required when polling with taskId.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Max result rows returned by the server. Defaults to 100, maximum 500. When responseFormat=CONCISE, zero-value rows are filtered client-side after the server applies this limit, so fewer rows than requested may be returned.`,
+      },
+      {
+        name: 'metrics',
+        type: 'array',
+        required: false,
+        description: `Required: What to measure. REVENUE for attributed revenue (use for any non-deal breakdown like channel/source/asset), DEAL_AMOUNT for per-deal or total deal value (always grouped by deal), DEAL_COUNT for unique deals, CONTACT_COUNT for unique contacts, ATTRIBUTION_COUNT for touchpoint volume.`,
+      },
+      {
+        name: 'mode',
+        type: 'string',
+        required: false,
+        description: `Report mode. Only AGGREGATION is currently supported.`,
+      },
+      {
+        name: 'responseFormat',
+        type: 'string',
+        required: false,
+        description: `Controls response verbosity. CONCISE (default) omits zero-value metric entries and drops rows where all metrics are zero, reducing token usage. DETAILED returns all rows and fields including zero values.`,
+      },
+      {
+        name: 'sortByMetric',
+        type: 'string',
+        required: false,
+        description: `Sort results by this metric (DESC by default). Use to rank rows without post-processing, e.g. REVENUE returns highest-revenue rows first.`,
+      },
+      {
+        name: 'sortOrder',
+        type: 'string',
+        required: false,
+        description: `Sort direction for sortByMetric. ASC or DESC. Defaults to DESC.`,
+      },
+      {
+        name: 'startDate',
+        type: 'string',
+        required: false,
+        description: `Start of date range filter (YYYY-MM-DD). Must pair with endDate or both omitted. Filters by deal close date for REVENUE/DEAL_AMOUNT, deal create date for DEAL_COUNT, touchpoint timestamp for CONTACT_COUNT/ATTRIBUTION_COUNT.`,
+      },
+      {
+        name: 'taskId',
+        type: 'string',
+        required: false,
+        description: `Poll for results of a previously submitted query. Pass the taskId from a PROCESSING response.`,
       },
     ],
   },
@@ -271,6 +373,42 @@ Unrecognized values will result in an error.`,
     ],
   },
   {
+    name: 'hubspotmcp_manage_campaign_objects',
+    description: `Creates or updates HubSpot marketing campaigns and manages asset associations. Use CRM tools to retrieve the campaign's campaignCrmObjectId before using CAMPAIGN_UPDATE or CAMPAIGN_ASSET operations. Always show proposed changes and get explicit user approval before creating or updating campaigns or modifying asset associations. operationType is required on every request: CAMPAIGN_CREATE (set createRequest), CAMPAIGN_UPDATE (set updateRequest), CAMPAIGN_ASSET (set assetRequest; call CAMPAIGN_ASSET_TYPES_LIST first), CAMPAIGN_ASSET_TYPES_LIST (no additional fields), CAMPAIGN_CLONE (set cloneRequest).`,
+    params: [
+      {
+        name: 'operationType',
+        type: 'string',
+        required: true,
+        description: `Required. The operation to perform: CAMPAIGN_CREATE, CAMPAIGN_UPDATE, CAMPAIGN_ASSET, CAMPAIGN_ASSET_TYPES_LIST, or CAMPAIGN_CLONE.`,
+      },
+      {
+        name: 'assetRequest',
+        type: 'object',
+        required: false,
+        description: `Asset association data. Required when operationType is CAMPAIGN_ASSET.`,
+      },
+      {
+        name: 'cloneRequest',
+        type: 'object',
+        required: false,
+        description: `Campaign clone data. Required when operationType is CAMPAIGN_CLONE.`,
+      },
+      {
+        name: 'createRequest',
+        type: 'object',
+        required: false,
+        description: `Campaign creation data. Required when operationType is CAMPAIGN_CREATE.`,
+      },
+      {
+        name: 'updateRequest',
+        type: 'object',
+        required: false,
+        description: `Campaign update data. Required when operationType is CAMPAIGN_UPDATE.`,
+      },
+    ],
+  },
+  {
     name: 'hubspotmcp_manage_crm_objects',
     description: `Create or update CRM objects with properties and associations. Use createRequest to create, updateRequest to update.`,
     params: [
@@ -369,6 +507,12 @@ Unrecognized values will result in an error.`,
         type: 'string',
         required: false,
         description: `HTML <title> tag for the page (~50–60 chars). Only used for SET_METADATA. Omit to leave unchanged.`,
+      },
+      {
+        name: 'hublSource',
+        type: 'string',
+        required: false,
+        description: `Complete HubL template source. Required for CREATE_CUSTOM_TEMPLATE and UPDATE_CUSTOM_TEMPLATE. Must be a valid HubL document — real HubL expressions, not escaped HTML. {{ standard_header_includes }} and {{ standard_footer_includes }} are injected automatically before </head> and before </body> if absent.`,
       },
       {
         name: 'language',
@@ -475,6 +619,24 @@ Unrecognized values will result in an error.`,
     ],
   },
   {
+    name: 'hubspotmcp_manage_onboarding',
+    description: `Assess a portal's CRM onboarding status and guide the user through the next onboarding step. Call this tool when get_user_details returns onboarded: false. Use action to control behavior: leave empty (the default) to just check status. SET_GOAL records the user's primary goal; requires goal to be set to one of organizeAndTrackContacts, automateMarketing, generateLeads, manageSalesPipeline, customerSupport, billsAndCollectPayment, buildWebsite, createMarketingContent, or stillExploring. Only one goal can be stored; setting a new goal replaces any previous one.`,
+    params: [
+      {
+        name: 'action',
+        type: 'string',
+        required: false,
+        description: `Defaults to empty, which just checks onboarding status. Set to SET_GOAL to record the user's primary goal — requires goal to also be set.`,
+      },
+      {
+        name: 'goal',
+        type: 'string',
+        required: false,
+        description: `The user's primary goal, required when action=SET_GOAL. Map the user's free-text goal description to the single closest matching canonical value: organizeAndTrackContacts, automateMarketing, generateLeads, manageSalesPipeline, customerSupport, billsAndCollectPayment, buildWebsite, createMarketingContent, or stillExploring.`,
+      },
+    ],
+  },
+  {
     name: 'hubspotmcp_query_crm_data',
     description: `Query HubSpot CRM data using SQL with HubSpot-specific extensions. Call get_properties first to discover valid property names.`,
     params: [
@@ -497,6 +659,36 @@ Unrecognized values will result in an error.`,
         description: `Controls the amount of data returned in the response:
 - LOW: Data only, no citation links
 - MEDIUM/HIGH: Data with citation links for each record when available`,
+      },
+    ],
+  },
+  {
+    name: 'hubspotmcp_read_campaign_data',
+    description: `Reads campaign data using one of three operations selected by the operation field. GET_ANALYTICS: engagement metrics (sessions, new contacts, influenced contacts) for one or more campaigns. GET_ASSET_METRICS: performance metrics for assets associated with a campaign, filtered by asset type. GET_CONTACTS: paginated contact IDs attributed to a campaign, filtered by attribution type (NEW_CONTACTS_FIRST_TOUCH, NEW_CONTACTS_LAST_TOUCH, INFLUENCED_CONTACTS).`,
+    params: [
+      {
+        name: 'operation',
+        type: 'string',
+        required: true,
+        description: `Required. The operation to perform: GET_ANALYTICS, GET_ASSET_METRICS, or GET_CONTACTS.`,
+      },
+      {
+        name: 'analyticsRequest',
+        type: 'object',
+        required: false,
+        description: `Analytics request data. Required when operation is GET_ANALYTICS.`,
+      },
+      {
+        name: 'assetMetricsRequest',
+        type: 'object',
+        required: false,
+        description: `Asset metrics request data. Required when operation is GET_ASSET_METRICS.`,
+      },
+      {
+        name: 'contactsRequest',
+        type: 'object',
+        required: false,
+        description: `Contacts request data. Required when operation is GET_CONTACTS.`,
       },
     ],
   },
@@ -637,14 +829,6 @@ If empty and no query provided, returns all properties for the object type.`,
     description: `Submit user feedback about the HubSpot MCP connector to HubSpot.`,
     params: [
       {
-        name: 'explanationOfSatisfaction',
-        type: 'string',
-        required: true,
-        description: `Brief explanation of what went wrong from the agent's perspective.
-
-When errors occurred: Explain why the agent made a request that failed validation, including what the agent's reasoning was and why it failed. This helps with investigation and improvement. Example: 'Error: "A non-empty list of objects to create or update must be provided" - Agent attempted to batch update contacts but incorrectly passed an empty list because it filtered out all objects based on a misunderstanding of the user's criteria.'`,
-      },
-      {
         name: 'feedback',
         type: 'string',
         required: true,
@@ -655,12 +839,12 @@ When errors occurred: Explain why the agent made a request that failed validatio
 - Avoid PII — use anonymized references.`,
       },
       {
-        name: 'goal',
+        name: 'explanationOfSatisfaction',
         type: 'string',
-        required: true,
-        description: `User's goal or what they were trying to accomplish and relevant conversation context.
-Avoid PII - use anonymized references.
-Important: Avoid adding extraneous information, especially from memory.`,
+        required: false,
+        description: `Brief explanation of what went wrong from the agent's perspective.
+
+When errors occurred: Explain why the agent made a request that failed validation, including what the agent's reasoning was and why it failed. This helps with investigation and improvement. Example: 'Error: "A non-empty list of objects to create or update must be provided" - Agent attempted to batch update contacts but incorrectly passed an empty list because it filtered out all objects based on a misunderstanding of the user's criteria.'`,
       },
       {
         name: 'feedbackType',
@@ -671,6 +855,14 @@ Important: Avoid adding extraneous information, especially from memory.`,
 - FEATURE_REQUEST: A request for new functionality or capability, including enhancements to existing features that would require new behavior to be built.
 - GENERAL_FEEDBACK: Opinions, observations, or suggestions about an existing tool or workflow — e.g., usability impressions, praise, workflow friction, or improvement ideas that don't rise to the level of a bug report or feature request.
 - OTHER: Use only when the feedback genuinely does not fit any of the above categories.`,
+      },
+      {
+        name: 'goal',
+        type: 'string',
+        required: false,
+        description: `User's goal or what they were trying to accomplish and relevant conversation context.
+Avoid PII - use anonymized references.
+Important: Avoid adding extraneous information, especially from memory.`,
       },
       {
         name: 'sourceInterface',

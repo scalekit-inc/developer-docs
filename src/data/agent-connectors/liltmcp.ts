@@ -25,6 +25,11 @@ export const tools: Tool[] = [
     params: [],
   },
   {
+    name: 'liltmcp_hello_world',
+    description: `Returns a friendly hello world message. Useful as a connectivity/health check for the Lilt MCP server.`,
+    params: [],
+  },
+  {
     name: 'liltmcp_list_resources',
     description: `Lists and filters LILT jobs or translation models.`,
     params: [

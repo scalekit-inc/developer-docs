@@ -27,7 +27,7 @@ export const tools: Tool[] = [
   },
   {
     name: 'fullenrichmcp_enrich_personal_email_bulk',
-    description: `Launch an asynchronous bulk enrichment job to find personal email addresses for a list of contacts. Requires personal email enrichment to be enabled on your workspace.`,
+    description: `[STALE: no longer present in upstream FullEnrich MCP tools/list as of 2026-08-19 refresh (SK-1675) - kept for reference, not upstream-callable] Launch an asynchronous bulk enrichment job to find personal email addresses for a list of contacts. Requires personal email enrichment to be enabled on your workspace.`,
     params: [
       {
         name: 'contacts',
@@ -456,8 +456,18 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'fullenrichmcp_list_functions_subfunctions',
+    description: `List all valid job function and subfunction values that can be used as filter inputs in search_people (current_position_function_sub_functions).`,
+    params: [],
+  },
+  {
     name: 'fullenrichmcp_list_industries',
     description: `List all valid industry values that can be used as filter inputs in search_people, search_companies, export_contacts, and export_companies.`,
+    params: [],
+  },
+  {
+    name: 'fullenrichmcp_list_seniorities',
+    description: `List all valid seniority level values that can be used as filter inputs in search_people and export_contacts (current_position_seniority_level).`,
     params: [],
   },
   {

@@ -3,14 +3,14 @@ import type { Tool } from '../../types/agent-connectors'
 export const tools: Tool[] = [
   {
     name: 'happyscribemcp_create_folder',
-    description: `Create a new folder in the workspace. Folders help organize transcriptions by project, client, or any other grouping.`,
+    description: `Create a new folder. Specify a parent via parent_folder_id; if omitted, the folder is created at the root of the workspace, or in your private folder when the workspace ("team folders") is disabled for the organization. Use list_transcriptions or get_folder_hierarchy to look up the parent folder ID first.`,
     params: [
       { name: 'name', type: 'string', required: true, description: `Folder name` },
       {
-        name: 'parent_id',
+        name: 'parent_folder_id',
         type: 'integer',
         required: false,
-        description: `Parent folder ID. Omit to create at workspace root.`,
+        description: `Parent folder ID. Omit to create at the default location (workspace root, or your private folder when team folders are disabled).`,
       },
     ],
   },
@@ -46,37 +46,43 @@ export const tools: Tool[] = [
   },
   {
     name: 'happyscribemcp_create_transcription',
-    description: `Create a new transcription job from an already-uploaded file or an existing HappyScribe file ID. Use upload_file to upload new files. Returns the transcription ID.`,
+    description: `Creates a transcription or subtitles from a publicly accessible media file URL (e.g., a direct link to an audio/video file, a YouTube or Vimeo link, or a public cloud storage share link). The file is imported and processed in the background - check progress and retrieve the result with list_transcriptions or get_transcription. To transcribe local files, direct the user to upload them at https://www.happyscribe.com.`,
     params: [
       {
-        name: 'file_id',
+        name: 'language',
         type: 'string',
-        required: false,
-        description: `HappyScribe file ID to transcribe`,
+        required: true,
+        description: `Language code (e.g., en-US, es-ES, fr-FR) or "auto" for automatic language detection. For best results, specify the language when known.`,
+      },
+      {
+        name: 'url',
+        type: 'string',
+        required: true,
+        description: `URL of a publicly accessible media file to transcribe (e.g., https://example.com/video.mp4 or a YouTube link).`,
       },
       {
         name: 'folder_id',
         type: 'integer',
         required: false,
-        description: `Folder ID to place the result in`,
+        description: `ID of the folder to place the transcription in. Uses default folder if not provided. Use folder_path instead if you want to specify a folder by path.`,
       },
       {
-        name: 'language',
+        name: 'folder_path',
         type: 'string',
         required: false,
-        description: `Language code (e.g. "en", "fr")`,
+        description: `Path to the folder to place the transcription in (e.g., "/All files/My Folder/Subfolder"). Uses default folder if not provided.`,
       },
       {
-        name: 'name',
+        name: 'operation',
         type: 'string',
         required: false,
-        description: `Display name for the transcription`,
+        description: `Type of operation: transcription or subtitles (default: transcription)`,
       },
     ],
   },
   {
     name: 'happyscribemcp_delete_folder',
-    description: `Delete a folder and all its contents. This is a destructive operation — all transcriptions inside are moved to trash. Use with caution.`,
+    description: `Soft-delete a folder. The folder must be empty (no kept files or subfolders) — to delete a non-empty folder, first move or delete its contents using move_transcriptions or delete_transcriptions.`,
     params: [{ name: 'id', type: 'integer', required: true, description: `Folder ID to delete` }],
   },
   {
@@ -86,13 +92,13 @@ export const tools: Tool[] = [
   },
   {
     name: 'happyscribemcp_delete_transcriptions',
-    description: `Delete one or more transcriptions. Deleted transcriptions are moved to trash and can be recovered within 30 days. Use with caution.`,
+    description: `Soft-delete one or more transcriptions (move to trash, restorable by the user). Accepts up to 50 transcription IDs per call. Authorization is checked per transcription; if any fails, no transcriptions are deleted. Permanent deletion is not exposed via this connector.`,
     params: [
       {
         name: 'ids',
         type: 'array',
         required: true,
-        description: `Array of transcription IDs (hashed_id) to delete`,
+        description: `Array of transcription IDs (hashed_id) to soft-delete (max 50)`,
       },
     ],
   },
@@ -110,13 +116,25 @@ export const tools: Tool[] = [
   },
   {
     name: 'happyscribemcp_get_folder_hierarchy',
-    description: `Get the complete folder tree for the workspace or a specific root folder. Returns a nested structure with folder names, IDs, and paths. Use this before list_transcriptions to understand the organization and find the right folder_path to filter by.`,
+    description: `Get the folder hierarchy with transcription counts. Shows accessible folders organized by location (Team, Private, Shared with me). USE THIS when list_transcriptions returns more results than you can effectively browse and you need to understand how transcriptions are organized. Then use list_transcriptions with folder_path to browse specific folders.`,
     params: [
       {
-        name: 'root_folder_id',
+        name: 'location',
+        type: 'string',
+        required: false,
+        description: `Optional. Filter by location: workspace (team folders), private (your personal folders), or shared (folders shared with you by others).`,
+      },
+      {
+        name: 'max_depth',
         type: 'integer',
         required: false,
-        description: `Start from this folder ID instead of the workspace root. Useful to explore a subtree without loading the entire hierarchy.`,
+        description: `Optional. Maximum folder depth to return (default: unlimited). Depth 1 = immediate children only, 2 = children and grandchildren, etc.`,
+      },
+      {
+        name: 'root_path',
+        type: 'string',
+        required: false,
+        description: `Optional. Start from this folder path instead of root (e.g., "/Projects/2024"). Only returns folders under this path. When set, output is flat (not grouped by location).`,
       },
     ],
   },
@@ -253,28 +271,28 @@ export const tools: Tool[] = [
   },
   {
     name: 'happyscribemcp_list_calendar_events',
-    description: `List calendar events with their associated recordings and transcription status. Use this to see upcoming and past meetings, check recording status, and find calendar_event_id for other tools.`,
+    description: `List calendar events (scheduled meetings) with their recording status. Use this to see what meetings are scheduled, which will be recorded, and prepare for upcoming meetings. Supports date filtering to find meetings in specific time ranges (past, present, or future). Can filter by series_ids to get all instances of recurring meeting series.`,
     params: [
       {
         name: 'limit',
         type: 'integer',
         required: false,
-        description: `Maximum number of results (default: 20, max: 100)`,
+        description: `Maximum number of results to return (default: 20, max: 100)`,
       },
       {
-        name: 'offset',
-        type: 'integer',
+        name: 'series_ids',
+        type: 'array',
         required: false,
-        description: `Number of results to skip for pagination`,
+        description: `Filter by meeting series IDs (ical_uid) to get all instances of specific recurring meetings`,
       },
       {
-        name: 'starts_after',
+        name: 'start_time_after',
         type: 'string',
         required: false,
-        description: `Return only events starting after this ISO-8601 date-time`,
+        description: `Return only events starting on or after this ISO-8601 date-time (e.g., "2025-01-01" or "-P7D" for last 7 days)`,
       },
       {
-        name: 'starts_before',
+        name: 'start_time_before',
         type: 'string',
         required: false,
         description: `Return only events starting before this ISO-8601 date-time`,
@@ -418,7 +436,7 @@ export const tools: Tool[] = [
   },
   {
     name: 'happyscribemcp_move_transcriptions',
-    description: `Move one or more transcriptions to a different folder. Returns the updated transcriptions.`,
+    description: `Move one or more transcriptions to a different folder in the same organization. Accepts up to 50 transcription IDs per call. Use list_transcriptions or get_folder_hierarchy to look up the destination folder ID first. Cross-organization moves are not supported. Authorization is checked per transcription and on the destination folder; if any check fails, no transcriptions are moved.`,
     params: [
       {
         name: 'folder_id',
@@ -430,7 +448,7 @@ export const tools: Tool[] = [
         name: 'ids',
         type: 'array',
         required: true,
-        description: `Array of transcription IDs (hashed_id) to move`,
+        description: `Array of transcription IDs (hashed_id) to move (max 50)`,
       },
     ],
   },
@@ -537,14 +555,38 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'happyscribemcp_retranscribe',
+    description: `Re-runs automatic transcription (ASR) on the existing media of a transcription already in the workspace, replacing the current transcript in place (the transcription keeps its ID). Use this to fix a file that was transcribed in the wrong language, or to re-process it after its settings changed. Only finished automatic transcriptions with their media still available can be retranscribed. Retranscription runs in the background - poll with get_transcription (display_mode: metadata_only) until the state is "done".`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The transcription ID (hashed_id) of the file to retranscribe.`,
+      },
+      {
+        name: 'language',
+        type: 'string',
+        required: false,
+        description: `Language code to transcribe in (e.g., en-US, es-ES, fr-FR). Defaults to the transcription's current language when omitted.`,
+      },
+    ],
+  },
+  {
     name: 'happyscribemcp_search_helpdesk',
-    description: `Search HappyScribe's help documentation for articles about features, troubleshooting, and how-to guides.`,
+    description: `Search HappyScribe helpdesk articles to answer questions about product features, policies, and how-to guides. Use this when the user asks about how HappyScribe works, product documentation, feature explanations, pricing details, data policies (e.g. "how long are files stored?", "is my data used for training?"), account settings, troubleshooting, or any question that might be answered in help documentation. This searches published help center articles and returns relevant excerpts with links to the full articles.`,
     params: [
       {
         name: 'query',
         type: 'string',
         required: true,
-        description: `Search query for help articles`,
+        description: `Search query for helpdesk articles (e.g., "how long are files stored", "data training policy", "export formats")`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of results to return (default: 5, max: 10)`,
       },
     ],
   },

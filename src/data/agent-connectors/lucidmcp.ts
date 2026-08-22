@@ -14,6 +14,7 @@ export const tools: Tool[] = [
     params: [
       { name: 'embed_id', type: 'string', required: true, description: `No description.` },
       { name: 'origin', type: 'string', required: true, description: `No description.` },
+      { name: 'page_id', type: 'string', required: false, description: `No description.` },
     ],
   },
   {
@@ -21,6 +22,7 @@ export const tools: Tool[] = [
     description: `Retrieve the structured content of a Lucid document by ID, including pages, blocks, and lines.`,
     params: [
       { name: 'id', type: 'string', required: true, description: `No description.` },
+      { name: 'metadata_only', type: 'string', required: false, description: `No description.` },
       { name: 'page_index', type: 'string', required: false, description: `No description.` },
       { name: 'region_index', type: 'string', required: false, description: `No description.` },
     ],
@@ -33,11 +35,27 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'lucidmcp_list_document_thread_comments',
+    description: `List comments on a specific collaboration thread of a Lucid document.`,
+    params: [
+      { name: 'document_id', type: 'string', required: true, description: `No description.` },
+      { name: 'thread_id', type: 'string', required: true, description: `No description.` },
+    ],
+  },
+  {
+    name: 'lucidmcp_list_document_threads',
+    description: `List collaboration threads on a Lucid document.`,
+    params: [
+      { name: 'document_id', type: 'string', required: true, description: `No description.` },
+    ],
+  },
+  {
     name: 'lucidmcp_lucid_add_block',
     description: `Add a new shape or block to a Lucid document with optional position, size, text, and style properties.`,
     params: [
       { name: 'block_type', type: 'string', required: true, description: `No description.` },
       { name: 'document_id', type: 'string', required: true, description: `No description.` },
+      { name: 'auto_font_size', type: 'string', required: false, description: `No description.` },
       { name: 'bold', type: 'string', required: false, description: `No description.` },
       { name: 'container_id', type: 'string', required: false, description: `No description.` },
       { name: 'fill_color', type: 'string', required: false, description: `No description.` },
@@ -48,6 +66,7 @@ export const tools: Tool[] = [
       { name: 'italic', type: 'string', required: false, description: `No description.` },
       { name: 'line_color', type: 'string', required: false, description: `No description.` },
       { name: 'line_width', type: 'string', required: false, description: `No description.` },
+      { name: 'link', type: 'string', required: false, description: `No description.` },
       { name: 'page_id', type: 'string', required: false, description: `No description.` },
       { name: 'rotation', type: 'string', required: false, description: `No description.` },
       { name: 'strike', type: 'string', required: false, description: `No description.` },
@@ -56,12 +75,34 @@ export const tools: Tool[] = [
       { name: 'superscript', type: 'string', required: false, description: `No description.` },
       { name: 'text', type: 'string', required: false, description: `No description.` },
       { name: 'text_align', type: 'string', required: false, description: `No description.` },
+      { name: 'text_areas', type: 'string', required: false, description: `No description.` },
       { name: 'text_color', type: 'string', required: false, description: `No description.` },
       { name: 'text_v_align', type: 'string', required: false, description: `No description.` },
       { name: 'underline', type: 'string', required: false, description: `No description.` },
       { name: 'width', type: 'string', required: false, description: `No description.` },
       { name: 'x', type: 'number', required: false, description: `No description.` },
       { name: 'y', type: 'number', required: false, description: `No description.` },
+    ],
+  },
+  {
+    name: 'lucidmcp_lucid_add_dynamic_table',
+    description: `Add an empty dynamic table (grid/matrix/kanban-style) to a Lucid document.`,
+    params: [
+      { name: 'document_id', type: 'string', required: true, description: `No description.` },
+      { name: 'columns', type: 'string', required: false, description: `No description.` },
+      { name: 'page_id', type: 'string', required: false, description: `No description.` },
+      { name: 'rows', type: 'string', required: false, description: `No description.` },
+      { name: 'x', type: 'number', required: false, description: `No description.` },
+      { name: 'y', type: 'number', required: false, description: `No description.` },
+    ],
+  },
+  {
+    name: 'lucidmcp_lucid_add_items_to_dynamic_table',
+    description: `Add existing canvas blocks to a dynamic table; the table groups them into rows/columns based on each block's pivot field.`,
+    params: [
+      { name: 'block_ids', type: 'array', required: true, description: `No description.` },
+      { name: 'document_id', type: 'string', required: true, description: `No description.` },
+      { name: 'generator_id', type: 'string', required: true, description: `No description.` },
     ],
   },
   {
@@ -178,6 +219,25 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'lucidmcp_lucid_create_erd',
+    description: `Create a Lucid document containing a data-backed Entity Relationship Diagram (ERD) from structured entity and relationship definitions.`,
+    params: [
+      { name: 'entities', type: 'array', required: true, description: `No description.` },
+      { name: 'relationships', type: 'array', required: true, description: `No description.` },
+      { name: 'title', type: 'string', required: true, description: `No description.` },
+      { name: 'product', type: 'string', required: false, description: `No description.` },
+    ],
+  },
+  {
+    name: 'lucidmcp_lucid_create_folder',
+    description: `Create a new folder in the user's Lucid account.`,
+    params: [
+      { name: 'name', type: 'string', required: true, description: `No description.` },
+      { name: 'folder_type', type: 'string', required: false, description: `No description.` },
+      { name: 'parent', type: 'string', required: false, description: `No description.` },
+    ],
+  },
+  {
     name: 'lucidmcp_lucid_create_mind_map',
     description: `Create a Lucid document containing a mind map from structured node data.`,
     params: [
@@ -212,12 +272,46 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'lucidmcp_lucid_edit_dynamic_table_metadata',
+    description: `Edit the reactive settings of an existing dynamic table: capacity-planning/load-tracking toggles and row/column group-by fields.`,
+    params: [
+      { name: 'document_id', type: 'string', required: true, description: `No description.` },
+      { name: 'generator_id', type: 'string', required: true, description: `No description.` },
+      {
+        name: 'column_group_by_field',
+        type: 'string',
+        required: false,
+        description: `No description.`,
+      },
+      {
+        name: 'enable_agile_capacity_planning',
+        type: 'string',
+        required: false,
+        description: `No description.`,
+      },
+      {
+        name: 'row_group_by_field',
+        type: 'string',
+        required: false,
+        description: `No description.`,
+      },
+      {
+        name: 'show_load_tracking_graphic',
+        type: 'string',
+        required: false,
+        description: `No description.`,
+      },
+    ],
+  },
+  {
     name: 'lucidmcp_lucid_edit_item',
     description: `Edit an existing block or line in a Lucid document — update position, size, text, or style.`,
     params: [
       { name: 'document_id', type: 'string', required: true, description: `No description.` },
       { name: 'item_id', type: 'string', required: true, description: `No description.` },
+      { name: 'auto_font_size', type: 'string', required: false, description: `No description.` },
       { name: 'bold', type: 'string', required: false, description: `No description.` },
+      { name: 'clear_link', type: 'boolean', required: false, description: `No description.` },
       {
         name: 'endpoint1_position_x',
         type: 'string',
@@ -236,6 +330,7 @@ export const tools: Tool[] = [
         required: false,
         description: `No description.`,
       },
+      { name: 'endpoint1_style', type: 'string', required: false, description: `No description.` },
       { name: 'endpoint1_x', type: 'string', required: false, description: `No description.` },
       { name: 'endpoint1_y', type: 'string', required: false, description: `No description.` },
       {
@@ -256,6 +351,7 @@ export const tools: Tool[] = [
         required: false,
         description: `No description.`,
       },
+      { name: 'endpoint2_style', type: 'string', required: false, description: `No description.` },
       { name: 'endpoint2_x', type: 'string', required: false, description: `No description.` },
       { name: 'endpoint2_y', type: 'string', required: false, description: `No description.` },
       { name: 'fill_color', type: 'string', required: false, description: `No description.` },
@@ -265,7 +361,10 @@ export const tools: Tool[] = [
       { name: 'highlight_color', type: 'string', required: false, description: `No description.` },
       { name: 'italic', type: 'string', required: false, description: `No description.` },
       { name: 'line_color', type: 'string', required: false, description: `No description.` },
+      { name: 'line_shape', type: 'string', required: false, description: `No description.` },
       { name: 'line_width', type: 'string', required: false, description: `No description.` },
+      { name: 'link', type: 'string', required: false, description: `No description.` },
+      { name: 'locked', type: 'string', required: false, description: `No description.` },
       { name: 'rotation', type: 'string', required: false, description: `No description.` },
       { name: 'strike', type: 'string', required: false, description: `No description.` },
       { name: 'stroke_style', type: 'string', required: false, description: `No description.` },
@@ -273,6 +372,7 @@ export const tools: Tool[] = [
       { name: 'superscript', type: 'string', required: false, description: `No description.` },
       { name: 'text', type: 'string', required: false, description: `No description.` },
       { name: 'text_align', type: 'string', required: false, description: `No description.` },
+      { name: 'text_areas', type: 'string', required: false, description: `No description.` },
       { name: 'text_color', type: 'string', required: false, description: `No description.` },
       { name: 'text_v_align', type: 'string', required: false, description: `No description.` },
       { name: 'underline', type: 'string', required: false, description: `No description.` },
@@ -286,6 +386,7 @@ export const tools: Tool[] = [
     description: `Export a page of a Lucid document as a PNG image.`,
     params: [
       { name: 'document_id', type: 'string', required: true, description: `No description.` },
+      { name: 'bounding_box', type: 'string', required: false, description: `No description.` },
       { name: 'page', type: 'integer', required: false, description: `No description.` },
     ],
   },
@@ -295,6 +396,104 @@ export const tools: Tool[] = [
     params: [
       { name: 'document_id', type: 'string', required: true, description: `No description.` },
       { name: 'item_id', type: 'string', required: true, description: `No description.` },
+    ],
+  },
+  {
+    name: 'lucidmcp_lucid_get_document_metadata',
+    description: `Get metadata, access details, and owner information for a Lucid document.`,
+    params: [
+      { name: 'document_id', type: 'string', required: true, description: `No description.` },
+    ],
+  },
+  {
+    name: 'lucidmcp_lucid_import_integration_cards',
+    description: `Import records from a connected third-party integration (e.g. Jira) into a Lucid document as linked cards.`,
+    params: [
+      { name: 'document_id', type: 'string', required: true, description: `No description.` },
+      { name: 'instance_id', type: 'string', required: true, description: `No description.` },
+      { name: 'integration_id', type: 'string', required: true, description: `No description.` },
+      { name: 'record_keys', type: 'array', required: true, description: `No description.` },
+      { name: 'layout', type: 'string', required: false, description: `No description.` },
+      { name: 'page_id', type: 'string', required: false, description: `No description.` },
+      { name: 'x', type: 'number', required: false, description: `No description.` },
+      { name: 'y', type: 'number', required: false, description: `No description.` },
+    ],
+  },
+  {
+    name: 'lucidmcp_lucid_list_folder_contents',
+    description: `List the documents and subfolders inside a Lucid folder. Omit folder_id to list the root folder.`,
+    params: [
+      { name: 'folder_id', type: 'string', required: false, description: `No description.` },
+      { name: 'page_size', type: 'integer', required: false, description: `No description.` },
+      { name: 'page_token', type: 'string', required: false, description: `No description.` },
+    ],
+  },
+  {
+    name: 'lucidmcp_lucid_list_integrations',
+    description: `List the user's available third-party card integrations (e.g. Jira) and their connection status.`,
+    params: [],
+  },
+  {
+    name: 'lucidmcp_lucid_search_document',
+    description: `Locate regions of a Lucid document that contain specific text, returning page/region indexes you can pass to lucidmcp_fetch.`,
+    params: [
+      { name: 'id', type: 'string', required: true, description: `No description.` },
+      { name: 'queries', type: 'array', required: true, description: `No description.` },
+    ],
+  },
+  {
+    name: 'lucidmcp_lucid_shape_details',
+    description: `Get default size, colors, and text-area/advanced properties for one or more Lucid shape classes.`,
+    params: [
+      { name: 'class_names', type: 'array', required: true, description: `No description.` },
+      { name: 'document_id', type: 'string', required: true, description: `No description.` },
+    ],
+  },
+  {
+    name: 'lucidmcp_lucid_shape_library',
+    description: `Discover shapes/blocks available to insert into a Lucid document, by library, group, or search term.`,
+    params: [
+      { name: 'document_id', type: 'string', required: true, description: `No description.` },
+      { name: 'group_ids', type: 'string', required: false, description: `No description.` },
+      { name: 'library_id', type: 'string', required: false, description: `No description.` },
+      { name: 'page_token', type: 'string', required: false, description: `No description.` },
+      { name: 'search_term', type: 'string', required: false, description: `No description.` },
+    ],
+  },
+  {
+    name: 'lucidmcp_lucid_submit_feedback',
+    description: `Submit user feedback, a bug report, or a feature request about the Lucid MCP server to Lucid's product team.`,
+    params: [
+      { name: 'feedback', type: 'string', required: true, description: `No description.` },
+      { name: 'title', type: 'string', required: true, description: `No description.` },
+    ],
+  },
+  {
+    name: 'lucidmcp_lucid_update_document',
+    description: `Update a Lucid document's title, parent folder, or custom tags. At least one of title, parent, or custom_tags must be provided.`,
+    params: [
+      { name: 'document_id', type: 'string', required: true, description: `No description.` },
+      { name: 'custom_tags', type: 'string', required: false, description: `No description.` },
+      { name: 'parent', type: 'string', required: false, description: `No description.` },
+      { name: 'title', type: 'string', required: false, description: `No description.` },
+    ],
+  },
+  {
+    name: 'lucidmcp_lucid_update_folder',
+    description: `Rename a Lucid folder or move it to a different parent. At least one of name or parent must be provided.`,
+    params: [
+      { name: 'folder_id', type: 'integer', required: true, description: `No description.` },
+      { name: 'name', type: 'string', required: false, description: `No description.` },
+      { name: 'parent', type: 'string', required: false, description: `No description.` },
+    ],
+  },
+  {
+    name: 'lucidmcp_post_document_thread_comment',
+    description: `Post a new comment to an existing collaboration thread on a Lucid document.`,
+    params: [
+      { name: 'content', type: 'string', required: true, description: `No description.` },
+      { name: 'document_id', type: 'string', required: true, description: `No description.` },
+      { name: 'thread_id', type: 'string', required: true, description: `No description.` },
     ],
   },
   {
@@ -315,6 +514,7 @@ export const tools: Tool[] = [
         required: false,
         description: `No description.`,
       },
+      { name: 'owned_by_me', type: 'string', required: false, description: `No description.` },
       { name: 'product', type: 'string', required: false, description: `No description.` },
     ],
   },

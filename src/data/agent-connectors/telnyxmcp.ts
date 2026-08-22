@@ -43,4 +43,40 @@ export const tools: Tool[] = [
       },
     ],
   },
+  {
+    name: 'telnyxmcp_open_number_intelligence',
+    description: `Open the Telnyx Number Intelligence MCP App for phone number lookup, validation, and enrichment workflows.`,
+    params: [
+      {
+        name: 'action',
+        type: 'string',
+        required: false,
+        description: `Optional no-op app opener action; omit to open the app.`,
+      },
+    ],
+  },
+  {
+    name: 'telnyxmcp_open_usage_cost_explorer',
+    description: `Open the Telnyx Usage & Cost Explorer MCP App for usage and cost analysis.`,
+    params: [
+      {
+        name: 'action',
+        type: 'string',
+        required: false,
+        description: `Optional no-op app opener action; omit to open the app.`,
+      },
+    ],
+  },
+  {
+    name: 'telnyxmcp_open_voice_monitor',
+    description: `Open the Telnyx Voice Monitor MCP App for observing and troubleshooting voice traffic.`,
+    params: [
+      {
+        name: 'action',
+        type: 'string',
+        required: false,
+        description: `Optional no-op app opener action; omit to open the app.`,
+      },
+    ],
+  },
 ]

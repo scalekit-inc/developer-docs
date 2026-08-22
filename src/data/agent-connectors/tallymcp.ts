@@ -149,6 +149,14 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'tallymcp_search_documentation',
+    description: `Answer-only search of the Tally Help Center for explicit documentation or product-knowledge questions: how Tally works, whether a capability exists, supported features, limits, or docs links. Never use as a preflight for form edits. Never use for commands that change the current form, including adding or creating blocks, configuring fields, setting defaults, updating settings, adding calculated fields, styling, moving, removing, formatting, or applying logic.`,
+    params: [
+      { name: 'query', type: 'string', required: true, description: `No description.` },
+      { name: 'topK', type: 'number', required: false, description: `No description.` },
+    ],
+  },
+  {
     name: 'tallymcp_set_column_layout',
     description: `Organize blocks into a side-by-side column layout.`,
     params: [{ name: 'layout', type: 'string', required: true, description: `No description.` }],
@@ -172,6 +180,7 @@ export const tools: Tool[] = [
     params: [
       { name: 'closeAt', type: 'string', required: false, description: `No description.` },
       { name: 'closeMessage', type: 'string', required: false, description: `No description.` },
+      { name: 'direction', type: 'string', required: false, description: `No description.` },
       {
         name: 'hasPartialSubmissions',
         type: 'boolean',

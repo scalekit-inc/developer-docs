@@ -12,11 +12,6 @@ export const tools: Tool[] = [
     params: [{ name: 'data', type: 'object', required: true, description: `No description.` }],
   },
   {
-    name: 'deelmcp_approve_or_reject_external_candidate_interview_response',
-    description: `Use this endpoint to process a candidate's interview decision received from an external provider. Provide the job and candidate identifiers and the action to approve or reject the interview. The system records the decision and updates the candidate's`,
-    params: [{ name: 'data', type: 'object', required: true, description: `No description.` }],
-  },
-  {
     name: 'deelmcp_ats_application_feedback_list',
     description: `Returns a paginated list of feedbacks submitted for activities on the given application, including reviewer profiles, overall recommendations, and form responses.`,
     params: [
@@ -305,12 +300,7 @@ export const tools: Tool[] = [
         required: true,
         description: `The unique identifier of the candidate.`,
       },
-      {
-        name: 'tag_ids',
-        type: 'array',
-        required: true,
-        description: `List of tag IDs to associate with the candidate`,
-      },
+      { name: 'data', type: 'object', required: true, description: `No description.` },
     ],
   },
   {
@@ -453,7 +443,7 @@ export const tools: Tool[] = [
   {
     name: 'deelmcp_ats_jobs_create',
     description: `Creates a new job in the ATS and returns the resulting job record, including its assigned \`id\`, initial status, and associated approval rule and request identifiers.`,
-    params: [{ name: 'data', type: 'object', required: false, description: `No description.` }],
+    params: [{ name: 'data', type: 'object', required: true, description: `No description.` }],
   },
   {
     name: 'deelmcp_ats_jobs_list',
@@ -615,25 +605,6 @@ export const tools: Tool[] = [
     ],
   },
   {
-    name: 'deelmcp_bank_contractor_bank_transfer_requirements_get',
-    description: `Returns the field requirements for creating a bank transfer method for the specified country and currency combination, including fee information calculated against the provided amount or a default of 100.00.`,
-    params: [
-      { name: 'country', type: 'string', required: true, description: `Country code` },
-      { name: 'currency', type: 'string', required: true, description: `Currency code` },
-      {
-        name: 'amount',
-        type: 'number',
-        required: false,
-        description: `Amount for calculating fees, if not provided, the default amount of 100.00 is used`,
-      },
-    ],
-  },
-  {
-    name: 'deelmcp_bank_employee_transfer_requirements_get',
-    description: `Returns progressive field requirements for configuring a bank transfer payout method. Submit iteratively until \`is_final\` is \`true\`, then call \`POST /payouts/employees/methods\` to create the method.`,
-    params: [{ name: 'data', type: 'object', required: false, description: `Request data` }],
-  },
-  {
     name: 'deelmcp_benefit_401k_activate',
     description: `Activates the 401k benefits integration for the specified legal entity. Must be called before 401k plans can be created or employees enrolled.`,
     params: [
@@ -656,10 +627,10 @@ export const tools: Tool[] = [
         description: `Contract id from the employee`,
       },
       {
-        name: 'contribution_limit',
-        type: 'number',
+        name: 'data',
+        type: 'object',
         required: true,
-        description: `Maximum limit of contribution.`,
+        description: `Schema for the 401K Guideline Plan request body.`,
       },
       {
         name: 'legal_entity_id',
@@ -673,30 +644,6 @@ export const tools: Tool[] = [
         required: true,
         description: `Plan id to enroll the employee into`,
       },
-      {
-        name: 'type',
-        type: 'string',
-        required: true,
-        description: `Type of the contribution for 401k.`,
-      },
-      {
-        name: 'contribution_type',
-        type: 'string',
-        required: false,
-        description: `Type of contribution.`,
-      },
-      {
-        name: 'contribution_value',
-        type: 'number',
-        required: false,
-        description: `Value of the contribution.`,
-      },
-      {
-        name: 'details',
-        type: 'object',
-        required: false,
-        description: `Object containing additional information about the enrollment.`,
-      },
     ],
   },
   {
@@ -709,6 +656,7 @@ export const tools: Tool[] = [
         required: true,
         description: `Contract id from the employee`,
       },
+      { name: 'data', type: 'object', required: true, description: `No description.` },
       {
         name: 'id',
         type: 'string',
@@ -720,12 +668,6 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `Plan id to enroll the employee into`,
-      },
-      {
-        name: 'type',
-        type: 'string',
-        required: true,
-        description: `Type of the contribution for 401k.`,
       },
     ],
   },
@@ -764,6 +706,12 @@ export const tools: Tool[] = [
         description: `The unique identifier of the employee contract`,
       },
       {
+        name: 'data',
+        type: 'object',
+        required: true,
+        description: `Schema for the 401K Guideline Plan request body.`,
+      },
+      {
         name: 'legal_entity_id',
         type: 'string',
         required: true,
@@ -774,36 +722,6 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `Plan id to enroll the employee into`,
-      },
-      {
-        name: 'contribution_limit',
-        type: 'number',
-        required: false,
-        description: `Maximum limit of contribution.`,
-      },
-      {
-        name: 'contribution_type',
-        type: 'string',
-        required: false,
-        description: `Type of contribution.`,
-      },
-      {
-        name: 'contribution_value',
-        type: 'number',
-        required: false,
-        description: `Value of the contribution.`,
-      },
-      {
-        name: 'details',
-        type: 'object',
-        required: false,
-        description: `Object containing additional information about the enrollment.`,
-      },
-      {
-        name: 'type',
-        type: 'string',
-        required: false,
-        description: `Type of the contribution for 401k.`,
       },
     ],
   },
@@ -824,41 +742,16 @@ export const tools: Tool[] = [
     description: `Creates a new 401k plan for the specified legal entity. The 401k integration must be activated before this endpoint can be called. The response includes the plan's unique identifier required for subsequent enrollment and management operations.`,
     params: [
       {
-        name: 'contribution_type',
-        type: 'string',
+        name: 'data',
+        type: 'object',
         required: true,
-        description: `Type of contribution for the 401K plan.`,
+        description: `Schema for the 401K Guideline Plan request body.`,
       },
       {
         name: 'legal_entity_id',
         type: 'string',
         required: true,
         description: `Id from the legal entity to receive a new 401k plan`,
-      },
-      { name: 'name', type: 'string', required: true, description: `Name of the 401K plan.` },
-      {
-        name: 'start_date',
-        type: 'string',
-        required: true,
-        description: `Start date of the plan.`,
-      },
-      {
-        name: 'contribution_value',
-        type: 'number',
-        required: false,
-        description: `Value of the contribution if type is percent or amount.`,
-      },
-      {
-        name: 'contribution_value_for_match_rate',
-        type: 'array',
-        required: false,
-        description: `Array of objects containing limits and rates for match rate contribution type.`,
-      },
-      {
-        name: 'details',
-        type: 'object',
-        required: false,
-        description: `Object containing additional information about the 401K plan.`,
       },
     ],
   },
@@ -1192,7 +1085,14 @@ export const tools: Tool[] = [
   {
     name: 'deelmcp_compensation_band_point_update',
     description: `Updates the band point configuration (indexes 1–9) for the organization. Points 1 and 9 must always be enabled. No separate GET exists — read current settings from the List Compensation Bands response.`,
-    params: [{ name: 'data', type: 'object', required: true, description: `No description.` }],
+    params: [
+      {
+        name: 'bandPointSettings',
+        type: 'object',
+        required: false,
+        description: `Band point settings to update`,
+      },
+    ],
   },
   {
     name: 'deelmcp_compensation_band_update',
@@ -1628,24 +1528,6 @@ export const tools: Tool[] = [
     ],
   },
   {
-    name: 'deelmcp_contract_copy_bulk_create',
-    description: `Create copies of a batch of contracts. Use this endpoint to duplicate contracts efficiently. Ensure the correct source contracts and overrides are specified for each copy.`,
-    params: [{ name: 'data', type: 'object', required: true, description: `No description.` }],
-  },
-  {
-    name: 'deelmcp_contract_cost_center_create',
-    description: `Assign cost centers to employment by contract id`,
-    params: [
-      {
-        name: 'contract_id',
-        type: 'string',
-        required: true,
-        description: `Employment's contract ID`,
-      },
-      { name: 'data', type: 'object', required: true, description: `No description.` },
-    ],
-  },
-  {
     name: 'deelmcp_contract_create',
     description: `Creates a new contractor contract and returns it with its assigned \`id\`. After creation, invite the contractor to sign via \`POST /contracts/{contract_id}/invitations\`.`,
     params: [{ name: 'data', type: 'string', required: true, description: `No description.` }],
@@ -1688,9 +1570,9 @@ export const tools: Tool[] = [
       },
       {
         name: 'expand',
-        type: 'string',
+        type: 'array',
         required: false,
-        description: `Include cost centers in the response.`,
+        description: `Include additional fields in the response. Multiple values can be passed as comma-separated list.`,
       },
     ],
   },
@@ -1791,9 +1673,9 @@ export const tools: Tool[] = [
       },
       {
         name: 'expand',
-        type: 'string',
+        type: 'array',
         required: false,
-        description: `Include cost centers in the response.`,
+        description: `Include additional fields in the response. Multiple values can be passed as comma-separated list.`,
       },
       {
         name: 'external_id',
@@ -1806,6 +1688,12 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Filter contracts by external ID presence. When true, returns contracts without an external ID. When false, returns contracts with an external ID. Cannot be used with external_id query param when set to true.`,
+      },
+      {
+        name: 'legal_entity_id',
+        type: 'string',
+        required: false,
+        description: `Filter contracts for the given legal entity ID(s). A contract is included in the results if its legal entity is in this list.`,
       },
       {
         name: 'limit',
@@ -1841,7 +1729,7 @@ export const tools: Tool[] = [
         name: 'team_id',
         type: 'string',
         required: false,
-        description: `Filter contracts for the given team ID. NOTE: All query parameters are technically strings or arrays of strings.`,
+        description: `Filter contracts for the given team ID(s). A contract is included in the results if its team is in this list.`,
       },
       {
         name: 'types',
@@ -1926,18 +1814,6 @@ export const tools: Tool[] = [
     ],
   },
   {
-    name: 'deelmcp_contract_pdf_download',
-    description: `Returns a secure, time-limited URL for downloading the PDF version of the contract identified by contract_id. The URL is accessible only to the authenticated worker associated with that contract.`,
-    params: [
-      {
-        name: 'contract_id',
-        type: 'string',
-        required: true,
-        description: `The unique public identifier of the contract.`,
-      },
-    ],
-  },
-  {
     name: 'deelmcp_contract_preview',
     description: `Returns the rendered HTML content of an IC or EOR contract agreement for a given contract_id. If no templateId is provided, the default or currently assigned template is used. Global Payroll contract types are not supported.`,
     params: [
@@ -1947,18 +1823,6 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `ID of an existing contract template.`,
-      },
-    ],
-  },
-  {
-    name: 'deelmcp_contract_reject',
-    description: `Rejects a contract identified by contract_id, provided it is currently in a pending, unsigned state. Contracts that have already been signed or previously rejected are not eligible for this operation.`,
-    params: [
-      {
-        name: 'contract_id',
-        type: 'string',
-        required: true,
-        description: `The unique public identifier of the contract to reject. This is the contract's public ID that can be used to identify the specific contract in the system.`,
       },
     ],
   },
@@ -2248,48 +2112,6 @@ export const tools: Tool[] = [
     ],
   },
   {
-    name: 'deelmcp_document_bulk_reminder_preview',
-    description: `Previews a bulk reminder operation for a custom document. Returns recipient count, sample names, and an execution ID. Nothing is sent — must be followed by the confirm endpoint.`,
-    params: [
-      {
-        name: 'documentTemplateId',
-        type: 'string',
-        required: true,
-        description: `Unique identifier of the document template to send reminders for.`,
-      },
-      {
-        name: 'customMessage',
-        type: 'string',
-        required: false,
-        description: `Optional custom message to include in the reminder.`,
-      },
-      {
-        name: 'documentStatuses',
-        type: 'array',
-        required: false,
-        description: `Filter recipients by document status.`,
-      },
-      {
-        name: 'hiringStatuses',
-        type: 'array',
-        required: false,
-        description: `Filter recipients by hiring status.`,
-      },
-      {
-        name: 'search',
-        type: 'string',
-        required: false,
-        description: `Filter recipients by worker name.`,
-      },
-      {
-        name: 'workerIds',
-        type: 'array',
-        required: false,
-        description: `Specific worker IDs to remind. If empty, all eligible workers are included.`,
-      },
-    ],
-  },
-  {
     name: 'deelmcp_document_bulk_reminder_result_get',
     description: `Returns the full recipient list for a pending bulk reminder execution. Use after the preview step to show the user exactly who will be reminded about a custom document before they confirm.`,
     params: [
@@ -2345,19 +2167,25 @@ export const tools: Tool[] = [
         name: 'document_template_id',
         type: 'string',
         required: true,
-        description: `The ID of the document template to search within.`,
+        description: `UUID of the document template to list submissions for.`,
+      },
+      {
+        name: 'actions_required',
+        type: 'array',
+        required: false,
+        description: `Filter by the action required from the worker.`,
       },
       {
         name: 'cursor',
         type: 'string',
         required: false,
-        description: `Pagination cursor from a previous response.`,
+        description: `Pagination cursor returned by a previous response.`,
       },
       {
         name: 'document_statuses',
         type: 'array',
         required: false,
-        description: `Filter by document status.`,
+        description: `Filter by document submission status.`,
       },
       {
         name: 'hiring_statuses',
@@ -2366,12 +2194,42 @@ export const tools: Tool[] = [
         description: `Filter by worker hiring status.`,
       },
       {
+        name: 'hiring_types',
+        type: 'array',
+        required: false,
+        description: `Filter by worker hiring type.`,
+      },
+      {
+        name: 'incomplete_reasons',
+        type: 'array',
+        required: false,
+        description: `Filter by incomplete reason.`,
+      },
+      {
         name: 'limit',
-        type: 'number',
+        type: 'integer',
         required: false,
         description: `Maximum number of results to return per page.`,
       },
-      { name: 'search', type: 'string', required: false, description: `Filter by worker name.` },
+      {
+        name: 'search',
+        type: 'string',
+        required: false,
+        description: `Free-text search on worker name.`,
+      },
+      {
+        name: 'sort_by',
+        type: 'string',
+        required: false,
+        description: `Field to sort results by.`,
+      },
+      { name: 'sort_order', type: 'string', required: false, description: `Sort direction.` },
+      {
+        name: 'worker_countries',
+        type: 'array',
+        required: false,
+        description: `Filter by worker country code (ISO 3166-1 alpha-2).`,
+      },
     ],
   },
   {
@@ -2466,55 +2324,32 @@ export const tools: Tool[] = [
     ],
   },
   {
-    name: 'deelmcp_draft_quote_create',
-    description: `Use this endpoint to create draft quotes for preparing contracts. This process helps in establishing preliminary terms before finalizing.`,
-    params: [{ name: 'data', type: 'object', required: true, description: `No description.` }],
-  },
-  {
-    name: 'deelmcp_draft_quote_update',
-    description: `Use this endpoint to update a draft quote before it becomes a contract.`,
-    params: [
-      {
-        name: 'data',
-        type: 'object',
-        required: true,
-        description: `Draft quote fields to update. All fields are optional.`,
-      },
-      {
-        name: 'draft_quote_id',
-        type: 'string',
-        required: true,
-        description: `Unique identifier of the draft quote to update.`,
-      },
-    ],
-  },
-  {
-    name: 'deelmcp_engage_learning_journey_list',
-    description: `Returns cursor-paginated ActionableJourneys (Courses) assigned to the authenticated worker.`,
+    name: 'deelmcp_engage_tag_list',
+    description: `Returns a paginated list of Deel Engage tags for the organization. Tags are organization-scoped labels that can be attached to goals, competencies, journeys, learning resources, and other Engage entities to group and filter them. Use this endpoint to disc`,
     params: [
       {
         name: 'cursor',
         type: 'string',
         required: false,
-        description: `Cursor to the next page of results. If not provided, the first page will be returned.`,
-      },
-      {
-        name: 'journey_assignment_ids',
-        type: 'array',
-        required: false,
-        description: `Filter by JourneyAssignment IDs.`,
-      },
-      {
-        name: 'journey_ids',
-        type: 'array',
-        required: false,
-        description: `Filter by Journey IDs.`,
+        description: `Opaque pagination cursor returned from a previous response. Omit to start from the first page.`,
       },
       {
         name: 'limit',
-        type: 'number',
+        type: 'integer',
         required: false,
-        description: `Return a page of results with given number of records.`,
+        description: `Maximum number of tags to return. Defaults to 20. Maximum 50.`,
+      },
+      {
+        name: 'query',
+        type: 'string',
+        required: false,
+        description: `Free-text search query. Filters tags whose title contains this string.`,
+      },
+      {
+        name: 'tag_ids',
+        type: 'array',
+        required: false,
+        description: `Filter to only these tag UUIDs.`,
       },
     ],
   },
@@ -2664,24 +2499,6 @@ export const tools: Tool[] = [
     ],
   },
   {
-    name: 'deelmcp_eor_amendment_sign',
-    description: `Records the employee's signature on a specific contract amendment, confirming acceptance of the amendment terms. Returns the updated amendment record upon successful signing.`,
-    params: [
-      {
-        name: 'amendment_id',
-        type: 'string',
-        required: true,
-        description: `A unique identifier for the employee contract amendment.`,
-      },
-      {
-        name: 'contract_id',
-        type: 'string',
-        required: true,
-        description: `The unique identifier of EOR worker contract.`,
-      },
-    ],
-  },
-  {
     name: 'deelmcp_eor_amendment_update',
     description: `Applies a partial update to a specific EOR contract amendment. The amendment must be in DRAFT status; updates to amendments in any other state will be rejected. This operation overwrites existing draft data and cannot be undone.`,
     params: [
@@ -2786,26 +2603,6 @@ export const tools: Tool[] = [
     ],
   },
   {
-    name: 'deelmcp_eor_bank_account_create',
-    description: `Registers a bank account for an EOR employee. Returns the \`id\` of the newly created bank account record.`,
-    params: [
-      {
-        name: 'data',
-        type: 'array',
-        required: true,
-        description: `Array of key value properties of bank account`,
-      },
-    ],
-  },
-  {
-    name: 'deelmcp_eor_bank_guide_get',
-    description: `Returns the bank account form guide for the specified \`country\` and \`currency\` combination, providing the field structure required to add a new bank account for an EOR employee.`,
-    params: [
-      { name: 'country', type: 'string', required: true, description: `Country` },
-      { name: 'currency', type: 'string', required: true, description: `Currency` },
-    ],
-  },
-  {
     name: 'deelmcp_eor_benefit_list',
     description: `Returns benefits available in a specific country, scoped by work visa requirement, weekly work hours, employment type, team, and legal entity.`,
     params: [
@@ -2839,59 +2636,6 @@ export const tools: Tool[] = [
         type: 'boolean',
         required: true,
         description: `Indicates if work visa is required.`,
-      },
-    ],
-  },
-  {
-    name: 'deelmcp_eor_compliance_document_acknowledge',
-    description: `Submits the worker's consent acknowledgement for a compliance document that requires it. This operation is required before documents marked as needing acknowledgement are considered complete.`,
-    params: [
-      {
-        name: 'document_id',
-        type: 'string',
-        required: true,
-        description: `The unique identifier of the compliance document.`,
-      },
-    ],
-  },
-  {
-    name: 'deelmcp_eor_compliance_document_download',
-    description: `Returns a time-limited download URL for a submitted compliance document. The URL expires at the time indicated by \`expires_at\` in the response.`,
-    params: [
-      {
-        name: 'document_id',
-        type: 'string',
-        required: true,
-        description: `Unique identifier for a compliance document in Deel.`,
-      },
-    ],
-  },
-  {
-    name: 'deelmcp_eor_compliance_document_list',
-    description: `Returns the list of compliance documents associated with an EOR employee.`,
-    params: [],
-  },
-  {
-    name: 'deelmcp_eor_compliance_document_send',
-    description: `Uploads a compliance document file against the specified \`document_id\` for an EOR employee.`,
-    params: [
-      {
-        name: 'document_id',
-        type: 'string',
-        required: true,
-        description: `Unique identifier for a compliance document in Deel.`,
-      },
-    ],
-  },
-  {
-    name: 'deelmcp_eor_compliance_template_download',
-    description: `Returns a time-limited download URL for the compliance document template associated with the given \`document_id\`, only if a template exists for that document.`,
-    params: [
-      {
-        name: 'document_id',
-        type: 'string',
-        required: true,
-        description: `Unique identifier for a compliance document in Deel.`,
       },
     ],
   },
@@ -2986,25 +2730,6 @@ export const tools: Tool[] = [
     ],
   },
   {
-    name: 'deelmcp_eor_contract_forms_definition_get',
-    description: `Returns paginated, versioned form definitions for creating EOR contracts across specified countries. Use the latest effective version. Not for reading or updating existing contracts.`,
-    params: [
-      { name: 'data', type: 'object', required: true, description: `No description.` },
-      {
-        name: 'cursor',
-        type: 'string',
-        required: false,
-        description: `Pagination cursor for fetching subsequent pages of results.`,
-      },
-      {
-        name: 'limit',
-        type: 'integer',
-        required: false,
-        description: `Maximum number of countries to return in a single response. Defaults to 10.`,
-      },
-    ],
-  },
-  {
     name: 'deelmcp_eor_contract_get',
     description: `Returns basic contract information and associated employment costs for a specific EOR contract.`,
     params: [
@@ -3026,19 +2751,6 @@ export const tools: Tool[] = [
         required: true,
         description: `The unique identifier of the employee contract.`,
       },
-    ],
-  },
-  {
-    name: 'deelmcp_eor_contract_sign',
-    description: `Signs a contract on behalf of the contractor, transitioning contract status to active and completing the contractor onboarding workflow.`,
-    params: [
-      {
-        name: 'contract_id',
-        type: 'string',
-        required: true,
-        description: `The unique identifier of the employee contract.`,
-      },
-      { name: 'data', type: 'object', required: false, description: `No description.` },
     ],
   },
   {
@@ -3087,19 +2799,7 @@ export const tools: Tool[] = [
   {
     name: 'deelmcp_eor_employment_cost_calculate',
     description: `Calculates the total employment cost for an EOR arrangement in a specified country, returning a breakdown that includes employer costs, benefits, platform fees, and severance accrual.`,
-    params: [{ name: 'data', type: 'object', required: false, description: `No description.` }],
-  },
-  {
-    name: 'deelmcp_eor_hr_document_list',
-    description: `Returns all HR verification letters and documents associated with the employee contract.`,
-    params: [
-      {
-        name: 'contract_id',
-        type: 'string',
-        required: true,
-        description: `The unique identifier of the employee contract.`,
-      },
-    ],
+    params: [{ name: 'data', type: 'object', required: true, description: `No description.` }],
   },
   {
     name: 'deelmcp_eor_hrx_document_get',
@@ -3154,11 +2854,6 @@ export const tools: Tool[] = [
     params: [{ name: 'data', type: 'object', required: true, description: `details of job scope` }],
   },
   {
-    name: 'deelmcp_eor_mailbox_password_update',
-    description: `Changes the mailbox password for an EOR worker.`,
-    params: [{ name: 'data', type: 'object', required: true, description: `No description.` }],
-  },
-  {
     name: 'deelmcp_eor_offboarding_attachment_get',
     description: `Downloads the content of a specific attachment associated with the termination for a given contract.`,
     params: [
@@ -3187,31 +2882,6 @@ export const tools: Tool[] = [
         description: `The unique identifier of the employee contract.`,
       },
       { name: 'data', type: 'object', required: true, description: `No description.` },
-    ],
-  },
-  {
-    name: 'deelmcp_eor_offboarding_create',
-    description: `Formally initiates the resignation process for the EOR contract by submitting a resignation request on behalf of the worker.`,
-    params: [
-      {
-        name: 'contract_id',
-        type: 'string',
-        required: true,
-        description: `The unique identifier of the employee contract.`,
-      },
-    ],
-  },
-  {
-    name: 'deelmcp_eor_offboarding_employee_sign_off_review',
-    description: `Records an employee's sign-off decision—approval or change request with feedback—for the offboarding document set of a contract.`,
-    params: [
-      {
-        name: 'contract_id',
-        type: 'string',
-        required: true,
-        description: `The unique identifier of the employee contract.`,
-      },
-      { name: 'data', type: 'object', required: false, description: `No description.` },
     ],
   },
   {
@@ -3276,24 +2946,6 @@ export const tools: Tool[] = [
     ],
   },
   {
-    name: 'deelmcp_eor_payroll_agreement_download',
-    description: `Returns a time-limited download URL for the employee agreement PDF associated with the given \`contract_id\`. When the optional \`version\` parameter is supplied and a version mismatch is detected, behaviour diverges from the default resolution path.`,
-    params: [
-      {
-        name: 'contract_id',
-        type: 'string',
-        required: true,
-        description: `The unique identifier of the employee contract.`,
-      },
-      {
-        name: 'version',
-        type: 'string',
-        required: false,
-        description: `Optional version of the Employment Agreement to be signed. If informed and in the case of a mismatch, the API will return an error.`,
-      },
-    ],
-  },
-  {
     name: 'deelmcp_eor_payslip_download',
     description: `Returns a URL for downloading the specified payslip as a PDF.`,
     params: [
@@ -3336,51 +2988,6 @@ export const tools: Tool[] = [
     ],
   },
   {
-    name: 'deelmcp_eor_resignation_letter_get',
-    description: `Returns a preview of the resignation letter for the EOR contract before the worker submits their signature.`,
-    params: [
-      {
-        name: 'contract_id',
-        type: 'string',
-        required: true,
-        description: `The unique identifier of the employee contract.`,
-      },
-    ],
-  },
-  {
-    name: 'deelmcp_eor_resignation_letter_sign',
-    description: `Records the worker's signature on the resignation letter for the contract, which is required to finalize the resignation process; upon successful submission, the signed letter is queued for PDF generation and further processing.`,
-    params: [
-      {
-        name: 'contract_id',
-        type: 'string',
-        required: true,
-        description: `The unique identifier of the employee contract.`,
-      },
-      { name: 'data', type: 'object', required: true, description: `No description.` },
-    ],
-  },
-  {
-    name: 'deelmcp_eor_resignation_list',
-    description: `Returns resignations submitted by EOR workers, optionally filtered by resignation letter status.`,
-    params: [
-      {
-        name: 'status',
-        type: 'string',
-        required: false,
-        description: `Filter by resignation letter status`,
-      },
-    ],
-  },
-  {
-    name: 'deelmcp_eor_resignation_request',
-    description: `Enable clients with group admin and people manager permissions to initiate a resignation request for an Employee of Record (EOR) contract within their team.`,
-    params: [
-      { name: 'data', type: 'object', required: true, description: `No description.` },
-      { name: 'oid', type: 'string', required: true, description: `Public contract oid` },
-    ],
-  },
-  {
     name: 'deelmcp_eor_start_date_get',
     description: `Returns the earliest allowed start date for a new EOR contract based on employment country, nationality, and visa requirements. Also returns payroll timing parameters that govern when the contract can take effect.`,
     params: [
@@ -3419,31 +3026,6 @@ export const tools: Tool[] = [
     ],
   },
   {
-    name: 'deelmcp_eor_tax_document_list',
-    description: `Returns tax documents for the authenticated worker.`,
-    params: [],
-  },
-  {
-    name: 'deelmcp_eor_termination_create',
-    description: `Initiates a termination request for an EOR contract, beginning the offboarding process. Returns desired and confirmed end dates along with any termination documents generated.`,
-    params: [
-      {
-        name: 'contract_id',
-        type: 'string',
-        required: true,
-        description: `The unique identifier of the employee contract.`,
-      },
-    ],
-  },
-  {
-    name: 'deelmcp_eor_termination_request',
-    description: `This API enables clients with group admin and people manager permissions to initiate a request for the termination of an Employee of Record (EOR) contract for members of their team.`,
-    params: [
-      { name: 'data', type: 'object', required: true, description: `No description.` },
-      { name: 'oid', type: 'string', required: true, description: `Public contract id` },
-    ],
-  },
-  {
     name: 'deelmcp_eor_validation_get',
     description: `Returns country-specific hiring guide data — including salary requirements, holidays, probation terms, health insurance, and currency — for use in creating and validating EOR contract quotes.`,
     params: [
@@ -3452,32 +3034,6 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `Country code in ISO Alpha-2 format.`,
-      },
-    ],
-  },
-  {
-    name: 'deelmcp_eor_worker_additional_info_add',
-    description: `Adds supplemental information fields to an EOR employee's contract record.`,
-    params: [
-      { name: 'contract_id', type: 'string', required: true, description: `Deel contract id.` },
-      {
-        name: 'data',
-        type: 'object',
-        required: true,
-        description: `Additional fields are country/state-specific and validated against the worker additional fields form for the employment country.`,
-      },
-    ],
-  },
-  {
-    name: 'deelmcp_eor_worker_additional_info_update',
-    description: `Partially updates additional information on an EOR employee agreement. Only permitted when status is \`new\`, \`under_review\`, or \`waiting_for_employee_contract\`; other statuses return an error.`,
-    params: [
-      { name: 'contract_id', type: 'string', required: true, description: `Deel contract id.` },
-      {
-        name: 'data',
-        type: 'object',
-        required: true,
-        description: `You can submit any subset of fields. Keys not listed above are treated as country/state-specific additional information fields. Those keys must match the fields returned by GET /forms/eor/worker-additional-fields/{country_code} (public keys).`,
       },
     ],
   },
@@ -3582,16 +3138,183 @@ export const tools: Tool[] = [
     ],
   },
   {
-    name: 'deelmcp_get_eor_bank_account_guide',
-    description: `Retrieve bank account form guide for an EOR employee. This data can be used to add a new bank account for an employee.`,
-    params: [],
+    name: 'deelmcp_goal_create',
+    description: `Creates a new goal and returns its ID and title. Use this endpoint to programmatically create individual, team, or company-wide goals with configurable progress tracking. Required fields: title, goal_type, visibility, and progress_config. Team goals also`,
+    params: [
+      {
+        name: 'data',
+        type: 'object',
+        required: true,
+        description: `Parameters for creating a new goal.`,
+      },
+    ],
   },
   {
-    name: 'deelmcp_get_eor_termination',
-    description: `This API allows clients and employees with viewer permissions to retrieve termination data. It ensures that only authorized users can access sensitive information related to terminations.`,
+    name: 'deelmcp_goal_cycle_list',
+    description: `Returns a paginated list of goal cycles for the organization. A goal cycle is a time-boxed period (e.g. "Q2 2025") in which goals are set and tracked. Statuses: "scheduled" (not started), "draft" (goal-setting open, not live), "active" (cycle running), "e`,
     params: [
-      { name: 'oid', type: 'string', required: true, description: `Public contract oid` },
-      { name: 'terminationId', type: 'string', required: true, description: `Termination id` },
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Opaque pagination cursor returned from a previous response. Omit to start from the first page.`,
+      },
+      {
+        name: 'goal_cycle_ids',
+        type: 'array',
+        required: false,
+        description: `Filter to only these goal cycle UUIDs.`,
+      },
+      {
+        name: 'goal_cycle_statuses',
+        type: 'array',
+        required: false,
+        description: `Filter by goal cycle status. "scheduled" — not yet started; "draft" — in draft period; "active" — currently active; "ended" — past end date.`,
+      },
+      {
+        name: 'has_milestones',
+        type: 'boolean',
+        required: false,
+        description: `When true, returns only goal cycles that have at least one milestone. When omitted or false, returns all goal cycles regardless of milestone presence.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of goal cycles to return. Defaults to 20. Maximum 50.`,
+      },
+      {
+        name: 'query',
+        type: 'string',
+        required: false,
+        description: `Free-text search query. Filters goal cycles whose title contains this string.`,
+      },
+    ],
+  },
+  {
+    name: 'deelmcp_goal_list',
+    description: `Returns a paginated list of goals visible to the authenticated MCP user. Supports filtering by type, owner, goal cycle, team, tag, cycle status, and approval status. Use the returned next_cursor to fetch subsequent pages. To filter by owner, pass hris_org`,
+    params: [
+      {
+        name: 'active_goals',
+        type: 'boolean',
+        required: false,
+        description: `When true, returns only goals that belong to active goal cycles.`,
+      },
+      {
+        name: 'approval_statuses',
+        type: 'array',
+        required: false,
+        description: `Filter goals by approval status.`,
+      },
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Opaque pagination cursor returned from a previous response. Omit to start from the first page.`,
+      },
+      {
+        name: 'goal_cycle_ids',
+        type: 'array',
+        required: false,
+        description: `Filter goals that belong to these goal cycle UUIDs.`,
+      },
+      {
+        name: 'goal_cycle_statuses',
+        type: 'array',
+        required: false,
+        description: `Filter goals by the status of their associated goal cycle.`,
+      },
+      {
+        name: 'goal_ids',
+        type: 'array',
+        required: false,
+        description: `Filter goals by their UUIDs.`,
+      },
+      {
+        name: 'goal_types',
+        type: 'array',
+        required: false,
+        description: `Filter by goal type. "individual" for personal goals, "team_or_department" for team-level goals, "company" for org-wide goals.`,
+      },
+      {
+        name: 'hris_team_ids',
+        type: 'array',
+        required: false,
+        description: `Filter goals linked to these HrisTeam UUIDs.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of goals to return. Defaults to 20. Maximum 50.`,
+      },
+      {
+        name: 'my_goals',
+        type: 'boolean',
+        required: false,
+        description: `When true, returns only goals where the requesting user is an owner or assignee.`,
+      },
+      {
+        name: 'owner_hris_organization_user_ids',
+        type: 'array',
+        required: false,
+        description: `Filter goals owned by these HrisOrganizationUser UUIDs.`,
+      },
+      {
+        name: 'owner_manager_hris_organization_user_ids',
+        type: 'array',
+        required: false,
+        description: `Filter goals whose owners report to these manager HrisOrganizationUser UUIDs.`,
+      },
+      {
+        name: 'query',
+        type: 'string',
+        required: false,
+        description: `Free-text search query. Filters goals whose title contains this string.`,
+      },
+      {
+        name: 'tag_ids',
+        type: 'array',
+        required: false,
+        description: `Filter goals tagged with these tag UUIDs.`,
+      },
+    ],
+  },
+  {
+    name: 'deelmcp_goal_progress_update',
+    description: `Updates the progress of goal by recording a new progress entry for the specified goal. The value must be a numeric string. An optional comment can be provided to describe the progress update.`,
+    params: [
+      {
+        name: 'data',
+        type: 'object',
+        required: true,
+        description: `Fields for recording progress on a goal.`,
+      },
+      {
+        name: 'goal_id',
+        type: 'string',
+        required: true,
+        description: `The UUID of the goal to record progress for.`,
+      },
+    ],
+  },
+  {
+    name: 'deelmcp_goal_update',
+    description: `Partially updates an existing goal. Only included fields are changed; omitted fields are left as-is. Mutable: title, description, goal_type, visibility, starts_at, due_at, assignee_hris_organization_user_ids (use get_people_by_name for IDs), goal_cycle_id`,
+    params: [
+      {
+        name: 'data',
+        type: 'object',
+        required: true,
+        description: `Fields to update on the goal. Only provided fields will be changed.`,
+      },
+      {
+        name: 'goal_id',
+        type: 'string',
+        required: true,
+        description: `The UUID of the goal to update.`,
+      },
     ],
   },
   {
@@ -3760,19 +3483,6 @@ export const tools: Tool[] = [
         required: true,
         description: `Unique identifier for a worker in UUID format.`,
       },
-    ],
-  },
-  {
-    name: 'deelmcp_gp_contract_job_title_update',
-    description: `Use this API to update the job title for a contract. Provide the contract ID and new job title details to make a change.`,
-    params: [
-      {
-        name: 'contract_id',
-        type: 'string',
-        required: true,
-        description: `The unique identifier of the GP contract.`,
-      },
-      { name: 'data', type: 'object', required: true, description: `No description.` },
     ],
   },
   {
@@ -4063,13 +3773,6 @@ export const tools: Tool[] = [
     ],
   },
   {
-    name: 'deelmcp_hr_preview_offer_letter',
-    description: `Preview job offer letter`,
-    params: [
-      { name: 'contract_id', type: 'string', required: true, description: `Deel contract id.` },
-    ],
-  },
-  {
     name: 'deelmcp_hr_suite_review_cycle_feedback_get',
     description: `Retrieves review cycle feedback and competency data for an HRIS organization user,
   including categorized feedback entries (self-review, peer, upward, downward) and core
@@ -4097,13 +3800,13 @@ export const tools: Tool[] = [
         name: 'group_by',
         type: 'string',
         required: false,
-        description: `Grouping strategy for organizing the org chart.`,
+        description: `Grouping strategy for organizing the org chart. Determines how employees are grouped into trees. Options: 'WORKER_RELATIONS' (default) - groups by manager relationships, 'HRIS_TEAMS' - groups by HRIS teams/org structures (requires group_by_value), 'TEAM_GROUPS' - groups by team groups, 'COUNTRY' - groups by country.`,
       },
       {
         name: 'group_by_value',
         type: 'string',
         required: false,
-        description: `Optional value to filter by when using specific grouping strategies.`,
+        description: `Optional value to filter by when using specific grouping strategies. For 'hrisTeams' strategy, provide the org structure ID. For 'workerRelations' strategy, provide the worker relation ID. Not required for 'teamGroups' or 'country' strategies.`,
       },
     ],
   },
@@ -4119,40 +3822,6 @@ export const tools: Tool[] = [
         description: `Public ID (UUID) of the HRIS team/organization structure`,
       },
     ],
-  },
-  {
-    name: 'deelmcp_ic_invoice_download',
-    description: `This endpoint provides embedded worker flows access to download a pdf of a specific invoice while using a worker:PAT token.`,
-    params: [
-      {
-        name: 'invoice_id',
-        type: 'string',
-        required: true,
-        description: `Public invoice identifier (UUID) for the invoice whose PDF URL is returned.`,
-      },
-    ],
-  },
-  {
-    name: 'deelmcp_ic_invoice_get',
-    description: `This endpoint retrieves invoice information by ID. Use it to access detailed invoice data for reference or verification.`,
-    params: [
-      {
-        name: 'invoice_id',
-        type: 'string',
-        required: true,
-        description: `Public invoice id for the invoice to return.`,
-      },
-    ],
-  },
-  {
-    name: 'deelmcp_ic_invoice_list',
-    description: `This endpoint provides direct access to worker invoices via a worker token without requiring completion of the typical onboarding flow.`,
-    params: [],
-  },
-  {
-    name: 'deelmcp_ic_legal_entity_setup',
-    description: `Independent contractors use this endpoint to complete legal-entity onboarding, triggering post-commit screening and background checks. Suitable for the IC Embedded flow in the public API.`,
-    params: [{ name: 'data', type: 'object', required: true, description: `No description.` }],
   },
   {
     name: 'deelmcp_immigration_business_visa_eligibility_get',
@@ -4208,90 +3877,6 @@ export const tools: Tool[] = [
     params: [{ name: 'data', type: 'string', required: false, description: `No description.` }],
   },
   {
-    name: 'deelmcp_immigration_case_document_get',
-    description: `Retrieves the details of a specific document requirement within a worker's immigration case, including the requirement's current status and information about any previously rejected document.`,
-    params: [
-      {
-        name: 'case_id',
-        type: 'string',
-        required: true,
-        description: `The unique identifier of the case for which the required document is being requested.`,
-      },
-      {
-        name: 'worker_id',
-        type: 'string',
-        required: true,
-        description: `The hris profile oid (public id) of the worker.`,
-      },
-    ],
-  },
-  {
-    name: 'deelmcp_immigration_case_document_upload',
-    description: `Uploads a document against a specific case document requirement and submits it for review.`,
-    params: [
-      {
-        name: 'case_id',
-        type: 'string',
-        required: true,
-        description: `The unique identifier of the case for which the required document is being requested.`,
-      },
-      {
-        name: 'document_request_id',
-        type: 'string',
-        required: true,
-        description: `The unique identifier of the document request fo which this document is being uplodaded`,
-      },
-      {
-        name: 'worker_id',
-        type: 'string',
-        required: true,
-        description: `The hris profile oid (public id) of the worker.`,
-      },
-    ],
-  },
-  {
-    name: 'deelmcp_immigration_case_get',
-    description: `Returns detailed information for a specific immigration case including applicant profile, visa type, status, estimated completion date, process details, and compliance documents.`,
-    params: [{ name: 'case_id', type: 'string', required: true, description: `Filter by case ID` }],
-  },
-  {
-    name: 'deelmcp_immigration_case_list',
-    description: `Retrieves a paginated list of immigration cases with filters for applicant name, case type, status, and country. Returns case details including type, status, process, timestamps, and optional closure information.`,
-    params: [
-      {
-        name: 'case_type_ids',
-        type: 'array',
-        required: false,
-        description: `Filter by case type IDs`,
-      },
-      {
-        name: 'countries',
-        type: 'array',
-        required: false,
-        description: `Filter by country. Uses ISO 3166-1 alpha-2 codes (https://www.iban.com/country-codes).`,
-      },
-      {
-        name: 'cursor',
-        type: 'string',
-        required: false,
-        description: `Pagination cursor for fetching next set of results`,
-      },
-      {
-        name: 'limit',
-        type: 'integer',
-        required: false,
-        description: `Max number of results to return`,
-      },
-      {
-        name: 'search',
-        type: 'string',
-        required: false,
-        description: `Search by applicant name or code`,
-      },
-      { name: 'statuses', type: 'array', required: false, description: `Filter by case status` },
-    ],
-  },
-  {
     name: 'deelmcp_immigration_client_case_get',
     description: `Retrieves the details of an immigration case by its case ID.`,
     params: [{ name: 'id', type: 'string', required: true, description: `Immigration case id` }],
@@ -4338,24 +3923,6 @@ export const tools: Tool[] = [
     description: `Retrieves the details of an immigration case document by its document \`id\`.`,
     params: [
       { name: 'id', type: 'string', required: true, description: `Immigration case document id ` },
-    ],
-  },
-  {
-    name: 'deelmcp_immigration_onboarding_case_get',
-    description: `Returns the right-to-work onboarding case for a worker, including any associated documents; returns an empty response if no open case exists. When a worker is associated with multiple contracts, supply \`contract_id\` to target a specific contract.`,
-    params: [
-      {
-        name: 'worker_id',
-        type: 'string',
-        required: true,
-        description: `The hris profile oid (public id) of the worker.`,
-      },
-      {
-        name: 'contract_id',
-        type: 'string',
-        required: false,
-        description: `Filters the worker's onboarding case to a specific contract. If the worker has multiple contracts and this parameter is omitted, the response may return a case from any associated contract; the response includes contract.id to indicate which contract was used. Provide this parameter for deterministic results.`,
-      },
     ],
   },
   {
@@ -4421,7 +3988,7 @@ export const tools: Tool[] = [
         name: 'data',
         type: 'object',
         required: true,
-        description: `Details of invoice adjustment to create.`,
+        description: `Payload attributes required to create one invoice adjustment with optional approval, preset, and grouping metadata.`,
       },
       {
         name: 'recurring',
@@ -4778,131 +4345,6 @@ export const tools: Tool[] = [
     params: [],
   },
   {
-    name: 'deelmcp_knowledge_rag_config_create',
-    description: `Use this endpoint to create a new RAG (Retrieval-Augmented Generation) config for a team, that you can use to search using RAG Run Endpoint`,
-    params: [
-      { name: 'data', type: 'object', required: true, description: `Configuration object.` },
-    ],
-  },
-  {
-    name: 'deelmcp_knowledge_rag_config_delete',
-    description: `Use this endpoint to delete a RAG (Retrieval-Augmented Generation) configuration by its ID. This action is destructive.`,
-    params: [
-      {
-        name: 'config_id',
-        type: 'string',
-        required: true,
-        description: `Config Id for the RAG config`,
-      },
-    ],
-  },
-  {
-    name: 'deelmcp_knowledge_rag_config_get',
-    description: `Use this endpoint to retrieve a RAG (Retrieval-Augmented Generation) configuration by its ID. Provide the config_id in the path. This is a read-only operation suitable for auditing or configuring clients.`,
-    params: [
-      {
-        name: 'config_id',
-        type: 'string',
-        required: true,
-        description: `Config Id for the RAG config`,
-      },
-    ],
-  },
-  {
-    name: 'deelmcp_knowledge_rag_config_list',
-    description: `Use this endpoint to retrieve all RAG (Retrieval-Augmented Generation) configuration using pagination. This is a read-only operation suitable for fetching all RAG configs.`,
-    params: [
-      {
-        name: 'cursor',
-        type: 'string',
-        required: false,
-        description: `Pagination cursor used to retrieve the next page of results.`,
-      },
-      {
-        name: 'fields',
-        type: 'array',
-        required: false,
-        description: `Array of fields to include in the response. Sent as multiple query parameters: fields=output_schema&fields=metadata`,
-      },
-      {
-        name: 'limit',
-        type: 'integer',
-        required: false,
-        description: `Maximum number of items to return. Must be between 1 and 100.`,
-      },
-    ],
-  },
-  {
-    name: 'deelmcp_knowledge_rag_config_run',
-    description: `Use this endpoint to run a retrieval-augmented query using the specified config_id`,
-    params: [
-      {
-        name: 'config_id',
-        type: 'string',
-        required: true,
-        description: `Config Id for the RAG config`,
-      },
-      { name: 'data', type: 'object', required: true, description: `No description.` },
-    ],
-  },
-  {
-    name: 'deelmcp_knowledge_rag_config_update',
-    description: `Use this endpoint to update an existing RAG (Retrieval-Augmented Generation) configuration`,
-    params: [
-      {
-        name: 'config_id',
-        type: 'string',
-        required: true,
-        description: `Config Id for the RAG config`,
-      },
-      { name: 'data', type: 'object', required: true, description: `Configuration object.` },
-    ],
-  },
-  {
-    name: 'deelmcp_legal_entity_cost_center_synchronize',
-    description: `Update legal entity cost center's data to replicate the data provided on the request`,
-    params: [
-      { name: 'data', type: 'array', required: true, description: `No description.` },
-      { name: 'legal_entity_id', type: 'string', required: true, description: `Legal entity id` },
-    ],
-  },
-  {
-    name: 'deelmcp_list_payroll_cycles',
-    description: `Use this endpoint to retrieve a list of payroll events for a specified legal entity.`,
-    params: [
-      {
-        name: 'legal_entity_id',
-        type: 'string',
-        required: true,
-        description: `The unique identifier (public ID) for the legal entity.`,
-      },
-      {
-        name: 'cursor',
-        type: 'string',
-        required: false,
-        description: `Pagination cursor, CUID or UUID format.`,
-      },
-      {
-        name: 'date_end',
-        type: 'string',
-        required: false,
-        description: `End date in the format 'YYYY-MM-DD'. Must not exceed 5 years in the future.`,
-      },
-      {
-        name: 'date_start',
-        type: 'string',
-        required: false,
-        description: `Start date in the format 'YYYY-MM-DD'. Must not be earlier than 5 years ago.`,
-      },
-      {
-        name: 'limit',
-        type: 'integer',
-        required: false,
-        description: `Maximum number of items to return.`,
-      },
-    ],
-  },
-  {
     name: 'deelmcp_lookup_country_list',
     description: `Returns all countries supported by the platform, including each country's visa support status, Employer of Record availability, sub-territories, and classification.`,
     params: [],
@@ -4947,11 +4389,6 @@ export const tools: Tool[] = [
         description: `when \`true\`, exclude C-level seniorities for EOR contracts. Set to \`false\` to return all seniorities`,
       },
     ],
-  },
-  {
-    name: 'deelmcp_lookup_timeoff_type_list',
-    description: `Returns the predefined time-off types available for registration on the platform.`,
-    params: [],
   },
   {
     name: 'deelmcp_milestone_create',
@@ -5036,7 +4473,7 @@ export const tools: Tool[] = [
         name: 'hiring_types',
         type: 'array',
         required: false,
-        description: `Hiring type (e.g., contractor, employee)`,
+        description: `Filter by hiring type.`,
       },
       {
         name: 'ignore_date_range',
@@ -5066,7 +4503,7 @@ export const tools: Tool[] = [
         name: 'progress_statuses',
         type: 'array',
         required: false,
-        description: `Progress status of the contract`,
+        description: `Filter by offboarding progress status.`,
       },
       {
         name: 'search',
@@ -5211,11 +4648,6 @@ export const tools: Tool[] = [
     ],
   },
   {
-    name: 'deelmcp_onboarding_worker_create',
-    description: `Complete the profile setup for independent contractors including address, tax details, and legal status in a single call during the IC-embedded onboarding flow. This operation requires a worker session token obtained via the worker session endpoint.`,
-    params: [{ name: 'data', type: 'object', required: true, description: `No description.` }],
-  },
-  {
     name: 'deelmcp_org_analytics_get',
     description: `Executes an analytics query against the Cube backend. Use GET /organization/analytics/:entity_name/metadata first to fetch metadata for the specific entity, then use only the measures and dimensions returned for that entity.`,
     params: [
@@ -5248,13 +4680,6 @@ export const tools: Tool[] = [
     name: 'deelmcp_org_contract_custom_field_list',
     description: `Returns custom field definitions for contracts — field metadata and placement for supported types (text, list, multiselect, number, percentage, currency, date), not contract-specific values.`,
     params: [],
-  },
-  {
-    name: 'deelmcp_org_cost_center_list',
-    description: `Returns all cost centers associated with the specified legal_entity_id.`,
-    params: [
-      { name: 'legal_entity_id', type: 'string', required: true, description: `Legal entity id` },
-    ],
   },
   {
     name: 'deelmcp_org_create_legal_entity',
@@ -5747,43 +5172,6 @@ export const tools: Tool[] = [
     ],
   },
   {
-    name: 'deelmcp_org_task_list',
-    description: `Returns a paginated list of all tasks for the organization, not limited to the caller. Supports offset/limit and cursor-based pagination, which are mutually exclusive — do not combine \`cursor\` with offset.`,
-    params: [
-      {
-        name: 'category',
-        type: 'string',
-        required: false,
-        description: `Filter by task category.`,
-      },
-      {
-        name: 'cursor',
-        type: 'string',
-        required: false,
-        description: `Opaque cursor for cursor-based pagination. When provided, use with limit only (do not use offset).`,
-      },
-      {
-        name: 'external_id',
-        type: 'string',
-        required: false,
-        description: `Filter by external ID (for tasks created with an external reference).`,
-      },
-      {
-        name: 'limit',
-        type: 'integer',
-        required: false,
-        description: `Maximum number of records to return (1-100).`,
-      },
-      {
-        name: 'search',
-        type: 'string',
-        required: false,
-        description: `Search string for task display name or description.`,
-      },
-      { name: 'statuses', type: 'array', required: false, description: `Filter by task statuses.` },
-    ],
-  },
-  {
     name: 'deelmcp_org_team_list',
     description: `Returns the list of teams within the authenticated user's organization, with each entry including the team's ID and name.`,
     params: [],
@@ -5796,45 +5184,9 @@ export const tools: Tool[] = [
         name: 'id',
         type: 'string',
         required: true,
-        description: `The unique identifier of the legal entity.`,
+        description: `The ID of the legal entity to update.`,
       },
-      { name: 'address', type: 'object', required: false, description: `No description.` },
-      {
-        name: 'company_identifiers',
-        type: 'object',
-        required: false,
-        description: `Identifiers associated with the legal entity.`,
-      },
-      {
-        name: 'entity_type',
-        type: 'string',
-        required: false,
-        description: `The type of the legal entity.`,
-      },
-      {
-        name: 'industry_name',
-        type: 'string',
-        required: false,
-        description: `The industry name of the legal entity.`,
-      },
-      {
-        name: 'name',
-        type: 'string',
-        required: false,
-        description: `The name of the legal entity.`,
-      },
-      {
-        name: 'phone',
-        type: 'string',
-        required: false,
-        description: `The phone number of the legal entity.`,
-      },
-      {
-        name: 'sic_number',
-        type: 'string',
-        required: false,
-        description: `The SIC number of the legal entity.`,
-      },
+      { name: 'data', type: 'object', required: false, description: `No description.` },
     ],
   },
   {
@@ -5891,74 +5243,16 @@ export const tools: Tool[] = [
     ],
   },
   {
-    name: 'deelmcp_payout_auto_withdrawal_get',
-    description: `Returns the current auto-withdrawal configuration for the authenticated worker, including whether auto-withdrawal is enabled and the identifier of the selected withdrawal method.`,
-    params: [],
-  },
-  {
-    name: 'deelmcp_payout_auto_withdrawal_update',
-    description: `Partially updates the auto-withdrawal configuration, allowing callers to enable or disable auto-withdrawal and change the target withdrawal method.`,
-    params: [{ name: 'data', type: 'object', required: false, description: `No description.` }],
-  },
-  {
-    name: 'deelmcp_payout_balance_list',
-    description: `Returns the total available balances for the authenticated contractor, broken down by currency and aggregated into a single cross-currency total.`,
-    params: [],
-  },
-  {
-    name: 'deelmcp_payout_bank_transfer_method_update',
-    description: `Fully replaces the bank transfer method; all method fields must be provided as this is a complete replacement, not a partial update.`,
-    params: [
-      { name: 'data', type: 'object', required: true, description: `No description.` },
-      { name: 'id', type: 'string', required: true, description: `Method unique identifier` },
-    ],
-  },
-  {
-    name: 'deelmcp_payout_bank_transfer_route_list',
-    description: `Returns all bank transfer routes available to the authenticated contractor.`,
-    params: [],
-  },
-  {
-    name: 'deelmcp_payout_contractor_auto_withdrawal_update',
-    description: `Updates the auto-withdrawal configuration for the authenticated contractor.`,
-    params: [{ name: 'data', type: 'object', required: true, description: `No description.` }],
-  },
-  {
-    name: 'deelmcp_payout_employee_method_create',
-    description: `Creates or updates an employee's bank payout method. If a method already exists, the existing record is superseded and the response includes a version identifier and activation status reflecting the updated state.`,
-    params: [{ name: 'data', type: 'object', required: false, description: `Request data` }],
-  },
-  {
-    name: 'deelmcp_payout_employee_method_delete',
-    description: `Permanently removes the bank payout method identified by the given method \`id\`.`,
-    params: [{ name: 'id', type: 'string', required: true, description: `method ID` }],
-  },
-  {
-    name: 'deelmcp_payout_employee_method_list',
-    description: `Retrieves the configured bank payout methods for an employee.`,
-    params: [],
-  },
-  {
-    name: 'deelmcp_payout_transfer_method_create',
-    description: `Registers a new bank transfer payout method; the request payload structure is dynamic and determined by the selected option, so callers should retrieve field requirements before submitting.`,
-    params: [{ name: 'data', type: 'object', required: true, description: `No description.` }],
-  },
-  {
-    name: 'deelmcp_payout_transfer_method_list',
-    description: `Returns all payout methods associated with the authenticated account, with optional filtering to return only the default method.`,
+    name: 'deelmcp_payment_request_list_recent',
+    description: `Returns the last N payment requests for the authenticated employee profile, including amount, currency, status, due dates, and activity logs. The number of results is controlled by the limit parameter.`,
     params: [
       {
-        name: 'is_default',
-        type: 'boolean',
+        name: 'limit',
+        type: 'integer',
         required: false,
-        description: `Filter by whether the method is default. If true, only default methods will be returned.`,
+        description: `Number of payment requests to return.`,
       },
     ],
-  },
-  {
-    name: 'deelmcp_payout_withdrawal_request',
-    description: `Initiates a withdrawal of available funds to the employee's configured payout method. The operation is asynchronous; the outcome is delivered via webhook rather than the synchronous response.`,
-    params: [{ name: 'data', type: 'object', required: true, description: `No description.` }],
   },
   {
     name: 'deelmcp_payout_withdrawal_tracking_get',
@@ -5982,30 +5276,6 @@ export const tools: Tool[] = [
     name: 'deelmcp_payroll_contract_create',
     description: `Creates a new Global Payroll contract. Country-specific required fields must be retrieved first from \`GET /forms/gp/worker-additional-fields/{country_code}\`. Returns the contract with its \`id\`.`,
     params: [{ name: 'data', type: 'object', required: true, description: `No description.` }],
-  },
-  {
-    name: 'deelmcp_payroll_cycle_gross_to_net_get',
-    description: `Returns categorized gross-to-net data — including category group, category, sub-category, and label — for each contract within the payroll cycle identified by \`cycle_id\`.`,
-    params: [
-      {
-        name: 'cycle_id',
-        type: 'string',
-        required: true,
-        description: `The unique identifier for the payroll event.`,
-      },
-      {
-        name: 'cursor',
-        type: 'string',
-        required: false,
-        description: `Cursor for pagination of results.`,
-      },
-      {
-        name: 'limit',
-        type: 'integer',
-        required: false,
-        description: `Maximum number of items to return. Defaults to 20.`,
-      },
-    ],
   },
   {
     name: 'deelmcp_payroll_cycle_list',
@@ -6041,11 +5311,6 @@ export const tools: Tool[] = [
       },
       { name: 'start_date', type: 'string', required: false, description: `Start of date range.` },
     ],
-  },
-  {
-    name: 'deelmcp_payroll_equity_tax_event_create',
-    description: `Submits an equity or token tax event for an EOR worker enrolled in Equity & Token Services.`,
-    params: [{ name: 'data', type: 'object', required: false, description: `No description.` }],
   },
   {
     name: 'deelmcp_payroll_payment_cycle_list',
@@ -6098,24 +5363,6 @@ export const tools: Tool[] = [
         description: `Maximum number of report rows.`,
       },
       { name: 'search', type: 'string', required: false, description: `Filter by employee name.` },
-    ],
-  },
-  {
-    name: 'deelmcp_raw_shift_update',
-    description: `Update specific fields of an existing raw shift by its unique \`external_id\`. This includes shift meta details, description etc.`,
-    params: [
-      {
-        name: 'data',
-        type: 'object',
-        required: true,
-        description: `Raw shift update request data.`,
-      },
-      {
-        name: 'external_id',
-        type: 'string',
-        required: true,
-        description: `Unique identifier of the shift to be updated.`,
-      },
     ],
   },
   {
@@ -6233,24 +5480,6 @@ export const tools: Tool[] = [
     ],
   },
   {
-    name: 'deelmcp_system_profile_list',
-    description: `Use this endpoint to retrieve a list of Deel users along with their connected system accounts (Slack, GitHub, Jira).`,
-    params: [
-      {
-        name: 'email',
-        type: 'array',
-        required: false,
-        description: `One or more emails to match exactly; repeat the param (?email=a@x.com&email=b@y.com). At least one of 'email' or 'name' must be provided.`,
-      },
-      {
-        name: 'name',
-        type: 'array',
-        required: false,
-        description: `One or more names (case-insensitive partial match); repeat the param (?name=John&name=Doe). At least one of 'email' or 'name' must be provided.`,
-      },
-    ],
-  },
-  {
     name: 'deelmcp_task_update',
     description: `Applies a partial update to the specified task and returns whether the update was successful.`,
     params: [
@@ -6260,168 +5489,6 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `The id of an existing task`,
-      },
-    ],
-  },
-  {
-    name: 'deelmcp_time_tracking_raw_shift_create',
-    description: `Submits one or more raw shift records to the time tracking system. Raw shifts represent unprocessed time entries that may undergo validation or transformation before being reflected in processed time data.`,
-    params: [
-      {
-        name: 'data',
-        type: 'object',
-        required: true,
-        description: `Request data containing contract ID and shifts to be created.`,
-      },
-    ],
-  },
-  {
-    name: 'deelmcp_time_tracking_shift_bulk_delete',
-    description: `Permanently deletes one or more shifts identified by their external IDs. Deleted shifts are immediately unrecoverable and can no longer be retrieved or modified.`,
-    params: [
-      {
-        name: 'data',
-        type: 'object',
-        required: true,
-        description: `Request data containing the external IDs of shifts to be deleted.`,
-      },
-    ],
-  },
-  {
-    name: 'deelmcp_time_tracking_shift_create',
-    description: `Creates one or more time tracking shifts for a contract in a single request. Supports both original shift submissions and correction shifts that adjust hours for previously processed shifts.`,
-    params: [
-      {
-        name: 'data',
-        type: 'object',
-        required: true,
-        description: `Request data containing contract ID and shifts to be created.`,
-      },
-    ],
-  },
-  {
-    name: 'deelmcp_time_tracking_shift_external_delete',
-    description: `Permanently deletes a shift identified by its external_id. Once deleted, the shift cannot be retrieved or modified.`,
-    params: [
-      {
-        name: 'external_id',
-        type: 'string',
-        required: true,
-        description: `The unique external identifier of the shift to be deleted.`,
-      },
-    ],
-  },
-  {
-    name: 'deelmcp_time_tracking_shift_external_get',
-    description: `Retrieves the details of a specific shift.`,
-    params: [
-      {
-        name: 'external_id',
-        type: 'string',
-        required: true,
-        description: `Unique identifier of the shift to retrieve.`,
-      },
-    ],
-  },
-  {
-    name: 'deelmcp_time_tracking_shift_external_update',
-    description: `Applies a partial update to an existing shift, modifying only the fields supplied in the request body. Fields omitted from the request are left unchanged.`,
-    params: [
-      { name: 'data', type: 'object', required: true, description: `Shift update request data.` },
-      {
-        name: 'external_id',
-        type: 'string',
-        required: true,
-        description: `Unique identifier of the shift to be updated.`,
-      },
-    ],
-  },
-  {
-    name: 'deelmcp_time_tracking_shift_list',
-    description: `Returns a paginated list of shifts. Results can be scoped to one or more contracts and bounded by a date range using \`from_date\` and \`to_date\`.`,
-    params: [
-      {
-        name: 'contract_id',
-        type: 'array',
-        required: false,
-        description: `Filter shifts by one or more contract IDs.`,
-      },
-      {
-        name: 'from_date',
-        type: 'string',
-        required: false,
-        description: `Filter shifts from this date (YYYY-MM-DD).`,
-      },
-      {
-        name: 'limit',
-        type: 'string',
-        required: false,
-        description: `Maximum number of records to return.`,
-      },
-      {
-        name: 'offset',
-        type: 'string',
-        required: false,
-        description: `Offset/index of record for the next page of records to return.`,
-      },
-      {
-        name: 'to_date',
-        type: 'string',
-        required: false,
-        description: `Filter shifts until this date (YYYY-MM-DD).`,
-      },
-    ],
-  },
-  {
-    name: 'deelmcp_time_tracking_shift_rate_create',
-    description: `Creates a new shift rate with a specified name, type, value, and an externally supplied identifier that can be used to correlate the rate with records in external systems.`,
-    params: [{ name: 'data', type: 'object', required: true, description: `No description.` }],
-  },
-  {
-    name: 'deelmcp_time_tracking_shift_rate_external_delete',
-    description: `Deletes a shift rate identified by its external_id, which is the custom identifier assigned at creation time. Deletion is blocked if the shift rate is currently associated with any active shift.`,
-    params: [{ name: 'external_id', type: 'string', required: true, description: `external ID` }],
-  },
-  {
-    name: 'deelmcp_time_tracking_shift_rate_external_get',
-    description: `Retrieves a shift rate.`,
-    params: [
-      {
-        name: 'external_id',
-        type: 'string',
-        required: true,
-        description: `The unique external identifier of the shift rate to retrieve.`,
-      },
-    ],
-  },
-  {
-    name: 'deelmcp_time_tracking_shift_rate_external_update',
-    description: `Applies a partial update to an existing shift rate, modifying only the fields provided in the request body.`,
-    params: [
-      { name: 'data', type: 'object', required: true, description: `No description.` },
-      {
-        name: 'external_id',
-        type: 'string',
-        required: true,
-        description: `Unique identifier of the shift rate to be updated.`,
-      },
-    ],
-  },
-  {
-    name: 'deelmcp_time_tracking_shift_rate_list',
-    description: `Returns a paginated list of shift rates. Use the limit and offset parameters to control page size and starting position within the result set.`,
-    params: [
-      {
-        name: 'limit',
-        type: 'string',
-        required: false,
-        description: `The maximum number of records to return per page. For example, '10' to return up to 10 records.`,
-      },
-      {
-        name: 'offset',
-        type: 'string',
-        required: false,
-        description: `The starting index for the records to retrieve. For example, '0' for the first page or '10' for the second page when limit=10.`,
       },
     ],
   },
@@ -6969,8 +6036,18 @@ export const tools: Tool[] = [
     name: 'deelmcp_timesheet_update',
     description: `Partially updates an existing timesheet entry; only fields supplied in the request body are modified. Both clients and contractors may perform this operation.`,
     params: [
-      { name: 'data', type: 'object', required: true, description: `No description.` },
-      { name: 'id', type: 'string', required: true, description: `ID of an existing timesheet.` },
+      {
+        name: 'data',
+        type: 'object',
+        required: true,
+        description: `Fields to update on the existing timesheet entry.`,
+      },
+      {
+        name: 'timesheet_id',
+        type: 'string',
+        required: true,
+        description: `ID of an existing timesheet.`,
+      },
     ],
   },
   {
@@ -7000,19 +6077,6 @@ export const tools: Tool[] = [
     params: [
       { name: 'hrisProfileOid', type: 'string', required: true, description: `HrisProfile ID` },
       { name: 'data', type: 'object', required: false, description: `No description.` },
-    ],
-  },
-  {
-    name: 'deelmcp_verification_aml_get',
-    description: `Returns the most recent AML screening result for the specified entity. The \`entity_type\` must be one of \`profile\`, \`hris_profile\`, or \`legal_entity\`.`,
-    params: [
-      { name: 'entity_id', type: 'string', required: true, description: `UUID v4 of the entity` },
-      {
-        name: 'entity_type',
-        type: 'string',
-        required: true,
-        description: `The type of entity to screen. Only 'profile', 'hris_profile', 'legal_entity' are accepted.`,
-      },
     ],
   },
   {
@@ -7055,52 +6119,6 @@ export const tools: Tool[] = [
         required: true,
         description: `The document to be provided during KYC`,
       },
-    ],
-  },
-  {
-    name: 'deelmcp_verification_screening_create',
-    description: `Creates a manual identity verification submission as a fallback when automated verification has failed multiple times or when the document's country of issue is not supported by the automated solution.`,
-    params: [],
-  },
-  {
-    name: 'deelmcp_vms_candidate_message_create',
-    description: `Use this endpoint to handle new candidate's chat message received from an external provider. Provide the job and candidate identifiers and message text. The system will save text and show it to client as candidate's chat message.`,
-    params: [{ name: 'data', type: 'object', required: true, description: `No description.` }],
-  },
-  {
-    name: 'deelmcp_vms_candidate_update',
-    description: `Handles a candidate action event from an external provider by updating the candidate state and triggering corresponding platform workflows.`,
-    params: [{ name: 'data', type: 'object', required: true, description: `No description.` }],
-  },
-  {
-    name: 'deelmcp_worker_amendment_sign',
-    description: `Records the worker's signature on a pending amendment identified by amendment_id. Once signed, the amendment's status change is reflected in the associated contract.`,
-    params: [
-      {
-        name: 'amendment_id',
-        type: 'string',
-        required: true,
-        description: `The unique identifier of the amendment to sign`,
-      },
-      { name: 'data', type: 'object', required: false, description: `No description.` },
-    ],
-  },
-  {
-    name: 'deelmcp_worker_compliance_document_list',
-    description: `Retrieve the list of compliance document requirements for a worker, grouped by country. Returns all required and optional documents with their current submission status. Applicable for both independent contractors and EOR employees.`,
-    params: [],
-  },
-  {
-    name: 'deelmcp_worker_contract_sign',
-    description: `Records the worker's signature on the contract identified by contract_id. Only contracts in an unsigned, pending state can be signed.`,
-    params: [
-      {
-        name: 'contract_id',
-        type: 'string',
-        required: true,
-        description: `The unique identifier of the contract.`,
-      },
-      { name: 'data', type: 'object', required: true, description: `No description.` },
     ],
   },
   {
@@ -7150,11 +6168,6 @@ export const tools: Tool[] = [
         description: `Unique identifier for a worker.`,
       },
     ],
-  },
-  {
-    name: 'deelmcp_worker_hrx_manager_get',
-    description: `Retrieves the Human Resource Experience (HRX) Manager assigned to the authenticated worker, including contact details and a scheduling URL. Accessible only to workers with the appropriate permissions.`,
-    params: [],
   },
   {
     name: 'deelmcp_worker_personal_info_external_get',

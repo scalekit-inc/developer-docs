@@ -62,6 +62,24 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'firefliesmcp_fireflies_get_active_meetings',
+    description: `List currently active (in-progress) meetings, including title, organizer, meeting link, start/end time, privacy, and state.`,
+    params: [
+      {
+        name: 'email',
+        type: 'string',
+        required: false,
+        description: `Optional email address to filter active meetings by a specific user. Admins can query any team member; regular users can only use their own email or omit this field.`,
+      },
+      {
+        name: 'states',
+        type: 'array',
+        required: false,
+        description: `Meeting states to filter by. Accepted values: active, paused. If omitted, returns meetings in both states.`,
+      },
+    ],
+  },
+  {
     name: 'firefliesmcp_fireflies_get_analytics',
     description: `Retrieve team and per-user meeting analytics for a given date range.`,
     params: [
@@ -172,6 +190,108 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Filter soundbites to a specific meeting transcript ID. Get it from the search tool.`,
+      },
+    ],
+  },
+  {
+    name: 'firefliesmcp_fireflies_get_summary',
+    description: `Fetch the meeting summary (keywords, action items, overview) for a meeting by its ID. Excludes transcript content; use fireflies_get_transcript for that.`,
+    params: [
+      {
+        name: 'transcriptId',
+        type: 'string',
+        required: true,
+        description: `The Fireflies transcript ID of the meeting to fetch the summary for. Get it from the search tool.`,
+      },
+    ],
+  },
+  {
+    name: 'firefliesmcp_fireflies_get_transcript',
+    description: `Fetch the detailed transcript (sentences and speakers) for a meeting by its ID. Excludes summary data; use fireflies_get_summary for that.`,
+    params: [
+      {
+        name: 'transcriptId',
+        type: 'string',
+        required: true,
+        description: `The Fireflies transcript ID of the meeting to fetch. Get it from the search tool.`,
+      },
+    ],
+  },
+  {
+    name: 'firefliesmcp_fireflies_get_transcripts',
+    description: `Query multiple meeting transcripts using filter properties (date range, keyword, organizer/participant email, channel, etc). Returns basic metadata and summary, not full transcript content.`,
+    params: [
+      {
+        name: 'channelId',
+        type: 'string',
+        required: false,
+        description: `Optional channel/folder ID to only include meetings in that channel. Get it from the list_channels tool.`,
+      },
+      {
+        name: 'date',
+        type: 'number',
+        required: false,
+        description: `Deprecated date filter. Use fromDate/toDate instead.`,
+      },
+      {
+        name: 'format',
+        type: 'string',
+        required: false,
+        description: `Response format. Accepted values: json, text, toon.`,
+      },
+      {
+        name: 'fromDate',
+        type: 'string',
+        required: false,
+        description: `Optional ISO 8601 date string (e.g. 2023-01-01) to filter meetings from this date.`,
+      },
+      {
+        name: 'keyword',
+        type: 'string',
+        required: false,
+        description: `Optional keyword to search for in meeting content.`,
+      },
+      {
+        name: 'limit',
+        type: 'number',
+        required: false,
+        description: `Maximum number of items to return.`,
+      },
+      {
+        name: 'mine',
+        type: 'boolean',
+        required: false,
+        description: `Set to true to return only your own items.`,
+      },
+      {
+        name: 'organizers',
+        type: 'array',
+        required: false,
+        description: `Array of organizer email addresses to filter meetings.`,
+      },
+      {
+        name: 'participants',
+        type: 'array',
+        required: false,
+        description: `Array of participant email addresses to filter meetings.`,
+      },
+      {
+        name: 'scope',
+        type: 'string',
+        required: false,
+        description: `Scope for keyword search. Accepted values: title, sentences, all.`,
+      },
+      {
+        name: 'skip',
+        type: 'number',
+        required: false,
+        description: `Number of items to skip for pagination.`,
+      },
+      {
+        name: 'toDate',
+        type: 'string',
+        required: false,
+        description: `Optional ISO 8601 date string (e.g. 2023-12-31) to filter meetings until this date.`,
       },
     ],
   },

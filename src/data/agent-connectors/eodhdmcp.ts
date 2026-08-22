@@ -281,6 +281,395 @@ For keyword frequency analysis in news, use get_news_word_weights instead.`,
     ],
   },
   {
+    name: 'eodhdmcp_get_congressional_trades',
+    description: `Fetch US Congress securities transactions disclosed under the STOCK Act.
+
+Filters cover ticker, chamber, member Bioguide ID, transaction type,
+transaction/disclosure date ranges, and upstream pagination. A trailing
+\`\`.US\`\` ticker suffix is accepted and removed, while class-share dots such
+as \`\`BRK.B\`\` are preserved. Costs 10 API calls and requires All-in-One.
+
+Returns the upstream JSON envelope unchanged: \`\`data\`\` contains nested
+member, asset, transaction, and source objects; \`\`meta\`\` contains total and
+page details; and \`\`links.next\`\` points to the next page when present.`,
+    params: [
+      {
+        name: 'api_token',
+        type: 'string',
+        required: false,
+        description: `Per-call token override. If omitted, env token is used.`,
+      },
+      {
+        name: 'bioguide_id',
+        type: 'string',
+        required: false,
+        description: `Filter by member Bioguide ID.`,
+      },
+      {
+        name: 'chamber',
+        type: 'string',
+        required: false,
+        description: `Filter by chamber of Congress: 'house' or 'senate'.`,
+      },
+      {
+        name: 'disclosure_date_from',
+        type: 'string',
+        required: false,
+        description: `Start of disclosure date range filter (YYYY-MM-DD).`,
+      },
+      {
+        name: 'disclosure_date_to',
+        type: 'string',
+        required: false,
+        description: `End of disclosure date range filter (YYYY-MM-DD).`,
+      },
+      { name: 'limit', type: 'string', required: false, description: `Records per page.` },
+      { name: 'offset', type: 'string', required: false, description: `Pagination offset.` },
+      {
+        name: 'symbol',
+        type: 'string',
+        required: false,
+        description: `Filter by ticker symbol (e.g. 'AAPL' or 'AAPL.US'; trailing .US is stripped, class-share dots like BRK.B are preserved).`,
+      },
+      {
+        name: 'transaction_date_from',
+        type: 'string',
+        required: false,
+        description: `Start of transaction date range filter (YYYY-MM-DD).`,
+      },
+      {
+        name: 'transaction_date_to',
+        type: 'string',
+        required: false,
+        description: `End of transaction date range filter (YYYY-MM-DD).`,
+      },
+      {
+        name: 'transaction_type',
+        type: 'string',
+        required: false,
+        description: `Filter by transaction type (e.g. 'purchase', 'sale').`,
+      },
+    ],
+  },
+  {
+    name: 'eodhdmcp_get_credit_cds_market_aggregates',
+    description: `Fetch aggregated CDS market statistics. Use when the user asks about CDS market gross
+notional, CDS activity broken down by grade or cleared status, or CDS market size over time.
+
+Returns aggregated CDS market metrics (e.g. gross notional) broken down by a chosen
+dimension (grade or cleared status). Filterable by metric, dimension, and date range.
+Paginated.`,
+    params: [
+      {
+        name: 'api_token',
+        type: 'string',
+        required: false,
+        description: `Per-call token override.`,
+      },
+      {
+        name: 'date_from',
+        type: 'string',
+        required: false,
+        description: `Start date filter (YYYY-MM-DD).`,
+      },
+      {
+        name: 'date_to',
+        type: 'string',
+        required: false,
+        description: `End date filter (YYYY-MM-DD).`,
+      },
+      {
+        name: 'dimension',
+        type: 'string',
+        required: false,
+        description: `Breakdown dimension: 'grade' or 'cleared_status'.`,
+      },
+      {
+        name: 'fmt',
+        type: 'string',
+        required: false,
+        description: `'json' or 'csv'. Default 'json'.`,
+      },
+      {
+        name: 'limit',
+        type: 'string',
+        required: false,
+        description: `Records per page (default 20, max 100).`,
+      },
+      {
+        name: 'metric',
+        type: 'string',
+        required: false,
+        description: `Metric to aggregate. Currently 'gross_notional'.`,
+      },
+      { name: 'offset', type: 'string', required: false, description: `Pagination offset.` },
+    ],
+  },
+  {
+    name: 'eodhdmcp_get_credit_corporate_cmdi',
+    description: `Fetch the Corporate Market-based Default Indicator (CMDI) time series. Use when the user asks
+about corporate credit stress, the CMDI index, or investment-grade vs high-yield market
+default indicators.
+
+Returns the market CMDI along with investment-grade (IG) and high-yield (HY) sub-indices
+over time. Filterable by date range. Paginated.`,
+    params: [
+      {
+        name: 'api_token',
+        type: 'string',
+        required: false,
+        description: `Per-call token override.`,
+      },
+      {
+        name: 'date_from',
+        type: 'string',
+        required: false,
+        description: `Start date filter (YYYY-MM-DD).`,
+      },
+      {
+        name: 'date_to',
+        type: 'string',
+        required: false,
+        description: `End date filter (YYYY-MM-DD).`,
+      },
+      {
+        name: 'fmt',
+        type: 'string',
+        required: false,
+        description: `'json' or 'csv'. Default 'json'.`,
+      },
+      {
+        name: 'limit',
+        type: 'string',
+        required: false,
+        description: `Records per page (default 20, max 100).`,
+      },
+      { name: 'offset', type: 'string', required: false, description: `Pagination offset.` },
+    ],
+  },
+  {
+    name: 'eodhdmcp_get_credit_corporate_hqm_yields',
+    description: `Fetch HQM (High Quality Market) corporate bond yield curves. Use when the user asks about
+HQM corporate yields, high-quality corporate bond spot or par yields, or yields by tenor.
+
+Returns HQM corporate bond yields by tenor (in years) and yield type (par or spot) over
+time. Filterable by tenor, type, and date range. Paginated.`,
+    params: [
+      {
+        name: 'api_token',
+        type: 'string',
+        required: false,
+        description: `Per-call token override.`,
+      },
+      {
+        name: 'date_from',
+        type: 'string',
+        required: false,
+        description: `Start date filter (YYYY-MM-DD).`,
+      },
+      {
+        name: 'date_to',
+        type: 'string',
+        required: false,
+        description: `End date filter (YYYY-MM-DD).`,
+      },
+      {
+        name: 'fmt',
+        type: 'string',
+        required: false,
+        description: `'json' or 'csv'. Default 'json'.`,
+      },
+      {
+        name: 'limit',
+        type: 'string',
+        required: false,
+        description: `Records per page (default 20, max 100).`,
+      },
+      { name: 'offset', type: 'string', required: false, description: `Pagination offset.` },
+      {
+        name: 'tenor',
+        type: 'string',
+        required: false,
+        description: `Tenor in years. One of 1, 2, 3, 5, 7, 10, 15, 20, 25, 30.`,
+      },
+      {
+        name: 'type',
+        type: 'string',
+        required: false,
+        description: `Yield type: 'par' or 'spot'.`,
+      },
+    ],
+  },
+  {
+    name: 'eodhdmcp_get_credit_sovereign_cds_spreads',
+    description: `Fetch sovereign CDS (credit default swap) spreads by country. Use when the user asks about
+sovereign CDS spreads, default insurance costs for government debt, or CDS net of the
+Switzerland benchmark.
+
+Returns sovereign CDS spreads (raw and net of Switzerland) with Moody's rating context.
+Filterable by country and as-of date. Paginated.`,
+    params: [
+      {
+        name: 'api_token',
+        type: 'string',
+        required: false,
+        description: `Per-call token override.`,
+      },
+      {
+        name: 'as_of',
+        type: 'string',
+        required: false,
+        description: `Filter by as-of date (YYYY-MM-DD).`,
+      },
+      {
+        name: 'country',
+        type: 'string',
+        required: false,
+        description: `Filter by country (ISO-3 code or name).`,
+      },
+      {
+        name: 'fmt',
+        type: 'string',
+        required: false,
+        description: `'json' or 'csv'. Default 'json'.`,
+      },
+      {
+        name: 'limit',
+        type: 'string',
+        required: false,
+        description: `Records per page (default 20, max 100).`,
+      },
+      { name: 'offset', type: 'string', required: false, description: `Pagination offset.` },
+    ],
+  },
+  {
+    name: 'eodhdmcp_get_credit_sovereign_credit_ratings',
+    description: `Fetch sovereign credit ratings from the three major agencies. Use when the user asks about
+a country's credit rating, Moody's / S&P / Fitch sovereign ratings, or ratings comparisons
+across countries.
+
+Returns Moody's, S&P, and Fitch sovereign ratings by country. Filterable by country and
+as-of date. Paginated.`,
+    params: [
+      {
+        name: 'api_token',
+        type: 'string',
+        required: false,
+        description: `Per-call token override.`,
+      },
+      {
+        name: 'as_of',
+        type: 'string',
+        required: false,
+        description: `Filter by as-of date (YYYY-MM-DD).`,
+      },
+      {
+        name: 'country',
+        type: 'string',
+        required: false,
+        description: `Filter by country (ISO-3 code or name).`,
+      },
+      {
+        name: 'fmt',
+        type: 'string',
+        required: false,
+        description: `'json' or 'csv'. Default 'json'.`,
+      },
+      {
+        name: 'limit',
+        type: 'string',
+        required: false,
+        description: `Records per page (default 20, max 100).`,
+      },
+      { name: 'offset', type: 'string', required: false, description: `Pagination offset.` },
+    ],
+  },
+  {
+    name: 'eodhdmcp_get_credit_sovereign_default_spreads',
+    description: `Fetch default spreads by credit rating. Use when the user asks about the default spread
+associated with a given rating (e.g. Aaa, Baa2), or the rating-to-spread mapping used to
+derive country risk premiums.
+
+Returns the default spread for each rating bucket. Filterable by rating and as-of date.
+Paginated.`,
+    params: [
+      {
+        name: 'api_token',
+        type: 'string',
+        required: false,
+        description: `Per-call token override.`,
+      },
+      {
+        name: 'as_of',
+        type: 'string',
+        required: false,
+        description: `Filter by as-of date (YYYY-MM-DD).`,
+      },
+      {
+        name: 'fmt',
+        type: 'string',
+        required: false,
+        description: `'json' or 'csv'. Default 'json'.`,
+      },
+      {
+        name: 'limit',
+        type: 'string',
+        required: false,
+        description: `Records per page (default 20, max 100).`,
+      },
+      { name: 'offset', type: 'string', required: false, description: `Pagination offset.` },
+      {
+        name: 'rating',
+        type: 'string',
+        required: false,
+        description: `Filter by rating (e.g. 'Aaa', 'Baa2').`,
+      },
+    ],
+  },
+  {
+    name: 'eodhdmcp_get_credit_sovereign_risk_premium',
+    description: `Fetch sovereign country risk premiums. Use when the user asks about country risk premium,
+equity risk premium, adjusted default spreads, or Moody's sovereign ratings by country.
+
+Returns country-level risk premium data (Damodaran-style): adjusted default spread,
+country risk premium, equity risk premium, corporate tax rate, and sovereign CDS where
+available. Filterable by country, region, and as-of date. Paginated.`,
+    params: [
+      {
+        name: 'api_token',
+        type: 'string',
+        required: false,
+        description: `Per-call token override.`,
+      },
+      {
+        name: 'as_of',
+        type: 'string',
+        required: false,
+        description: `Filter by as-of date (YYYY-MM-DD).`,
+      },
+      {
+        name: 'country',
+        type: 'string',
+        required: false,
+        description: `Filter by country (ISO-3 code or name).`,
+      },
+      {
+        name: 'fmt',
+        type: 'string',
+        required: false,
+        description: `'json' or 'csv'. Default 'json'.`,
+      },
+      {
+        name: 'limit',
+        type: 'string',
+        required: false,
+        description: `Records per page (default 20, max 100).`,
+      },
+      { name: 'offset', type: 'string', required: false, description: `Pagination offset.` },
+      { name: 'region', type: 'string', required: false, description: `Filter by region.` },
+    ],
+  },
+  {
     name: 'eodhdmcp_get_earnings_trends',
     description: `Get earnings trend data including EPS/revenue estimates, analyst revisions, and growth projections for specific stocks.
 Returns quarterly and annual consensus estimates, number of analysts, and revision history.
@@ -933,7 +1322,7 @@ get_fundamentals_data (single ticker) or get_bulk_fundamentals (entire exchange)
   },
   {
     name: 'eodhdmcp_get_mp_illio_market_insights_best_worst',
-    description: `[Illio] Get the largest single-day gains and losses for index constituents.
+    description: `[STALE - upstream tool not present in the eodhdmcp MCP tools/list response as of 2026-08-19 (SK-1675 refresh); retained per policy, not deleted] [Illio] Get the largest single-day gains and losses for index constituents.
 Covers S&P 500, Dow Jones, and Nasdaq-100. Returns best and worst 1-day moves
 with dates, magnitudes, and affected instruments. Consumes 10 API calls per request.
 For overall constituent performance, use get_mp_illio_market_insights_performance.
@@ -967,7 +1356,7 @@ Examples:
   },
   {
     name: 'eodhdmcp_get_mp_illio_market_insights_beta_bands',
-    description: `[Illio] Analyze beta sensitivity distribution of index constituents relative to the market.
+    description: `[STALE - upstream tool not present in the eodhdmcp MCP tools/list response as of 2026-08-19 (SK-1675 refresh); retained per policy, not deleted] [Illio] Analyze beta sensitivity distribution of index constituents relative to the market.
 Covers S&P 500, Dow Jones, and Nasdaq-100. Returns beta bracket distribution, instruments with
 highest/lowest beta, and how constituents react to overall market moves. Consumes 10 API calls per request.
 For risk-return tradeoff analysis, use get_mp_illio_market_insights_risk_return.
@@ -996,7 +1385,7 @@ Limits (Marketplace rules):
   },
   {
     name: 'eodhdmcp_get_mp_illio_market_insights_largest_volatility',
-    description: `[Illio] Identify constituents with the largest year-over-year volatility changes.
+    description: `[STALE - upstream tool not present in the eodhdmcp MCP tools/list response as of 2026-08-19 (SK-1675 refresh); retained per policy, not deleted] [Illio] Identify constituents with the largest year-over-year volatility changes.
 Covers S&P 500, Dow Jones, and Nasdaq-100. Returns top instruments by 100-day volatility
 increase and decrease, plus the overall share of instruments with rising vs falling volatility.
 Consumes 10 API calls per request.
@@ -1026,7 +1415,7 @@ Limits (Marketplace rules):
   },
   {
     name: 'eodhdmcp_get_mp_illio_market_insights_performance',
-    description: `[Illio] Analyze market-level performance of index constituents versus the overall market.
+    description: `[STALE - upstream tool not present in the eodhdmcp MCP tools/list response as of 2026-08-19 (SK-1675 refresh); retained per policy, not deleted] [Illio] Analyze market-level performance of index constituents versus the overall market.
 Covers S&P 500, Dow Jones, and Nasdaq-100. Returns constituent performance comparison,
 sector attribution, and relative performance data. Consumes 10 API calls per request.
 For portfolio-level performance attributes, use mp_illio_performance_insights.
@@ -1057,7 +1446,7 @@ Examples:
   },
   {
     name: 'eodhdmcp_get_mp_illio_market_insights_risk_return',
-    description: `[Illio] Analyze market-level risk-return tradeoff for index constituents.
+    description: `[STALE - upstream tool not present in the eodhdmcp MCP tools/list response as of 2026-08-19 (SK-1675 refresh); retained per policy, not deleted] [Illio] Analyze market-level risk-return tradeoff for index constituents.
 Covers S&P 500, Dow Jones, and Nasdaq-100. Returns risk-adjusted return metrics,
 Sharpe-style analysis, and constituent risk-return scatter data. Consumes 10 API calls per request.
 For portfolio-level risk attributes, use mp_illio_risk_insights.
@@ -1090,7 +1479,7 @@ Examples:
   },
   {
     name: 'eodhdmcp_get_mp_illio_market_insights_volatility',
-    description: `[Illio] Get volatility bands and daily move distribution for index constituents.
+    description: `[STALE - upstream tool not present in the eodhdmcp MCP tools/list response as of 2026-08-19 (SK-1675 refresh); retained per policy, not deleted] [Illio] Get volatility bands and daily move distribution for index constituents.
 Covers S&P 500, Dow Jones, and Nasdaq-100. Returns volatility levels, daily move
 ranges, and constituent volatility distribution versus market. Consumes 10 API calls per request.
 For largest year-over-year volatility changes, use get_mp_illio_market_insights_largest_volatility.
@@ -2092,6 +2481,491 @@ For aggregated sentiment scores, use get_sentiment_data instead.`,
     ],
   },
   {
+    name: 'eodhdmcp_get_rates_funding_stress',
+    description: `Fetch funding-stress spreads. Use when the user asks about money-market funding stress,
+rate spreads between two legs (e.g. SOFR minus EFFR), or funding-stress indicators in basis
+points.
+
+Returns funding-stress spread time series, including the two component legs and their
+rates. Filterable by code and date range. This endpoint is NOT paginated.`,
+    params: [
+      {
+        name: 'api_token',
+        type: 'string',
+        required: false,
+        description: `Per-call token override.`,
+      },
+      { name: 'code', type: 'string', required: false, description: `Spread code.` },
+      {
+        name: 'date_from',
+        type: 'string',
+        required: false,
+        description: `Start date filter (YYYY-MM-DD).`,
+      },
+      {
+        name: 'date_to',
+        type: 'string',
+        required: false,
+        description: `End date filter (YYYY-MM-DD).`,
+      },
+      {
+        name: 'fmt',
+        type: 'string',
+        required: false,
+        description: `'json' or 'csv'. Default 'json'.`,
+      },
+    ],
+  },
+  {
+    name: 'eodhdmcp_get_rates_policy_rates',
+    description: `Fetch central bank policy rates. Use when the user asks about policy interest rates set by
+central banks (e.g. Fed funds rate, ECB, Bank of England), or policy rate history by
+country or central bank.
+
+Returns central bank policy rate time series. Filterable by code, country, central bank,
+and date range. Paginated.`,
+    params: [
+      {
+        name: 'api_token',
+        type: 'string',
+        required: false,
+        description: `Per-call token override.`,
+      },
+      { name: 'central_bank', type: 'string', required: false, description: `Central bank.` },
+      { name: 'code', type: 'string', required: false, description: `Rate code.` },
+      {
+        name: 'country',
+        type: 'string',
+        required: false,
+        description: `Country or policy jurisdiction name/code.`,
+      },
+      {
+        name: 'date_from',
+        type: 'string',
+        required: false,
+        description: `Start date filter (YYYY-MM-DD).`,
+      },
+      {
+        name: 'date_to',
+        type: 'string',
+        required: false,
+        description: `End date filter (YYYY-MM-DD).`,
+      },
+      {
+        name: 'fmt',
+        type: 'string',
+        required: false,
+        description: `'json' or 'csv'. Default 'json'.`,
+      },
+      {
+        name: 'limit',
+        type: 'string',
+        required: false,
+        description: `Records per page (default 20, max 100).`,
+      },
+      { name: 'offset', type: 'string', required: false, description: `Pagination offset.` },
+    ],
+  },
+  {
+    name: 'eodhdmcp_get_rates_reference_rates',
+    description: `Fetch benchmark reference interest rates. Use when the user asks about reference rates such
+as SOFR, SONIA, ESTR, or other USD/GBP/EUR overnight and benchmark rates over time.
+
+Returns reference rate time series by code and currency. Filterable by code, currency, and
+date range. Paginated.`,
+    params: [
+      {
+        name: 'api_token',
+        type: 'string',
+        required: false,
+        description: `Per-call token override.`,
+      },
+      {
+        name: 'code',
+        type: 'string',
+        required: false,
+        description: `Rate code (e.g. 'SOFR', 'SONIA', 'ESTR').`,
+      },
+      {
+        name: 'currency',
+        type: 'string',
+        required: false,
+        description: `Currency: 'USD', 'GBP', or 'EUR'.`,
+      },
+      {
+        name: 'date_from',
+        type: 'string',
+        required: false,
+        description: `Start date filter (YYYY-MM-DD).`,
+      },
+      {
+        name: 'date_to',
+        type: 'string',
+        required: false,
+        description: `End date filter (YYYY-MM-DD).`,
+      },
+      {
+        name: 'fmt',
+        type: 'string',
+        required: false,
+        description: `'json' or 'csv'. Default 'json'.`,
+      },
+      {
+        name: 'limit',
+        type: 'string',
+        required: false,
+        description: `Records per page (default 20, max 100).`,
+      },
+      { name: 'offset', type: 'string', required: false, description: `Pagination offset.` },
+    ],
+  },
+  {
+    name: 'eodhdmcp_get_real_estate_countries',
+    description: `List countries and BIS aggregates covered by the Real Estate Data API.
+
+Each record contains \`\`code\`\`, \`\`name\`\`, \`\`has_spp\`\`, and \`\`has_dpp\`\`.
+JSON returns the upstream \`\`data\`\`/\`\`meta\`\`/\`\`links\`\` envelope unchanged;
+CSV returns plain text. Costs 5 API calls.`,
+    params: [
+      {
+        name: 'api_token',
+        type: 'string',
+        required: false,
+        description: `Per-call token override. If omitted, env token is used.`,
+      },
+      {
+        name: 'fmt',
+        type: 'string',
+        required: false,
+        description: `'json' or 'csv'. Default 'json'.`,
+      },
+      { name: 'limit', type: 'string', required: false, description: `Records per page.` },
+      { name: 'offset', type: 'string', required: false, description: `Pagination offset.` },
+      {
+        name: 'sort',
+        type: 'string',
+        required: false,
+        description: `Sort order for returned records.`,
+      },
+    ],
+  },
+  {
+    name: 'eodhdmcp_get_real_estate_detailed_prices',
+    description: `Fetch granular BIS Detailed Property Price observations.
+
+Filters cover area, property type, vintage, frequency, and period. JSON
+returns the upstream envelope unchanged and is capped at 250 rows to keep
+MCP responses manageable; CSV preserves the upstream 500-row maximum.
+Costs 5 API calls.`,
+    params: [
+      {
+        name: 'code',
+        type: 'string',
+        required: true,
+        description: `BIS area/series code identifying the country or aggregate.`,
+      },
+      {
+        name: 'api_token',
+        type: 'string',
+        required: false,
+        description: `Per-call token override. If omitted, env token is used.`,
+      },
+      { name: 'area', type: 'string', required: false, description: `Filter by BIS area.` },
+      {
+        name: 'fmt',
+        type: 'string',
+        required: false,
+        description: `'json' or 'csv'. Default 'json'.`,
+      },
+      {
+        name: 'freq',
+        type: 'string',
+        required: false,
+        description: `Filter by frequency: 'Q' (quarterly) or 'A' (annual).`,
+      },
+      {
+        name: 'from_period',
+        type: 'string',
+        required: false,
+        description: `Start of period range filter (e.g. '2023-Q1').`,
+      },
+      {
+        name: 'limit',
+        type: 'string',
+        required: false,
+        description: `Records per page (JSON capped at 250 rows; CSV up to 500).`,
+      },
+      { name: 'offset', type: 'string', required: false, description: `Pagination offset.` },
+      {
+        name: 'property_type',
+        type: 'string',
+        required: false,
+        description: `Filter by property type (e.g. 'residential', 'commercial').`,
+      },
+      {
+        name: 'sort',
+        type: 'string',
+        required: false,
+        description: `Sort order for returned records.`,
+      },
+      {
+        name: 'to_period',
+        type: 'string',
+        required: false,
+        description: `End of period range filter (e.g. '2024-Q4').`,
+      },
+      {
+        name: 'vintage',
+        type: 'string',
+        required: false,
+        description: `Filter by property vintage (e.g. 'existing', 'new').`,
+      },
+    ],
+  },
+  {
+    name: 'eodhdmcp_get_real_estate_detailed_series',
+    description: `List the BIS Detailed Property Price series available for a country.
+
+Returns the complete upstream JSON envelope unchanged. Each \`\`data\`\` item
+describes its BIS dimensions and title; \`\`meta\`\` contains country and total.
+The catalogue is not paginated. Costs 5 API calls.`,
+    params: [
+      {
+        name: 'code',
+        type: 'string',
+        required: true,
+        description: `BIS area/series code identifying the country to list series for.`,
+      },
+      {
+        name: 'api_token',
+        type: 'string',
+        required: false,
+        description: `Per-call token override. If omitted, env token is used.`,
+      },
+    ],
+  },
+  {
+    name: 'eodhdmcp_get_real_estate_selected_prices',
+    description: `Fetch BIS Selected Property Prices for a country or aggregate.
+
+Supports nominal/real and index/year-over-year filters, quarterly period
+bounds, sorting, and upstream pagination. JSON preserves the full
+\`\`data\`\`/\`\`meta\`\`/\`\`links\`\` envelope; CSV returns plain text. Costs 5 calls.`,
+    params: [
+      {
+        name: 'code',
+        type: 'string',
+        required: true,
+        description: `BIS area/series code identifying the country or aggregate.`,
+      },
+      {
+        name: 'api_token',
+        type: 'string',
+        required: false,
+        description: `Per-call token override. If omitted, env token is used.`,
+      },
+      {
+        name: 'fmt',
+        type: 'string',
+        required: false,
+        description: `'json' or 'csv'. Default 'json'.`,
+      },
+      {
+        name: 'from_period',
+        type: 'string',
+        required: false,
+        description: `Start of period range filter (quarterly, e.g. '2023-Q1').`,
+      },
+      { name: 'limit', type: 'string', required: false, description: `Records per page.` },
+      {
+        name: 'metric',
+        type: 'string',
+        required: false,
+        description: `Metric: 'index' or 'yoy' (year-over-year).`,
+      },
+      { name: 'offset', type: 'string', required: false, description: `Pagination offset.` },
+      {
+        name: 'sort',
+        type: 'string',
+        required: false,
+        description: `Sort order for returned records.`,
+      },
+      {
+        name: 'to_period',
+        type: 'string',
+        required: false,
+        description: `End of period range filter (quarterly, e.g. '2024-Q4').`,
+      },
+      {
+        name: 'type',
+        type: 'string',
+        required: false,
+        description: `Price type: 'nominal' or 'real'.`,
+      },
+    ],
+  },
+  {
+    name: 'eodhdmcp_get_sanctions_entities',
+    description: `Search sanctioned entities (e.g. OFAC). Use when the user asks about sanctioned
+individuals, companies, vessels, or aircraft, OFAC SDN listings, or entities under a
+specific sanctions program.
+
+Returns sanctioned entities with aliases, identifiers, programs, and listing status.
+Filterable by source, entity type, program, country, free-text query, and active status.
+Paginated.`,
+    params: [
+      {
+        name: 'active',
+        type: 'string',
+        required: false,
+        description: `Filter by active listing status.`,
+      },
+      {
+        name: 'api_token',
+        type: 'string',
+        required: false,
+        description: `Per-call token override.`,
+      },
+      { name: 'country', type: 'string', required: false, description: `Country.` },
+      {
+        name: 'fmt',
+        type: 'string',
+        required: false,
+        description: `'json' or 'csv'. Default 'json'.`,
+      },
+      {
+        name: 'limit',
+        type: 'string',
+        required: false,
+        description: `Records per page (default 20, max 100).`,
+      },
+      { name: 'offset', type: 'string', required: false, description: `Pagination offset.` },
+      { name: 'program', type: 'string', required: false, description: `Sanctions program.` },
+      {
+        name: 'q',
+        type: 'string',
+        required: false,
+        description: `Free-text search (minimum 2 characters).`,
+      },
+      {
+        name: 'source',
+        type: 'string',
+        required: false,
+        description: `Data source (e.g. 'ofac').`,
+      },
+      {
+        name: 'type',
+        type: 'string',
+        required: false,
+        description: `Entity type: 'individual', 'entity', 'vessel', or 'aircraft'.`,
+      },
+    ],
+  },
+  {
+    name: 'eodhdmcp_get_sanctions_programs',
+    description: `List sanctions programs with entity counts. Use when the user asks which sanctions
+programs exist, how many entities are under each program, or wants to browse available
+programs.
+
+Returns each sanctions program and the number of entities listed under it. Paginated.`,
+    params: [
+      {
+        name: 'api_token',
+        type: 'string',
+        required: false,
+        description: `Per-call token override.`,
+      },
+      {
+        name: 'fmt',
+        type: 'string',
+        required: false,
+        description: `'json' or 'csv'. Default 'json'.`,
+      },
+      {
+        name: 'limit',
+        type: 'string',
+        required: false,
+        description: `Records per page (default 20, max 100).`,
+      },
+      { name: 'offset', type: 'string', required: false, description: `Pagination offset.` },
+    ],
+  },
+  {
+    name: 'eodhdmcp_get_sanctions_sources',
+    description: `List available sanctions data sources. Use when the user asks which sanctions lists or
+sources are available (e.g. OFAC), or wants to discover valid values for the 'source'
+parameter on other sanctions tools.
+
+Returns the available sanctions sources. Paginated.`,
+    params: [
+      {
+        name: 'api_token',
+        type: 'string',
+        required: false,
+        description: `Per-call token override.`,
+      },
+      {
+        name: 'fmt',
+        type: 'string',
+        required: false,
+        description: `'json' or 'csv'. Default 'json'.`,
+      },
+      {
+        name: 'limit',
+        type: 'string',
+        required: false,
+        description: `Records per page (default 20, max 100).`,
+      },
+      { name: 'offset', type: 'string', required: false, description: `Pagination offset.` },
+    ],
+  },
+  {
+    name: 'eodhdmcp_get_sanctions_vessels',
+    description: `Search sanctioned vessels (e.g. OFAC). Use when the user asks about sanctioned ships,
+vessels under sanctions, or vessel details by IMO number, flag, or type.
+
+Returns sanctioned vessels with identifiers (IMO, MMSI, call sign), flag, tonnage, owner,
+and program context. Filterable by source, IMO, flag, vessel type, free-text query, and
+program. Paginated.`,
+    params: [
+      {
+        name: 'api_token',
+        type: 'string',
+        required: false,
+        description: `Per-call token override.`,
+      },
+      { name: 'flag', type: 'string', required: false, description: `Flag state.` },
+      {
+        name: 'fmt',
+        type: 'string',
+        required: false,
+        description: `'json' or 'csv'. Default 'json'.`,
+      },
+      { name: 'imo', type: 'string', required: false, description: `IMO number.` },
+      {
+        name: 'limit',
+        type: 'string',
+        required: false,
+        description: `Records per page (default 20, max 100).`,
+      },
+      { name: 'offset', type: 'string', required: false, description: `Pagination offset.` },
+      { name: 'program', type: 'string', required: false, description: `Sanctions program.` },
+      {
+        name: 'q',
+        type: 'string',
+        required: false,
+        description: `Free-text search (minimum 2 characters).`,
+      },
+      {
+        name: 'source',
+        type: 'string',
+        required: false,
+        description: `Data source (e.g. 'ofac').`,
+      },
+      { name: 'vessel_type', type: 'string', required: false, description: `Vessel type.` },
+    ],
+  },
+  {
     name: 'eodhdmcp_get_sentiment_data',
     description: `Get aggregated sentiment scores for stocks based on news and social media analysis.
 Returns daily sentiment polarity, news buzz, and weighted scores for one or more tickers over a date range.
@@ -2897,7 +3771,7 @@ For short-term T-bill discount/coupon rates (4WK-52WK), use get_ust_bill_rates i
   },
   {
     name: 'eodhdmcp_mp_illio_performance_insights',
-    description: `[Illio] Retrieve portfolio-level performance attributes for a major US index.
+    description: `[STALE - upstream tool not present in the eodhdmcp MCP tools/list response as of 2026-08-19 (SK-1675 refresh); retained per policy, not deleted] [Illio] Retrieve portfolio-level performance attributes for a major US index.
 Covers S&P 500, Dow Jones, and Nasdaq-100. Returns return metrics, attribution,
 and performance breakdown at the index-portfolio level. Consumes 10 API calls per request.
 For market-level performance comparison across constituents, use get_mp_illio_market_insights_performance.
@@ -2925,7 +3799,7 @@ For risk attributes of the same indices, use mp_illio_risk_insights.`,
   },
   {
     name: 'eodhdmcp_mp_illio_risk_insights',
-    description: `[Illio] Retrieve portfolio-level risk attributes for a major US index.
+    description: `[STALE - upstream tool not present in the eodhdmcp MCP tools/list response as of 2026-08-19 (SK-1675 refresh); retained per policy, not deleted] [Illio] Retrieve portfolio-level risk attributes for a major US index.
 Covers S&P 500, Dow Jones, and Nasdaq-100. Returns risk metrics, drawdown analysis,
 and risk decomposition at the index-portfolio level. Consumes 10 API calls per request.
 For performance attributes of the same indices, use mp_illio_performance_insights.

@@ -9,8 +9,57 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'descriptmcp_export_timeline',
+    description: `Export a project composition as a timeline file (AAF, SESX, EDL, FCPXML, Premiere XML, or DaVinci Resolve XML) for import into another DAW/NLE.`,
+    params: [
+      { name: 'format', type: 'string', required: true, description: `Timeline file format.` },
+      {
+        name: 'project_id',
+        type: 'string',
+        required: true,
+        description: `UUID of the project to export from.`,
+      },
+      {
+        name: 'callback_url',
+        type: 'string',
+        required: false,
+        description: `Webhook URL for job completion.`,
+      },
+      {
+        name: 'composition_id',
+        type: 'string',
+        required: false,
+        description: `UUID of a specific composition. Omit to use the first composition.`,
+      },
+      {
+        name: 'create_track_per_file',
+        type: 'boolean',
+        required: false,
+        description: `Generate one EDL/XML track per source media file rather than per script. Defaults to false. Not supported for fcp (FCPXML); rejected when true.`,
+      },
+      {
+        name: 'include_markers',
+        type: 'boolean',
+        required: false,
+        description: `Include markers in formats that support them (EDL, SESX). Defaults to the format-specific default (true for EDL/SESX/FCP/Premiere/DaVinci, false for AAF).`,
+      },
+      {
+        name: 'snap_frame_rates',
+        type: 'boolean',
+        required: false,
+        description: `Premiere / DaVinci Resolve only. When true, snaps to standard broadcast frame rates (24, 25, 30, 50, 60 + NTSC variants). When false, uses the source frame rate. Defaults to true. Rejected when false for other formats.`,
+      },
+      {
+        name: 'strip_spaces',
+        type: 'boolean',
+        required: false,
+        description: `AAF only. Strip spaces from media filenames for Logic Pro compatibility. Defaults to false. Rejected when true for other formats.`,
+      },
+    ],
+  },
+  {
     name: 'descriptmcp_export_transcript',
-    description: `Export a project composition as a transcript document in txt, markdown, HTML, or RTF format.`,
+    description: `Export a project composition as a transcript document in txt, markdown, HTML, RTF, or SRT format.`,
     params: [
       { name: 'format', type: 'string', required: true, description: `Transcript format.` },
       {
@@ -46,10 +95,39 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'descriptmcp_get_drive_info',
+    description: `Return the Descript drive (workspace) connected to the current session, including its ID and name.`,
+    params: [],
+  },
+  {
     name: 'descriptmcp_get_project',
     description: `Retrieve detailed information about a Descript project, including its media files and compositions.`,
     params: [
       { name: 'project_id', type: 'string', required: true, description: `UUID of the project.` },
+    ],
+  },
+  {
+    name: 'descriptmcp_import_drive_media',
+    description: `Import media files into the Descript drive media library (not a project) via URLs or direct file upload.`,
+    params: [
+      {
+        name: 'add_media',
+        type: 'object',
+        required: true,
+        description: `Map of display name → media entry. Keys can include folder paths (e.g. "Recordings/intro.mp4"). Each entry is either a URL import (provide "url") or a direct upload (provide "content_type" and "file_size"). URL imports and direct uploads accept an optional "language" for transcription.`,
+      },
+      {
+        name: 'callback_url',
+        type: 'string',
+        required: false,
+        description: `Webhook URL to receive job completion notification.`,
+      },
+      {
+        name: 'folder_id',
+        type: 'string',
+        required: false,
+        description: `Target folder ID in the drive media library.`,
+      },
     ],
   },
   {
@@ -97,6 +175,30 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Team access for new projects.`,
+      },
+      {
+        name: 'update_compositions',
+        type: 'array',
+        required: false,
+        description: `Append clips to existing compositions in the target project. Requires project_id.`,
+      },
+      {
+        name: 'workspace_name',
+        type: 'string',
+        required: false,
+        description: `Workspace to create the new project in, matched by name (case-insensitive). Only valid when creating a new project (no project_id). Reserved names: "Personal" (private space, requires team_access "none" or omitted) and "General" (shared drive workspace). "General" and custom workspaces require a shared team_access ("edit", "comment", or "view"); defaults to "view" when omitted. Custom workspaces require the caller to be a workspace member.`,
+      },
+    ],
+  },
+  {
+    name: 'descriptmcp_list_folders',
+    description: `List folders in the Descript drive, optionally scoped to a parent folder.`,
+    params: [
+      {
+        name: 'parent_path',
+        type: 'string',
+        required: false,
+        description: `Parent folder path (e.g. "Clients/Acme"). Returns child folders of this folder. Omit to list root-level folders.`,
       },
     ],
   },
@@ -208,12 +310,6 @@ export const tools: Tool[] = [
         description: `Composition to target. Accepts a full UUID, a 5-character short ID from the project's Descript URL, or the project's full Descript URL (e.g. https://web.descript.com/{project_id}/{short_id}). Use get_project to find available composition IDs for this project. Omit to target the whole project.`,
       },
       {
-        name: 'conversation_id',
-        type: 'string',
-        required: false,
-        description: `Conversation ID (UUID) from a previous agent job to continue that conversation. Omit to start a new conversation. The conversation_id is returned in the job result.`,
-      },
-      {
         name: 'model',
         type: 'string',
         required: false,
@@ -276,6 +372,36 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'descriptmcp_report_upload_status',
+    description: `Report that a direct upload failed, was aborted, or was abandoned so the import job stops waiting on that file.`,
+    params: [
+      {
+        name: 'job_id',
+        type: 'string',
+        required: true,
+        description: `ID of the import job that owns the upload.`,
+      },
+      {
+        name: 'media_id',
+        type: 'string',
+        required: true,
+        description: `Media key (from the import request's add_media / upload_urls) to report.`,
+      },
+      {
+        name: 'status',
+        type: 'string',
+        required: true,
+        description: `failed = the PUT errored; aborted = cancelled in flight; abandoned = never attempted.`,
+      },
+      {
+        name: 'detail',
+        type: 'string',
+        required: false,
+        description: `Optional free-text context (e.g. "HTTP 403 from storage").`,
+      },
+    ],
+  },
+  {
     name: 'descriptmcp_wait_for_job',
     description: `Poll a Descript job until it completes, streaming progress updates, with an optional timeout.`,
     params: [
@@ -283,7 +409,7 @@ export const tools: Tool[] = [
         name: 'job_id',
         type: 'string',
         required: true,
-        description: `The job_id returned by import_media, prompt_project_agent, or publish_project.`,
+        description: `The job_id returned by import_media, prompt_project_agent, publish_project, or export_timeline.`,
       },
       {
         name: 'wait_seconds',

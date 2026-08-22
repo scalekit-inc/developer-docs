@@ -2,6 +2,59 @@ import type { Tool } from '../../types/agent-connectors'
 
 export const tools: Tool[] = [
   {
+    name: 'youmcp_you-answer',
+    description: `Fast live-web answer generation returning one synthesized answer with verified inline citations, citation excerpts, and supporting web results. Use when the caller wants a single sourced answer; use research for deeper multi-step investigation, effort control, structured output, or background tasks. Supports freshness, country, language, and domain filters.`,
+    params: [
+      {
+        name: 'query',
+        type: 'string',
+        required: true,
+        description: `Focused live-web question or lookup request. Returns a synthesized answer with inline citations, citation excerpts, and supporting web results.`,
+      },
+      {
+        name: 'boost_domains',
+        type: 'array',
+        required: false,
+        description: `Domains to prefer in ranking (up to 500). Can combine with exclude_domains, not include_domains.`,
+      },
+      {
+        name: 'country',
+        type: 'string',
+        required: false,
+        description: `A supported country code that determines the geographical focus.`,
+      },
+      {
+        name: 'exclude_domains',
+        type: 'array',
+        required: false,
+        description: `Domains to exclude from results (up to 500).`,
+      },
+      {
+        name: 'freshness',
+        type: 'string',
+        required: false,
+        description: `day/week/month/year or YYYY-MM-DDtoYYYY-MM-DD.`,
+      },
+      {
+        name: 'include_domains',
+        type: 'array',
+        required: false,
+        description: `Domains to exclusively include (up to 500).`,
+      },
+      {
+        name: 'language',
+        type: 'string',
+        required: false,
+        description: `A supported BCP 47 language tag that determines the language.`,
+      },
+    ],
+  },
+  {
+    name: 'youmcp_you-balance',
+    description: `Get the remaining credit balance for the billing entity associated with your You.com API key. Balance is in cents (divide by 100 for USD).`,
+    params: [],
+  },
+  {
     name: 'youmcp_you-contents',
     description: `Extract content from one or more web pages in markdown, HTML, or structured metadata format. Supports up to 100 URLs per call.`,
     params: [
@@ -28,6 +81,36 @@ export const tools: Tool[] = [
         type: 'array',
         required: false,
         description: `Output formats to return: markdown (plain text), html (layout preserved), or metadata (structured data).`,
+      },
+    ],
+  },
+  {
+    name: 'youmcp_you-discover',
+    description: `Discover AI agents, MCP servers, A2A agents, and skills via ARD Agent Finder services. Search-only — never installs or connects. Returns ranked results with relevance scores.`,
+    params: [
+      {
+        name: 'query',
+        type: 'string',
+        required: true,
+        description: `Natural-language task to find agents/tools for.`,
+      },
+      {
+        name: 'finder',
+        type: 'string',
+        required: false,
+        description: `Which Agent Finder discovery service(s) to query.`,
+      },
+      {
+        name: 'finder_url',
+        type: 'string',
+        required: false,
+        description: `Optional custom finder URL (must be public http/https). Augments selected finders.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Max consolidated results (1–25).`,
       },
     ],
   },
