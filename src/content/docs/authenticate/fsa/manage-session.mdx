@@ -84,8 +84,6 @@ Prerequisite: a Scalekit environment URL, client ID, and client secret. Node.js 
 
      Install `@scalekit-sdk/node` 2.12.0 or later. Mount `auth.router`. It registers `/login`, `/callback`, and `/logout`. The callback writes `sk_session`.
 
-     Full reference: [Express session middleware](/saaskit/sdks/express/).
-
      ```ts title="server.ts" wrap
      import express from 'express';
      import { ScalekitAuth } from '@scalekit-sdk/node/express';
@@ -106,8 +104,6 @@ Prerequisite: a Scalekit environment URL, client ID, and client secret. Node.js 
      <TabItem value="nextjs" label="Next.js">
 
      Install `@scalekit-sdk/node` 2.12.0 or later. Create one `auth` instance. Export login, callback, and logout Route Handlers. The callback writes `sk_session`.
-
-     Full reference: [Next.js session middleware](/saaskit/sdks/nextjs/).
 
      ```ts title="lib/auth.ts" wrap
      import { ScalekitClient } from '@scalekit-sdk/node';
@@ -152,8 +148,6 @@ Prerequisite: a Scalekit environment URL, client ID, and client secret. Node.js 
 
      Install `scalekit-sdk-python` 2.17.0 or later with the Flask extra. `ScalekitAuth` registers `/login`, `/callback`, and `/logout` and writes `sk_session`.
 
-     Full reference: [Flask session middleware](/saaskit/sdks/flask/).
-
      ```py title="app.py" wrap
      import os
      from flask import Flask
@@ -177,8 +171,6 @@ Prerequisite: a Scalekit environment URL, client ID, and client secret. Node.js 
      <TabItem value="fastapi" label="FastAPI">
 
      Install `scalekit-sdk-python` 2.17.0 or later with the FastAPI extra. Call `auth.install(app)` to register routes and write `sk_session`.
-
-     Full reference: [FastAPI session middleware](/saaskit/sdks/fastapi/).
 
      ```py title="app.py" wrap
      import os
@@ -298,8 +290,6 @@ Prerequisite: a Scalekit environment URL, client ID, and client secret. Node.js 
 
      Guard a route with `auth.requiresAuth`. On success, `req.scalekitUser` is access-token claims. `sub` is always present.
 
-     Full reference: [requiresAuth](/saaskit/sdks/express/#requiresauth).
-
      ```ts title="server.ts" wrap
      app.get('/account', auth.requiresAuth, (req, res) => {
        res.json({ sub: req.scalekitUser?.sub });
@@ -310,8 +300,6 @@ Prerequisite: a Scalekit environment URL, client ID, and client secret. Node.js 
      <TabItem value="nextjs" label="Next.js">
 
      Wrap a Route Handler with `withAuth`. Use `createMiddleware()` so every other path fails closed. List public paths in `publicRoutes`.
-
-     Full reference: [withAuth](/saaskit/sdks/nextjs/#withauth) and [createMiddleware](/saaskit/sdks/nextjs/#createmiddleware).
 
      ```ts title="app/account/route.ts" wrap
      import { auth } from '../../lib/auth';
@@ -343,8 +331,6 @@ Prerequisite: a Scalekit environment URL, client ID, and client secret. Node.js 
 
      Guard a view with `@auth.requires_auth`. `auth.current_user` is access-token claims.
 
-     Full reference: [Flask session middleware](/saaskit/sdks/flask/).
-
      ```py title="app.py" wrap
      @app.route("/account")
      @auth.requires_auth
@@ -356,8 +342,6 @@ Prerequisite: a Scalekit environment URL, client ID, and client secret. Node.js 
      <TabItem value="fastapi" label="FastAPI">
 
      Protect a route with `Depends(auth.requires_auth)`. The dependency is the user claims.
-
-     Full reference: [FastAPI session middleware](/saaskit/sdks/fastapi/).
 
      ```py title="app.py" wrap
      from fastapi import Depends
