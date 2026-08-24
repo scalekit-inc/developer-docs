@@ -1,6 +1,6 @@
 ---
 title: 'Manage user sessions'
-description: 'Use session middleware for Node and Python, or store and refresh tokens yourself. Keep users signed in without a hand-built cookie stack.'
+description: 'Store tokens safely with proper cookie security, validate on every request, and refresh with rotation to keep sessions secure'
 tags: [sessions, security, tokens, cookies, jwt, refresh-token, authentication]
 head:
   - tag: style
@@ -16,21 +16,6 @@ sidebar:
 seeAlso:
   expanded: true
   items:
-    - title: 'Express session middleware'
-      icon: 'express'
-      url: '/saaskit/sdks/express/'
-    - title: 'Next.js session middleware'
-      icon: 'nextjs'
-      url: '/saaskit/sdks/nextjs/'
-    - title: 'Flask session middleware'
-      icon: 'flask'
-      url: '/saaskit/sdks/flask/'
-    - title: 'FastAPI session middleware'
-      icon: 'fastapi'
-      url: '/saaskit/sdks/fastapi/'
-    - title: 'Django session middleware'
-      icon: 'django'
-      url: '/saaskit/sdks/django/'
     - title: 'Preserve destination post login'
       icon: 'book'
       url: '/guides/user-auth/preserve-intended-destination/'
@@ -49,16 +34,9 @@ import {
 } from '@astrojs/starlight/components';
 import IconTdesignSequence from '~icons/tdesign/sequence'
 
-Store the signed-in session, refresh it, and block routes that need a signed-in visitor.
+User sessions determine how long users stay signed in to your application. After users successfully authenticate, you receive session tokens that manage their access. These tokens control session duration, multi-device access, and cross-product authentication within your company's ecosystem.
 
-**Node.js and Python** use **session middleware**. The helper writes one encrypted `sk_session` cookie, refreshes it, and redirects a missing session to `/login`. This page is the complete how-to for Express, Next.js, Flask, and FastAPI.
-
-**Go and Java** have no session middleware. Store cookies and call `validateAccessToken` in the Go and Java tabs.
-
-Django uses settings and `@login_required`. See [Django session middleware](/saaskit/sdks/django/).
-
-Prerequisite: a Scalekit environment URL, client ID, and client secret. Node.js needs `@scalekit-sdk/node` 2.12.0 or later. Python needs `scalekit-sdk-python` 2.17.0 or later with the `flask` or `fastapi` extra.
-
+Store those tokens securely, validate them on every request, and refresh them before they expire. Session middleware writes one encrypted `sk_session` cookie and does that work for you. You can still store and refresh tokens yourself if you prefer.
 
 <details>
 <summary><IconTdesignSequence style="display: inline; width: 1rem; height: 1rem; vertical-align: middle; margin-right: 0.5rem;" /> Review the session management sequence</summary>
@@ -71,11 +49,9 @@ Prerequisite: a Scalekit environment URL, client ID, and client secret. Node.js 
 <Steps>
 1. ## Store the session
 
-   After hosted login, Node and Python session middleware write one encrypted `sk_session` cookie. You do not set `accessToken` or `refreshToken` cookies.
+   After hosted login, session middleware writes one encrypted `sk_session` cookie. You do not set `accessToken` or `refreshToken` cookies.
 
    Add `COOKIE_ENCRYPTION_SECRET` to `.env`. Generate it with `openssl rand -base64 32`. Use the same value on every server.
-
-   Go and Java store tokens yourself. See the Go and Java tabs.
 
    <Tabs syncKey="tech-stack">
      <TabItem value="node" label="Node.js">
@@ -280,8 +256,6 @@ Prerequisite: a Scalekit environment URL, client ID, and client secret. Node.js 
 2. ## Check the session before handling requests
 
    Session middleware refreshes `sk_session` and redirects to `/login` when the session is missing. A missing session returns **302**, not JSON **401**.
-
-   Go and Java validate the access token yourself. See the Go and Java tabs.
 
    <Tabs syncKey="tech-stack">
      <TabItem value="node" label="Node.js">
@@ -772,5 +746,5 @@ Prerequisite: a Scalekit environment URL, client ID, and client secret. Node.js 
 
 After you add the helper, open `/account` in the browser. A missing session goes to `/login`. After login, the browser returns to `/account`.
 
-Session middleware validates `sk_session` on each request and refreshes it before expiry. If the refresh token is invalid, the helper sends the browser to `/login`. Go and Java use the cookie path under **Build it yourself**.
+Session middleware validates `sk_session` on each request and refreshes it before expiry. If the refresh token is invalid, the helper sends the browser to `/login`.
 
