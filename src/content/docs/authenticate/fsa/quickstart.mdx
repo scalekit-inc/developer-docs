@@ -115,8 +115,6 @@ Scalekit handles the complex authentication flow while you focus on your core pr
 
    Node.js and Python use session middleware. Construct the helper and protect one route. The helper registers `/login`, `/callback`, and `/logout` and writes `sk_session`.
 
-   See [Manage user sessions](/authenticate/fsa/manage-session/) for how `sk_session` is stored and refreshed.
-
    Go and Java still build an authorization URL. See those tabs.
 
    <Tabs syncKey="tech-stack">
@@ -337,18 +335,45 @@ Scalekit handles the complex authentication flow while you focus on your core pr
     After successful authentication, Scalekit creates a user record and sends the user information to your callback endpoint.
     In authentication flow, Scalekit redirects to your callback URL with an authorization code. Your application exchanges this code for the user's profile information and session tokens.
 
-   Session middleware already owns `/callback` for Node.js and Python. See [Manage user sessions](/authenticate/fsa/manage-session/). Go and Java exchange the code below.
+   Node.js and Python already registered `/callback` in step 2. The helper writes `sk_session`. Go and Java exchange the code below.
 
    <Tabs syncKey="tech-stack">
    <TabItem value="node" label="Node.js">
+   <Tabs syncKey="node-framework">
+   <TabItem value="express" label="Express">
 
-   `/callback` is already registered. The helper writes `sk_session`. See [Manage user sessions](/authenticate/fsa/manage-session/) for how `sk_session` is stored and refreshed.
+   ```ts
+   app.use(auth.router); // GET /callback writes sk_session
+   ```
 
    </TabItem>
+   <TabItem value="nextjs" label="Next.js">
+
+   ```ts title="app/callback/route.ts"
+   import { auth } from '../../lib/auth';
+   export const GET = auth.createCallbackHandler();
+   ```
+
+   </TabItem>
+   </Tabs>
+   </TabItem>
    <TabItem value="python" label="Python">
+   <Tabs syncKey="python-framework">
+   <TabItem value="flask" label="Flask">
 
-   `/callback` is already registered. The helper writes `sk_session`. See [Manage user sessions](/authenticate/fsa/manage-session/) for how `sk_session` is stored and refreshed.
+   ```py
+   auth = ScalekitAuth(app, ...)  # registers GET /callback
+   ```
 
+   </TabItem>
+   <TabItem value="fastapi" label="FastAPI">
+
+   ```py
+   auth.install(app)  # registers GET /callback
+   ```
+
+   </TabItem>
+   </Tabs>
    </TabItem>
         <TabItem value="go" label="Go">
         ```go collapse={1-17, 24-32, 38-46} { 34-37 } "AuthenticateWithCode" title="internal/http/auth_callback.go"
@@ -479,19 +504,56 @@ Scalekit handles the complex authentication flow while you focus on your core pr
 
       The access token is a JWT that contains the user's permissions and roles. It expires in 5 minutes (default) but [can be configured](/authenticate/fsa/manage-session/#configure-session-security-and-duration). When it expires, use the refresh token to obtain a new access token. The refresh token is long-lived and designed for this purpose.
 
-      Node.js and Python session middleware write `sk_session` and refresh it. See [Manage user sessions](/authenticate/fsa/manage-session/). Go and Java set cookies below.
+      Node.js and Python store the session in `sk_session` and refresh it. Protect a route with the helper. Go and Java set cookies below.
 
       <Tabs syncKey="tech-stack">
         <TabItem value="node" label="Node.js">
+        <Tabs syncKey="node-framework">
+        <TabItem value="express" label="Express">
 
-        Session middleware already wrote `sk_session`. How to protect routes and refresh: [Manage user sessions](/authenticate/fsa/manage-session/).
+        ```ts
+        app.get('/account', auth.requiresAuth, (req, res) => {
+          res.json({ sub: req.scalekitUser?.sub });
+        });
+        ```
 
+        </TabItem>
+        <TabItem value="nextjs" label="Next.js">
+
+        ```ts title="app/account/route.ts"
+        import { auth } from '../../lib/auth';
+
+        export const GET = auth.withAuth(async (request, { user }) => {
+          return Response.json({ sub: user?.sub });
+        });
+        ```
+
+        </TabItem>
+        </Tabs>
         </TabItem>
 
         <TabItem value="python" label="Python">
+        <Tabs syncKey="python-framework">
+        <TabItem value="flask" label="Flask">
 
-        Session middleware already wrote `sk_session`. How to protect routes and refresh: [Manage user sessions](/authenticate/fsa/manage-session/).
+        ```py
+        @app.route("/account")
+        @auth.requires_auth
+        def account():
+            return {"sub": auth.current_user["sub"]}
+        ```
 
+        </TabItem>
+        <TabItem value="fastapi" label="FastAPI">
+
+        ```py
+        @app.get("/account")
+        async def account(user: dict = Depends(auth.requires_auth)):
+            return {"sub": user["sub"]}
+        ```
+
+        </TabItem>
+        </Tabs>
         </TabItem>
 
         <TabItem value="go" label="Go">
@@ -553,18 +615,60 @@ Scalekit handles the complex authentication flow while you focus on your core pr
         </TabItem>
       </Tabs>
 
-      Session middleware already checks `sk_session` on Node.js and Python. See [Manage user sessions](/authenticate/fsa/manage-session/). Go and Java verify tokens below.
+      The same helper refreshes `sk_session` on the next request. Go and Java verify tokens below.
 
       <Tabs syncKey="tech-stack">
         <TabItem value="node" label="Node.js">
+        <Tabs syncKey="node-framework">
+        <TabItem value="express" label="Express">
 
-        Use `auth.requiresAuth` or `auth.withAuth`. Full steps: [Manage user sessions](/authenticate/fsa/manage-session/).
+        ```ts
+        app.get('/dashboard', auth.requiresAuth, (req, res) => {
+          res.json({ user: req.scalekitUser });
+        });
+        ```
 
         </TabItem>
+        <TabItem value="nextjs" label="Next.js">
+
+        ```ts title="middleware.ts"
+        import { auth } from './lib/auth';
+
+        export default auth.createMiddleware({
+          publicRoutes: ['/'],
+        });
+
+        export const config = {
+          runtime: 'nodejs',
+          matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'],
+        };
+        ```
+
+        </TabItem>
+        </Tabs>
+        </TabItem>
         <TabItem value="python" label="Python">
+        <Tabs syncKey="python-framework">
+        <TabItem value="flask" label="Flask">
 
-        Use `@auth.requires_auth` or `Depends(auth.requires_auth)`. Full steps: [Manage user sessions](/authenticate/fsa/manage-session/).
+        ```py
+        @app.route("/dashboard")
+        @auth.requires_auth
+        def dashboard():
+            return {"user": auth.current_user}
+        ```
 
+        </TabItem>
+        <TabItem value="fastapi" label="FastAPI">
+
+        ```py
+        @app.get("/dashboard")
+        async def dashboard(user: dict = Depends(auth.requires_auth)):
+            return {"user": user}
+        ```
+
+        </TabItem>
+        </Tabs>
         </TabItem>
         <TabItem value="go" label="Go">
         ```go wrap collapse={1-5,11-14, 21-25, 34-38, 42-46, 50-54, 58-62, 65-95}
@@ -746,18 +850,49 @@ Scalekit handles the complex authentication flow while you focus on your core pr
       Session persistence depends on the session policy configured in the Scalekit dashboard.
       To log out a user, clear local session data and invalidate the user's session in Scalekit.
 
-      Node.js and Python session middleware already registered `GET /logout`. See [Manage user sessions](/authenticate/fsa/manage-session/) and [Implement logout](/authenticate/fsa/logout/).
+      Node.js and Python already registered `GET /logout`. Send the browser there.
 
       <Tabs syncKey="tech-stack">
         <TabItem value="node" label="Node.js">
+        <Tabs syncKey="node-framework">
+        <TabItem value="express" label="Express">
 
-        Send the browser to `/logout`. Full logout steps: [Implement logout](/authenticate/fsa/logout/).
+        ```html
+        <a href="/logout">Log out</a>
+        ```
 
         </TabItem>
+        <TabItem value="nextjs" label="Next.js">
+
+        ```ts title="app/logout/route.ts"
+        import { auth } from '../../lib/auth';
+        export const GET = auth.createLogoutHandler();
+        ```
+
+        ```html
+        <a href="/logout">Log out</a>
+        ```
+
+        </TabItem>
+        </Tabs>
+        </TabItem>
         <TabItem value="python" label="Python">
+        <Tabs syncKey="python-framework">
+        <TabItem value="flask" label="Flask">
 
-        Send the browser to `/logout`. Full logout steps: [Implement logout](/authenticate/fsa/logout/).
+        ```html
+        <a href="/logout">Log out</a>
+        ```
 
+        </TabItem>
+        <TabItem value="fastapi" label="FastAPI">
+
+        ```html
+        <a href="/logout">Log out</a>
+        ```
+
+        </TabItem>
+        </Tabs>
         </TabItem>
         <TabItem value="go" label="Go">
           ```go collapse={1-8}
