@@ -20,6 +20,12 @@ export const tools: Tool[] = [
         required: false,
         description: `Postgres only: target database name to connect to. Use when the user has created additional databases in the same PlanetScale Postgres cluster (e.g. via CREATE DATABASE). Omit to use the default database for the branch.`,
       },
+      {
+        name: 'use_replica',
+        type: 'boolean',
+        required: false,
+        description: `Route read queries to a read replica when the branch has replicas. Defaults to true. Set false to force the primary.`,
+      },
     ],
   },
   {
@@ -134,7 +140,7 @@ export const tools: Tool[] = [
         name: 'sort_by',
         type: 'string',
         required: false,
-        description: `Sort order: 'all' (default) aggregates 5 API calls for comprehensive view, or specify a single metric: 'totalTime', 'rowsRead', 'p99Latency', 'rowsReadPerReturned', 'rowsAffected', 'egressBytes'. Ignored when fingerprint is provided.`,
+        description: `Sort order: 'all' (default) aggregates curated API calls for a comprehensive view, or specify a single metric: 'count', 'percentTime', 'totalTime', 'cpuTime', 'p50Latency', 'p99Latency', 'rowsRead', 'rowsReadPerQuery', 'rowsReadPerReturned', 'rowsAffected', 'egressBytes', 'egressBytesPerQuery', 'maxEgressBytes', 'ingressBytes', 'ingressBytesPerQuery', 'maxIngressBytes'. 'cpuTime' is Postgres-only; 'maxEgressBytes' and ingress* are MySQL/Vitess-only. Ignored when fingerprint is provided.`,
       },
       {
         name: 'tablet_type',

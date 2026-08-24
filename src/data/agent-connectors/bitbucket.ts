@@ -2633,12 +2633,6 @@ export const tools: Tool[] = [
         required: true,
         description: `The workspace slug or UUID.`,
       },
-      {
-        name: 'pull_request_id',
-        type: 'string',
-        required: false,
-        description: `The numeric pull request ID.`,
-      },
     ],
   },
   {

@@ -150,6 +150,12 @@ export const tools: Tool[] = [
         description: `Why the user wants to cancel. Summarize their stated reason concisely.`,
       },
       {
+        name: 'accept_offer',
+        type: 'boolean',
+        required: false,
+        description: `Set to true to accept the retention discount offer. Set to false or omit to decline and receive the billing page URL for manual cancellation. Only used on the second call alongside confirmation_key.`,
+      },
+      {
         name: 'confirmation_key',
         type: 'string',
         required: false,
@@ -160,12 +166,43 @@ export const tools: Tool[] = [
   {
     name: 'eracontextmcp_billing__get_current_plan',
     description: `Get the user's active plan tier, billing period, feature entitlements, and usage against plan limits.`,
-    params: [],
+    params: [
+      {
+        name: 'currency',
+        type: 'string',
+        required: false,
+        description: `Which currency to show the amounts in, as an ISO 4217 code (e.g. 'eur', 'gbp'). Optional: omit it and the amounts are shown in the currency this platform can tell the user settles in — the one their live subscriptions are billed in, or, for a user holding no live subscription, the one their past subscriptions settled in — and in the default currency only where it can tell neither, or tells more than one. That is the same currency the response reports as settled_currency, so a null settled_currency means the amounts are in the default currency. A code outside the supported set is rejected rather than substituted, and the rejection names the codes that are supported.`,
+      },
+    ],
+  },
+  {
+    name: 'eracontextmcp_billing__list_payments',
+    description: `List the user's past invoices — what they were charged, when, for which service period, and whether each was paid. Use for 'what have I been charged?', 'when was I last billed?', or 'show me my receipts'. Amounts are in minor currency units (cents for USD). Pagination is forward-only and cursor-based, not page-numbered: pass the previous response's next_cursor back as cursor to get the next page, and stop when next_cursor is null (has_more is false). This tool returns no invoice PDF or hosted invoice link, by design.`,
+    params: [
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Opaque pagination cursor from the previous page's next_cursor. Omit for the first page. Echo it back exactly as received — it is not an offset and cannot be constructed or incremented.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum invoices to return on this page. Values outside the supported range are clamped server-side, so an out-of-range value degrades to the nearest supported page size rather than failing.`,
+      },
+    ],
   },
   {
     name: 'eracontextmcp_billing__list_plans',
     description: `List all available subscription plans with pricing, billing periods, and plan identifiers needed for the upgrade tool.`,
     params: [
+      {
+        name: 'currency',
+        type: 'string',
+        required: false,
+        description: `Which currency to show the plan amounts in, as an ISO 4217 code (e.g. 'eur', 'gbp'). Optional: omit it and the amounts are shown in the currency this platform can tell the user settles in — the one their live subscriptions are billed in, or, for a user holding no live subscription, the one their past subscriptions settled in — and in the default currency only where it can tell neither, or tells more than one. That is the same currency the response reports as settled_currency, so a null settled_currency means the amounts are in the default currency. A code outside the supported set is rejected rather than substituted, and the rejection names the codes that are supported.`,
+      },
       {
         name: 'product_key',
         type: 'string',
@@ -173,6 +210,11 @@ export const tools: Tool[] = [
         description: `Which product to explore plan options for (e.g., 'hub', 'quant'). Defaults to 'hub' if omitted.`,
       },
     ],
+  },
+  {
+    name: 'eracontextmcp_billing__list_subscriptions',
+    description: `List what the user is actually being charged for right now, read live from Stripe, broken down by individual line item. Use for 'what am I paying for?', 'when does my subscription renew?', 'how much is my add-on?', or 'am I being charged twice?'. Each subscription carries one or more items, and price, billing period and renewal date are per ITEM, not per subscription. A user may also hold more than one subscription. Call billing__list_payments for past invoices rather than inferring them from this response.`,
+    params: [],
   },
   {
     name: 'eracontextmcp_billing__uncancel_subscription',
@@ -215,6 +257,12 @@ export const tools: Tool[] = [
         description: `Optional Stripe coupon ID from Rewardful for referral discounts. Ignored when a promotion code is also provided.`,
       },
       {
+        name: 'currency',
+        type: 'string',
+        required: false,
+        description: `Which currency to bill the subscription in, as an ISO 4217 code (e.g. 'eur', 'gbp'). Optional: omit it and the subscription is billed in whatever currency this account already settles in. Naming a different currency is refused rather than applied whenever this platform can tell which single currency is in force — from the subscription a tier change would alter, or from the account's own settlement history; where it can tell from neither, or the history holds more than one currency, the purchase proceeds. A code outside the supported set is rejected rather than substituted; the rejection names the codes that are supported.`,
+      },
+      {
         name: 'product_key',
         type: 'string',
         required: false,
@@ -244,6 +292,12 @@ export const tools: Tool[] = [
         required: false,
         description: `Optional existing connection ID for reconnection flows. Provide this to reconnect a stale or broken connection instead of creating a new one. Get connection IDs from the accounts listing.`,
       },
+      {
+        name: 'provider',
+        type: 'string',
+        required: false,
+        description: `Optional banking provider identifier for this connection. Omit to use the platform's default provider unless you have a specific provider requirement.`,
+      },
     ],
   },
   {
@@ -255,6 +309,41 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `The connection ID of the institution to disconnect. Obtain from accounts__list_financial_accounts (the connection_id field on account entries).`,
+      },
+    ],
+  },
+  {
+    name: 'eracontextmcp_connections__list_connections',
+    description: `List every one of the user's bank connections with an honest, provider-agnostic status for each: whether it is healthy, syncing with no data yet, needs reconnecting, is terminally denied, is currently disconnected, or one of several other narrower states. This is the discover hop of the connection recovery loop — call this first to get each connection's connection_id, then act on a specific connection with connections__trigger_connection_resync, connections__connect_bank_account, or connections__disconnect_institution.`,
+    params: [],
+  },
+  {
+    name: 'eracontextmcp_connections__set_proactive_sync_mode',
+    description: `Record whether Era may proactively ask a bank connection's provider for fresh data on its own schedule. Set mode='disabled' when the user wants Era to stop reaching out to that bank between their own requests; set mode='enabled' to allow it again. This does NOT stop the connection: webhook updates, reconciliation and reads of data the provider already holds continue either way, and an on-demand refresh the user asks for is always honoured. Use connections__list_connections to obtain the connection_id.`,
+    params: [
+      {
+        name: 'connection_id',
+        type: 'string',
+        required: true,
+        description: `The connection projection key identifying the bank connection. Obtain from connections__list_connections (the connection_id field on each connection entry).`,
+      },
+      {
+        name: 'mode',
+        type: 'string',
+        required: true,
+        description: `'disabled' to stop Era proactively contacting this bank on its own schedule; 'enabled' to allow it. Repeating the instruction the connection already carries is a no-op — it records nothing and adds nothing to the user's history.`,
+      },
+    ],
+  },
+  {
+    name: 'eracontextmcp_connections__trigger_connection_resync',
+    description: `Trigger an on-demand data resync for a bank connection. This fetches the latest transaction and balance data from supported banks — most major institutions support on-demand refresh, though it may take a few minutes for data to arrive. Possible outcomes include: resync queued successfully; the bank requires the user to re-authenticate first; the user's plan does not include on-demand resync; data was already refreshed recently; or the connection was not found. Use connections__list_connections to obtain the connection_id.`,
+    params: [
+      {
+        name: 'connection_id',
+        type: 'string',
+        required: true,
+        description: `The connection projection key identifying the bank connection to resync. Obtain from connections__list_connections (the connection_id field on each connection entry).`,
       },
     ],
   },
@@ -281,10 +370,10 @@ export const tools: Tool[] = [
         description: `Filter to a specific account. Pass the account group projection key from accounts__list_financial_accounts (the account_group_key field).`,
       },
       {
-        name: 'category',
+        name: 'category_key',
         type: 'string',
         required: false,
-        description: `Filter to a specific category name for drill-down. For example, first call with group_by='category' to find 'Daily living' is the top category, then call again with category='Daily living' and group_by='merchant' to see which merchants drove that spending.`,
+        description: `Optional fcat_* category KEY (not a display name) to drill into one category. To get keys, call with group_by='category' and include_subcategories=true; each parent category returns its stable category_key. Pass one back here with group_by='merchant' to see the merchants that drove it. Keys are also listed by transactions__list_spending_categories (the key field). Omit to include all categories.`,
       },
       {
         name: 'group_by',
@@ -335,10 +424,10 @@ export const tools: Tool[] = [
         description: `Filter to a specific account. Pass the account group projection key from accounts__list_financial_accounts (the account_group_key field).`,
       },
       {
-        name: 'category',
+        name: 'category_key',
         type: 'string',
         required: false,
-        description: `Filter to a specific category name to compare only that category's spending between the two periods.`,
+        description: `Optional fcat_* category KEY (not a display name) to compare only that category's spending between the two periods. Obtain the key from transactions__list_spending_categories (the key field) or reuse a category_key returned by insights__analyze_spending. Omit to compare across all categories.`,
       },
       {
         name: 'group_by',
@@ -399,6 +488,24 @@ export const tools: Tool[] = [
         type: 'integer',
         required: false,
         description: `How many periods to include (e.g., 6 months, 12 weeks). Default: 6, max: 12.`,
+      },
+    ],
+  },
+  {
+    name: 'eracontextmcp_insights__get_daily_category_spending',
+    description: `Get a per-day, per-category spending breakdown for a calendar month. Returns one row per day-and-category combination with the spending amount, transaction count, and the user's category display name, plus month totals. Use for spending-calendar drill-downs and questions like 'which categories did I spend on each day this month?' or 'break down my daily spending by category'. For per-day totals of spending, income, and bills use insights__get_daily_financial_summary; for ranked category totals over a period use insights__analyze_spending. For the current month, totals apply a same-day rolling cutoff: rows dated after today are still returned but excluded from total_amount and transaction_count. Results include only posted/settled transactions; pending (authorization-hold) transactions are excluded.`,
+    params: [
+      {
+        name: 'month',
+        type: 'integer',
+        required: false,
+        description: `Month number (1-12). Defaults to the current month.`,
+      },
+      {
+        name: 'year',
+        type: 'integer',
+        required: false,
+        description: `Year of the month to query. Defaults to the current year.`,
       },
     ],
   },
@@ -677,6 +784,12 @@ export const tools: Tool[] = [
         description: `String value for text, text-multiline, single-select, multi-select (comma-separated), country (ISO alpha-2), and region answer types.`,
       },
       {
+        name: 'use_connected_accounts',
+        type: 'string',
+        required: false,
+        description: `When the user wants the answer sourced from their connected financial accounts rather than a typed value, set this to "connected-accounts". Mutually exclusive with all typed value fields (text_value, numeric_value, boolean_value, date_value, money_value, money_periodic_value, money_relative_value). Use for balance and debt questions where the answer is available from the user's linked accounts.`,
+      },
+      {
         name: 'valid_time',
         type: 'string',
         required: false,
@@ -687,6 +800,18 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `When this fact should be considered stale and re-asked (YYYY-MM-DD). Omit if the fact does not expire.`,
+      },
+    ],
+  },
+  {
+    name: 'eracontextmcp_knowledge__reset_pack_questions',
+    description: `Warning: this cannot be undone — only call when you have high confidence the user wants to reset and re-surface all previously skipped or snoozed questions. This operation reverts all Skipped and Snoozed question states back to Pending so they will be re-surfaced by the flow engine. It does not delete any stored facts or assertions — only the skip/snooze state is reset. Call knowledge__get_pending_questions after a successful reset to obtain the newly re-surfaced questions.`,
+    params: [
+      {
+        name: 'pack_slug',
+        type: 'string',
+        required: false,
+        description: `The question pack slug to reset. Defaults to 'financial-profile-v1' if omitted.`,
       },
     ],
   },
@@ -705,6 +830,29 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `The question pack slug containing this question. Defaults to 'financial-profile-v1' if omitted.`,
+      },
+    ],
+  },
+  {
+    name: 'eracontextmcp_nurture__get_my_status',
+    description: `Get the caller's own nurture (lifecycle email) campaign enrollment status — which campaigns they are currently enrolled in, their progress through each, and whether they have unsubscribed. Use for questions like 'what emails am I signed up for?' or 'am I subscribed to X?'. Call nurture__set_subscription to change the subscription state for a specific campaign.`,
+    params: [],
+  },
+  {
+    name: 'eracontextmcp_nurture__set_subscription',
+    description: `Subscribe the caller to, or unsubscribe them from, a nurture (lifecycle email) campaign. Takes effect immediately — no confirmation step, and always reversible by calling this tool again with the opposite value. Unsubscribing from a campaign the caller was never enrolled in is a safe no-op. Call nurture__get_my_status first to see the caller's current campaigns and subscription state.`,
+    params: [
+      {
+        name: 'campaign_id',
+        type: 'string',
+        required: true,
+        description: `The campaign identifier. Obtain from nurture__get_my_status's response.`,
+      },
+      {
+        name: 'subscribed',
+        type: 'boolean',
+        required: true,
+        description: `Set to true to subscribe (resubscribe if previously unsubscribed) or false to unsubscribe.`,
       },
     ],
   },
@@ -1198,7 +1346,7 @@ export const tools: Tool[] = [
   },
   {
     name: 'eracontextmcp_transactions__search_transactions',
-    description: `Search and filter transactions by merchant name, description, amount range, category, date range, and direction (debit/credit). Returns matching transactions with total count and sum — no arithmetic needed. Use for targeted questions like 'how much did I spend at Starbucks?', 'what was that $50 charge?', or 'show me all refunds this month'. Supports free-text search so exact merchant names are not required. Use category_slug with a parent category (e.g., 'daily-living') to search across all subcategories (Groceries, Dining out, etc.). For browsing recent activity chronologically, prefer transactions__list_transactions instead. Session context from knowledge__get_financial_context_and_overview enriches these results with the user's profile, goals, and preferences.`,
+    description: `Search and filter transactions by merchant name, description, amount range, category, date range, and direction (debit/credit). Returns matching transactions with total count and sum — no arithmetic needed. Use for targeted questions like 'how much did I spend at Starbucks?', 'what was that $50 charge?', or 'show me all refunds this month'. Supports free-text search so exact merchant names are not required. Use category_key with include_children=true to search across all subcategories of a parent category. For browsing recent activity chronologically, prefer transactions__list_transactions instead. Session context from knowledge__get_financial_context_and_overview enriches these results with the user's profile, goals, and preferences.`,
     params: [
       {
         name: 'account_group_key',
@@ -1207,22 +1355,10 @@ export const tools: Tool[] = [
         description: `Filter to transactions from a specific account. Pass the account group projection key from accounts__list_financial_accounts (the account_group_key field).`,
       },
       {
-        name: 'category',
-        type: 'string',
-        required: false,
-        description: `Filter to a specific category name (e.g., 'Groceries', 'Transportation').`,
-      },
-      {
         name: 'category_key',
         type: 'string',
         required: false,
         description: `Filter to transactions with this fcat_* category projection key. Get category keys from transactions__list_spending_categories. When combined with include_children=true, includes transactions from all subcategories.`,
-      },
-      {
-        name: 'category_slug',
-        type: 'string',
-        required: false,
-        description: `Filter by category using a slug (e.g., 'daily-living', 'groceries'). When a parent category slug is used (e.g., 'daily-living'), automatically includes all subcategories (Groceries, Dining out, etc.).`,
       },
       {
         name: 'direction',

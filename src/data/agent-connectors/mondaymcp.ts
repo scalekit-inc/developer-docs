@@ -42,6 +42,42 @@ RELATED TOOLS:
     ],
   },
   {
+    name: 'mondaymcp_allapiread',
+    description: `Execute read-only GraphQL queries against the monday.com API. Only queries are accepted — mutations are rejected with an error before the request is sent. Use get_graphql_schema and get_type_details tools first to understand the schema before crafting your query.`,
+    params: [
+      {
+        name: 'query',
+        type: 'string',
+        required: true,
+        description: `Custom GraphQL query/mutation. you need to provide the full query / mutation`,
+      },
+      {
+        name: 'variables',
+        type: 'string',
+        required: true,
+        description: `JSON string containing the variables for the GraphQL operation`,
+      },
+    ],
+  },
+  {
+    name: 'mondaymcp_allapiwrite',
+    description: `Execute GraphQL mutations against the monday.com API to create, update, or delete data. Only mutations are accepted — queries are rejected with an error before the request is sent. Use get_graphql_schema and get_type_details tools first to understand the schema before crafting your mutation.`,
+    params: [
+      {
+        name: 'query',
+        type: 'string',
+        required: true,
+        description: `Custom GraphQL query/mutation. you need to provide the full query / mutation`,
+      },
+      {
+        name: 'variables',
+        type: 'string',
+        required: true,
+        description: `JSON string containing the variables for the GraphQL operation`,
+      },
+    ],
+  },
+  {
     name: 'mondaymcp_allmondayapi',
     description: `Execute any monday.com API operation by generating GraphQL queries and mutations dynamically. Make sure you ask only for the fields you need and nothing more. When providing the query/mutation - use get_graphql_schema and get_type_details tools first to understand the schema before crafting your query.`,
     params: [
@@ -147,6 +183,50 @@ RELATED TOOLS:
         type: 'boolean',
         required: false,
         description: `If true, create missing Status/Dropdown labels when setting those columns. Requires permission to change board structure. Omit or false to only use existing labels.`,
+      },
+    ],
+  },
+  {
+    name: 'mondaymcp_createaction',
+    description: `Save a reusable action (a stored code script). Variables are injected as environment variables (access via os.environ in Python, process.env in JS/TS).
+
+Recommended: Test your code with execute_code before saving to ensure it works correctly.
+
+Network access is restricted to the following hosts: [api.monday.com, mcp.monday.com/mcp]. Requests to any other host will be blocked.
+
+Example:
+  name: "Get board items", description: "Fetches items from a board", language: "python", code: "import requests\\nprint('done')"`,
+    params: [
+      { name: 'code', type: 'string', required: true, description: `Source code (max 1 MB)` },
+      {
+        name: 'description',
+        type: 'string',
+        required: true,
+        description: `Short summary: what data the code accesses (specific boards/items by name or ID, or scope if broad), what processing it performs, and how the result is returned. Max 255 characters. Write this well — it is how the action is discovered and reused later.`,
+      },
+      {
+        name: 'language',
+        type: 'string',
+        required: true,
+        description: `Programming language — one of: javascript, typescript, python`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: true,
+        description: `Short, descriptive action name`,
+      },
+      {
+        name: 'output_description',
+        type: 'string',
+        required: true,
+        description: `Required. Instructions describing what should be done with the execution output (e.g. "post the summary as an update on item 123"), max 2000 characters. Echoed back in the run_action response.`,
+      },
+      {
+        name: 'vars_schema',
+        type: 'array',
+        required: false,
+        description: `Variable definitions — injected as environment variables at execution time`,
       },
     ],
   },
@@ -597,6 +677,12 @@ Gather all answers upfront before calling this tool â do not submit one que
         description: `The name of the new item to be created, must be relevant to the user's request`,
       },
       {
+        name: 'createLabelsIfMissing',
+        type: 'boolean',
+        required: false,
+        description: `When true, missing status/dropdown labels referenced in columnValues will be auto-created on the board instead of erroring with ColumnValueException. Requires permission to change board structure. Use when the caller specifies label names that may not yet exist on the board.`,
+      },
+      {
         name: 'duplicateFromItemId',
         type: 'number',
         required: false,
@@ -613,6 +699,24 @@ Gather all answers upfront before calling this tool â do not submit one que
         type: 'number',
         required: false,
         description: `The id of the parent item under which the new subitem will be created`,
+      },
+    ],
+  },
+  {
+    name: 'mondaymcp_createitems',
+    description: `Create up to 20 new items in a single call. Each item is fully independent - it chooses its own groupId, parentItemId (for subitems), duplicateFromItemId (for bulk templating from an existing item), and createLabelsIfMissing. A single call can therefore span multiple groups, mix regular items with subitems under different parents, and mix fresh creates with duplicates of existing items. Each item returns its own item_id and item_url on success, or a raw error message on failure. [REQUIRED PRECONDITION]: Before using this tool, if new columns were added to the board or if you are not familiar with the board's structure (column IDs, column types, status labels, etc.), first use get_board_info to understand the board metadata. This is essential for constructing proper column values and knowing which columns are available.`,
+    params: [
+      {
+        name: 'boardId',
+        type: 'number',
+        required: true,
+        description: `The id of the board to which the new items will be added`,
+      },
+      {
+        name: 'items',
+        type: 'array',
+        required: true,
+        description: `The items to create, up to 20 per call. Each item returns its own item_id and item_url on success, or a raw error message on failure. Each item independently chooses its groupId, parentItemId, and createLabelsIfMissing.`,
       },
     ],
   },
@@ -857,7 +961,7 @@ Note: if directing the user to the workflow in the UI, the correct URL path is c
         name: 'privacyKind',
         type: 'string',
         required: false,
-        description: `Workflow visibility: PUBLIC (default), PRIVATE, or SHAREABLE (accessible to guests outside the account).`,
+        description: `Privacy kind for the workflow (defaults to PUBLIC)`,
       },
       {
         name: 'title',
@@ -894,6 +998,138 @@ Note: if directing the user to the workflow in the UI, the correct URL path is c
         type: 'string',
         required: false,
         description: `The description of the new workspace`,
+      },
+    ],
+  },
+  {
+    name: 'mondaymcp_deleteaction',
+    description: `Delete a saved action.
+
+Example:
+  id: "550e8400-e29b-41d4-a716-446655440000"`,
+    params: [{ name: 'id', type: 'string', required: true, description: `Action ID` }],
+  },
+  {
+    name: 'mondaymcp_executecode',
+    description: `Run arbitrary code in a monday-authenticated sandbox, without saving.
+
+Prefer dedicated monday tools for individual reads, writes, and GraphQL queries/mutations — they render in the UI and are retried one step at a time. Reach for execute_code when code is genuinely the better tool:
+  - Bulk / multi-item work — batch operations, dedup, aggregations, joins across boards (one script beats N tool calls that accumulate context and compound failure)
+  - Data transformation — normalizing phones/dates, fuzzy matching, weighted scoring
+  - File I/O — parsing uploaded CSV/XLSX to import items, producing downloadable exports
+  - Multi-step workflows where each step's output gates the next
+
+The sandbox has authenticated access to the monday.com API. You can make HTTP requests with GraphQL queries and mutations — authentication is handled automatically.
+
+IMPORTANT: Network access is restricted to the following hosts: [api.monday.com, mcp.monday.com/mcp]. Requests to any other host (or a different path on a restricted host) will be blocked. Use this tool to query boards, items, columns, users, updates, and any other monday.com API resource.
+
+THE SANDBOX IS PER-CALL: a new empty container every call, destroyed when the call returns. Nothing written to disk survives, /tmp included. Never write a file in one call to read it in a later one, and don't invent staging paths for earlier tool results — none exist. To carry data forward, print it and pass it into the next call's code, or do the whole job in one call. Splitting a fan-out across calls only works if the later calls don't depend on the earlier ones' files.
+
+FAIL WITH A NON-ZERO EXIT. A run that prints an error and exits 0 is recorded as a success. The monday.com API returns HTTP 200 with an "errors" array, so check the parsed body rather than the status code and raise when it is present. Let exceptions propagate; don't wrap the script in a bare try/except.
+
+TIME LIMIT: 300s. A run that exceeds it is killed, so scope each call to finish well inside the limit instead of fetching everything in one script.
+
+Don't call mcp.monday.com from inside the sandbox to reach monday tools — you already have them, and a tool missing from your tool list won't be found there either.
+
+Example — monday.com GraphQL query, raising on errors (Python). Use this shape for every API call:
+  code: "import requests\\ndef gql(query):\\n    body = requests.post('https://api.monday.com/v2', json={'query': query}).json()\\n    if 'errors' in body:\\n        raise RuntimeError(body['errors'])\\n    return body['data']\\nprint(gql('{ users(limit:5) { id name email } }'))"
+
+Example — monday.com GraphQL mutation (Python):
+  code: "import requests\\nmutation = 'mutation { create_board(board_name: \\"New Board\\", board_kind: public) { id } }'\\nbody = requests.post('https://api.monday.com/v2', json={'query': mutation}).json()\\nif 'errors' in body:\\n    raise RuntimeError(body['errors'])\\nprint(body['data'])"
+
+Example — with vars (accessed via os.environ):
+  code: "import os, requests\\nuser_id = os.environ['user_id']\\nresp = requests.post('https://api.monday.com/v2', json={'query': f'{{ users(ids: [{user_id}]) {{ id name email }} }}'})\\nprint(resp.json())"
+  vars: {"user_id": 12345}
+
+Example — simple (Python):
+  code: "print('hello world')"
+
+Example — with files (input and output):
+  code: "import json\\ndata = json.load(open('/tmp/data.json'))\\njson.dump({'count': len(data)}, open('/tmp/result.json', 'w'))"
+  files: [{"path": "/tmp/data.json", "content": "W3siaWQiOiAxfV0="}]
+  output_files: ["/tmp/result.json"]
+
+Example — auto-collect outputs (write anything you want returned under /outputs):
+  code: "import os, json\\nos.makedirs('/outputs', exist_ok=True)\\njson.dump({'ok': True}, open('/outputs/result.json', 'w'))"
+  return_outputs: true`,
+    params: [
+      {
+        name: 'code',
+        type: 'string',
+        required: true,
+        description: `Source code to execute. Max 1 MB. Access vars via os.environ (Python), process.env (JS/TS) or "$VAR" (bash).`,
+      },
+      {
+        name: 'description',
+        type: 'string',
+        required: true,
+        description: `Required. Short summary of what this code does: the data it accesses (specific boards/items by name or ID, or scope if broad), the processing it performs, and how the result is returned.`,
+      },
+      {
+        name: 'language',
+        type: 'string',
+        required: true,
+        description: `Programming language — one of: javascript, typescript, python, bash`,
+      },
+      {
+        name: 'files',
+        type: 'array',
+        required: false,
+        description: `Input files to write into the sandbox before execution (max 32 files). Each must have content (base64, small files only) or url (S3 presigned URL). Inline content is capped at 512 KB per file and 1 MB across all files, so pass anything larger by url rather than inline content — urls are fetched by the sandbox directly and don't count toward those limits.`,
+      },
+      {
+        name: 'output_files',
+        type: 'array',
+        required: false,
+        description: `Absolute file paths to retrieve from the sandbox after execution. Returned as presigned S3 download URLs.`,
+      },
+      {
+        name: 'return_outputs',
+        type: 'boolean',
+        required: false,
+        description: `When true, auto-collect every file the code writes under /outputs (instead of naming each path in output_files) and return them as presigned download URLs. Up to 20 files, 25 MB each, 100 MB total; outputs_truncated is set in the response if a limit is hit.`,
+      },
+      {
+        name: 'vars',
+        type: 'object',
+        required: false,
+        description: `Variables injected as environment variables into the sandbox (access via os.environ / process.env)`,
+      },
+    ],
+  },
+  {
+    name: 'mondaymcp_exploremeetings',
+    description: `Discover meetings by topic, or list/browse meetings by date and access. Returns meetings ranked by keyword relevance (matched against title and AI gist — not semantic). USE THIS FIRST for topic/theme questions ("what did we decide about pricing", "find meetings about the acme deal") AND for listing/browsing ("list my recent meetings", "meetings from last week", "my last 10 meetings"). When query is omitted, returns recent meetings filtered by date/access only — this is the tool for listing. Pass returned ids to get_meetings_content for full content, or to search_meetings_content for matching passages. Only indexed meetings are candidates.`,
+    params: [
+      {
+        name: 'access',
+        type: 'string',
+        required: false,
+        description: `Filter by access level. OWN: meetings the user participated in or invited the bot to. SHARED_WITH_ME: shared with the user or their team. SHARED_WITH_ACCOUNT: shared with the entire account. ALL: all accessible meetings. Default: OWN.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of meetings to return (1-20). Keep small - the top-ranked few are usually enough.`,
+      },
+      {
+        name: 'query',
+        type: 'string',
+        required: false,
+        description: `What to look for, matched against each meeting's title and AI gist and ranked by relevance. Omit or leave empty to browse by date/access filters only. Pass the core subject or entity, roughly 1-4 words (e.g. "pricing roadmap" or "acme renewal"), not the full question. Drop instruction words, filler, and synonyms, which dilute the ranking.`,
+      },
+      {
+        name: 'start_time_from',
+        type: 'string',
+        required: false,
+        description: `Only include meetings that started at or after this UTC ISO 8601 timestamp (e.g. 2026-07-28T00:00:00Z).`,
+      },
+      {
+        name: 'start_time_to',
+        type: 'string',
+        required: false,
+        description: `Only include meetings that started at or before this UTC ISO 8601 timestamp (e.g. 2026-07-28T23:59:59Z).`,
       },
     ],
   },
@@ -957,6 +1193,14 @@ Note: if directing the user to the workflow in the UI, the correct URL path is c
         description: `Question ID. Required for update/delete.`,
       },
     ],
+  },
+  {
+    name: 'mondaymcp_getaction',
+    description: `Retrieve a saved action by ID.
+
+Example:
+  id: "550e8400-e29b-41d4-a716-446655440000"`,
+    params: [{ name: 'id', type: 'string', required: true, description: `Action ID` }],
   },
   {
     name: 'mondaymcp_getassets',
@@ -1210,6 +1454,12 @@ Optional "userIds" narrows results to specific creators.`,
 PERFORMANCE OPTIMIZATION: Only set this to true when you actually need the column data. Excluding columns significantly reduces token usage and improves response latency. If you only need to count items, get item IDs/names, or check if items exist, keep this false.`,
       },
       {
+        name: 'includeGroup',
+        type: 'boolean',
+        required: false,
+        description: `Whether to include each item's board group (id and title) in the response. Set to false to reduce token usage when group membership is not needed.`,
+      },
+      {
         name: 'includeItemDescription',
         type: 'boolean',
         required: false,
@@ -1318,6 +1568,54 @@ PERFORMANCE OPTIMIZATION: Only set this to true when you actually need the colum
     ],
   },
   {
+    name: 'mondaymcp_getmeetingscontent',
+    description: `Fetch full content (summary, topics, action items, transcript) for meetings you already have ids for. Get those ids from explore_meetings (topic/listing/browse) or search_meetings_content (passages) first — this tool is NOT for discovery or listing. Pass the ids with the include_ flags for the content you need (defaults to the summary if none are set). Requested ids that are not returned are listed in \`missing_ids\` (not found, not accessible, or no completed recording); meetings whose content was dropped to keep the response within its size limit are listed in \`content_omitted_ids\`. The search param is a narrow case-insensitive substring fallback on title, participant name, or email — NOT topic/keyword search.`,
+    params: [
+      {
+        name: 'access',
+        type: 'string',
+        required: false,
+        description: `Filter by access level. OWN: meetings the user participated in or invited the bot to. SHARED_WITH_ME: shared with the user or their team. SHARED_WITH_ACCOUNT: shared with the entire account. ALL: all accessible meetings. Defaults to ALL when fetching specific ids; without ids it excludes meetings shared only account-wide (pass access: ALL to include those).`,
+      },
+      {
+        name: 'ids',
+        type: 'array',
+        required: false,
+        description: `The meeting IDs to fetch, from explore_meetings or search_meetings_content. Fetches them in one call.`,
+      },
+      {
+        name: 'include_action_items',
+        type: 'boolean',
+        required: false,
+        description: `Include action items for each meeting.`,
+      },
+      {
+        name: 'include_summary',
+        type: 'boolean',
+        required: false,
+        description: `Include the AI-generated summary for each meeting.`,
+      },
+      {
+        name: 'include_topics',
+        type: 'boolean',
+        required: false,
+        description: `Include discussion topics and talking points for each meeting.`,
+      },
+      {
+        name: 'include_transcript',
+        type: 'boolean',
+        required: false,
+        description: `Include the full transcript for each meeting. Transcripts can be very large.`,
+      },
+      {
+        name: 'search',
+        type: 'string',
+        required: false,
+        description: `Narrow fallback only: case-insensitive substring match on title, attendee name, or email. NOT topic/keyword search and NOT for discovery — use explore_meetings to find meetings.`,
+      },
+    ],
+  },
+  {
     name: 'mondaymcp_getmondaydevsprintsboards',
     description: `Discover monday-dev sprints boards and their associated tasks boards in your account.
 
@@ -1333,6 +1631,29 @@ This tool scans your recently used boards (up to 100) to find valid monday-dev s
 ## Note:
 Searches recently used boards (up to 100). If none found, ask user to provide board IDs manually.`,
     params: [],
+  },
+  {
+    name: 'mondaymcp_getmondayknowledge',
+    description: `Ask a question about monday.com and get an AI-generated answer from the official knowledge base.
+
+Use kind="general" for questions about using monday.com — features, automations, UI, help center, and settings. Returns cited source articles with links.
+Use kind="developer_docs" for questions about the monday.com API — GraphQL queries and mutations, authentication, rate limits, webhooks, schema, API best practices, and building apps.
+
+Important: do not include PII data in the questions.`,
+    params: [
+      {
+        name: 'kind',
+        type: 'string',
+        required: true,
+        description: `The knowledge domain to search. Use "developer_docs" for questions about the monday.com API — GraphQL queries and mutations, authentication, rate limits, webhooks, schema, API best practices, and building apps. Use "general" for questions about using monday.com — features, automations, UI, help center, and settings.`,
+      },
+      {
+        name: 'query',
+        type: 'string',
+        required: true,
+        description: `The question or topic to search for in the monday.com knowledge base.`,
+      },
+    ],
   },
   {
     name: 'mondaymcp_getnotetakermeetings',
@@ -1542,6 +1863,61 @@ When viewing the section "Completed by Assignee", you'll see user IDs in the for
     - Get user's most relevant people based on interaction frequency and recency
     - Reduce the need for search requests by knowing user's commonly accessed items
     `,
+    params: [],
+  },
+  {
+    name: 'mondaymcp_invokeprocessplanner',
+    description: `A reasoning-focused process planner with deep knowledge of monday.com workflow architecture. Given a description of a process, it returns a structured textual plan describing one or more related workflows that implement it.
+
+Use this tool for:
+- Planning a new workflow or multi-workflow architecture from a process description.
+- Deciding whether a process should be implemented as a single workflow or multiple related workflows.
+- Producing a concrete, block-level plan (trigger, steps, route keys) that another agent or human can build from.
+- Don't tell it about one time actions, like non-repeating resource creations that are needed to set up the process.
+
+This tool does NOT have access to any specific workflow's current state — it plans from scratch using all available blocks. It does not execute any changes.`,
+    params: [
+      {
+        name: 'prompt',
+        type: 'string',
+        required: true,
+        description: `A description of the process to plan. The planner will design one or more related workflows that implement it, using only the blocks available in the system.`,
+      },
+    ],
+  },
+  {
+    name: 'mondaymcp_invokeworkflowexpert',
+    description: `Workflow expert for a single workflow. Given a prompt, answers questions about the workflow's structure and configuration, or makes changes to it (create, update, delete steps, and configure step fields).
+
+Delegate any prompt that asks about a workflow or asks to change it. Pass clear, descriptive instructions — the expert will decide the right response or operations.
+
+Field values reference resources (boards, columns, people, channels, projects, ...) from monday or any external app — all handled the same way. Pass each resource through as the user stated it; the expert resolves names to IDs and asks the user when it's ambiguous. Pro-tip: pass along any ID you already have to save a follow-up question — no need to look one up first.
+
+Constraints: works on ONE workflow at a time.`,
+    params: [
+      {
+        name: 'prompt',
+        type: 'string',
+        required: true,
+        description: `A question about the workflow or a description of the changes to make to it`,
+      },
+      {
+        name: 'workflowObjectId',
+        type: 'number',
+        required: true,
+        description: `The identifier of a workflow object, found in the workflow URL. A workflow object is the entity that is retained across published versions; users can create draft versions related to this workflow object.`,
+      },
+      {
+        name: 'workflowDraftId',
+        type: 'number',
+        required: false,
+        description: `The identifier of a draft that belongs to the workflow object referenced by workflowObjectId. When omitted, it refers to the live version of the workflow.`,
+      },
+    ],
+  },
+  {
+    name: 'mondaymcp_listactions',
+    description: `List all saved actions for the current user.`,
     params: [],
   },
   {
@@ -2088,15 +2464,15 @@ Note: if directing the user to the workflow in the UI, the correct URL path is c
     params: [
       {
         name: 'workflowDraftId',
-        type: 'string',
+        type: 'number',
         required: true,
-        description: `The draft version ID returned by create_workflow. Both workflowObjectId and workflowDraftId are required â together they identify the exact draft to publish.`,
+        description: `The identifier of a draft that belongs to the workflow object referenced by workflowObjectId.`,
       },
       {
         name: 'workflowObjectId',
-        type: 'string',
+        type: 'number',
         required: true,
-        description: `The workflow object ID returned by create_workflow. Identifies the workflow across all its drafts and live versions.`,
+        description: `The identifier of a workflow object, found in the workflow URL. A workflow object is the entity that is retained across published versions; users can create draft versions related to this workflow object.`,
       },
       {
         name: 'shouldActivate',
@@ -2221,6 +2597,22 @@ MODE: "version_history" â Fetch the edit history of a single document.
     ],
   },
   {
+    name: 'mondaymcp_runaction',
+    description: `Execute a saved action by ID. Optionally pass variables (injected as environment variables, access via os.environ).
+
+Example:
+  id: "abc-123", vars: {"board_id": 12345, "limit": 5}`,
+    params: [
+      { name: 'id', type: 'string', required: true, description: `Action ID` },
+      {
+        name: 'vars',
+        type: 'object',
+        required: false,
+        description: `Variables injected as environment variables into the sandbox (access via os.environ / process.env)`,
+      },
+    ],
+  },
+  {
     name: 'mondaymcp_search',
     description: `Search within monday.com platform. Can search for boards, documents, folders, workspaces, updates, and items.
 For searching/listing specific users and teams, use list_users_and_teams tool.
@@ -2236,7 +2628,7 @@ IMPORTANT: ids returned by this tool are prefixed with the type of the object (e
         name: 'searchType',
         type: 'string',
         required: true,
-        description: `The type of search to perform.`,
+        description: `The type of search to perform. Valid values: BOARD, DOCUMENTS, FOLDERS, WORKSPACES, UPDATES, ITEMS, TIMELINE_ITEMS, DASHBOARDS.`,
       },
       {
         name: 'boardIds',
@@ -2257,22 +2649,276 @@ IMPORTANT: ids returned by this tool are prefixed with the type of the object (e
         description: `The number of items to get. The max and default value is 20.`,
       },
       {
-        name: 'page',
-        type: 'number',
-        required: false,
-        description: `The page number to get. The default value is 1.`,
-      },
-      {
         name: 'searchTerm',
         type: 'string',
         required: false,
-        description: `The search term to use for the search.`,
+        description: `The search phrase — the text the search matches results against (e.g. a board name, item title, or keywords). Required and must be non-empty. This is NOT a filter or an id — pass the words to look for.`,
       },
       {
         name: 'workspaceIds',
         type: 'array',
         required: false,
         description: `The ids of the workspaces to search in. [IMPORTANT] Only pass this param if user explicitly asked to search within specific workspaces.`,
+      },
+    ],
+  },
+  {
+    name: 'mondaymcp_searchmeetingscontent',
+    description: `Search inside meeting content (topics, summary, action items) and return matching passages with their source area. Keyword-ranked (not semantic). When query is omitted, returns content filtered by date/access. Use to find where something was said or decided ("which meeting mentioned the budget freeze", "find the auth migration discussion"). Pass returned ids to get_meetings_content for full context.`,
+    params: [
+      {
+        name: 'access',
+        type: 'string',
+        required: false,
+        description: `Filter by access level. OWN: meetings the user participated in or invited the bot to. SHARED_WITH_ME: shared with the user or their team. SHARED_WITH_ACCOUNT: shared with the entire account. ALL: all accessible meetings. Default: OWN.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of meetings to return (1-15). Content search is heavier, so keep this small.`,
+      },
+      {
+        name: 'query',
+        type: 'string',
+        required: false,
+        description: `The phrase or subject to find inside meeting content. Omit or leave empty to browse content by date/access. Pass the core subject or entity, roughly 1-4 words (e.g. "pricing roadmap" or "acme renewal"), not the full question. Drop instruction words, filler, and synonyms, which dilute the ranking.`,
+      },
+      {
+        name: 'search_in',
+        type: 'array',
+        required: false,
+        description: `Which areas of meeting content to search. TOPIC: discussed topics/talking points. SUMMARY: the AI summary. ACTION_ITEM: action items. Defaults to [TOPIC, SUMMARY].`,
+      },
+      {
+        name: 'start_time_from',
+        type: 'string',
+        required: false,
+        description: `Only include meetings that started at or after this UTC ISO 8601 timestamp (e.g. 2026-07-28T00:00:00Z).`,
+      },
+      {
+        name: 'start_time_to',
+        type: 'string',
+        required: false,
+        description: `Only include meetings that started at or before this UTC ISO 8601 timestamp (e.g. 2026-07-28T23:59:59Z).`,
+      },
+    ],
+  },
+  {
+    name: 'mondaymcp_showassign',
+    description: `[UI COMPONENT] Renders an interactive smart assignment interface visualization that the user can see and interact with. IMPORTANT: This is a UI DISPLAY tool - use it to RENDER visual components for the user to see and interact with. Do NOT use data-fetching tools when the user explicitly asks to "show", "display", "visualize", or "see" something visually. Helps assign tasks to the right people. Assignment suggestions are based on task details (like name) and person details (such as title, availability, etc).Use for requests to see or use an interactive assignment interface. Always show as much as data possible, while showing the person details like title etc. If you do not have the data available - use the list_users_and_teams tool.`,
+    params: [
+      {
+        name: 'assignments',
+        type: 'array',
+        required: true,
+        description: `Array of item assignments`,
+      },
+      { name: 'title', type: 'string', required: true, description: `Board title` },
+    ],
+  },
+  {
+    name: 'mondaymcp_showbattery',
+    description: `[UI COMPONENT] Renders an interactive battery/progress indicator visualization that the user can see and interact with. IMPORTANT: This is a UI DISPLAY tool - use it to RENDER visual components for the user to see and interact with. Do NOT use data-fetching tools when the user explicitly asks to "show", "display", "visualize", or "see" something visually. Use when user asks for: battery view, progress indicator, status distribution bar, completion percentage visualization, or Monday.com style status breakdown.`,
+    params: [
+      {
+        name: 'data',
+        type: 'array',
+        required: true,
+        description: `Array of segments. Each segment must have 'name' (label), 'y' (value), and 'color' properties.`,
+      },
+    ],
+  },
+  {
+    name: 'mondaymcp_showchart',
+    description: `[UI COMPONENT] Renders an interactive chart/graph visualization that the user can see and interact with. IMPORTANT: This is a UI DISPLAY tool - use it to RENDER visual components for the user to see and interact with. Do NOT use data-fetching tools when the user explicitly asks to "show", "display", "visualize", or "see" something visually. Use when user asks for: pie chart, bar chart, line graph, data visualization, or any graphical representation of numbers/statistics.`,
+    params: [
+      {
+        name: 'data',
+        type: 'array',
+        required: true,
+        description: `Array of data points. Each point must have 'name' (label) and 'y' (value) properties, with optional 'color' property.`,
+      },
+      {
+        name: 'type',
+        type: 'string',
+        required: true,
+        description: `Chart type to render: "pie" (circular chart with segments) or "bar" (horizontal bars).`,
+      },
+      {
+        name: 'title',
+        type: 'string',
+        required: false,
+        description: `Optional title text to display above the chart. Leave empty or omit for no title.`,
+      },
+    ],
+  },
+  {
+    name: 'mondaymcp_showtable',
+    description: `[UI COMPONENT] Renders an interactive table visualization that the user can see and interact with. IMPORTANT: This is a UI DISPLAY tool - use it to RENDER visual components for the user to see and interact with. Do NOT use data-fetching tools when the user explicitly asks to "show", "display", "visualize", or "see" something visually. Use when user asks to: display a board as table, show items in table format, view data in tabular layout, or see a Monday.com board visually.
+When asked to update an item, use the currently selected item ID (get it from the widget state, using tools like "get_widget_state") for deciding which item to update. 
+If no item is selected, ask the user which item should be updated.
+After adding an update to an item, you MUST display the table AGAIN, even if the user did not ask you to.
+
+[IMPORTANT][FILTERING PRECONDITION]: IF using filters, you MUST call get_board_info(boardId) FIRST and use the returned boardContextToken.`,
+    params: [
+      {
+        name: 'boardId',
+        type: 'string',
+        required: true,
+        description: `The ID of the board to display`,
+      },
+      {
+        name: 'currentlySelectedItemIdForShowingUpdates',
+        type: 'string',
+        required: false,
+        description: `The ID of the item currently displaying its updates in the expanded view`,
+      },
+      {
+        name: 'filters',
+        type: 'array',
+        required: false,
+        description: `The configuration of filters to apply on the items. Before sending the filters, use get_board_info tool to check "filteringGuidelines" key for filtering by the column.`,
+      },
+      {
+        name: 'filtersOperator',
+        type: 'string',
+        required: false,
+        description: `The operator to use for the filters`,
+      },
+    ],
+  },
+  {
+    name: 'mondaymcp_submitbugorfeaturerequest',
+    description: `Report a bug, submit a feature request, or share feedback about the monday.com product or this integration.
+
+Call this tool proactively — not just when a user explicitly asks. Use it whenever any of these signals show up:
+• A tool produced unexpected errors, empty results, or needed a workaround
+• The user tried something monday.com couldn't support and had to settle for a partial or manual solution
+• A recurring capability gap is noticed — something requested that simply isn't available in monday.com or this integration
+• The user shows repeated frustration (multiple corrections, retrying the same request, "that's wrong again," "why isn't this working")
+• A task required multiple retries, an unusually long reasoning chain, or many attempts for something that should've been simple
+
+Parameters:
+• title (string, required) — short summary, no PII
+• description (string, required) — full details of what happened/expected/requested, no PII
+• kind (enum, required) — "bug", "feature_request", or "feedback"
+• tool_name (string, optional) — the specific monday.com tool the feedback relates to (e.g. "create_item")
+
+Restriction: Use strictly for things related to monday.com — not for other tools (Google Drive, Slack, GitHub, etc.) that may be in the conversation context. Do NOT include any personally identifiable information (PII) such as names, email addresses, phone numbers, or any other personal data.`,
+    params: [
+      {
+        name: 'description',
+        type: 'string',
+        required: true,
+        description: `Full details — what happened, what was expected, or what is being requested. Do NOT include any personally identifiable information (PII) such as names, email addresses, phone numbers, or any other personal data.`,
+      },
+      {
+        name: 'kind',
+        type: 'string',
+        required: true,
+        description: `The kind of submission: general feedback, a feature request, or a bug report`,
+      },
+      {
+        name: 'title',
+        type: 'string',
+        required: true,
+        description: `A short summary of the feedback. Do NOT include any personally identifiable information (PII) such as names, email addresses, phone numbers, or any other personal data.`,
+      },
+      {
+        name: 'tool_name',
+        type: 'string',
+        required: false,
+        description: `The name of the monday.com MCP tool this feedback is about, if applicable (e.g. "create_item", "get_board_info"). Only include monday.com MCP tool names — do not reference tools from other connected services.`,
+      },
+    ],
+  },
+  {
+    name: 'mondaymcp_updateaction',
+    description: `Update an existing action. Only pass the fields you want to change.
+
+Example:
+  id: "550e8400-e29b-41d4-a716-446655440000", name: "Updated name", code: "print('new code')"`,
+    params: [
+      { name: 'id', type: 'string', required: true, description: `Action ID` },
+      { name: 'code', type: 'string', required: false, description: `New source code (max 1 MB)` },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `New description — short summary: what data the code accesses (specific boards/items by name or ID, or scope if broad), what processing it performs, and how the result is returned. Max 255 characters.`,
+      },
+      {
+        name: 'language',
+        type: 'string',
+        required: false,
+        description: `New programming language — one of: javascript, typescript, python`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: false,
+        description: `New short, descriptive action name`,
+      },
+      {
+        name: 'output_description',
+        type: 'string',
+        required: false,
+        description: `New instructions describing what should be done with the execution output, max 2000 characters.`,
+      },
+      {
+        name: 'vars_schema',
+        type: 'array',
+        required: false,
+        description: `New variable definitions`,
+      },
+    ],
+  },
+  {
+    name: 'mondaymcp_updatecolumn',
+    description: `Update properties of an existing monday.com column (title, description, settings). Uses optimistic concurrency control via the revision field — fetch the current revision via get_board_schema first, then call this tool. If the update fails because the revision is stale, re-fetch and try again.`,
+    params: [
+      {
+        name: 'boardId',
+        type: 'number',
+        required: true,
+        description: `The id of the board containing the column`,
+      },
+      {
+        name: 'columnId',
+        type: 'string',
+        required: true,
+        description: `The id of the column to update`,
+      },
+      {
+        name: 'columnType',
+        type: 'string',
+        required: true,
+        description: `The type of the column being updated. Must match the existing column type.`,
+      },
+      {
+        name: 'revision',
+        type: 'string',
+        required: true,
+        description: `The current revision of the column, obtained from get_board_schema. Used for optimistic concurrency control: if the column changed since you read it, the request will fail and you should re-fetch the latest revision before retrying.`,
+      },
+      {
+        name: 'columnDescription',
+        type: 'string',
+        required: false,
+        description: `The new description of the column. If omitted, the description is unchanged.`,
+      },
+      {
+        name: 'columnSettings',
+        type: 'string',
+        required: false,
+        description: `Type-specific configuration as a JSON string. Use get_column_type_info with fetchMode "schema" for the JSON schema for the given column type. If omitted, settings are unchanged.`,
+      },
+      {
+        name: 'columnTitle',
+        type: 'string',
+        required: false,
+        description: `The new title of the column. If omitted, the title is unchanged.`,
       },
     ],
   },
@@ -2324,7 +2970,7 @@ Operation types:
 - add_markdown_content: Append markdown as blocks (simplest for text/lists/tables).
 - update_block: Change content of an existing text/code/list/divider block.
 - create_block: Create a new block at a specific position (supports text, list_item, code, divider, page_break, image, video, notice_box, table, layout).
-- delete_block: Permanently remove a block. Works for ALL block types including BOARD, WIDGET, DOC embed, GIPHY.
+- delete_blocks: Permanently delete 1–100 blocks in one call. Provide all block IDs in the block_ids array. Works for all block types including BOARD, WIDGET, DOC embed, and GIPHY.
 - replace_block: Delete a block and create a new one in its place. Use for: changing image/video source, table restructure, notice_box theme change.
 - add_comment: Create a new comment or reply on the document. Use parent_update_id to reply to an existing comment. Format text with HTML. Uses the doc's backing board item.
 
@@ -2454,7 +3100,25 @@ Block IDs are available in the blocks array returned by read_docs.`,
         name: 'tag',
         type: 'object',
         required: false,
-        description: `Tag to create/update/delete. Delete: id only. Create: name+value (id/columnId auto-generated). Update: id+new value.`,
+        description: `Tag to create/delete. Delete: id only. Create: name (id/columnId auto-generated).`,
+      },
+    ],
+  },
+  {
+    name: 'mondaymcp_updateitems',
+    description: `Update column values for up to 40 items in a single call. Each update targets one item by itemId and sets one or more column values on it. Each update is independent - it can target its own board via boardId and set its own column values, so a single call can update many items across multiple boards, apply the same value to many items, or apply different values per item. Each update returns its own item_id and item_url on success or a raw error message on failure. To link board-relation columns, call link_board_items_workflow before using this tool. [REQUIRED PRECONDITION]: Before using this tool, if you are not familiar with the board structure (column IDs, column types, status labels), first use get_board_info to understand the board metadata. This is essential for constructing valid column values.`,
+    params: [
+      {
+        name: 'updates',
+        type: 'array',
+        required: true,
+        description: `The item updates to apply, up to 40 per call. Each entry updates one item and returns its own result on success or a raw error message on failure. Each entry independently chooses its boardId, columnValues, and createLabelsIfMissing.`,
+      },
+      {
+        name: 'boardId',
+        type: 'number',
+        required: false,
+        description: `Optional default board id used for any update that does not set its own boardId. Each update can override it with its own boardId, so a single call can span multiple boards.`,
       },
     ],
   },
@@ -2634,6 +3298,165 @@ Note: the workflow runs only after it is published to live version.
         type: 'string',
         required: false,
         description: `The name of the workspace to update`,
+      },
+    ],
+  },
+  {
+    name: 'mondaymcp_validateworkflow',
+    description: `Validates the current workflow's structure and step configuration. Reports issues such as a missing trigger or action block, a delay/wait-trigger block left as a leaf, an empty loop, unknown blocks, missing required inputs, type mismatches between a variable and the field it's bound to, cross-branch node-results references, or invalid variable values.
+
+Use this tool when:
+- The user asks "is my workflow ready?", "what's missing?", "can I publish?", "validate my workflow", or similar.
+- After you finished structural changes, to confirm the user still has things to configure.
+- Before suggesting the user publish/activate the workflow.
+
+The tool does NOT modify the workflow. It only inspects the current state. The response is always a JSON object with an "issues" array; an empty array means the workflow is fully configured. Each issue has a "code" discriminator with code-specific fields, and (when applicable) is enriched with stepVisibleId, stepTitle, and blockName for human-readable context.`,
+    params: [
+      {
+        name: 'workflowObjectId',
+        type: 'number',
+        required: true,
+        description: `The identifier of a workflow object, found in the workflow URL. A workflow object is the entity that is retained across published versions; users can create draft versions related to this workflow object.`,
+      },
+      {
+        name: 'workflowDraftId',
+        type: 'number',
+        required: false,
+        description: `The identifier of a draft that belongs to the workflow object referenced by workflowObjectId. When omitted, it refers to the live version of the workflow.`,
+      },
+    ],
+  },
+  {
+    name: 'mondaymcp_vibeask',
+    description: `Ask a read-only question about an existing Vibe app. Blocks for up to 45s (configurable via timeout_ms) awaiting the assistant reply. Status: COMPLETED with the reply, TIMEOUT if the workflow did not finish in time (call vibe_get later to retrieve it), or FAILED if the workflow errored or was cancelled. Optional model to pick the LLM for the answer.`,
+    params: [
+      { name: 'app_id', type: 'integer', required: true, description: `Internal Vibe app id` },
+      {
+        name: 'prompt',
+        type: 'string',
+        required: true,
+        description: `Question to ask about the app — read-only, no code changes`,
+      },
+      {
+        name: 'model',
+        type: 'string',
+        required: false,
+        description: `LLM model for code generation. Omit for automatic selection. Requires model selection enabled for the account.`,
+      },
+      {
+        name: 'timeout_ms',
+        type: 'integer',
+        required: false,
+        description: `Maximum time to block waiting for the assistant reply (default 45s)`,
+      },
+    ],
+  },
+  {
+    name: 'mondaymcp_vibecreate',
+    description: `Creates a new Vibe app from a natural-language prompt. Returns immediately with app_id and editor_link — the URL of the Vibe builder/chat page for the new app (https://{accountSlug}.monday.com/vibe/app/{appId}); the user can open it right away to watch generation in progress. Generation itself runs asynchronously — poll vibe_get for status. Optional: board_ids to connect existing boards (omit to auto-create), view_id to host a dashboard widget, and model to pick the LLM.`,
+    params: [
+      {
+        name: 'prompt',
+        type: 'string',
+        required: true,
+        description: `Natural-language description of the app to build`,
+      },
+      {
+        name: 'board_ids',
+        type: 'array',
+        required: false,
+        description: `Existing board IDs to connect (they must exist and you must have edit access). For multi-board variants (object, object_fullstack) these are connected as data sources; the number allowed depends on your account tier. For single-board variants (board_view, vibe_dashboard_widget, item views) provide one board id, used as the host board. Omit to have a new board created automatically.`,
+      },
+      {
+        name: 'model',
+        type: 'string',
+        required: false,
+        description: `LLM model for code generation. Omit for automatic selection. Requires model selection enabled for the account.`,
+      },
+      { name: 'variant', type: 'string', required: false, description: `App variant.` },
+      {
+        name: 'view_id',
+        type: 'string',
+        required: false,
+        description: `Board view ID that hosts the widget — required for vibe_dashboard_widget (the widget is created on this board view), and must be accompanied by its board_id.`,
+      },
+    ],
+  },
+  {
+    name: 'mondaymcp_vibedelete',
+    description: `Delete a Vibe app and its associated assets. Destructive.`,
+    params: [
+      { name: 'app_id', type: 'integer', required: true, description: `Internal Vibe app id` },
+    ],
+  },
+  {
+    name: 'mondaymcp_vibeget',
+    description: `Fetch a Vibe app by id. App metadata is always returned, including editor_link — the URL of the Vibe builder/chat page for this app (https://{accountSlug}.monday.com/vibe/app/{appId}); usable as soon as the app row exists. Pass \`include\` to add expensive slices: status (refreshes status + adds is_busy, default true), messages (with optional from_date), code_versions.`,
+    params: [
+      { name: 'app_id', type: 'integer', required: true, description: `Internal Vibe app id` },
+      {
+        name: 'include',
+        type: 'object',
+        required: false,
+        description: `Conditional fetch — app metadata is always returned; flags add expensive slices`,
+      },
+    ],
+  },
+  {
+    name: 'mondaymcp_vibelist',
+    description: `List Vibe apps owned by the authenticated user. Supports pagination, search, status, and is_published filters.`,
+    params: [
+      {
+        name: 'is_published',
+        type: 'boolean',
+        required: false,
+        description: `Filter by publish state`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of apps to return`,
+      },
+      { name: 'page', type: 'integer', required: false, description: `Page number (1-indexed)` },
+      {
+        name: 'search_term',
+        type: 'string',
+        required: false,
+        description: `Filter by name (case-insensitive substring match)`,
+      },
+      { name: 'status', type: 'string', required: false, description: `Filter by app status` },
+    ],
+  },
+  {
+    name: 'mondaymcp_vibepublication',
+    description: `Manage the publication state of a Vibe app on the caller account. action=publish requires the app to be deployed and respects the published-apps license limit. action=unpublish removes the app from the account.`,
+    params: [
+      {
+        name: 'action',
+        type: 'string',
+        required: true,
+        description: `publish = make the app live on the caller account; unpublish = remove it from the account`,
+      },
+      { name: 'app_id', type: 'integer', required: true, description: `Internal Vibe app id` },
+    ],
+  },
+  {
+    name: 'mondaymcp_vibeupdate',
+    description: `Sends a follow-up message to modify an existing app. Fire-and-forget — returns immediately with user_message_id and editor_link (the Vibe builder/chat URL for this app, https://{accountSlug}.monday.com/vibe/app/{appId}). Returns APP_BUSY (409) if the app is currently generating; poll vibe_get first. Optional model to pick the LLM for this build.`,
+    params: [
+      { name: 'app_id', type: 'integer', required: true, description: `Internal Vibe app id` },
+      {
+        name: 'prompt',
+        type: 'string',
+        required: true,
+        description: `Follow-up message describing what to change in the app`,
+      },
+      {
+        name: 'model',
+        type: 'string',
+        required: false,
+        description: `LLM model for code generation. Omit for automatic selection. Requires model selection enabled for the account.`,
       },
     ],
   },

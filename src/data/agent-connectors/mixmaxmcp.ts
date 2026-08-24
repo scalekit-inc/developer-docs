@@ -134,13 +134,19 @@ export const tools: Tool[] = [
   },
   {
     name: 'mixmaxmcp_sequences',
-    description: `Query and inspect Mixmax email sequences. Supports actions: list_sequences, get_sequence, get_sequence_insights, find_contact_in_sequences, get_daily_send_count, validate_sequence.`,
+    description: `Query, inspect, and create Mixmax email sequences. Supports actions: list_sequences, get_sequence, get_sequence_insights, find_contact_in_sequences, get_daily_send_count, validate_sequence, create_sequence. create_sequence authors a new multi-stage sequence as a draft (no recipients, not activated); requires the mcpSequencesWrite lever.`,
     params: [
       {
         name: 'action',
         type: 'string',
         required: true,
         description: `The action to perform. See the tool description for accepted values.`,
+      },
+      {
+        name: 'analyticsFrom',
+        type: 'string',
+        required: false,
+        description: `get_sequence_insights only — whose activity to count: 'myself' (default), 'everyone', or a team-id. On a shared sequence the default 'myself' returns your own numbers; pass 'everyone' for the team aggregate.`,
       },
       {
         name: 'contactEmail',
@@ -164,7 +170,7 @@ export const tools: Tool[] = [
         name: 'name',
         type: 'string',
         required: false,
-        description: `Filter sequences by name using a substring match.`,
+        description: `Filter sequences by name using a substring match on list_sequences; the new sequence name on create_sequence.`,
       },
       {
         name: 'next',
@@ -177,6 +183,18 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `The unique ID of the sequence (required for get_sequence, get_sequence_insights, and validate_sequence).`,
+      },
+      {
+        name: 'stages',
+        type: 'array',
+        required: false,
+        description: `create_sequence: the ordered stages to create. At least one required. Use {{merge tokens}} in subject/body for per-recipient values.`,
+      },
+      {
+        name: 'variables',
+        type: 'array',
+        required: false,
+        description: `create_sequence: declared merge-field names (e.g. 'first name', 'company'). Derived from the stage {{tokens}} if omitted.`,
       },
     ],
   },

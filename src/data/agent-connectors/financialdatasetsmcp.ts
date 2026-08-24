@@ -39,6 +39,78 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'financialdatasetsmcp_get_beneficial_owners',
+    description: `Lists beneficial owners (holders of more than 5% of a company's shares, from SEC Schedules 13D/13G) with their filer CIK and reporting-person name. Optionally filter by case-insensitive name prefix. The response's \`total\` is the full match count; when it exceeds the returned page, narrow the search with \`name\`. Use this to discover the filer_cik to pass to get_beneficial_ownership.`,
+    params: [
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Number of owners to return (default: 100, max: 1000). The response's \`total\` is the full match count; when it exceeds the page, narrow with \`name\`.`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: false,
+        description: `Optional case-insensitive name prefix to filter the beneficial-owner list (e.g. 'Saba'). Use this tool to discover the filer_cik to pass to get_beneficial_ownership.`,
+      },
+    ],
+  },
+  {
+    name: 'financialdatasetsmcp_get_beneficial_ownership',
+    description: `Retrieves beneficial-ownership stakes (holders of more than 5% of a class of shares) from SEC Schedules 13D and 13G. Schedule 13D stakes are ACTIVIST (intent to influence control: proxy fights, board seats, pushing for a sale); Schedule 13G stakes are passive (large asset managers). Query by ticker (who owns this company) OR by filer_cik (what stakes does this owner hold) — exactly one is required. Use type=activist to isolate activist stakes. By default each stake's CURRENT state is returned; set history=true for the full amendment chain. Each row is one reporting person with voting/dispositive powers, percent_of_class, and (for 13D) the stated purpose_of_transaction. Coverage begins January 2025.`,
+    params: [
+      {
+        name: 'filer_cik',
+        type: 'string',
+        required: false,
+        description: `SEC CIK of the beneficial owner (e.g. '0001510281' for Saba Capital). Returns their stakes across companies. Will be zero-padded to 10 digits. Provide exactly one of ticker or filer_cik. Use get_beneficial_owners to look up CIKs by owner name.`,
+      },
+      {
+        name: 'filing_date',
+        type: 'string',
+        required: false,
+        description: `Exact filing date filter in YYYY-MM-DD format`,
+      },
+      {
+        name: 'filing_date_gte',
+        type: 'string',
+        required: false,
+        description: `Filing date greater than or equal to (YYYY-MM-DD)`,
+      },
+      {
+        name: 'filing_date_lte',
+        type: 'string',
+        required: false,
+        description: `Filing date less than or equal to (YYYY-MM-DD)`,
+      },
+      {
+        name: 'history',
+        type: 'boolean',
+        required: false,
+        description: `When true, returns the full amendment history of each stake instead of only its current state (the default).`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Number of rows to return (default: 10, max: 1000).`,
+      },
+      {
+        name: 'ticker',
+        type: 'string',
+        required: false,
+        description: `The subject company's ticker (e.g. 'BB'). Returns its 5%+ beneficial owners. Provide exactly one of ticker or filer_cik.`,
+      },
+      {
+        name: 'type',
+        type: 'string',
+        required: false,
+        description: `Filter by stake type: 'activist' (Schedule 13D, intent to influence control) or 'passive' (Schedule 13G). Omit for both.`,
+      },
+    ],
+  },
+  {
     name: 'financialdatasetsmcp_get_cash_flow_statement',
     description: `Retrieves a company's cash flow statement, showing cash inflows and outflows from operating, investing, and financing activities.`,
     params: [
@@ -236,6 +308,66 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `The ETF or index fund ticker symbol (e.g. SPY, QQQ, VTI).`,
+      },
+    ],
+  },
+  {
+    name: 'financialdatasetsmcp_get_insider_ownership',
+    description: `Retrieves insider ownership statements for a company: what officers, directors, and 10% owners actually HOLD (common shares, options, RSUs), sourced from SEC Form 3 (an insider's initial statement of ownership) and Form 5 (the annual statement). Complements get_insider_trades, which covers the buys and sells in between: trades are the events, ownership statements are the state. Positions are returned as reported per filing, newest first. To find available insider names for a ticker, use: https://api.financialdatasets.ai/insider-ownership/names/?ticker={ticker}`,
+    params: [
+      {
+        name: 'ticker',
+        type: 'string',
+        required: true,
+        description: `The stock ticker symbol (e.g., 'AAPL', 'MSFT', 'TSLA')`,
+      },
+      {
+        name: 'filing_date',
+        type: 'string',
+        required: false,
+        description: `Exact filing date filter in YYYY-MM-DD format`,
+      },
+      {
+        name: 'filing_date_gt',
+        type: 'string',
+        required: false,
+        description: `Filing date strictly greater than (YYYY-MM-DD)`,
+      },
+      {
+        name: 'filing_date_gte',
+        type: 'string',
+        required: false,
+        description: `Filing date greater than or equal to (YYYY-MM-DD)`,
+      },
+      {
+        name: 'filing_date_lt',
+        type: 'string',
+        required: false,
+        description: `Filing date strictly less than (YYYY-MM-DD)`,
+      },
+      {
+        name: 'filing_date_lte',
+        type: 'string',
+        required: false,
+        description: `Filing date less than or equal to (YYYY-MM-DD)`,
+      },
+      {
+        name: 'form_type',
+        type: 'string',
+        required: false,
+        description: `Filter by SEC form type: 3 for initial ownership statements (what a new insider owned on day one), 5 for annual statements, or their amendments.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Number of ownership rows to retrieve (default: 10, max: 1000)`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: false,
+        description: `Filter by insider name (case-insensitive contains, e.g. 'cook'). Use the /insider-ownership/names/?ticker={ticker} endpoint to discover available names for a ticker.`,
       },
     ],
   },

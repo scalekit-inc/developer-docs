@@ -28,6 +28,12 @@ Examples:
         description: `Filter by voice agent config IDs. Matches Call, Email, and SMS activities that carry an agent_config_id; other activity types are filtered out implicitly because the field is not indexed for them.`,
       },
       {
+        name: 'call_status',
+        type: 'string',
+        required: false,
+        description: `Filter calls by status (e.g. completed, no-answer, busy). Only meaningful when activity_types includes Call; a no-op unless Call is searched. Other activity types use different status vocabularies, so they never match these values and are effectively excluded.`,
+      },
+      {
         name: 'contact_ids',
         type: 'string',
         required: false,
@@ -38,6 +44,12 @@ Examples:
         type: 'string',
         required: false,
         description: `Pagination cursor. Provide only when more results are requested from a previous response.`,
+      },
+      {
+        name: 'direction',
+        type: 'string',
+        required: false,
+        description: `Filter activities by direction (inbound = received by the user, outbound = sent by the user). Applies to Call, SMS, Email, and WhatsApp activities; activity types that have no direction (e.g. Note, Task) are excluded when this filter is set.`,
       },
       {
         name: 'lead_ids',
@@ -375,6 +387,98 @@ If in an interactive session, ask the user for the relevant field values
     ],
   },
   {
+    name: 'closemcp_create_custom_object_instance',
+    description: `Create a new custom object instance on a lead.
+
+A custom object instance is a record of a custom object type, attached
+to a lead and holding the custom field values defined by that type. Use
+the find_custom_object_types tool to look up the available custom object
+types.
+
+If in an interactive session, ask the user for the relevant field values
+(including custom fields) before creating, even if they are not required.`,
+    params: [
+      {
+        name: 'custom_object_type_id',
+        type: 'string',
+        required: true,
+        description: `ID of the custom object type that defines this instance's shape and custom fields. Use the find_custom_object_types tool to look up the available custom object types.`,
+      },
+      {
+        name: 'lead_id',
+        type: 'string',
+        required: true,
+        description: `ID of the lead this custom object belongs to`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: true,
+        description: `Display name for the custom object instance`,
+      },
+      {
+        name: 'custom_fields',
+        type: 'string',
+        required: false,
+        description: `Custom field values to set on this object. Only the custom fields included are modified; omitted fields are left unchanged.`,
+      },
+    ],
+  },
+  {
+    name: 'closemcp_create_draft_email',
+    description: `Create a draft email on a lead.
+
+The email is saved as an unsent draft for the user to review, edit, and
+send from Close; it is never sent automatically. Provide the body as
+Close rich text (HTML) via body_html.`,
+    params: [
+      {
+        name: 'lead_id',
+        type: 'string',
+        required: true,
+        description: `ID of the lead this draft email belongs to`,
+      },
+      { name: 'bcc', type: 'string', required: false, description: `List of BCC email addresses` },
+      {
+        name: 'body_html',
+        type: 'string',
+        required: false,
+        description: `Draft body as Close rich text (HTML). Wrap the whole content in a single <body> tag and put each line/paragraph in a block-level tag. Supported tags include <p>, <h1>-<h6>, <ul>/<ol> with <li>, <blockquote>, <hr>, <a href=...>, <br>, and inline formatting <strong>/<b>, <em>/<i>, <u>, <s>, <code>, <span>. Escape literal ampersands as '&amp;'. Example: <body><p>Hi <strong>Jane</strong>,</p><p>Following up on our call.</p></body>`,
+      },
+      {
+        name: 'body_text',
+        type: 'string',
+        required: false,
+        description: `Plaintext body content. Prefer body_html; if only one of body_html/body_text is provided the other is derived automatically.`,
+      },
+      { name: 'cc', type: 'string', required: false, description: `List of CC email addresses` },
+      {
+        name: 'contact_id',
+        type: 'string',
+        required: false,
+        description: `ID of the contact this draft email is addressed to`,
+      },
+      {
+        name: 'sender',
+        type: 'string',
+        required: false,
+        description: `Sender email address for the draft`,
+      },
+      {
+        name: 'subject',
+        type: 'string',
+        required: false,
+        description: `Subject line of the email`,
+      },
+      {
+        name: 'to',
+        type: 'string',
+        required: false,
+        description: `List of recipient email addresses`,
+      },
+    ],
+  },
+  {
     name: 'closemcp_create_email_template',
     description: `Create a new email template.
 
@@ -687,21 +791,28 @@ and optionally associated with a contact.`,
         name: 'name',
         type: 'string',
         required: true,
-        description: `Workflow name. Must be unique within the organization.`,
+        description: `Workflow name. Must be unique.`,
       },
       {
         name: 'steps',
         type: 'array',
         required: true,
-        description: `Steps in the workflow. Each step must have a step_type that exactly matches one of: 'email', 'call', 'task', 'sms', 'create-opportunity', 'update-opportunity', 'update-lead', 'lead-assignment'. Each step also requires a delay (ISO 8601 duration, e.g. 'PT0S' for immediate, 'P1D' for 1 day). At least one step is required.`,
+        description: `Steps in the workflow. The \`step_type\` of each step has to exactly match one of the defined types in the mapping.`,
       },
       {
         name: 'trigger',
         type: 'string',
         required: false,
-        description: `The trigger that determines when and how the workflow fires. The trigger_type must exactly match one of the defined types. Use 'contact-manual' (the default) when the user does not specify a trigger. Supported trigger_type values: 'contact-manual', 'lead-manual', 'lead-event', 'contact-event', 'opportunity-event', 'call-event', 'custom-activity-event', 'meeting-event', 'form-submission-event'.`,
+        description: `The trigger that determines when and how the workflow fires. The \`trigger_type\` must exactly match one of the defined types. Use 'contact-manual' (the default) when the user does not specify a trigger.`,
       },
     ],
+  },
+  {
+    name: 'closemcp_customized_builtin_labels',
+    description: `Return the customized builtin labels.
+
+Only renamed labels are returned - an empty result means the default names apply.`,
+    params: [],
   },
   {
     name: 'closemcp_delete_address',
@@ -753,6 +864,18 @@ and optionally associated with a contact.`,
     ],
   },
   {
+    name: 'closemcp_delete_call_task',
+    description: `Delete a call task. Does not affect sibling tasks.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The ID of the call task to delete.`,
+      },
+    ],
+  },
+  {
     name: 'closemcp_delete_contact',
     description: `Permanently delete an existing contact.
 
@@ -781,6 +904,25 @@ custom activity instance.`,
         type: 'string',
         required: true,
         description: `ID of the custom activity instance to delete`,
+      },
+    ],
+  },
+  {
+    name: 'closemcp_delete_custom_object_instance',
+    description: `Permanently delete an existing custom object instance.
+
+A custom object instance is a record of a custom object type, attached
+to a lead and holding the custom field values defined by that type. This
+action cannot be undone.
+
+ONLY call this if the user specifically instructed you to delete the
+custom object instance.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `ID of the custom object instance to delete`,
       },
     ],
   },
@@ -946,6 +1088,28 @@ Returns the enriched value along with the model's reasoning and confidence.`,
     ],
   },
   {
+    name: 'closemcp_fetch_call',
+    description: `Fetch a single call activity by ID.
+
+Returns the call's direction, outcome, participants, and (if available)
+its transcript.`,
+    params: [
+      { name: 'id', type: 'string', required: true, description: `The ID of the call to fetch.` },
+    ],
+  },
+  {
+    name: 'closemcp_fetch_call_task',
+    description: `Fetch a single call task by ID.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The ID of the call task to fetch.`,
+      },
+    ],
+  },
+  {
     name: 'closemcp_fetch_comment',
     description: `Fetch a single comment by ID.
 
@@ -979,6 +1143,23 @@ lead, contact, and user names.`,
         type: 'string',
         required: true,
         description: `ID of the custom activity instance to fetch`,
+      },
+    ],
+  },
+  {
+    name: 'closemcp_fetch_custom_object_instance',
+    description: `Fetch an existing custom object instance by ID.
+
+A custom object instance is a record of a custom object type, attached
+to a lead and holding the custom field values defined by that type.
+Returns the full instance, including its custom field values and the
+resolved lead, custom object type, and creator/updater names.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `ID of the custom object instance to fetch`,
       },
     ],
   },
@@ -1036,6 +1217,22 @@ Returns the complete email template with all its details.`,
     description: `Fetch a lead status by ID.`,
     params: [
       { name: 'id', type: 'string', required: true, description: `ID of the lead status to fetch` },
+    ],
+  },
+  {
+    name: 'closemcp_fetch_meeting_transcript',
+    description: `Fetch a meeting's Notetaker transcript(s) by meeting activity ID.
+
+Returns the meeting's speaker breakdown, summary, and full
+speaker-labeled transcript text. Only covers Notetaker (meeting)
+transcripts; call transcripts are served by fetch_call.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The ID of the meeting activity to fetch transcripts for.`,
+      },
     ],
   },
   {
@@ -1105,6 +1302,58 @@ assignee, due date, priority, and completion status.`,
     params: [],
   },
   {
+    name: 'closemcp_find_call_tasks',
+    description: `Find call tasks based on various filters.
+You can filter by lead, contact, assignee (a user or a voice agent),
+completion state, and scheduled/created/updated dates.`,
+    params: [
+      {
+        name: 'agent_config_id',
+        type: 'string',
+        required: false,
+        description: `Filter by the ID of the voice agent the call task is dispatched to`,
+      },
+      {
+        name: 'assigned_to',
+        type: 'string',
+        required: false,
+        description: `Filter by the ID of the user the call task is assigned to`,
+      },
+      { name: 'contact_id', type: 'string', required: false, description: `Filter by contact ID` },
+      {
+        name: 'created_at',
+        type: 'string',
+        required: false,
+        description: `Filter by call task creation date range`,
+      },
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Pagination cursor, give only when more results are requested.`,
+      },
+      {
+        name: 'due_date',
+        type: 'string',
+        required: false,
+        description: `Filter by the scheduled call date range`,
+      },
+      {
+        name: 'is_complete',
+        type: 'string',
+        required: false,
+        description: `Filter by completion status. If not provided, both complete and incomplete call tasks are returned.`,
+      },
+      { name: 'lead_id', type: 'string', required: false, description: `Filter by lead ID` },
+      {
+        name: 'updated_at',
+        type: 'string',
+        required: false,
+        description: `Filter by call task last updated date range`,
+      },
+    ],
+  },
+  {
     name: 'closemcp_find_contact_custom_fields',
     description: `List all contact custom fields defined for the organization.
 
@@ -1163,6 +1412,36 @@ recent activity first and are cursor-paginated.`,
         type: 'string',
         required: false,
         description: `Filter custom activity instances by the user they are attributed to (their owner)`,
+      },
+    ],
+  },
+  {
+    name: 'closemcp_find_custom_object_instances',
+    description: `Find a lead's custom object instances.
+
+A custom object instance is a record of a custom object type, attached
+to a lead and holding the custom field values defined by that type.
+Always scoped to a single lead; optionally filter to a single custom
+object type. Results are ordered by creation date (oldest first) and
+are cursor-paginated.`,
+    params: [
+      {
+        name: 'lead_id',
+        type: 'string',
+        required: true,
+        description: `The lead whose custom object instances to find`,
+      },
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Pagination cursor for retrieving the next page`,
+      },
+      {
+        name: 'custom_object_type_id',
+        type: 'string',
+        required: false,
+        description: `Filter to instances of a single custom object type. Use the find_custom_object_types tool to look up the available types.`,
       },
     ],
   },
@@ -1658,7 +1937,7 @@ Leads will be returned by last updated first.`,
   },
   {
     name: 'closemcp_org_info',
-    description: `Get information about the Close organization including organization ID, name, and other org-level details.`,
+    description: `Return general information about the organization and the user.`,
     params: [],
   },
   {
@@ -1792,6 +2071,53 @@ search ID returned in this response.`,
     ],
   },
   {
+    name: 'closemcp_update_call_task',
+    description: `Update a call task.
+
+Only fields that are provided will be updated. Reassigning to a user or
+voice agent (agent_config_id) affects only this task. Completing a call
+task also completes every sibling task sharing its deduplication key.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The ID of the call task to update.`,
+      },
+      {
+        name: 'agent_config_id',
+        type: 'string',
+        required: false,
+        description: `Reassign (dispatch) the call task to this voice agent. Mutually exclusive with assigned_to.`,
+      },
+      {
+        name: 'assigned_to',
+        type: 'string',
+        required: false,
+        description: `Reassign the call task to this user. Mutually exclusive with agent_config_id.`,
+      },
+      {
+        name: 'due_date',
+        type: 'string',
+        required: false,
+        description: `Updated due date or datetime for the call task. Can be a date (YYYY-MM-DD) or datetime (ISO 8601).`,
+      },
+      {
+        name: 'is_complete',
+        type: 'string',
+        required: false,
+        description: `Mark the call task as complete (true) or reopen it (false). Completing a call task also completes every sibling task sharing its deduplication key.`,
+      },
+      {
+        name: 'resolution',
+        type: 'string',
+        required: false,
+        description: `Resolution to set when completing the call task, e.g. 'skipped'.`,
+      },
+      { name: 'text', type: 'string', required: false, description: `Updated call task text.` },
+    ],
+  },
+  {
     name: 'closemcp_update_contact',
     description: `Update an existing contact.
 
@@ -1873,6 +2199,89 @@ the custom fields included are modified; pass null to clear one. Pass
         type: 'string',
         required: false,
         description: `New status of the custom activity. Publishing a draft validates required custom fields; leave unset to keep the current status.`,
+      },
+    ],
+  },
+  {
+    name: 'closemcp_update_custom_object_instance',
+    description: `Update an existing custom object instance.
+
+A custom object instance is a record of a custom object type, attached
+to a lead and holding the custom field values defined by that type.
+
+Only fields that are provided will be updated. For custom fields, only
+the custom fields included are modified; pass null to clear one.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `ID of the custom object instance to update`,
+      },
+      {
+        name: 'custom_fields',
+        type: 'string',
+        required: false,
+        description: `Custom field values to set on this object. Only the custom fields included are modified; omitted fields are left unchanged.`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: false,
+        description: `New display name for the custom object instance; leave unset to keep the current name.`,
+      },
+    ],
+  },
+  {
+    name: 'closemcp_update_draft_email',
+    description: `Update an existing draft email.
+
+Only draft emails can be updated; sent or scheduled emails are rejected.
+Only fields that are provided are changed. This never sends the email.`,
+    params: [
+      {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `ID of the draft email to update`,
+      },
+      { name: 'bcc', type: 'string', required: false, description: `List of BCC email addresses` },
+      {
+        name: 'body_html',
+        type: 'string',
+        required: false,
+        description: `Draft body as Close rich text (HTML). Wrap the whole content in a single <body> tag and put each line/paragraph in a block-level tag. Supported tags include <p>, <h1>-<h6>, <ul>/<ol> with <li>, <blockquote>, <hr>, <a href=...>, <br>, and inline formatting <strong>/<b>, <em>/<i>, <u>, <s>, <code>, <span>. Escape literal ampersands as '&amp;'. Example: <body><p>Hi <strong>Jane</strong>,</p><p>Following up on our call.</p></body>`,
+      },
+      {
+        name: 'body_text',
+        type: 'string',
+        required: false,
+        description: `Plaintext body content. Prefer body_html; if only one of body_html/body_text is provided the other is derived automatically.`,
+      },
+      { name: 'cc', type: 'string', required: false, description: `List of CC email addresses` },
+      {
+        name: 'contact_id',
+        type: 'string',
+        required: false,
+        description: `ID of the contact this draft email is addressed to`,
+      },
+      {
+        name: 'sender',
+        type: 'string',
+        required: false,
+        description: `Sender email address for the draft`,
+      },
+      {
+        name: 'subject',
+        type: 'string',
+        required: false,
+        description: `Subject line of the email`,
+      },
+      {
+        name: 'to',
+        type: 'string',
+        required: false,
+        description: `List of recipient email addresses`,
       },
     ],
   },

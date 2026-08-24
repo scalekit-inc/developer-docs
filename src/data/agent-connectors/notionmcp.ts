@@ -2,6 +2,54 @@ import type { Tool } from '../../types/agent-connectors'
 
 export const tools: Tool[] = [
   {
+    name: 'notionmcp_notion-convert-page-to-skill',
+    description: `Mark a Notion page as an AI skill. The page must be in the current workspace, and the authenticated user must have permission to edit it.`,
+    params: [
+      {
+        name: 'page_url',
+        type: 'string',
+        required: true,
+        description: `The full Notion URL of the page to mark as an AI skill. Example: https://www.notion.so/workspace/My-Page-1234567890abcdef1234567890abcdef`,
+      },
+    ],
+  },
+  {
+    name: 'notionmcp_notion-create-attachment',
+    description: `Create an attachment and upload it to Notion. Provide exactly one of content (small UTF-8 text), source_url (a direct publicly reachable HTTPS URL), or source_file_id (a file already uploaded by this integration).`,
+    params: [
+      {
+        name: 'content',
+        type: 'string',
+        required: false,
+        description: `The complete UTF-8 text content of the file. Maximum 200 KiB after UTF-8 encoding. Requires filename. Example: "Hello world".`,
+      },
+      {
+        name: 'content_type',
+        type: 'string',
+        required: false,
+        description: `Optional MIME type, such as text/html or application/pdf. It must match the filename extension; omit it to infer the type from the filename. Omit it with source_file_id.`,
+      },
+      {
+        name: 'filename',
+        type: 'string',
+        required: false,
+        description: `The filename to create in Notion, including a supported extension such as .html, .md, .pdf, or .png. Required with content and source_url. Omit it with source_file_id.`,
+      },
+      {
+        name: 'source_file_id',
+        type: 'string',
+        required: false,
+        description: `The ID of a file upload this exact integration already created, using create-file-upload or the Notion File Upload API with this integration's token. Its status must be uploaded. Example: "12345678-90ab-cdef-1234-567890abcdef".`,
+      },
+      {
+        name: 'source_url',
+        type: 'string',
+        required: false,
+        description: `A direct, publicly reachable HTTPS URL from which Notion can download the file within one minute. Redirects, private network addresses, custom request headers, and cookies are not supported. Requires filename.`,
+      },
+    ],
+  },
+  {
     name: 'notionmcp_notion-create-comment',
     description: `Add a comment to a Notion page or inline discussion thread.`,
     params: [
@@ -42,10 +90,10 @@ export const tools: Tool[] = [
     description: `Create a new Notion database using a SQL DDL schema definition.`,
     params: [
       {
-        name: 'schema',
+        name: 'database_type',
         type: 'string',
-        required: true,
-        description: `SQL DDL CREATE TABLE statement defining the database schema. Column names must be double-quoted, type options use single quotes.`,
+        required: false,
+        description: `Create a typed database with Notion's canonical required properties and metadata instead of a custom SQL schema. Supported values: tasks, projects, skills. Cannot be combined with schema. Example: "tasks".`,
       },
       {
         name: 'description',
@@ -60,6 +108,12 @@ export const tools: Tool[] = [
         description: `The parent under which to create the new database. If omitted, the database will be created as a private page at the workspace level.`,
       },
       {
+        name: 'schema',
+        type: 'string',
+        required: false,
+        description: `SQL DDL CREATE TABLE statement defining the database schema. Column names must be double-quoted, type options use single quotes. Cannot be combined with database_type.`,
+      },
+      {
         name: 'title',
         type: 'string',
         required: false,
@@ -68,10 +122,52 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'notionmcp_notion-create-file-upload',
+    description: `Create a short-lived URL for uploading one local file directly to Notion. After calling this, send a multipart/form-data POST to the returned upload_url with the file and headers.`,
+    params: [
+      {
+        name: 'filename',
+        type: 'string',
+        required: true,
+        description: `The filename to create in Notion, including a supported extension such as .pdf, .png, or .zip. Example: "diagram.png".`,
+      },
+      {
+        name: 'content_type',
+        type: 'string',
+        required: false,
+        description: `Optional MIME type, such as application/pdf or image/png. Prefer omitting it so the type is inferred from the filename.`,
+      },
+    ],
+  },
+  {
+    name: 'notionmcp_notion-create-folder',
+    description: `Create an empty Notion Folder under a page or another Folder. This tool creates only the empty Folder; it is non-idempotent and creates a new Folder on every successful call.`,
+    params: [
+      {
+        name: 'parent',
+        type: 'string',
+        required: true,
+        description: `Where to create the Folder. Provide either a page_id (top-level Folder owned by a page) or a folder_id (nested Folder inside another Folder).`,
+      },
+      {
+        name: 'title',
+        type: 'string',
+        required: false,
+        description: `The title of the new Folder. Example: "Design Assets".`,
+      },
+    ],
+  },
+  {
     name: 'notionmcp_notion-create-pages',
     description: `Create one or more Notion pages with properties and Markdown content.`,
     params: [
       { name: 'pages', type: 'array', required: true, description: `The pages to create.` },
+      {
+        name: 'allow_async',
+        type: 'boolean',
+        required: false,
+        description: `Set to true to opt into receiving an async_task result when this create operation is accepted for background execution instead of completing synchronously. Poll the returned task_id with the get-async-task tool. If omitted or false, the tool keeps the existing synchronous result shape. Example: true.`,
+      },
       {
         name: 'parent',
         type: 'string',
@@ -118,6 +214,18 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'notionmcp_notion-download-attachment',
+    description: `Download the contents of a small UTF-8 text attachment created by the Notion create-attachment tool. Limited to 200 KiB and text formats such as HTML, Markdown, plain text, CSV, JSON, XML, CSS, YAML, TSV, calendar, GPX, or SVG.`,
+    params: [
+      {
+        name: 'file_upload_id',
+        type: 'string',
+        required: true,
+        description: `The FileUpload ID returned by the create-attachment tool. Example: "12345678-90ab-cdef-1234-567890abcdef".`,
+      },
+    ],
+  },
+  {
     name: 'notionmcp_notion-duplicate-page',
     description: `Duplicate an existing Notion page within the current workspace.`,
     params: [
@@ -150,6 +258,18 @@ export const tools: Tool[] = [
         type: 'boolean',
         required: false,
         description: `Set to true to include a meeting transcript in the response.`,
+      },
+    ],
+  },
+  {
+    name: 'notionmcp_notion-get-async-task',
+    description: `Retrieve the current status of an async task started by another tool (for example, create-pages or update-page called with allow_async: true). Status is one of queued, running, retrying, succeeded, or failed.`,
+    params: [
+      {
+        name: 'task_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the async task to retrieve, as returned in the async_task response of the tool that started it. Example: "task_abc123".`,
       },
     ],
   },
@@ -226,6 +346,78 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'notionmcp_notion-list-favorite-pages',
+    description: `List the current user's favorite pages and databases in sidebar order. Use this when the user refers to a favorite or pinned workspace item.`,
+    params: [
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Opaque pagination cursor from the previous response. Example: "eyJpZCI6IjEwMDI1In0=".`,
+      },
+      {
+        name: 'limit',
+        type: 'number',
+        required: false,
+        description: `Maximum results to return (1-200). Example: 25.`,
+      },
+    ],
+  },
+  {
+    name: 'notionmcp_notion-list-private-pages',
+    description: `List the current user's top-level pages and databases in their Private sidebar section. Use this to browse private workspace structure; use search when looking for content by meaning or keyword.`,
+    params: [
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Opaque pagination cursor from the previous response. Example: "eyJpZCI6IjEwMDI1In0=".`,
+      },
+      {
+        name: 'limit',
+        type: 'number',
+        required: false,
+        description: `Maximum results to return (1-200). Example: 25.`,
+      },
+    ],
+  },
+  {
+    name: 'notionmcp_notion-list-recent-pages',
+    description: `List pages and databases the current user recently viewed, ranked by recency and visit frequency. Use this to recover likely navigation context when the user refers to something they were recently working on.`,
+    params: [
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Opaque pagination cursor from the previous response. Example: "eyJpZCI6IjEwMDI1In0=".`,
+      },
+      {
+        name: 'limit',
+        type: 'number',
+        required: false,
+        description: `Maximum results to return (1-200). Example: 25.`,
+      },
+    ],
+  },
+  {
+    name: 'notionmcp_notion-list-shared-pages',
+    description: `List pages and databases in the current user's Shared sidebar section. Use this to browse content shared directly with the user; use search when looking for content by meaning or keyword.`,
+    params: [
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Opaque pagination cursor from the previous response. Example: "eyJpZCI6IjEwMDI1In0=".`,
+      },
+      {
+        name: 'limit',
+        type: 'number',
+        required: false,
+        description: `Maximum results to return (1-200). Example: 25.`,
+      },
+    ],
+  },
+  {
     name: 'notionmcp_notion-move-pages',
     description: `Move one or more Notion pages or databases to a new parent.`,
     params: [
@@ -252,30 +444,6 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `The data required for querying data sources`,
-      },
-    ],
-  },
-  {
-    name: 'notionmcp_notion-query-database-view',
-    description: `Query paginated results from a Notion database view by its URL.`,
-    params: [
-      {
-        name: 'view_url',
-        type: 'string',
-        required: true,
-        description: `URL of a specific database view to query. Example: https://www.notion.so/workspace/db-id?v=view-id`,
-      },
-      {
-        name: 'page_size',
-        type: 'integer',
-        required: false,
-        description: `Number of rows to return per page (default: 100, max: 100).`,
-      },
-      {
-        name: 'start_cursor',
-        type: 'string',
-        required: false,
-        description: `Cursor for pagination. Use the next_cursor value from the previous response to get the next page.`,
       },
     ],
   },
@@ -353,6 +521,36 @@ Alternatively, the query can be a substring or keyword to find users by matching
     ],
   },
   {
+    name: 'notionmcp_notion-search-agents',
+    description: `Search agents by name or description, or browse the current user's favorite agents and the workspace's newest agents.`,
+    params: [
+      {
+        name: 'scope',
+        type: 'string',
+        required: true,
+        description: `Which agents to list: "favorites" for the current user's favorite agents, or "workspace" for agents shared with the workspace.`,
+      },
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Opaque pagination cursor from the previous response. Example: "eyJpZCI6IjEwMDI1In0=".`,
+      },
+      {
+        name: 'limit',
+        type: 'number',
+        required: false,
+        description: `Maximum results to return (1-200). Example: 25.`,
+      },
+      {
+        name: 'query',
+        type: 'string',
+        required: false,
+        description: `Search text matched against agent names and descriptions. When omitted, favorites are returned in sidebar order and workspace agents are returned newest first.`,
+      },
+    ],
+  },
+  {
     name: 'notionmcp_notion-update-data-source',
     description: `Update a Notion data source's schema, title, or attributes using SQL DDL statements.`,
     params: [
@@ -395,6 +593,42 @@ Alternatively, the query can be a substring or keyword to find users by matching
     ],
   },
   {
+    name: 'notionmcp_notion-update-folder',
+    description: `Update an existing Notion Folder: add uploaded files, remove files by their exact fetched URLs, or add a new nested subfolder. Use exactly one command shape at a time.`,
+    params: [
+      {
+        name: 'command',
+        type: 'string',
+        required: true,
+        description: `The Folder update to apply. Accepted values: add_files, remove_files, add_subfolder.`,
+      },
+      {
+        name: 'folder_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Folder to update, with or without dashes.`,
+      },
+      {
+        name: 'file_upload_ids',
+        type: 'array',
+        required: false,
+        description: `Required for add_files. One or more file upload IDs returned by the file upload tools.`,
+      },
+      {
+        name: 'file_urls',
+        type: 'array',
+        required: false,
+        description: `Required for remove_files. The exact file URLs shown in the Folder's latest fetch output.`,
+      },
+      {
+        name: 'title',
+        type: 'string',
+        required: false,
+        description: `Required for add_subfolder. The new Folder's title.`,
+      },
+    ],
+  },
+  {
     name: 'notionmcp_notion-update-page',
     description: `Update a Notion page's properties, content, icon, cover, or verification status.`,
     params: [
@@ -409,6 +643,12 @@ Alternatively, the query can be a substring or keyword to find users by matching
         type: 'string',
         required: true,
         description: `The ID of the page to update, with or without dashes.`,
+      },
+      {
+        name: 'allow_async',
+        type: 'boolean',
+        required: false,
+        description: `Set to true to opt into an async_task response after the update is validated, durably persisted, and accepted for queued execution. If omitted or false, the tool waits for a synchronous result when possible, but may still return a pollable async_task response if queued execution exceeds the synchronous wait deadline. Example: true.`,
       },
       {
         name: 'allow_deleting_content',
@@ -439,6 +679,12 @@ Alternatively, the query can be a substring or keyword to find users by matching
         type: 'string',
         required: false,
         description: `An emoji character (e.g. "🚀"), a custom emoji by name (e.g. ":rocket_ship:"), or an external image URL. Use "none" to remove the icon. Omit to leave unchanged. Can be set alongside any command.`,
+      },
+      {
+        name: 'is_skill',
+        type: 'boolean',
+        required: false,
+        description: `Set to true to mark this page as an AI skill, or false to remove the AI skill designation. Can be set alongside any command. Example: true.`,
       },
       {
         name: 'new_str',

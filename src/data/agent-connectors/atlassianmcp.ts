@@ -3,7 +3,7 @@ import type { Tool } from '../../types/agent-connectors'
 export const tools: Tool[] = [
   {
     name: 'atlassianmcp_addcommenttojiraissue',
-    description: `Add a comment to an existing Jira issue.`,
+    description: `Add a comment to an existing Jira issue, or update an existing comment by passing its commentId.`,
     params: [
       {
         name: 'cloudId',
@@ -22,6 +22,12 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `The Jira issue ID (e.g. 10001) or key (e.g. KAN-1).`,
+      },
+      {
+        name: 'commentId',
+        type: 'string',
+        required: false,
+        description: `ID of an existing comment to update. If omitted, a new comment is added.`,
       },
       {
         name: 'commentVisibility',
@@ -452,7 +458,7 @@ export const tools: Tool[] = [
         name: 'description',
         type: 'string',
         required: false,
-        description: `The full description of the Jira issue.`,
+        description: `Issue description. With contentFormat "markdown" (default), pass plain text or Markdown as a string. With contentFormat "adf", pass an ADF JSON string or a document object with type "doc".`,
       },
       {
         name: 'parent',
@@ -1066,6 +1072,12 @@ export const tools: Tool[] = [
         description: `Maximum number of results to return per page.`,
       },
       {
+        name: 'requiredFieldsOnly',
+        type: 'boolean',
+        required: false,
+        description: `When true (default), returns only the fields that are required to create an issue of this type, reducing response size. Set to false to return all available fields (both required and optional).`,
+      },
+      {
         name: 'startAt',
         type: 'number',
         required: false,
@@ -1139,9 +1151,9 @@ export const tools: Tool[] = [
       },
       {
         name: 'limit',
-        type: 'number',
+        type: 'integer',
         required: false,
-        description: `Maximum number of items to return.`,
+        description: `Max results (default: 25, max: 250).`,
       },
       {
         name: 'sort',
@@ -1450,6 +1462,12 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Format to return content in — markdown (default) or adf.`,
+      },
+      {
+        name: 'searchResultMode',
+        type: 'string',
+        required: false,
+        description: `Default "issues". Never count for normal search or if nextPageToken used. If total for same query is known, reuse it. Use "count" only when no trusted count exists and either the user asks or a downstream step needs it. Use "all" only if both count and issues required.`,
       },
     ],
   },

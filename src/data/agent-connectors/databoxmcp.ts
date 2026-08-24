@@ -48,10 +48,22 @@ export const tools: Tool[] = [
     params: [{ name: 'timezone', type: 'string', required: false, description: `No description.` }],
   },
   {
+    name: 'databoxmcp_get_databoard_by_id',
+    description: `Retrieve full details for a single Databox databoard (dashboard) by its numeric ID.`,
+    params: [{ name: 'board_id', type: 'integer', required: true, description: `No description.` }],
+  },
+  {
     name: 'databoxmcp_get_dataset_ingestions',
     description: `Retrieve the full ingestion history for a dataset, including job IDs, statuses, record counts, timestamps, and any error messages.`,
     params: [
       { name: 'dataset_id', type: 'string', required: true, description: `No description.` },
+    ],
+  },
+  {
+    name: 'databoxmcp_get_date_ranges',
+    description: `Resolve a JSON-encoded SimpleDateRange object (e.g. a preset range type such as "LastXDays") into concrete start and end dates.`,
+    params: [
+      { name: 'date_range', type: 'string', required: true, description: `No description.` },
     ],
   },
   {
@@ -119,7 +131,39 @@ export const tools: Tool[] = [
         description: `No description.`,
       },
       { name: 'is_whole_range', type: 'boolean', required: false, description: `No description.` },
+      { name: 'metric_name', type: 'string', required: false, description: `No description.` },
+      { name: 'multiplier', type: 'string', required: false, description: `No description.` },
+      { name: 'range_type_id', type: 'string', required: false, description: `No description.` },
       { name: 'record_limit', type: 'string', required: false, description: `No description.` },
+    ],
+  },
+  {
+    name: 'databoxmcp_refresh_chart_data',
+    description: `Fetch chart-ready data for a Databox visualization given a metric setup, date range, and visualization type (line, bar, or table), with optional filters.`,
+    params: [
+      { name: 'date_range', type: 'string', required: true, description: `No description.` },
+      { name: 'metric_setup', type: 'string', required: true, description: `No description.` },
+      { name: 'visualization', type: 'integer', required: true, description: `No description.` },
+      { name: 'filters', type: 'string', required: false, description: `No description.` },
+    ],
+  },
+  {
+    name: 'databoxmcp_search_databoards',
+    description: `Search Databox databoards (dashboards) by text query, optionally filtered by data source type or by connection/space access ID.`,
+    params: [
+      {
+        name: 'data_source_filter',
+        type: 'string',
+        required: false,
+        description: `No description.`,
+      },
+      { name: 'query', type: 'string', required: false, description: `No description.` },
+      {
+        name: 'space_access_id_filter',
+        type: 'string',
+        required: false,
+        description: `No description.`,
+      },
     ],
   },
 ]

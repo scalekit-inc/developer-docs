@@ -104,6 +104,24 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'huggingfacemcp_hf_fs',
+    description: `Navigate and search Hugging Face Hub resources (models, datasets, spaces, buckets, collections, papers, and documentation) through a virtual filesystem interface over hf:// URIs, using ls, cat, attach, stat, find, and search commands.`,
+    params: [
+      {
+        name: 'args',
+        type: 'array',
+        required: true,
+        description: `Command arguments; each array item is one grammar token (e.g. the URI, flags, or query terms for the chosen command).`,
+      },
+      {
+        name: 'cmd',
+        type: 'string',
+        required: true,
+        description: `Command to execute: ls, cat, attach, stat, find, or search.`,
+      },
+    ],
+  },
+  {
     name: 'huggingfacemcp_hf_hub_query',
     description: `Ask a natural language question about the Hugging Face Hub and get an AI-generated answer.`,
     params: [

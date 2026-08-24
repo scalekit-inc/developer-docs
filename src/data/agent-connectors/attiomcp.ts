@@ -591,6 +591,30 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'attiomcp_merge_records',
+    description: `Merge two records of the same object into one. The primary record is kept and takes precedence for any attribute both records have a value for; the secondary record's values are only kept where the primary record has no value for that attribute. The secondary record is removed as part of the merge.`,
+    params: [
+      {
+        name: 'object',
+        type: 'string',
+        required: true,
+        description: `The object both records belong to.`,
+      },
+      {
+        name: 'primary_record_id',
+        type: 'string',
+        required: true,
+        description: `The record to keep values from. Where both records have a value for the same attribute, the primary record's value takes precedence.`,
+      },
+      {
+        name: 'secondary_record_id',
+        type: 'string',
+        required: true,
+        description: `The record to merge into the primary record. Its values are only kept where the primary record has no value for that attribute.`,
+      },
+    ],
+  },
+  {
     name: 'attiomcp_run_basic_report',
     description: `Run an aggregate report on records in an object or entries in a list, computing totals, averages, minimums, maximums, or grouped breakdowns. Supports optional filtering and up to two group-by dimensions.`,
     params: [
@@ -685,6 +709,12 @@ export const tools: Tool[] = [
     description: `Search emails visible to the user by metadata including participant email addresses, domain, and sent time range. Returns paginated email metadata ordered by sent time (most recent first); use get-email-content to retrieve full email bodies.`,
     params: [
       {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Opaque pagination cursor from the next_cursor field of a previous response. Omit to fetch the first page. Do not construct manually.`,
+      },
+      {
         name: 'domain',
         type: 'string',
         required: false,
@@ -695,12 +725,6 @@ export const tools: Tool[] = [
         type: 'number',
         required: false,
         description: `Maximum number of results to return.`,
-      },
-      {
-        name: 'offset',
-        type: 'number',
-        required: false,
-        description: `Number of results to skip for pagination.`,
       },
       {
         name: 'participant_email_addresses',

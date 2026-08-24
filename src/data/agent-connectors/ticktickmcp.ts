@@ -26,6 +26,30 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'ticktickmcp_assign_task',
+    description: `Assign a task in a shared project to one of the project's members.`,
+    params: [
+      {
+        name: 'assignee_username',
+        type: 'string',
+        required: true,
+        description: `Username of the project member to assign the task to. Get it from list_project_members.`,
+      },
+      {
+        name: 'project_id',
+        type: 'string',
+        required: true,
+        description: `Unique ID of the project. Get it from list_projects.`,
+      },
+      {
+        name: 'task_id',
+        type: 'string',
+        required: true,
+        description: `Unique ID of the task. Get it from search_task or get_task_in_project.`,
+      },
+    ],
+  },
+  {
     name: 'ticktickmcp_batch_add_tasks',
     description: `Create multiple tasks in one request. Each task must include a title and projectId.`,
     params: [{ name: 'tasks', type: 'array', required: true, description: `No description.` }],
@@ -452,9 +476,34 @@ export const tools: Tool[] = [
     params: [],
   },
   {
+    name: 'ticktickmcp_list_project_members',
+    description: `List members of a shared project. Use a returned username when assigning a task in that project.`,
+    params: [
+      {
+        name: 'project_id',
+        type: 'string',
+        required: true,
+        description: `Unique ID of the project. Get it from list_projects.`,
+      },
+    ],
+  },
+  {
     name: 'ticktickmcp_list_projects',
     description: `List all projects for the current user.`,
-    params: [],
+    params: [
+      {
+        name: 'limit',
+        type: 'string',
+        required: false,
+        description: `Maximum number of projects to return.`,
+      },
+      {
+        name: 'offset',
+        type: 'string',
+        required: false,
+        description: `Number of projects to skip before returning results.`,
+      },
+    ],
   },
   {
     name: 'ticktickmcp_list_tags',
@@ -504,6 +553,24 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `Search keyword to filter tasks by name or content.`,
+      },
+    ],
+  },
+  {
+    name: 'ticktickmcp_unassign_task',
+    description: `Remove the assignee from a task in a shared project.`,
+    params: [
+      {
+        name: 'project_id',
+        type: 'string',
+        required: true,
+        description: `Unique ID of the project. Get it from list_projects.`,
+      },
+      {
+        name: 'task_id',
+        type: 'string',
+        required: true,
+        description: `Unique ID of the task. Get it from search_task or get_task_in_project.`,
       },
     ],
   },

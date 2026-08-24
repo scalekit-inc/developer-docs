@@ -3,7 +3,7 @@ import type { Tool } from '../../types/agent-connectors'
 export const tools: Tool[] = [
   {
     name: 'stripemcp_cancel_subscription',
-    description: `Immediately cancel an active Stripe subscription. The subscription ends at the current period and no further charges are made. This is irreversible — use Update Subscription to pause or downgrade instead.`,
+    description: `[STALE — not found in live upstream MCP discovery as of 2026-08-19; Stripe's MCP server has been restructured around stripe_api_read/stripe_api_write/stripe_api_search/stripe_api_details plus multi-account stripe_context/livemode params. Flagged per SK-1675, not deleted, pending confirmation this capability is fully gone rather than temporarily unlisted.] Immediately cancel an active Stripe subscription. The subscription ends at the current period and no further charges are made. This is irreversible — use Update Subscription to pause or downgrade instead.`,
     params: [
       {
         name: 'subscription',
@@ -15,7 +15,7 @@ export const tools: Tool[] = [
   },
   {
     name: 'stripemcp_create_coupon',
-    description: `Create a discount coupon that applies a percentage or fixed amount off. Use percent_off for percentage discounts or amount_off+currency for fixed discounts. Set duration to once, forever, or repeating.`,
+    description: `[STALE — not found in live upstream MCP discovery as of 2026-08-19; Stripe's MCP server has been restructured around stripe_api_read/stripe_api_write/stripe_api_search/stripe_api_details plus multi-account stripe_context/livemode params. Flagged per SK-1675, not deleted, pending confirmation this capability is fully gone rather than temporarily unlisted.] Create a discount coupon that applies a percentage or fixed amount off. Use percent_off for percentage discounts or amount_off+currency for fixed discounts. Set duration to once, forever, or repeating.`,
     params: [
       {
         name: 'name',
@@ -57,7 +57,7 @@ export const tools: Tool[] = [
   },
   {
     name: 'stripemcp_create_customer',
-    description: `Create a new Stripe customer record with a name and optional email. Returns the customer ID (cus_...) used in invoices, subscriptions, and payment intents.`,
+    description: `[STALE — not found in live upstream MCP discovery as of 2026-08-19; Stripe's MCP server has been restructured around stripe_api_read/stripe_api_write/stripe_api_search/stripe_api_details plus multi-account stripe_context/livemode params. Flagged per SK-1675, not deleted, pending confirmation this capability is fully gone rather than temporarily unlisted.] Create a new Stripe customer record with a name and optional email. Returns the customer ID (cus_...) used in invoices, subscriptions, and payment intents.`,
     params: [
       {
         name: 'name',
@@ -75,7 +75,7 @@ export const tools: Tool[] = [
   },
   {
     name: 'stripemcp_create_invoice',
-    description: `Create a draft invoice for a customer. The invoice starts in draft status — add line items with Create Invoice Item, then call Finalize Invoice to mark it ready for payment.`,
+    description: `[STALE — not found in live upstream MCP discovery as of 2026-08-19; Stripe's MCP server has been restructured around stripe_api_read/stripe_api_write/stripe_api_search/stripe_api_details plus multi-account stripe_context/livemode params. Flagged per SK-1675, not deleted, pending confirmation this capability is fully gone rather than temporarily unlisted.] Create a draft invoice for a customer. The invoice starts in draft status — add line items with Create Invoice Item, then call Finalize Invoice to mark it ready for payment.`,
     params: [
       {
         name: 'customer',
@@ -93,7 +93,7 @@ export const tools: Tool[] = [
   },
   {
     name: 'stripemcp_create_invoice_item',
-    description: `Add a line item to an existing draft invoice using a price ID. The invoice must be in draft status. Both the customer and invoice IDs are required to associate the item correctly.`,
+    description: `[STALE — not found in live upstream MCP discovery as of 2026-08-19; Stripe's MCP server has been restructured around stripe_api_read/stripe_api_write/stripe_api_search/stripe_api_details plus multi-account stripe_context/livemode params. Flagged per SK-1675, not deleted, pending confirmation this capability is fully gone rather than temporarily unlisted.] Add a line item to an existing draft invoice using a price ID. The invoice must be in draft status. Both the customer and invoice IDs are required to associate the item correctly.`,
     params: [
       {
         name: 'customer',
@@ -117,7 +117,7 @@ export const tools: Tool[] = [
   },
   {
     name: 'stripemcp_create_payment_link',
-    description: `Create a shareable payment link for a price. Returns a URL that customers can open to complete payment without a custom checkout integration. Requires at least one payment method enabled in your Stripe dashboard.`,
+    description: `[STALE — not found in live upstream MCP discovery as of 2026-08-19; Stripe's MCP server has been restructured around stripe_api_read/stripe_api_write/stripe_api_search/stripe_api_details plus multi-account stripe_context/livemode params. Flagged per SK-1675, not deleted, pending confirmation this capability is fully gone rather than temporarily unlisted.] Create a shareable payment link for a price. Returns a URL that customers can open to complete payment without a custom checkout integration. Requires at least one payment method enabled in your Stripe dashboard.`,
     params: [
       {
         name: 'price',
@@ -135,7 +135,7 @@ export const tools: Tool[] = [
   },
   {
     name: 'stripemcp_create_price',
-    description: `Create a one-time or recurring price for a product. Amounts are in the smallest currency unit (cents for USD). Omit recurring for one-time prices; include it for subscription billing.`,
+    description: `[STALE — not found in live upstream MCP discovery as of 2026-08-19; Stripe's MCP server has been restructured around stripe_api_read/stripe_api_write/stripe_api_search/stripe_api_details plus multi-account stripe_context/livemode params. Flagged per SK-1675, not deleted, pending confirmation this capability is fully gone rather than temporarily unlisted.] Create a one-time or recurring price for a product. Amounts are in the smallest currency unit (cents for USD). Omit recurring for one-time prices; include it for subscription billing.`,
     params: [
       {
         name: 'currency',
@@ -165,7 +165,7 @@ export const tools: Tool[] = [
   },
   {
     name: 'stripemcp_create_product',
-    description: `Create a product in Stripe representing a good or service. Products are the parent objects for prices — create a product first, then attach prices to it.`,
+    description: `[STALE — not found in live upstream MCP discovery as of 2026-08-19; Stripe's MCP server has been restructured around stripe_api_read/stripe_api_write/stripe_api_search/stripe_api_details plus multi-account stripe_context/livemode params. Flagged per SK-1675, not deleted, pending confirmation this capability is fully gone rather than temporarily unlisted.] Create a product in Stripe representing a good or service. Products are the parent objects for prices — create a product first, then attach prices to it.`,
     params: [
       {
         name: 'name',
@@ -186,10 +186,22 @@ export const tools: Tool[] = [
     description: `Issue a full or partial refund for a succeeded PaymentIntent. Omit amount to refund the full charge. The PaymentIntent must have a successful charge — refunding a pending or failed intent will error.`,
     params: [
       {
+        name: 'livemode',
+        type: 'boolean',
+        required: true,
+        description: `Whether to operate in livemode (true) or test mode/ sandbox (false). Must match the livemode of the stripe_context account.`,
+      },
+      {
         name: 'payment_intent',
         type: 'string',
         required: true,
         description: `ID of the PaymentIntent to refund. The payment must have a succeeded charge. Get it from the charge or invoice object.`,
+      },
+      {
+        name: 'stripe_context',
+        type: 'string',
+        required: true,
+        description: `The account to target for this request. Use the \`stripe_context\` value returned by list_available_accounts_or_orgs.`,
       },
       {
         name: 'amount',
@@ -213,7 +225,7 @@ export const tools: Tool[] = [
   },
   {
     name: 'stripemcp_fetch_stripe_resources',
-    description: `Retrieve a Stripe object by its ID. Works with any Stripe resource ID (cus_..., pi_..., in_..., sub_..., prod_..., price_..., dp_...). Returns the full object details.`,
+    description: `[STALE — not found in live upstream MCP discovery as of 2026-08-19; Stripe's MCP server has been restructured around stripe_api_read/stripe_api_write/stripe_api_search/stripe_api_details plus multi-account stripe_context/livemode params. Flagged per SK-1675, not deleted, pending confirmation this capability is fully gone rather than temporarily unlisted.] Retrieve a Stripe object by its ID. Works with any Stripe resource ID (cus_..., pi_..., in_..., sub_..., prod_..., price_..., dp_...). Returns the full object details.`,
     params: [
       {
         name: 'id',
@@ -225,7 +237,7 @@ export const tools: Tool[] = [
   },
   {
     name: 'stripemcp_finalize_invoice',
-    description: `Finalize a draft invoice to lock it and make it ready for payment. After finalization, the invoice status changes from draft to open and a PaymentIntent is created automatically.`,
+    description: `[STALE — not found in live upstream MCP discovery as of 2026-08-19; Stripe's MCP server has been restructured around stripe_api_read/stripe_api_write/stripe_api_search/stripe_api_details plus multi-account stripe_context/livemode params. Flagged per SK-1675, not deleted, pending confirmation this capability is fully gone rather than temporarily unlisted.] Finalize a draft invoice to lock it and make it ready for payment. After finalization, the invoice status changes from draft to open and a PaymentIntent is created automatically.`,
     params: [
       {
         name: 'invoice',
@@ -238,11 +250,34 @@ export const tools: Tool[] = [
   {
     name: 'stripemcp_get_stripe_account_info',
     description: `Retrieve information about the connected Stripe account, including account ID, business name, country, currency, and account type (standard, express, or custom).`,
+    params: [
+      {
+        name: 'livemode',
+        type: 'boolean',
+        required: true,
+        description: `Whether to operate in livemode (true) or test mode/ sandbox (false). Must match the livemode of the stripe_context account.`,
+      },
+      {
+        name: 'stripe_context',
+        type: 'string',
+        required: true,
+        description: `The account to target for this request. Use the \`stripe_context\` value returned by list_available_accounts_or_orgs.`,
+      },
+    ],
+  },
+  {
+    name: 'stripemcp_list_available_accounts_or_orgs',
+    description: `Lists all Stripe accounts available in this session with their stripe_context and livemode values. Call this first to get stripe_context and livemode before any account-specific operation. Ask the user which account to use unless already specified, and warn before switching between test mode and live mode.`,
+    params: [],
+  },
+  {
+    name: 'stripemcp_manage_stripe_accounts',
+    description: `Returns a URL to the Stripe Dashboard where the user can add accounts, remove accounts, or change permissions for this session. Use when the user wants to add, remove, or modify permissions for an account — no need to call list_available_accounts_or_orgs first. After the user confirms they completed their changes, call list_available_accounts_or_orgs to sync the updated account list.`,
     params: [],
   },
   {
     name: 'stripemcp_retrieve_balance',
-    description: `Retrieve the current balance for the connected Stripe account, broken down by currency and availability (available vs. pending funds).`,
+    description: `[STALE — not found in live upstream MCP discovery as of 2026-08-19; Stripe's MCP server has been restructured around stripe_api_read/stripe_api_write/stripe_api_search/stripe_api_details plus multi-account stripe_context/livemode params. Flagged per SK-1675, not deleted, pending confirmation this capability is fully gone rather than temporarily unlisted.] Retrieve the current balance for the connected Stripe account, broken down by currency and availability (available vs. pending funds).`,
     params: [],
   },
   {
@@ -271,7 +306,7 @@ export const tools: Tool[] = [
   },
   {
     name: 'stripemcp_search_stripe_resources',
-    description: `Search Stripe resources using the format resource:query (e.g. customers:name:"Acme" or invoices:status:"open"). Valid resources: customers, payment_intents, charges, invoices, prices, products, subscriptions.`,
+    description: `[STALE — not found in live upstream MCP discovery as of 2026-08-19; Stripe's MCP server has been restructured around stripe_api_read/stripe_api_write/stripe_api_search/stripe_api_details plus multi-account stripe_context/livemode params. Flagged per SK-1675, not deleted, pending confirmation this capability is fully gone rather than temporarily unlisted.] Search Stripe resources using the format resource:query (e.g. customers:name:"Acme" or invoices:status:"open"). Valid resources: customers, payment_intents, charges, invoices, prices, products, subscriptions.`,
     params: [
       {
         name: 'query',
@@ -318,20 +353,62 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'stripemcp_stripe_analytics',
+    description: `Analyze Stripe data (e.g. revenue, products, or payments) and run SQL-based reporting queries. Supports ad-hoc SQL (execute_query_run/retrieve_query_run against searchable tables via search_query_tables/retrieve_query_table) and pre-built subscription/billing metric templates (execute_query_template/retrieve_query_template). Monetary values are returned in the smallest currency unit.`,
+    params: [
+      {
+        name: 'intent',
+        type: 'string',
+        required: true,
+        description: `The intent of the tool call.`,
+      },
+      {
+        name: 'livemode',
+        type: 'boolean',
+        required: true,
+        description: `Whether to operate in livemode (true) or test mode/ sandbox (false). Must match the livemode of the stripe_context account.`,
+      },
+      {
+        name: 'stripe_context',
+        type: 'string',
+        required: true,
+        description: `The account to target for this request. Use the \`stripe_context\` value returned by list_available_accounts_or_orgs.`,
+      },
+      {
+        name: 'params',
+        type: 'object',
+        required: false,
+        description: `The parameters for the tool call. Required parameters depend on the intent.`,
+      },
+    ],
+  },
+  {
     name: 'stripemcp_stripe_api_details',
     description: `Get the full parameter schema for a specific Stripe API operation. Use stripe_api_search to find the operation ID first (e.g. GetCustomers, PostRefunds), then call this to see all available parameters.`,
     params: [
+      {
+        name: 'livemode',
+        type: 'boolean',
+        required: true,
+        description: `Whether to operate in livemode (true) or test mode/ sandbox (false). Must match the livemode of the stripe_context account.`,
+      },
       {
         name: 'stripe_api_operation_id',
         type: 'string',
         required: true,
         description: `The Stripe API operation ID to get details for. Get valid IDs from stripe_api_search (e.g. GetCustomers, PostRefunds, PostSubscriptions).`,
       },
+      {
+        name: 'stripe_context',
+        type: 'string',
+        required: true,
+        description: `The account to target for this request. Use the \`stripe_context\` value returned by list_available_accounts_or_orgs.`,
+      },
     ],
   },
   {
     name: 'stripemcp_stripe_api_execute',
-    description: `Execute any Stripe API operation by its operation ID and parameters. Use stripe_api_search to discover available operations and stripe_api_details to see their parameters before executing.`,
+    description: `[SUPERSEDED — upstream split stripe_api_execute into stripe_api_read (GET operations) and stripe_api_write (POST/DELETE operations), each also requiring stripe_context/livemode. Flagged per SK-1675, not deleted; see stripemcp_stripe_api_read and stripemcp_stripe_api_write.] Execute any Stripe API operation by its operation ID and parameters. Use stripe_api_search to discover available operations and stripe_api_details to see their parameters before executing.`,
     params: [
       {
         name: 'parameters',
@@ -354,26 +431,146 @@ export const tools: Tool[] = [
     ],
   },
   {
-    name: 'stripemcp_stripe_api_search',
-    description: `Search available Stripe API operations by keyword. Returns operation IDs (e.g. PostCustomers, GetSubscriptions) with their HTTP method and parameters — use these with stripe_api_details or stripe_api_execute.`,
+    name: 'stripemcp_stripe_api_read',
+    description: `Execute a read-only (GET) Stripe API operation by its operation ID and parameters. Use stripe_api_search to discover available operations and stripe_api_details to see their parameters before executing.`,
     params: [
       {
-        name: 'query',
+        name: 'livemode',
+        type: 'boolean',
+        required: true,
+        description: `Whether to operate in livemode (true) or test mode/ sandbox (false). Must match the livemode of the stripe_context account.`,
+      },
+      {
+        name: 'parameters',
+        type: 'object',
+        required: true,
+        description: `Parameters for the API call. Include path parameters (e.g. 'customer' for /v1/customers/{customer}), query parameters, and body parameters. Array fields (e.g. line_items) must be passed as a JSON array value, not as a plain string.`,
+      },
+      {
+        name: 'stripe_api_operation_id',
         type: 'string',
         required: true,
-        description: `Keyword to search Stripe API operations. Returns operation IDs with their HTTP method and parameters. Examples: "create customer", "list invoices", "refund".`,
+        description: `The operation ID to execute (e.g. PostCustomers, GetPaymentIntents).`,
+      },
+      {
+        name: 'stripe_context',
+        type: 'string',
+        required: true,
+        description: `The account to target for this request. Use the \`stripe_context\` value returned by list_available_accounts_or_orgs.`,
+      },
+    ],
+  },
+  {
+    name: 'stripemcp_stripe_api_search',
+    description: `Search available Stripe API operations by intent and resource. Returns operation IDs (e.g. PostCustomers, GetSubscriptions) with their HTTP method and parameters — use these with stripe_api_details or stripe_api_read/stripe_api_write.`,
+    params: [
+      {
+        name: 'intent',
+        type: 'string',
+        required: true,
+        description: `The intent of the operation. Examples: create, list, refund.`,
+      },
+      {
+        name: 'livemode',
+        type: 'boolean',
+        required: true,
+        description: `Whether to operate in livemode (true) or test mode/ sandbox (false). Must match the livemode of the stripe_context account.`,
+      },
+      {
+        name: 'resource',
+        type: 'string',
+        required: true,
+        description: `Target resource the operation is looking to manipulate. Examples: customer, payout methods, issuing card transactions.`,
+      },
+      {
+        name: 'stripe_context',
+        type: 'string',
+        required: true,
+        description: `The account to target for this request. Use the \`stripe_context\` value returned by list_available_accounts_or_orgs.`,
       },
       {
         name: 'limit',
         type: 'integer',
         required: false,
-        description: `Maximum number of operations to return. Defaults to all matches.`,
+        description: `Maximum number of results to return.`,
+      },
+    ],
+  },
+  {
+    name: 'stripemcp_stripe_api_write',
+    description: `Execute a write (POST/DELETE) Stripe API operation by its operation ID and parameters. Use stripe_api_search to discover available operations and stripe_api_details to see their parameters before executing. May require human confirmation for sensitive operations.`,
+    params: [
+      {
+        name: 'livemode',
+        type: 'boolean',
+        required: true,
+        description: `Whether to operate in livemode (true) or test mode/ sandbox (false). Must match the livemode of the stripe_context account.`,
+      },
+      {
+        name: 'parameters',
+        type: 'object',
+        required: true,
+        description: `Parameters for the API call. Include path parameters (e.g. 'customer' for /v1/customers/{customer}), query parameters, and body parameters. Array fields (e.g. line_items) must be passed as a JSON array value, not as a plain string.`,
+      },
+      {
+        name: 'stripe_api_operation_id',
+        type: 'string',
+        required: true,
+        description: `The operation ID to execute (e.g. PostCustomers, GetPaymentIntents).`,
+      },
+      {
+        name: 'stripe_context',
+        type: 'string',
+        required: true,
+        description: `The account to target for this request. Use the \`stripe_context\` value returned by list_available_accounts_or_orgs.`,
+      },
+      {
+        name: 'human_confirmation',
+        type: 'object',
+        required: false,
+        description: `This tool might require human confirmation. To run it, first invoke it with the desired parameters, ignoring the \`approval_token\` parameter. If it requires human confirmation, the response will include an approval request ID and a URL to an approval page for the human to approve the tool call. Present this URL to the human as a clickable markdown link, and after they confirm approval, call the tool again with the same parameters plus \`approval_token\`.`,
+      },
+    ],
+  },
+  {
+    name: 'stripemcp_stripe_implementation_planner',
+    description: `Stripe payment integration planner. Use this BEFORE writing code when the user wants to accept payments, sell products online, set up billing, or build any Stripe integration — it returns use cases, decision trees, documentation links, and a guide_id for follow-up calls. Successor to stripe_integration_recommender.`,
+    params: [
+      {
+        name: 'livemode',
+        type: 'boolean',
+        required: true,
+        description: `Whether to operate in livemode (true) or test mode/ sandbox (false). Must match the livemode of the stripe_context account.`,
+      },
+      {
+        name: 'message',
+        type: 'string',
+        required: true,
+        description: `For new guides: describe the use case or business requirements. For existing guides: provide the latest user response or the full accepted transcript.`,
+      },
+      {
+        name: 'stripe_context',
+        type: 'string',
+        required: true,
+        description: `The account to target for this request. Use the \`stripe_context\` value returned by list_available_accounts_or_orgs.`,
+      },
+      {
+        name: 'accept',
+        type: 'boolean',
+        required: false,
+        description: `Set to true when returning the completed decision tree with your chosen options to receive the finalized integration guide.`,
+      },
+      {
+        name: 'guide_id',
+        type: 'string',
+        required: false,
+        description: `ONLY pass a guide_id that was returned by a previous call to this tool in this conversation. Never fabricate, guess, or reuse guide_ids from other sessions. If you do not have a guide_id from a prior response, omit this field entirely. Invalid guide_ids will be rejected.`,
       },
     ],
   },
   {
     name: 'stripemcp_stripe_integration_recommender',
-    description: `Get a recommendation on which Stripe integration pattern best fits a use case (e.g. Checkout, Payment Intents, Billing). Describe the payment scenario in the answer field.`,
+    description: `[SUPERSEDED — upstream renamed/restructured this tool to stripe_implementation_planner (guide_id/message/accept flow, plus required stripe_context/livemode). Flagged per SK-1675, not deleted; see stripemcp_stripe_implementation_planner.] Get a recommendation on which Stripe integration pattern best fits a use case (e.g. Checkout, Payment Intents, Billing). Describe the payment scenario in the answer field.`,
     params: [
       {
         name: 'answer',
@@ -397,7 +594,7 @@ export const tools: Tool[] = [
   },
   {
     name: 'stripemcp_update_dispute',
-    description: `Submit evidence or update an open Stripe dispute (chargeback). Pass submit=true to send the evidence to Stripe immediately, or false to save it as a draft for later submission.`,
+    description: `[STALE — not found in live upstream MCP discovery as of 2026-08-19; Stripe's MCP server has been restructured around stripe_api_read/stripe_api_write/stripe_api_search/stripe_api_details plus multi-account stripe_context/livemode params. Flagged per SK-1675, not deleted, pending confirmation this capability is fully gone rather than temporarily unlisted.] Submit evidence or update an open Stripe dispute (chargeback). Pass submit=true to send the evidence to Stripe immediately, or false to save it as a draft for later submission.`,
     params: [
       {
         name: 'dispute',
@@ -421,7 +618,7 @@ export const tools: Tool[] = [
   },
   {
     name: 'stripemcp_update_subscription',
-    description: `Update an active subscription — change its price, quantity, or proration behavior. Use proration_behavior=create_prorations to credit unused time when upgrading plans.`,
+    description: `[STALE — not found in live upstream MCP discovery as of 2026-08-19; Stripe's MCP server has been restructured around stripe_api_read/stripe_api_write/stripe_api_search/stripe_api_details plus multi-account stripe_context/livemode params. Flagged per SK-1675, not deleted, pending confirmation this capability is fully gone rather than temporarily unlisted.] Update an active subscription — change its price, quantity, or proration behavior. Use proration_behavior=create_prorations to credit unused time when upgrading plans.`,
     params: [
       {
         name: 'subscription',

@@ -64,8 +64,16 @@ export const tools: Tool[] = [
   },
   {
     name: 'mintlifymcp_execute',
-    description: `Run TypeScript or JavaScript against the Admin MCP dashboard SDK in a sandboxed isolate to call workflows, deployment, billing, or analytics APIs.`,
+    description: `[STALE: upstream tool "execute" no longer present as of 2026-08-19; upstream MCP now exposes "execute_code" instead] Run TypeScript or JavaScript against the Admin MCP dashboard SDK in a sandboxed isolate to call workflows, deployment, billing, or analytics APIs.`,
     params: [{ name: 'code', type: 'string', required: true, description: `No description.` }],
+  },
+  {
+    name: 'mintlifymcp_execute_code',
+    description: `Run TypeScript/JavaScript against the Admin MCP dashboard SDK inside a sandboxed Cloudflare isolate to call workflows, deployment, billing, or analytics APIs.`,
+    params: [
+      { name: 'code', type: 'string', required: true, description: `No description.` },
+      { name: 'summary', type: 'string', required: true, description: `No description.` },
+    ],
   },
   {
     name: 'mintlifymcp_get_session_state',
@@ -76,6 +84,11 @@ export const tools: Tool[] = [
     name: 'mintlifymcp_list_branches',
     description: `List all git branches available for the current deployment, optionally filtered by a query string.`,
     params: [{ name: 'query', type: 'string', required: false, description: `No description.` }],
+  },
+  {
+    name: 'mintlifymcp_list_deployments',
+    description: `List the deployments this connection is authorized for, returning each subdomain and name. Use this to discover which subdomain to checkout before editing.`,
+    params: [],
   },
   {
     name: 'mintlifymcp_list_nodes',
@@ -129,8 +142,17 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'mintlifymcp_search_code_operations',
+    description: `Lexical (BM25) search over the Admin MCP code-mode SDK to find the right SDK method for a task before writing an execute_code script.`,
+    params: [
+      { name: 'query', type: 'string', required: true, description: `No description.` },
+      { name: 'limit', type: 'integer', required: false, description: `No description.` },
+      { name: 'namespace', type: 'string', required: false, description: `No description.` },
+    ],
+  },
+  {
     name: 'mintlifymcp_search_operations',
-    description: `Search the Admin MCP SDK for available methods by keyword to find the right operation before writing an execute script.`,
+    description: `[STALE: upstream tool "search_operations" no longer present as of 2026-08-19; upstream MCP now exposes "search_code_operations" instead] Search the Admin MCP SDK for available methods by keyword to find the right operation before writing an execute script.`,
     params: [
       { name: 'query', type: 'string', required: true, description: `No description.` },
       { name: 'limit', type: 'integer', required: false, description: `No description.` },

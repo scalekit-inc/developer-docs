@@ -24,6 +24,12 @@ export const tools: Tool[] = [
         description: `Classifier-free guidance scale controlling prompt adherence.`,
       },
       {
+        name: 'duration',
+        type: 'integer',
+        required: false,
+        description: `Duration of the extended segment in seconds.`,
+      },
+      {
         name: 'mode',
         type: 'string',
         required: false,
@@ -84,10 +90,22 @@ export const tools: Tool[] = [
         description: `Generation mode controlling quality and resolution.`,
       },
       {
+        name: 'model_name',
+        type: 'string',
+        required: false,
+        description: `Optional Kling motion model name, such as 'kling-v2-6' or 'kling-v3'.`,
+      },
+      {
         name: 'prompt',
         type: 'string',
         required: false,
         description: `Optional text description to guide the motion transfer.`,
+      },
+      {
+        name: 'watermark_info',
+        type: 'object',
+        required: false,
+        description: `Optional watermark configuration forwarded to the Kling API.`,
       },
     ],
   },
@@ -133,6 +151,12 @@ export const tools: Tool[] = [
         description: `Whether to generate audio synchronously alongside the video.`,
       },
       {
+        name: 'image_list',
+        type: 'array',
+        required: false,
+        description: `Additional Omni reference images used by kling-v3-omni or kling-o1 models.`,
+      },
+      {
         name: 'mode',
         type: 'string',
         required: false,
@@ -149,6 +173,12 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Things to avoid in the generated video.`,
+      },
+      {
+        name: 'video_list',
+        type: 'array',
+        required: false,
+        description: `One Omni reference video used by kling-v3-omni or kling-o1 models.`,
       },
     ],
   },
@@ -168,6 +198,12 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Webhook URL to receive task completion notifications.`,
+      },
+      {
+        name: 'camera_control',
+        type: 'string',
+        required: false,
+        description: `Camera control parameters as a JSON string.`,
       },
       {
         name: 'cfg_scale',
@@ -194,6 +230,12 @@ export const tools: Tool[] = [
         description: `Whether to generate audio synchronously alongside the video.`,
       },
       {
+        name: 'image_list',
+        type: 'array',
+        required: false,
+        description: `Additional Omni reference images used by kling-v3-omni or kling-o1 models.`,
+      },
+      {
         name: 'mode',
         type: 'string',
         required: false,
@@ -216,6 +258,12 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `URL of the image to use as the first frame of the video.`,
+      },
+      {
+        name: 'video_list',
+        type: 'array',
+        required: false,
+        description: `One Omni reference video used by kling-v3-omni or kling-o1 models.`,
       },
     ],
   },
@@ -244,6 +292,78 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'klingmcp_kling_lip_sync',
+    description: `Synchronize lip movements in a video to match a given audio track or text.`,
+    params: [
+      {
+        name: 'mode',
+        type: 'string',
+        required: true,
+        description: `Lip-sync mode: 'audio2video' to drive lips from an audio file/URL, or 'text2video' to generate speech from text and drive the video.`,
+      },
+      {
+        name: 'audio_file',
+        type: 'string',
+        required: false,
+        description: `Base64-encoded audio file content. Required when mode='audio2video' and audio_type='file'.`,
+      },
+      {
+        name: 'audio_type',
+        type: 'string',
+        required: false,
+        description: `Audio source type. 'url' (default) to supply audio_url; 'file' to supply audio_file as a base64-encoded string.`,
+      },
+      {
+        name: 'audio_url',
+        type: 'string',
+        required: false,
+        description: `URL of the driving audio. Required when mode='audio2video' and audio_type='url'.`,
+      },
+      {
+        name: 'callback_url',
+        type: 'string',
+        required: false,
+        description: `Webhook URL that receives a POST when the lip-sync task completes.`,
+      },
+      {
+        name: 'text',
+        type: 'string',
+        required: false,
+        description: `Text to convert to speech. Required when mode='text2video'.`,
+      },
+      {
+        name: 'video_id',
+        type: 'string',
+        required: false,
+        description: `Task ID of a previously generated video to use as the source. Provide either video_url or video_id.`,
+      },
+      {
+        name: 'video_url',
+        type: 'string',
+        required: false,
+        description: `URL of the source video whose lip movements will be replaced. Provide either video_url or video_id.`,
+      },
+      {
+        name: 'voice_id',
+        type: 'string',
+        required: false,
+        description: `Voice ID to use for text-to-speech synthesis (mode='text2video').`,
+      },
+      {
+        name: 'voice_language',
+        type: 'string',
+        required: false,
+        description: `Language of the TTS voice. 'zh' for Chinese (default), 'en' for English. Used when mode='text2video'.`,
+      },
+      {
+        name: 'voice_speed',
+        type: 'number',
+        required: false,
+        description: `Speech speed multiplier from 0.8 to 2.0 (default 1.0). Used when mode='text2video'.`,
+      },
+    ],
+  },
+  {
     name: 'klingmcp_kling_list_actions',
     description: `List all available Kling API actions and corresponding tools.`,
     params: [],
@@ -252,5 +372,53 @@ export const tools: Tool[] = [
     name: 'klingmcp_kling_list_models',
     description: `List all available Kling models for video generation.`,
     params: [],
+  },
+  {
+    name: 'klingmcp_kling_talking_photo',
+    description: `Animate a portrait photo to match a provided audio track (talking-photo).`,
+    params: [
+      {
+        name: 'audio_url',
+        type: 'string',
+        required: true,
+        description: `URL of the audio file that drives the talking animation.`,
+      },
+      {
+        name: 'image_url',
+        type: 'string',
+        required: true,
+        description: `URL of the portrait image to animate. Should be a clear frontal face photo.`,
+      },
+      {
+        name: 'callback_url',
+        type: 'string',
+        required: false,
+        description: `Webhook URL that receives a POST when the talking-photo task completes.`,
+      },
+      {
+        name: 'duration',
+        type: 'integer',
+        required: false,
+        description: `Video duration in seconds. Options: 5 (default) or 10.`,
+      },
+      {
+        name: 'mode',
+        type: 'string',
+        required: false,
+        description: `Generation quality mode. 'pro' (default) for higher quality; 'std' for faster generation.`,
+      },
+      {
+        name: 'model',
+        type: 'string',
+        required: false,
+        description: `Kling model version. Default is 'kling-v2-1-master'.`,
+      },
+      {
+        name: 'prompt',
+        type: 'string',
+        required: false,
+        description: `Optional text description to guide the animation style or content.`,
+      },
+    ],
   },
 ]

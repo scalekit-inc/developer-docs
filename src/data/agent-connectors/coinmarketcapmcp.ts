@@ -2,6 +2,42 @@ import type { Tool } from '../../types/agent-connectors'
 
 export const tools: Tool[] = [
   {
+    name: 'coinmarketcapmcp_execute_skill',
+    description: `Run a specific platform skill by its unique name and return structured results. Use only when the skill's unique name is already known, typically from Find Skill results.`,
+    params: [
+      {
+        name: 'unique_name',
+        type: 'string',
+        required: true,
+        description: `Unique identifier of the skill to run, copied verbatim from Find Skill results (or a skill name already known).`,
+      },
+      {
+        name: 'parameters',
+        type: 'object',
+        required: false,
+        description: `Execution parameters matching the selected skill's input schema. Omit if the skill defines no parameters.`,
+      },
+    ],
+  },
+  {
+    name: 'coinmarketcapmcp_find_skill',
+    description: `Search the platform's skill library for hosted data and analysis services covering crypto markets and prediction/event markets. Returns ranked candidates with a description and input schema for each.`,
+    params: [
+      {
+        name: 'query',
+        type: 'string',
+        required: true,
+        description: `Describe the data or analysis needed, as a full sentence rather than keywords.`,
+      },
+      {
+        name: 'top_k',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of candidates to return. Default is 5, range is 1-20.`,
+      },
+    ],
+  },
+  {
     name: 'coinmarketcapmcp_get_crypto_info',
     description: `Get static metadata for one or more cryptocurrencies, including logo, description, website, social links, and technical documentation URLs.`,
     params: [

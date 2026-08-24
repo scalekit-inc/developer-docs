@@ -65,6 +65,12 @@ export const tools: Tool[] = [
         required: true,
         description: `Title of the new survey. This is displayed to respondents at the top of the survey. Example: 'Customer Satisfaction Survey Q3 2025'.`,
       },
+      {
+        name: 'language',
+        type: 'string',
+        required: false,
+        description: `Optional survey language code (e.g. 'fr', 'es', 'ja', 'de'). Defaults to 'en' if not specified.`,
+      },
     ],
   },
   {
@@ -291,6 +297,24 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `The unique identifier of the survey whose response count to retrieve. Can be a string or integer. Use search_surveys to find a survey_id.`,
+      },
+    ],
+  },
+  {
+    name: 'surveymonkeymcp_get_response_summary',
+    description: `Get a pre-computed statistical summary of all responses to a survey, with numerically accurate counts, percentages, and human-readable choice labels already resolved for every question. Use this instead of get_responses/get_pages/get_questions for any counting, tallying, or aggregation of response data (e.g. 'how many people chose X', 'what percentage said yes', 'show me the breakdown'). Requires the responses_read_detail OAuth scope.`,
+    params: [
+      {
+        name: 'survey_id',
+        type: 'string',
+        required: true,
+        description: `The unique identifier of the survey to summarize. Can be a string or integer. Use search_surveys to find a survey_id.`,
+      },
+      {
+        name: 'status',
+        type: 'string',
+        required: false,
+        description: `Optional filter to only include responses with this status: completed, partial, disqualified, or overquota. Omit to include all responses.`,
       },
     ],
   },

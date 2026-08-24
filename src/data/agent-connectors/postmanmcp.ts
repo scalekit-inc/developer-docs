@@ -7,7 +7,8 @@ export const tools: Tool[] = [
 
 **Note:**
 
-If you do not include the \\\`workspace\\\` query parameter, the system creates the collection in the oldest personal Internal workspace you own.`,
+If you do not include the \\\`workspace\\\` query parameter, the system creates the collection in the oldest personal Internal workspace you own.
+`,
     params: [
       { name: 'workspace', type: 'string', required: true, description: `The workspace's ID.` },
       { name: 'collection', type: 'object', required: false, description: `No description.` },
@@ -19,7 +20,8 @@ If you do not include the \\\`workspace\\\` query parameter, the system creates 
 
 **Note:**
 
-It is recommended that you pass the \\\`name\\\` property in the request body. If you do not, the system uses a null value. As a result, this creates a request with a blank name.`,
+It is recommended that you pass the \\\`name\\\` property in the request body. If you do not, the system uses a null value. As a result, this creates a request with a blank name.
+`,
     params: [
       { name: 'collectionId', type: 'string', required: true, description: `The collection's ID.` },
       {
@@ -104,7 +106,8 @@ It is recommended that you pass the \\\`name\\\` property in the request body. I
 
 **Note:**
 
-It is recommended that you pass the \\\`name\\\` property in the request body. If you do not, the system uses a null value. As a result, this creates a response with a blank name.`,
+It is recommended that you pass the \\\`name\\\` property in the request body. If you do not, the system uses a null value. As a result, this creates a response with a blank name.
+`,
     params: [
       { name: 'collectionId', type: 'string', required: true, description: `The collection's ID.` },
       { name: 'request', type: 'string', required: true, description: `The parent request's ID.` },
@@ -210,7 +213,8 @@ It is recommended that you pass the \\\`name\\\` property in the request body. I
 
 - The request body size cannot exceed the maximum allowed size of 30MB.
 - If you receive an HTTP \\\`411 Length Required\\\` error response, manually pass the \\\`Content-Length\\\` header and its value in the request header.
-- If you do not include the \\\`workspace\\\` query parameter, the system creates the environment in the oldest personal Internal workspace you own.`,
+- If you do not include the \\\`workspace\\\` query parameter, the system creates the environment in the oldest personal Internal workspace you own.
+`,
     params: [
       { name: 'workspace', type: 'string', required: true, description: `The workspace's ID.` },
       {
@@ -231,7 +235,8 @@ It is recommended that you pass the \\\`name\\\` property in the request body. I
   2) Construct \\\`{ownerId}-{collectionId}\\\` using ownerId from GET \\\`/me\\\`:
     - For team-owned collections: \\\`ownerId = me.teamId\\\`
     - For personal collections: \\\`ownerId = me.user.id\\\`
-- Use the \\\`workspace\\\` query to place the mock in a specific workspace. Prefer explicit workspace scoping.`,
+- Use the \\\`workspace\\\` query to place the mock in a specific workspace. Prefer explicit workspace scoping.
+`,
     params: [
       { name: 'workspace', type: 'string', required: true, description: `The workspace's ID.` },
       { name: 'mock', type: 'object', required: false, description: `No description.` },
@@ -245,7 +250,8 @@ It is recommended that you pass the \\\`name\\\` property in the request body. I
 - Postman supports OpenAPI (2.0, 3.0, and 3.1), AsyncAPI (2.0 and 3.0), protobuf (2 and 3), GraphQL, and Smithy specifications.
 - If the file path contains a \\\`/\\\` (forward slash) character, then a folder is created. For example, if the path is the \\\`components/schemas.json\\\` value, then a \\\`components\\\` folder is created with the \\\`schemas.json\\\` file inside.
 - Multi-file specifications can only have one root file.
-- Files cannot exceed a maximum of 12 MB in size.`,
+- Files cannot exceed a maximum of 12 MB in size.
+`,
     params: [
       {
         name: 'files',
@@ -272,7 +278,8 @@ It is recommended that you pass the \\\`name\\\` property in the request body. I
 - If the file path contains a \\\`/\\\` (forward slash) character, then a folder is created. For example, if the path is the \\\`components/schemas.json\\\` value, then a \\\`components\\\` folder is created with the \\\`schemas.json\\\` file inside.
 - Creating a spec file assigns it the \\\`DEFAULT\\\` file type.
 - Multi-file specifications can only have one root file.
-- Files cannot exceed a maximum of 10 MB in size.`,
+- Files cannot exceed a maximum of 10 MB in size.
+`,
     params: [
       {
         name: 'content',
@@ -299,7 +306,8 @@ It is recommended that you pass the \\\`name\\\` property in the request body. I
 - Private and [Partner Workspaces](https://learning.postman.com/docs/collaborating-in-postman/using-workspaces/partner-workspaces/) are available on Postman [**Team** and **Enterprise** plans](https://www.postman.com/pricing).
 - There are rate limits when publishing public workspaces.
 - Public team workspace names must be unique.
-- The \\\`teamId\\\` property must be passed in the request body if [Postman Organizations](https://learning.postman.com/docs/administration/onboarding-checklist) is enabled.`,
+- The \\\`teamId\\\` property must be passed in the request body if [Postman Organizations](https://learning.postman.com/docs/administration/onboarding-checklist) is enabled.
+`,
     params: [
       {
         name: 'workspace',
@@ -313,7 +321,8 @@ It is recommended that you pass the \\\`name\\\` property in the request body. I
     name: 'postmanmcp_duplicatecollection',
     description: `Creates a duplicate of the given collection in another workspace.
 
-Use the GET \\\`/collection-duplicate-tasks/{taskId}\\\` endpoint to get the duplication task's current status.`,
+Use the GET \\\`/collection-duplicate-tasks/{taskId}\\\` endpoint to get the duplication task's current status.
+`,
     params: [
       {
         name: 'collectionId',
@@ -339,7 +348,8 @@ Use the GET \\\`/collection-duplicate-tasks/{taskId}\\\` endpoint to get the dup
     name: 'postmanmcp_generatecollection',
     description: `Creates a collection from the given API specification.
 The specification must already exist or be created before it can be used to generate a collection.
-The response contains a polling link to the task status.`,
+The response contains a polling link to the task status.
+`,
     params: [
       {
         name: 'elementType',
@@ -411,7 +421,8 @@ The response contains a polling link to the task status.`,
     name: 'postmanmcp_getauthenticateduser',
     description: `Gets information about the authenticated user.
 - This endpoint provides “current user” context (\\\`user.id\\\`, \\\`username\\\`, \\\`teamId\\\`, roles).
-- When a user asks for “my …” (e.g., “my workspaces, my information, etc.”), call this first to resolve the user ID.`,
+- When a user asks for “my …” (e.g., “my workspaces, my information, etc.”), call this first to resolve the user ID.
+`,
     params: [],
   },
   {
@@ -514,7 +525,8 @@ Use the model parameter to opt in to Postman's full API responses:
     name: 'postmanmcp_getmock',
     description: `Gets information about a mock server.
 - Resource: Mock server entity. Response includes the associated \\\`collection\\\` UID and \\\`mockUrl\\\`.
-- Use the \\\`collection\\\` UID to navigate back to the source collection.`,
+- Use the \\\`collection\\\` UID to navigate back to the source collection.
+`,
     params: [{ name: 'mockId', type: 'string', required: true, description: `The mock's ID.` }],
   },
   {
@@ -523,7 +535,8 @@ Use the model parameter to opt in to Postman's full API responses:
 
 - Always pass either the \\\`workspace\\\` or \\\`teamId\\\` query to scope results. Prefer \\\`workspace\\\` when known.
 - If you need team-scoped results, set \\\`teamId\\\` from the current user: call GET \\\`/me\\\` and use \\\`me.teamId\\\`.
-- If both \\\`teamId\\\` and \\\`workspace\\\` are passed, only \\\`workspace\\\` is used.`,
+- If both \\\`teamId\\\` and \\\`workspace\\\` are passed, only \\\`workspace\\\` is used.
+`,
     params: [
       {
         name: 'teamId',
@@ -595,7 +608,8 @@ Use the model parameter to opt in to Postman's full API responses:
     name: 'postmanmcp_gettaggedentities',
     description: `**Requires an Enterprise plan.** Tagging is only available on Postman Enterprise plans. This tool returns a 404 error on Free, Basic, and Professional accounts.
 
-Gets Postman elements (entities) by a given tag. Tags enable you to organize and search workspaces, APIs, and collections that contain shared tags.`,
+Gets Postman elements (entities) by a given tag. Tags enable you to organize and search workspaces, APIs, and collections that contain shared tags.
+`,
     params: [
       {
         name: 'slug',
@@ -640,7 +654,8 @@ This endpoint's response contains the \\\`visibility\\\` field. [Visibility](htt
 - \\\`team\\\` — All team members can access the workspace.
 - \\\`private\\\` — Only invited team members can access the workspace ([**Team** and **Enterprise** plans only](https://www.postman.com/pricing)).
 - \\\`public\\\` — Everyone can access the workspace.
-- \\\`partner\\\` — Only invited team members and [partners](https://learning.postman.com/docs/collaborating-in-postman/using-workspaces/partner-workspaces/) can access the workspace ([**Team** and **Enterprise** plans only](https://www.postman.com/pricing)).`,
+- \\\`partner\\\` — Only invited team members and [partners](https://learning.postman.com/docs/collaborating-in-postman/using-workspaces/partner-workspaces/) can access the workspace ([**Team** and **Enterprise** plans only](https://www.postman.com/pricing)).
+`,
     params: [
       { name: 'workspaceId', type: 'string', required: true, description: `The workspace's ID.` },
       {
@@ -669,7 +684,8 @@ This endpoint's response contains the \\\`visibility\\\` field. [Visibility](htt
 - Examples:
   - “List my workspaces” → GET \\\`/me\\\`, then GET \\\`/workspaces?createdBy={me.user.id}&limit=100\\\`
   - “List my personal workspaces” → GET \\\`/me\\\`, then GET \\\`/workspaces?type=personal&createdBy={me.user.id}&limit=100\\\`
-  - “List all public workspaces” → GET \\\`/workspaces?type=public&limit=100\\\``,
+  - “List all public workspaces” → GET \\\`/workspaces?type=public&limit=100\\\`
+`,
     params: [
       {
         name: 'createdBy',
@@ -743,7 +759,8 @@ This endpoint's response contains the \\\`visibility\\\` field. [Visibility](htt
 - The maximum collection size this endpoint accepts cannot exceed 100 MB.
 - Use the GET \\\`/collection-updates-tasks/{taskId}\\\` endpoint to get the collection's update status when performing an asynchronous update.
 - If you don't include the collection items' ID values from the request body, the endpoint **removes** the existing items and recreates the items with new ID values.
-- To copy another collection's contents to the given collection, remove all ID values before you pass it in this endpoint. If you do not, this endpoint returns an error. These values include the \\\`id\\\`, \\\`uid\\\`, and \\\`postman_id\\\` values.`,
+- To copy another collection's contents to the given collection, remove all ID values before you pass it in this endpoint. If you do not, this endpoint returns an error. These values include the \\\`id\\\`, \\\`uid\\\`, and \\\`postman_id\\\` values.
+`,
     params: [
       {
         name: 'collectionId',
@@ -767,7 +784,8 @@ This endpoint's response contains the \\\`visibility\\\` field. [Visibility](htt
 **Note:**
 
 - The request body size cannot exceed the maximum allowed size of 30MB.
-- If you receive an HTTP \\\`411 Length Required\\\` error response, manually pass the \\\`Content-Length\\\` header and its value in the request header.`,
+- If you receive an HTTP \\\`411 Length Required\\\` error response, manually pass the \\\`Content-Length\\\` header and its value in the request header.
+`,
     params: [
       {
         name: 'environmentId',
@@ -890,7 +908,8 @@ Supported filter fields:
 **Note:**
 
 - This endpoint only supports the OpenAPI 2.0, 3.0, and 3.1 specification types.
-- You can only sync collections generated from the given spec ID.`,
+- You can only sync collections generated from the given spec ID.
+`,
     params: [
       {
         name: 'collectionUid',
@@ -908,7 +927,8 @@ Supported filter fields:
 **Note:**
 
 - This endpoint only supports the OpenAPI 2.0, 3.0, and 3.1 specification types.
-- You can only sync collections generated from the given specification ID.`,
+- You can only sync collections generated from the given specification ID.
+`,
     params: [
       {
         name: 'collectionUid',
@@ -1001,7 +1021,8 @@ Supported filter fields:
     description: `Updates a mock server.
 - Resource: Mock server entity associated with a collection UID.
 - Use this to change name, environment, privacy, or default server response.
-- To activate a server response, set \\\`config.serverResponseId\\\` to the server response's \\\`id\\\`. Pass \\\`null\\\` to deactivate.`,
+- To activate a server response, set \\\`config.serverResponseId\\\` to the server response's \\\`id\\\`. Pass \\\`null\\\` to deactivate.
+`,
     params: [
       { name: 'mockId', type: 'string', required: true, description: `The mock's ID.` },
       { name: 'mock', type: 'object', required: false, description: `No description.` },
@@ -1017,7 +1038,8 @@ Supported filter fields:
 - This endpoint does not accept multiple request body properties in a single call. For example, you cannot pass both the \\\`content\\\` and \\\`type\\\` property at the same time.
 - Multi-file specifications can only have one root file.
 - When updating a file type to \\\`ROOT\\\`, the previous root file is updated to the \\\`DEFAULT\\\` file type.
-- Files cannot exceed a maximum of 10 MB in size.`,
+- Files cannot exceed a maximum of 10 MB in size.
+`,
     params: [
       { name: 'filePath', type: 'string', required: true, description: `The path to the file.` },
       { name: 'specId', type: 'string', required: true, description: `The spec's ID.` },
@@ -1057,7 +1079,8 @@ Supported filter fields:
   - \\\`private\\\` to \\\`public\\\`, \\\`public\\\` to \\\`private\\\`, and \\\`private\\\` to \\\`personal\\\` for **Free** and **Solo** [plans](https://www.postman.com/pricing/).
   - \\\`public\\\` to \\\`personal\\\` for team users only.
 - There are rate limits when publishing public workspaces.
-- Public team workspace names must be unique.`,
+- Public team workspace names must be unique.
+`,
     params: [
       { name: 'workspaceId', type: 'string', required: true, description: `The workspace's ID.` },
       { name: 'workspace', type: 'object', required: false, description: `No description.` },

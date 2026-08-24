@@ -446,6 +446,18 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'whimsicalmcp_get_theme_data',
+    description: `Fetch the board theme's dark color map for Whimbed rendering in the widget.`,
+    params: [
+      {
+        name: 'fileId',
+        type: 'string',
+        required: true,
+        description: `Board file ID (base58 or UUID)`,
+      },
+    ],
+  },
+  {
     name: 'whimsicalmcp_how_to',
     description: `Look up Whimsical-specific syntax, examples, and guides for creating diagrams and wireframes.`,
     params: [

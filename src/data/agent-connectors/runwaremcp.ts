@@ -33,7 +33,7 @@ export const tools: Tool[] = [
   },
   {
     name: 'runwaremcp_image_upload',
-    description: `Upload an image to Runware for use as input in subsequent generation tasks. Returns an image UUID that can be used as seedImage, maskImage, etc.`,
+    description: `[STALE: upstream removed this tool; replaced by media_storage (operation=upload/delete), see runwaremcp_media_storage] Upload an image to Runware for use as input in subsequent generation tasks. Returns an image UUID that can be used as seedImage, maskImage, etc.`,
     params: [
       {
         name: 'image',
@@ -75,6 +75,24 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Optional free-text search across name, AIR, creator, capabilities`,
+      },
+    ],
+  },
+  {
+    name: 'runwaremcp_media_storage',
+    description: `Store or delete media (images, video, audio, 3D models) in your Runware account. Upload returns a media UUID you can reuse as input (seedImage, referenceImages, etc.); delete removes previously stored media by its media UUID.`,
+    params: [
+      {
+        name: 'media',
+        type: 'string',
+        required: true,
+        description: `For upload: URL, data URI, or base64 of the media. For delete: the media UUID to remove`,
+      },
+      {
+        name: 'operation',
+        type: 'string',
+        required: true,
+        description: `Whether to upload new media or delete stored media`,
       },
     ],
   },

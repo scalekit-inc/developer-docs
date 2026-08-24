@@ -262,7 +262,7 @@ export const tools: Tool[] = [
   },
   {
     name: 'commonroommcp_commonroom_update_object',
-    description: `Update fields on an existing Common Room object (contact, organization, etc.) by its ID.`,
+    description: `Update fields on an existing Common Room object (contact, organization, segment, etc.) by its ID.`,
     params: [
       {
         name: 'objectType',
@@ -323,6 +323,12 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Full LinkedIn profile URL of the contact.`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: false,
+        description: `The new name to set. Renames an Organization or a Segment.`,
       },
       {
         name: 'organizationId',

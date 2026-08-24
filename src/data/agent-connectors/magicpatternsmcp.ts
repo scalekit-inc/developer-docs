@@ -44,6 +44,54 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'magicpatternsmcp_create_design_system',
+    description: `Creates a new, blank design system owned by the authenticated user and returns its ID plus editor URL. Seeds an empty initial version so files can be written into it immediately via write_design_system_files. This creates a BLANK design system; forking from an existing one is not supported.`,
+    params: [
+      {
+        name: 'name',
+        type: 'string',
+        required: true,
+        description: `The name of the new design system, e.g. 'Acme Design System'.`,
+      },
+      {
+        name: 'logo',
+        type: 'string',
+        required: false,
+        description: `Optional logo URL for the design system. Defaults to a placeholder image if omitted.`,
+      },
+    ],
+  },
+  {
+    name: 'magicpatternsmcp_create_inspiration_document',
+    description: `Creates a Magic Patterns inspiration document and returns a shareable magicpatterns.com/inspiration/<id> link that renders 1-8 design concepts side by side. Concepts can be declared as placeholders (name/description only) and filled in later with inspiration_add_variant, or published fully in one call by including html inline for each concept.`,
+    params: [
+      {
+        name: 'files',
+        type: 'array',
+        required: true,
+        description: `The 1-8 concepts to publish or declare. Each entry is {"name": "...", "description": "...", "html": "..."}; omit html to declare a placeholder concept to fill later via inspiration_add_variant.`,
+      },
+      {
+        name: 'baseline',
+        type: 'object',
+        required: false,
+        description: `Optional baseline the variants diverge from: a faithful recreation of the current UI plus pinned invariants. Shape: {"html": "...", "focus": "...", "sharedCopy": "...", "baselineStyle": "..."}. Only html is required.`,
+      },
+      {
+        name: 'repositoryUrl',
+        type: 'string',
+        required: false,
+        description: `Optional GitHub repository URL the concepts were generated from, kept for context.`,
+      },
+      {
+        name: 'title',
+        type: 'string',
+        required: false,
+        description: `Optional short label for what the concepts explore, e.g. 'Projects list empty state'.`,
+      },
+    ],
+  },
+  {
     name: 'magicpatternsmcp_create_new_artifact',
     description: `Creates a new artifact by cloning an existing artifact, setting it as the active artifact for the design. Use this before making file changes with write_artifact_files so the user can revert to the previous artifact. Always get the current active artifact ID from get_design_status or get_artifact first.`,
     params: [
@@ -57,7 +105,49 @@ export const tools: Tool[] = [
         name: 'name',
         type: 'string',
         required: true,
-        description: `A name for this artifact version (shown in the design timeline).`,
+        description: `A short title for this version, phrased as the change about to be made (e.g. 'Swap hero CTA to solid variant'). Shown in the design timeline and versions dropdown.`,
+      },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `Optional longer note on what is about to change and why, shown above the version in chat. Prefer describing what actually shipped via publish_artifact's description instead; use this for a session that may not reach publish.`,
+      },
+    ],
+  },
+  {
+    name: 'magicpatternsmcp_create_slide_deck',
+    description: `Creates a new Magic Patterns slide deck and kicks off AI generation. A slide deck is a 16:9, full-bleed, one-slide-at-a-time React presentation where each slide maps to a screen in the canvas. A prompt is required; generation is long-running, so poll get_design_status rather than waiting synchronously.`,
+    params: [
+      {
+        name: 'prompt',
+        type: 'string',
+        required: true,
+        description: `Natural language description of the slide deck to generate, e.g. 'A 10-slide startup pitch deck for a fintech company'.`,
+      },
+      {
+        name: 'designSystem',
+        type: 'string',
+        required: false,
+        description: `Optional design system name (e.g. 'Shadcn', 'MUI'). Resolved case-insensitively. designSystemId takes precedence if both are provided.`,
+      },
+      {
+        name: 'designSystemId',
+        type: 'string',
+        required: false,
+        description: `Optional design system ID. Use list_design_systems to discover IDs.`,
+      },
+      {
+        name: 'imageUrls',
+        type: 'array',
+        required: false,
+        description: `Optional image URLs as visual references.`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: false,
+        description: `Optional name for the slide deck. Defaults to 'Untitled'.`,
       },
     ],
   },
@@ -86,6 +176,18 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'magicpatternsmcp_get_design_system',
+    description: `Resolves a design system's active artifact and lists its files. Design systems are collaborative, so the active artifact ID can change between calls; always call this first rather than reusing a cached artifact ID. Returns the artifactId (to pass as baseArtifactId to write_design_system_files), the persisted files, and whether there are unpublished changes.`,
+    params: [
+      {
+        name: 'designSystemId',
+        type: 'string',
+        required: true,
+        description: `The design system ID (ds-...). Use list_design_systems to discover available design systems.`,
+      },
+    ],
+  },
+  {
     name: 'magicpatternsmcp_get_editor_id_from_url',
     description: `Resolves a Magic Patterns URL to an editor ID. Use this when the user shares a Magic Patterns link and you need the editorId for subsequent operations like send_prompt or get_design_status. Supported formats: "magicpatterns.com/c/<id>", "https://www.magicpatterns.com/c/<id>", "project-<slug>.magicpatterns.app", "magicpatterns.com/s/<canvasId>?nodeIds=<nodeId>".`,
     params: [
@@ -94,6 +196,102 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `The Magic Patterns URL to resolve to an editor ID. Supported formats: magicpatterns.com/c/<id>, https://www.magicpatterns.com/c/<id>, project-<slug>.magicpatterns.app, magicpatterns.com/s/<canvasId>?nodeIds=<nodeId>.`,
+      },
+    ],
+  },
+  {
+    name: 'magicpatternsmcp_get_inspiration_document',
+    description: `Loads a Magic Patterns inspiration document by its ID. An inspiration document is a set of design concepts (variants), each a self-contained HTML sketch of a UI direction. Use this to check whether concepts are ready, or to fetch a concept's current html before revising it with inspiration_update_variant.`,
+    params: [
+      {
+        name: 'inspirationId',
+        type: 'string',
+        required: true,
+        description: `The Magic Patterns inspiration document ID (the <id> in magicpatterns.com/inspiration/<id>).`,
+      },
+    ],
+  },
+  {
+    name: 'magicpatternsmcp_inspiration_add_variant',
+    description: `Fills in one concept of an existing Magic Patterns inspiration document with its self-contained HTML. Use after create_inspiration_document to stream concepts in one at a time: the concept renders live on the shared page as soon as its html arrives, and the document flips to 'ready' once every concept is filled.`,
+    params: [
+      {
+        name: 'html',
+        type: 'string',
+        required: true,
+        description: `The full, self-contained HTML document (non-empty).`,
+      },
+      {
+        name: 'inspirationId',
+        type: 'string',
+        required: true,
+        description: `The inspiration document ID returned by create_inspiration_document.`,
+      },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `Optional update to the concept's design direction.`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: false,
+        description: `Optional update to the concept's name.`,
+      },
+      {
+        name: 'variantId',
+        type: 'string',
+        required: false,
+        description: `The concept ID to fill, from create_inspiration_document. Omit to fill the first still-empty concept.`,
+      },
+    ],
+  },
+  {
+    name: 'magicpatternsmcp_inspiration_clear_variants',
+    description: `Resets every concept of an existing Magic Patterns inspiration document back to an empty placeholder, dropping each concept's html and its pre-created 'Iterate' room. Use this to replace all concepts: clear the document, then stream fresh concepts back in with inspiration_add_variant targeting the returned concept IDs.`,
+    params: [
+      {
+        name: 'inspirationId',
+        type: 'string',
+        required: true,
+        description: `The inspiration document ID returned by create_inspiration_document.`,
+      },
+    ],
+  },
+  {
+    name: 'magicpatternsmcp_inspiration_update_variant',
+    description: `Revises a single already-filled concept of a Magic Patterns inspiration document in place, replacing its html (and optionally its name/description). Use to update a subset of concepts without touching the others; the concept's 'Iterate in Magic Patterns' room is refreshed so it builds from the new html.`,
+    params: [
+      {
+        name: 'html',
+        type: 'string',
+        required: true,
+        description: `The full, self-contained HTML document (non-empty).`,
+      },
+      {
+        name: 'inspirationId',
+        type: 'string',
+        required: true,
+        description: `The inspiration document ID.`,
+      },
+      {
+        name: 'variantId',
+        type: 'string',
+        required: true,
+        description: `The concept ID to revise, from get_inspiration_document. Targets an existing filled concept (unlike inspiration_add_variant, which fills empty placeholders).`,
+      },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `Optional update to the concept's design direction.`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: false,
+        description: `Optional update to the concept's name.`,
       },
     ],
   },
@@ -136,6 +334,24 @@ export const tools: Tool[] = [
         required: true,
         description: `The editor ID of the design this artifact belongs to.`,
       },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `A summary of what changed in this version, written like a commit message in the past tense describing what actually shipped, e.g. 'Swapped the hero CTA to the solid Button variant and dropped the legacy grid'. Always provide this: collaborators open the design without having seen the session, and this is the only prose explaining what changed.`,
+      },
+    ],
+  },
+  {
+    name: 'magicpatternsmcp_publish_design_system',
+    description: `Publishes the design system's active artifact as a new immutable version. Strict: refuses if the active artifact has validation errors from write_design_system_files; clear all validationErrors first. Returns the new version (major.minor) and whether it is backwards-compatible with the previously published version (a breaking change, such as a removed component or prop, bumps the major version).`,
+    params: [
+      {
+        name: 'designSystemId',
+        type: 'string',
+        required: true,
+        description: `The design system ID (ds-...).`,
+      },
     ],
   },
   {
@@ -153,6 +369,24 @@ export const tools: Tool[] = [
         type: 'array',
         required: true,
         description: `Array of file names or paths to read from the artifact. Example: ["App.tsx", "components/Button.tsx"].`,
+      },
+    ],
+  },
+  {
+    name: 'magicpatternsmcp_read_design_system_files',
+    description: `Reads the contents of one or more files from a design system's active artifact, such as components/<Name>/index.tsx, index.css, tailwind.config.js, or rules/<slug>.md. Call get_design_system first to discover available file names, and always read before editing.`,
+    params: [
+      {
+        name: 'designSystemId',
+        type: 'string',
+        required: true,
+        description: `The design system ID (ds-...).`,
+      },
+      {
+        name: 'fileNames',
+        type: 'array',
+        required: true,
+        description: `Array of file names/paths to read, as listed by get_design_system. Example: ["components/Button/index.tsx", "index.css"].`,
       },
     ],
   },
@@ -203,6 +437,30 @@ export const tools: Tool[] = [
         description: `The artifact ID to write files to.`,
       },
       { name: 'files', type: 'array', required: true, description: `Array of files to write.` },
+    ],
+  },
+  {
+    name: 'magicpatternsmcp_write_design_system_files',
+    description: `Creates or overwrites files in a design system. Incoming files are validated, merged onto the existing artifact (existing files are preserved), compiled, and activated immediately. Components must use the complete trio: components/<Name>/index.tsx, components/<Name>/<Name>.previews.tsx, and components/<Name>/Context.md. Pass the artifactId from get_design_system as baseArtifactId to detect drift; a 409 means someone else changed the design system in the meantime.`,
+    params: [
+      {
+        name: 'designSystemId',
+        type: 'string',
+        required: true,
+        description: `The design system ID (ds-...).`,
+      },
+      {
+        name: 'files',
+        type: 'array',
+        required: true,
+        description: `Array of files to create or overwrite, e.g. [{"fileName": "components/Button/index.tsx", "content": "export function Button() {...}"}].`,
+      },
+      {
+        name: 'baseArtifactId',
+        type: 'string',
+        required: false,
+        description: `The artifactId from get_design_system. If the active artifact has since changed, the write is rejected with a 409 so it can be re-read and retried.`,
+      },
     ],
   },
 ]

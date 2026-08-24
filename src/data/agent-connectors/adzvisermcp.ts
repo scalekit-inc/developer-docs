@@ -2,8 +2,23 @@ import type { Tool } from '../../types/agent-connectors'
 
 export const tools: Tool[] = [
   {
+    name: 'adzvisermcp_list_countries_fb_ad_library',
+    description: `Get the list of available countries/regions for Facebook (Meta) Ad Library searches. Use these regions when composing a meta_ad_library_request in the retrieve_reporting_data tool.`,
+    params: [],
+  },
+  {
+    name: 'adzvisermcp_list_countries_google_ads_transparency',
+    description: `Get the list of available countries/regions for Google Ads Transparency Center searches. Use these regions when composing a google_ads_transparency_request in the retrieve_reporting_data tool.`,
+    params: [],
+  },
+  {
     name: 'adzvisermcp_list_metrics_and_breakdowns_activecampaign',
     description: `Get the list of selectable ActiveCampaign metrics, such as Contacts, Sends, Opens, Clicks, and breakdowns like Campaign Name, List Name etc.`,
+    params: [],
+  },
+  {
+    name: 'adzvisermcp_list_metrics_and_breakdowns_adobe_analytics',
+    description: `Get the list of selectable Adobe Analytics 2.0 metrics like Page views, Visits, Visitors, and breakdowns like Page, Browser, and Device type etc.`,
     params: [],
   },
   {
@@ -42,6 +57,11 @@ export const tools: Tool[] = [
     params: [],
   },
   {
+    name: 'adzvisermcp_list_metrics_and_breakdowns_call_tracking_metrics',
+    description: `Get the list of selectable CallTrackingMetrics (CTM) metrics like Total calls, Talk time, Ring time, and breakdowns like Tracking source, Call status, and Agent etc.`,
+    params: [],
+  },
+  {
     name: 'adzvisermcp_list_metrics_and_breakdowns_callrail',
     description: `Get the list of selectable CallRail metrics like Total calls, Answered calls, Call duration, and breakdowns like Tracking number, Source, and Campaign etc.`,
     params: [],
@@ -54,6 +74,11 @@ export const tools: Tool[] = [
   {
     name: 'adzvisermcp_list_metrics_and_breakdowns_dv360',
     description: `Get the list of selectable Display & Video 360 (DV360) metrics, such as Impressions, Clicks, Revenue, and breakdowns like Campaign Name, Insertion Order, Line Item etc.`,
+    params: [],
+  },
+  {
+    name: 'adzvisermcp_list_metrics_and_breakdowns_ebay',
+    description: `Get the list of selectable eBay metrics like Total sales, Quantity sold, Average price, and breakdowns like Listing title, Category, and Condition etc.`,
     params: [],
   },
   {
@@ -86,6 +111,11 @@ export const tools: Tool[] = [
   {
     name: 'adzvisermcp_list_metrics_and_breakdowns_google_my_business',
     description: `Get the list of selectable Google My Business metrics, such as Total views, Phone calls, Bookings, and breakdowns like Location name, Website URL, and Address lines etc.`,
+    params: [],
+  },
+  {
+    name: 'adzvisermcp_list_metrics_and_breakdowns_google_pagespeed_insights',
+    description: `Get the list of selectable Google PageSpeed Insights metrics like Performance score, SEO score, First Contentful Paint, Largest Contentful Paint, and breakdowns like Web page Url etc.`,
     params: [],
   },
   {
@@ -136,6 +166,11 @@ export const tools: Tool[] = [
   {
     name: 'adzvisermcp_list_metrics_and_breakdowns_merchant_center',
     description: `Get the list of selectable Merchant Center metrics, such as Impressions, Clicks, Conversions, and breakdowns like Title, Brand, and Availability etc.`,
+    params: [],
+  },
+  {
+    name: 'adzvisermcp_list_metrics_and_breakdowns_mntn',
+    description: `Get the list of selectable MNTN metrics like Impressions, Visits, Conversions, and breakdowns like Campaign, Creative, and Audience etc.`,
     params: [],
   },
   {
@@ -214,9 +249,21 @@ export const tools: Tool[] = [
     params: [],
   },
   {
+    name: 'adzvisermcp_list_metrics_and_breakdowns_tiktok_shop',
+    description: `Get the list of selectable TikTok Shop metrics like Total orders, Revenue, Items sold, and breakdowns like Order status, Payment method, and Shipping provider etc.`,
+    params: [],
+  },
+  {
     name: 'adzvisermcp_list_metrics_and_breakdowns_trade_desk',
     description: `Get the list of selectable Trade Desk metrics, such as Impressions, Clicks, Spend, Conversions, and breakdowns like Campaign Name, Ad Group, Creative etc.`,
-    params: [],
+    params: [
+      {
+        name: 'workspace_name',
+        type: 'string',
+        required: false,
+        description: `Optional Adzviser workspace name. When supplied, only fields supported by that workspace's connected Trade Desk account are returned.`,
+      },
+    ],
   },
   {
     name: 'adzvisermcp_list_metrics_and_breakdowns_woo_commerce',
@@ -226,6 +273,11 @@ export const tools: Tool[] = [
   {
     name: 'adzvisermcp_list_metrics_and_breakdowns_x_ads',
     description: `Get the list of selectable X Ads (Twitter Ads) metrics like Impressions, Clicks, Spend, and breakdowns like Campaign name, Ad group name, and Placement etc.`,
+    params: [],
+  },
+  {
+    name: 'adzvisermcp_list_metrics_and_breakdowns_yahoo_dsp',
+    description: `Get the list of selectable Yahoo DSP metrics like Impressions, Clicks, Spend, and breakdowns like Campaign, Ad group, and Creative etc.`,
     params: [],
   },
   {

@@ -10,6 +10,14 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'affindamcp_add_tag_to_documents',
+    description: `Apply an existing tag to one or more documents. Use this to label documents — e.g. "tag these three invoices as Urgent". Documents that already carry the tag are unaffected (the operation is idempotent). All documents must belong to the same workspace as the tag. The tag must already exist — find its ID with list_tags or create it first with create_tag.`,
+    params: [
+      { name: 'document_ids', type: 'array', required: true, description: `Documents to tag.` },
+      { name: 'tag_id', type: 'string', required: true, description: `ID of the tag to apply.` },
+    ],
+  },
+  {
     name: 'affindamcp_archive_documents',
     description: `Move documents to \`\`archived\`\` state.`,
     params: [
@@ -172,6 +180,24 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'affindamcp_create_tag',
+    description: `Create a new tag in a workspace. Use this when the user wants a new label to organise documents — e.g. "create an Urgent tag", "add a tag for Q3 invoices". The tag starts with no documents attached; apply it with add_tag_to_documents. Tag names must be unique within a workspace. Check list_tags first if you're unsure whether the tag already exists.`,
+    params: [
+      {
+        name: 'name',
+        type: 'string',
+        required: true,
+        description: `Tag name (e.g. Urgent, Q3 Invoices). Max 256 chars.`,
+      },
+      {
+        name: 'workspace_id',
+        type: 'string',
+        required: true,
+        description: `Workspace the tag belongs to.`,
+      },
+    ],
+  },
+  {
     name: 'affindamcp_create_validation_rule',
     description: `Create a validation rule for a document type.`,
     params: [
@@ -307,6 +333,13 @@ Lambda environment variable.`,
     ],
   },
   {
+    name: 'affindamcp_delete_tag',
+    description: `Delete a tag from its workspace. Use this only when the user explicitly wants the tag gone — e.g. "delete the Urgent tag". The tag is removed from every document that carried it; the documents themselves are untouched. To take the tag off specific documents while keeping it available for others, use remove_tag_from_documents instead.`,
+    params: [
+      { name: 'tag_id', type: 'string', required: true, description: `ID of the tag to delete.` },
+    ],
+  },
+  {
     name: 'affindamcp_delete_validation_rule',
     description: `Delete a validation rule from a document type.`,
     params: [
@@ -353,6 +386,36 @@ To roll back a bad deploy, use \`\`revert_integration_version\`\` wi...`,
     description: `Get the extracted data for one document â raw text plus all field values.`,
     params: [
       { name: 'document_id', type: 'string', required: true, description: `No description.` },
+    ],
+  },
+  {
+    name: 'affindamcp_get_document_page_images',
+    description: `View a document's pages as rendered images, to see the actual document rather than just OCR text. Use this when the visual appearance of a document matters and text alone is ambiguous — layout questions, checkboxes and selection marks, signatures, stamps, handwriting, logos, or diagnosing why extraction misread something. The images show each page as it appears in the document review UI. With show_annotations, the extracted annotations are drawn on top of each page as colored rectangles tagged with their field slug — use this to check where a value was read from (wrong instance picked, value attributed to the wrong field, table rows/columns mapped incorrectly). On dense documents, pass field_slugs to only draw the fields you are debugging (a table's slug also draws its cells). Images are expensive in tokens — request only the pages you need, at most 5 per call. For extracted values and raw text, use get_document_extraction instead; only reach for images when text output isn't enough.`,
+    params: [
+      {
+        name: 'document_id',
+        type: 'string',
+        required: true,
+        description: `ID of the document to view.`,
+      },
+      {
+        name: 'field_slugs',
+        type: 'array',
+        required: false,
+        description: `Only draw annotations for these field slugs (implies show_annotations). Omit to draw all annotated fields.`,
+      },
+      {
+        name: 'page_indices',
+        type: 'array',
+        required: false,
+        description: `Zero-based page indices to fetch (e.g. [0] for the first page). Omit to get the first 5 pages. Request at most 5 pages per call.`,
+      },
+      {
+        name: 'show_annotations',
+        type: 'boolean',
+        required: false,
+        description: `Draw the extracted annotations on the page images as colored rectangles labelled with their field slug.`,
+      },
     ],
   },
   {
@@ -560,6 +623,24 @@ To roll back a bad deploy, use \`\`revert_integration_version\`\` wi...`,
     ],
   },
   {
+    name: 'affindamcp_list_tags',
+    description: `List the tags defined in a workspace. Use this to discover the tag_id for downstream tools, to check whether a tag with a given name already exists before creating one, or to show the user what tags are available. Tags are workspace-scoped labels that can be applied to any number of documents. To apply or remove a tag on documents use add_tag_to_documents / remove_tag_from_documents. To see which tags a specific document carries, use get_document.`,
+    params: [
+      {
+        name: 'workspace_id',
+        type: 'string',
+        required: true,
+        description: `Workspace to scope the list to. Required.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Cap on returned items. Default 100 — usually enough.`,
+      },
+    ],
+  },
+  {
     name: 'affindamcp_list_validation_rules',
     description: `List validation rules attached to a document type.`,
     params: [
@@ -606,6 +687,19 @@ To roll back a bad deploy, use \`\`revert_integration_version\`\` wi...`,
     params: [
       { name: 'connection_id', type: 'string', required: true, description: `No description.` },
       { name: 'integration_id', type: 'string', required: true, description: `No description.` },
+    ],
+  },
+  {
+    name: 'affindamcp_remove_tag_from_documents',
+    description: `Take a tag off one or more documents. Use this to un-label documents — e.g. "remove the Urgent tag from these invoices". The tag itself is kept and stays available for other documents; documents that don't carry the tag are unaffected. To delete the tag everywhere in one step, use delete_tag instead.`,
+    params: [
+      {
+        name: 'document_ids',
+        type: 'array',
+        required: true,
+        description: `Documents to remove the tag from.`,
+      },
+      { name: 'tag_id', type: 'string', required: true, description: `ID of the tag to remove.` },
     ],
   },
   {
@@ -781,6 +875,14 @@ an environment variable on the Lambda function â never in the database.`,
     params: [
       { name: 'name', type: 'string', required: true, description: `No description.` },
       { name: 'organization_id', type: 'string', required: true, description: `No description.` },
+    ],
+  },
+  {
+    name: 'affindamcp_update_tag',
+    description: `Rename a tag. Use this when the user wants to change a tag's name — e.g. "rename the Urgent tag to High Priority". The rename applies everywhere at once: every document carrying the tag shows the new name immediately. A tag cannot be moved to a different workspace; create a new tag there instead. To change which documents carry the tag, use add_tag_to_documents / remove_tag_from_documents.`,
+    params: [
+      { name: 'name', type: 'string', required: true, description: `New tag name. Max 256 chars.` },
+      { name: 'tag_id', type: 'string', required: true, description: `ID of the tag to rename.` },
     ],
   },
   {

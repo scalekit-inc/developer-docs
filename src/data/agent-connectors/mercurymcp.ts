@@ -106,6 +106,18 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'mercurymcp_getcard',
+    description: `Retrieve details of a specific card by its ID.`,
+    params: [
+      {
+        name: 'cardId',
+        type: 'string',
+        required: true,
+        description: `Unique identifier for a card.`,
+      },
+    ],
+  },
+  {
     name: 'mercurymcp_getcurrentdate',
     description: `Get the current date and time.`,
     params: [],
@@ -149,6 +161,13 @@ export const tools: Tool[] = [
         required: true,
         description: `Mercury recipient ID. Get it from Get Recipients.`,
       },
+    ],
+  },
+  {
+    name: 'mercurymcp_getrecipientinvite',
+    description: `Retrieve details of a specific recipient invite by ID.`,
+    params: [
+      { name: 'inviteId', type: 'string', required: true, description: `ID for the invite.` },
     ],
   },
   {
@@ -386,6 +405,41 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'mercurymcp_listcards',
+    description: `Retrieve a paginated list of cards.`,
+    params: [
+      { name: 'accountId', type: 'array', required: false, description: `No description.` },
+      {
+        name: 'end_before',
+        type: 'string',
+        required: false,
+        description: `Cursor to fetch the page before this position.`,
+      },
+      { name: 'kind', type: 'array', required: false, description: `No description.` },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of items to return per page.`,
+      },
+      { name: 'order', type: 'string', required: false, description: `Sort order: asc or desc.` },
+      {
+        name: 'start_after',
+        type: 'string',
+        required: false,
+        description: `Cursor from the previous response to fetch the next page.`,
+      },
+      { name: 'status', type: 'array', required: false, description: `No description.` },
+      { name: 'type', type: 'array', required: false, description: `No description.` },
+      {
+        name: 'userId',
+        type: 'string',
+        required: false,
+        description: `Filter cards by the cardholder's user ID.`,
+      },
+    ],
+  },
+  {
     name: 'mercurymcp_listcategories',
     description: `Retrieve a paginated list of all custom expense categories for the organization.`,
     params: [
@@ -475,6 +529,63 @@ export const tools: Tool[] = [
         required: false,
         description: `Cursor from the previous response to fetch the next page.`,
       },
+    ],
+  },
+  {
+    name: 'mercurymcp_listmerchants',
+    description: `Retrieve a paginated list of priority merchants that can be used for spend controls like merchant locking.`,
+    params: [
+      {
+        name: 'end_before',
+        type: 'string',
+        required: false,
+        description: `Cursor to fetch the page before this position.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of items to return per page.`,
+      },
+      { name: 'order', type: 'string', required: false, description: `Sort order: asc or desc.` },
+      {
+        name: 'search',
+        type: 'string',
+        required: false,
+        description: `Case-insensitive search term to filter merchants by name.`,
+      },
+      {
+        name: 'start_after',
+        type: 'string',
+        required: false,
+        description: `Cursor from the previous response to fetch the next page.`,
+      },
+    ],
+  },
+  {
+    name: 'mercurymcp_listrecipientinvites',
+    description: `Retrieve a paginated list of all recipient invites for your organization. Supports filtering by status.`,
+    params: [
+      {
+        name: 'end_before',
+        type: 'string',
+        required: false,
+        description: `Cursor to fetch the page before this position.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of items to return per page.`,
+      },
+      { name: 'order', type: 'string', required: false, description: `Sort order: asc or desc.` },
+      {
+        name: 'start_after',
+        type: 'string',
+        required: false,
+        description: `Cursor from the previous response to fetch the next page.`,
+      },
+      { name: 'status', type: 'string', required: false, description: `Filter by status.` },
     ],
   },
   {

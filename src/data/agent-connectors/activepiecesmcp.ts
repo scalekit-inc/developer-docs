@@ -581,6 +581,19 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'activepiecesmcp_ap_read_step_settings',
+    description: `Read the full untruncated settings of any step, including the trigger: piece input, action/trigger name, loop items, router branches, and error handling options. Use this to see a step's current configuration before updating it (ap_flow_structure truncates piece input). For reviewing a CODE step's source, prefer ap_read_step_code.`,
+    params: [
+      { name: 'flowId', type: 'string', required: true, description: `The id of the flow` },
+      {
+        name: 'stepName',
+        type: 'string',
+        required: true,
+        description: `The name of the step (e.g. "trigger", "step_1"). Use ap_flow_structure to get valid values.`,
+      },
+    ],
+  },
+  {
     name: 'activepiecesmcp_ap_rename_flow',
     description: `Rename a flow.`,
     params: [
@@ -630,7 +643,6 @@ export const tools: Tool[] = [
       },
       { name: 'searchQuery', type: 'string', required: false, description: `No description.` },
       { name: 'suggestionType', type: 'string', required: false, description: `No description.` },
-      { name: 'tags', type: 'array', required: false, description: `No description.` },
     ],
   },
   {
@@ -752,6 +764,12 @@ export const tools: Tool[] = [
         description: `Action to run, e.g. "send_channel_message". Use ap_get_piece_props for the input shape.`,
       },
       {
+        name: 'input',
+        type: 'object',
+        required: true,
+        description: `Fully-resolved input for the action. Keys must match the piece action's props. Pass raw values - do NOT wrap in {{...}}. Pass an empty object if the action has no props.`,
+      },
+      {
         name: 'pieceName',
         type: 'string',
         required: true,
@@ -763,11 +781,53 @@ export const tools: Tool[] = [
         required: false,
         description: `externalId from ap_list_connections. Required if the piece needs auth. Auto-wrapped as {{connections['externalId']}}.`,
       },
+    ],
+  },
+  {
+    name: 'activepiecesmcp_ap_search_actions',
+    description: `Find piece actions by natural-language task description (e.g. "send a message to a Slack channel"). Returns the most semantically relevant actions ranked by similarity — lightweight rows only — or an empty list when nothing in the catalog is relevant (it does not force a match). Falls back to keyword catalog search when no embedding model is configured. Each row carries a \`connected\` flag indicating whether this project already has a connection for the piece. This is the discovery step: take a result's pieceName + actionName to ap_get_piece_props for its input schema, then ap_run_action to execute it.`,
+    params: [
       {
-        name: 'input',
-        type: 'object',
+        name: 'query',
+        type: 'string',
+        required: true,
+        description: `Natural-language description of the task to accomplish (e.g. "send a message to a Slack channel", "create a Google Calendar event").`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
         required: false,
-        description: `Fully-resolved input for the action. Keys must match the piece action's props. Pass raw values - do NOT wrap in {{...}}. Omit if the action has no props.`,
+        description: `Maximum number of action matches to return. Defaults to 5.`,
+      },
+      {
+        name: 'pieceName',
+        type: 'string',
+        required: false,
+        description: `Restrict results to a single piece (e.g. "slack" or "@activepieces/piece-slack"). Omit to search the whole catalog.`,
+      },
+    ],
+  },
+  {
+    name: 'activepiecesmcp_ap_search_triggers',
+    description: `Find piece triggers (the event that starts a flow) by natural-language description of when the flow should run (e.g. "when a new row is added to a Google Sheet", "when an email arrives"). Returns the most semantically relevant triggers ranked by similarity — lightweight rows only — or an empty list when nothing in the catalog is relevant (it does not force a match). Falls back to keyword catalog search when no embedding model is configured. Each row carries a \`connected\` flag indicating whether this project already has a connection for the piece. This is the discovery step: take a result's pieceName + triggerName to ap_get_piece_props for its input schema.`,
+    params: [
+      {
+        name: 'query',
+        type: 'string',
+        required: true,
+        description: `Natural-language description of the event that should start the flow (e.g. "when a new row is added to a Google Sheet", "when a new email arrives").`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of trigger matches to return. Defaults to 5.`,
+      },
+      {
+        name: 'pieceName',
+        type: 'string',
+        required: false,
+        description: `Restrict results to a single piece (e.g. "slack" or "@activepieces/piece-slack"). Omit to search the whole catalog.`,
       },
     ],
   },

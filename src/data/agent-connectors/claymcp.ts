@@ -171,6 +171,18 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'claymcp_get_current_workspace',
+    description: `Report which Clay workspace this connection is pinned to. Returns workspaceName, workspaceId, and workspaceUrl. Use when the user asks which workspace they are connected to, or to confirm where searches and enrichments will run.`,
+    params: [
+      {
+        name: 'rationale',
+        type: 'string',
+        required: true,
+        description: `Always provide a brief explanation of why you are calling this tool`,
+      },
+    ],
+  },
+  {
     name: 'claymcp_get_subroutine_input_options',
     description: `Fetch the available dropdown options for a subroutine input that has a configured options source.`,
     params: [
@@ -210,6 +222,12 @@ export const tools: Tool[] = [
         required: true,
         description: `The task ID to retrieve (mcp-task-* or legacy cgas-search-id-*)`,
       },
+      {
+        name: 'page',
+        type: 'integer',
+        required: false,
+        description: `Optional 1-based page of entities for direct tasks (100 per page). Defaults to 1.`,
+      },
     ],
   },
   {
@@ -233,6 +251,12 @@ export const tools: Tool[] = [
         type: 'array',
         required: false,
         description: `Optional. Pass specific entity IDs to retrieve only those entities. Leave empty or omit to retrieve all entities for the task.`,
+      },
+      {
+        name: 'page',
+        type: 'integer',
+        required: false,
+        description: `Optional 1-based page of entities for direct tasks (100 per page). Defaults to 1. Ignored when entityIds is provided.`,
       },
     ],
   },
@@ -328,13 +352,13 @@ export const tools: Tool[] = [
   },
   {
     name: 'claymcp_run_subroutine_direct',
-    description: `Execute a custom function directly with provided inputs, without needing an existing task or entityIds. Use when the user provides specific input values (LinkedIn URL, name, email, etc.) and wants to run a function on that data directly.`,
+    description: `Execute a custom function directly on one or more sets of provided inputs, without needing an existing task or entityIds. Use when the user provides specific input values (LinkedIn URL, name, email, etc.) and wants to run a function on that data directly, for one value or many.`,
     params: [
       {
         name: 'inputs',
-        type: 'object',
+        type: 'array',
         required: true,
-        description: `The actual input values for the subroutine. Keys must match the input names from list_subroutines.`,
+        description: `Array of input objects, one per run (max 1000); use a single-element array to run once. Each object's keys must match the input names from list_subroutines.`,
       },
       {
         name: 'rationale',

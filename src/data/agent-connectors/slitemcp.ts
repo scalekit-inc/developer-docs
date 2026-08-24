@@ -206,6 +206,36 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'slitemcp_edit_document',
+    description: `Apply many block edits to a single note as one atomic change — insert, replace a range, or remove blocks — instead of calling append-blocks/modify-range/remove-blocks repeatedly.`,
+    params: [
+      {
+        name: 'edits',
+        type: 'array',
+        required: true,
+        description: `The ordered list of block edits to apply atomically. Each entry is an insert, modifyRange, or remove operation.`,
+      },
+      {
+        name: 'noteId',
+        type: 'string',
+        required: true,
+        description: `The ID of the note to edit.`,
+      },
+      {
+        name: 'dryRun',
+        type: 'boolean',
+        required: false,
+        description: `If true, validate and return the resulting document without committing.`,
+      },
+      {
+        name: 'returnFullDocument',
+        type: 'boolean',
+        required: false,
+        description: `If true, also include the full updated document (slitemlHybrid) in the response.`,
+      },
+    ],
+  },
+  {
     name: 'slitemcp_get-comment-thread-on-note',
     description: `Retrieve a single comment thread by its note and thread IDs.`,
     params: [
@@ -256,6 +286,12 @@ export const tools: Tool[] = [
         type: 'boolean',
         required: false,
         description: `Return the full document. Defaults to true; set false to fetch only a preview.`,
+      },
+      {
+        name: 'includeArchivedRows',
+        type: 'boolean',
+        required: false,
+        description: `Only applies to format=collection. Archived rows are excluded by default. Set to true to also return archived rows, each marked with archived: true.`,
       },
       {
         name: 'startBlockId',
@@ -579,6 +615,18 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'slitemcp_read_thread',
+    description: `Read an AI thread back as question/answer rounds. Use it to poll a processing response from ask-slite or slite-agent, or to read a past conversation.`,
+    params: [
+      {
+        name: 'threadId',
+        type: 'string',
+        required: true,
+        description: `The thread id — from a processing response, a prior threadId, or the trailing segment of a thread URL.`,
+      },
+    ],
+  },
+  {
     name: 'slitemcp_remove-blocks',
     description: `Remove one or more blocks from a note by their block IDs.`,
     params: [
@@ -715,6 +763,12 @@ export const tools: Tool[] = [
         description: `Cursor for pagination when there are more results.`,
       },
       {
+        name: 'includeArchived',
+        type: 'boolean',
+        required: false,
+        description: `Set to true to also include archived (deactivated) users. Defaults to false.`,
+      },
+      {
         name: 'query',
         type: 'string',
         required: false,
@@ -754,6 +808,30 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'slitemcp_slite_agent',
+    description: `Invoke Slite Agent on the workspace knowledge base. Stateful: returns a threadId for follow-ups; can edit, create, or organize docs as well as read.`,
+    params: [
+      {
+        name: 'task',
+        type: 'string',
+        required: true,
+        description: `The task or question for Slite Agent. Free-form natural language.`,
+      },
+      {
+        name: 'context',
+        type: 'string',
+        required: false,
+        description: `Optional briefing for Slite Agent: what you're working on, why you're asking, what you've already established. Keep concise.`,
+      },
+      {
+        name: 'threadId',
+        type: 'string',
+        required: false,
+        description: `Existing thread id to continue. Omit to start a new conversation. Persists across calls.`,
+      },
+    ],
+  },
+  {
     name: 'slitemcp_unresolve-comment-thread',
     description: `Reopen a previously resolved comment thread.`,
     params: [
@@ -762,6 +840,49 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `The ID of the comment thread to unresolve.`,
+      },
+    ],
+  },
+  {
+    name: 'slitemcp_update_table',
+    description: `Make a structured edit to an in-document table (a table embedded in a doc's body) without re-emitting the whole table — add/remove columns or rows, set cell values.`,
+    params: [
+      {
+        name: 'noteId',
+        type: 'string',
+        required: true,
+        description: `The ID of the note that contains the table.`,
+      },
+      {
+        name: 'tableBlockId',
+        type: 'string',
+        required: true,
+        description: `The block id of the table — the id attribute on its <database> element from get-note.`,
+      },
+      {
+        name: 'addRows',
+        type: 'array',
+        required: false,
+        description: `Rows to append to the table, optionally with initial fields keyed by column id.`,
+      },
+      {
+        name: 'columns',
+        type: 'array',
+        required: false,
+        description: `New typed columns to add to the table.`,
+      },
+      {
+        name: 'removeColumns',
+        type: 'array',
+        required: false,
+        description: `Column ids to remove. Deletes all data in those columns. Cannot be reverted.`,
+      },
+      { name: 'removeRows', type: 'array', required: false, description: `Row ids to delete.` },
+      {
+        name: 'setCells',
+        type: 'array',
+        required: false,
+        description: `Cell values to set. For select/multi-select use the option label(s); for a text column pass the cell content; for a users/notes column pass a JSON array of resolved refs from search-users/search-notes.`,
       },
     ],
   },

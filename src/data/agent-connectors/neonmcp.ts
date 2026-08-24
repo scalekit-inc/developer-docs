@@ -436,6 +436,48 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'neonmcp_inspect_database',
+    description: `Run a predefined, read-only Postgres diagnostic check (table sizes, unused indexes, locks, bloat, etc.) against a Neon branch.`,
+    params: [
+      {
+        name: 'check',
+        type: 'string',
+        required: true,
+        description: `Which diagnostic to run: table-sizes, index-sizes, unused-indexes, seq-scans, long-running-queries, locks, outliers, calls, lfc-hit-rate, working-set, vacuum-stats, bloat, replication-slots, or subscriptions.`,
+      },
+      {
+        name: 'projectId',
+        type: 'string',
+        required: true,
+        description: `The ID of the project to inspect.`,
+      },
+      {
+        name: 'branchId',
+        type: 'string',
+        required: false,
+        description: `An optional ID of the branch. If not provided the default branch is used.`,
+      },
+      {
+        name: 'computeId',
+        type: 'string',
+        required: false,
+        description: `The ID of the compute/endpoint. If not provided, the read-write compute associated with the branch will be used.`,
+      },
+      {
+        name: 'databaseName',
+        type: 'string',
+        required: false,
+        description: `Database to inspect. Omit to cover every database on the branch.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of rows to return from the combined result (1-1000). Default is 50.`,
+      },
+    ],
+  },
+  {
     name: 'neonmcp_list_branch_computes',
     description: `List all compute endpoints for a project or branch.`,
     params: [
@@ -457,6 +499,54 @@ export const tools: Tool[] = [
     name: 'neonmcp_list_docs_resources',
     description: `List all available Neon documentation pages from the Neon docs index.`,
     params: [],
+  },
+  {
+    name: 'neonmcp_list_log_field_values',
+    description: `List the distinct values of a log field (e.g. service_name or severity_text) within a branch and time window.`,
+    params: [
+      {
+        name: 'field',
+        type: 'string',
+        required: true,
+        description: `The log field (label) whose distinct values to list, e.g. "service_name" or "severity_text". Use list_log_fields to discover valid field names.`,
+      },
+      {
+        name: 'branchId',
+        type: 'string',
+        required: false,
+        description: `The ID of the branch. Defaults to the project's default branch.`,
+      },
+      {
+        name: 'projectId',
+        type: 'string',
+        required: false,
+        description: `The ID of the project. Defaults to your only project if unambiguous.`,
+      },
+      {
+        name: 'since',
+        type: 'string',
+        required: false,
+        description: `Relative lookback window as a duration (e.g. "6h", "24h"). If omitted, the server default lookback (6 hours) applies; the maximum supported window is "7d".`,
+      },
+    ],
+  },
+  {
+    name: 'neonmcp_list_log_fields',
+    description: `List the log fields whose values list_log_field_values can enumerate for a branch (e.g. service_name, severity_text, scope_name, entity_type).`,
+    params: [
+      {
+        name: 'branchId',
+        type: 'string',
+        required: false,
+        description: `The ID of the branch. Defaults to the project's default branch.`,
+      },
+      {
+        name: 'projectId',
+        type: 'string',
+        required: false,
+        description: `The ID of the project. Defaults to your only project if unambiguous.`,
+      },
+    ],
   },
   {
     name: 'neonmcp_list_organizations',
@@ -660,6 +750,96 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `The name of the database. Defaults to neondb if not provided.`,
+      },
+    ],
+  },
+  {
+    name: 'neonmcp_query_logs',
+    description: `Query logs emitted by Neon serverless functions and other services (structured filters or raw LogQL), correlated by trace ID and time window.`,
+    params: [
+      {
+        name: 'bodyContains',
+        type: 'string',
+        required: false,
+        description: `Return only logs whose rendered message contains this case-sensitive substring.`,
+      },
+      {
+        name: 'branchId',
+        type: 'string',
+        required: false,
+        description: `The ID of the branch whose logs to query. Defaults to the project's default branch.`,
+      },
+      {
+        name: 'endTime',
+        type: 'string',
+        required: false,
+        description: `Absolute end of the window, RFC3339. Ends either a relative since window or an absolute startTime window; defaults to now.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of log lines to return (1-1000, default 100). Large results are truncated server-side.`,
+      },
+      {
+        name: 'logql',
+        type: 'string',
+        required: false,
+        description: `Advanced: a raw LogQL expression to run instead of the structured filters above. Only stream selectors and line filters are supported. Do not combine it with structured filters.`,
+      },
+      {
+        name: 'minSeverity',
+        type: 'string',
+        required: false,
+        description: `Return only logs at this OTel severity level or above (trace < debug < info < warn < error < fatal). E.g. "error" returns ERROR and FATAL.`,
+      },
+      {
+        name: 'projectId',
+        type: 'string',
+        required: false,
+        description: `The ID of the project whose logs to query. If omitted and you have exactly one project, that project is used.`,
+      },
+      {
+        name: 'query',
+        type: 'string',
+        required: false,
+        description: `Legacy compatibility alias for logql. Preserves the previous behavior of overriding any structured filters. Do not supply both raw fields.`,
+      },
+      {
+        name: 'serviceName',
+        type: 'string',
+        required: false,
+        description: `Filter to a specific OTel service name (service.name).`,
+      },
+      {
+        name: 'severityText',
+        type: 'string',
+        required: false,
+        description: `Filter to an exact severity text (e.g. "ERROR"). Takes precedence over minSeverity.`,
+      },
+      {
+        name: 'since',
+        type: 'string',
+        required: false,
+        description: `Relative lookback window ending at endTime, or now when omitted, as a duration (e.g. "30m", "1h", "24h"). Defaults to the last hour; the maximum supported window is "7d". Ignored when startTime is set.`,
+      },
+      {
+        name: 'source',
+        type: 'string',
+        required: false,
+        description: `Which service produced the logs. "function" (serverless functions) is the default; "storage" and "pg_endpoint" are also available.`,
+      },
+      {
+        name: 'startTime',
+        type: 'string',
+        required: false,
+        description: `Absolute start of the window, RFC3339 (e.g. "2026-07-16T09:00:00Z"). Overrides since; the startTime/endTime window must not span more than seven days.`,
+      },
+      {
+        name: 'traceId',
+        type: 'string',
+        required: false,
+        description: `Correlate to a distributed trace: return only logs with this trace_id.`,
       },
     ],
   },

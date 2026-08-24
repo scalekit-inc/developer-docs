@@ -38,6 +38,18 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'synthesizebiomcp_get_metadata_schema',
+    description: `Retrieve the structured-metadata schema used to turn a natural-language experiment description into the sample groups required by resolve_sample_metadata.`,
+    params: [
+      {
+        name: 'modality',
+        type: 'string',
+        required: false,
+        description: `Sequencing modality. Defaults to "bulk".`,
+      },
+    ],
+  },
+  {
     name: 'synthesizebiomcp_resolve_sample_metadata',
     description: `Resolve a natural-language experiment description into structured sample groups using Synthesize Bio's AI metadata extraction.`,
     params: [
