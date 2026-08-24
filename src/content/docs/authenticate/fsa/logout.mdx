@@ -11,11 +11,8 @@ head:
         font-size: var(--sl-text-xl);
       }
 seeAlso:
-  expanded: true
+  expanded: false
   items:
-    - title: 'Manage user sessions'
-      icon: 'book'
-      url: '/authenticate/fsa/manage-session/'
     - title: 'Add auth redirects'
       icon: 'book'
       url: '/guides/dashboard/redirects/'
@@ -31,19 +28,15 @@ When implementing logout functionality, you need to consider three session layer
 
 3. **Identity provider session layer**: When users authenticate with external providers (for example, Okta through enterprise SSO), those providers maintain their own sessions. Users won't be prompted to sign in again if they're already signed into the provider.
 
-Clear the app session and the Scalekit session in one logout.
-
-Node.js and Python session middleware already register `GET /logout`. That handler clears `sk_session` and ends the Scalekit session.
+Clear the application session layer and invalidate the Scalekit session layer in a single logout endpoint.
 
 ![Logout flow showing three session layers](@/assets/docs/fsa/logout/1.png)
 
 <Steps>
 
-1. ## Send the browser to logout
+1. ## Create a logout endpoint
 
-   Session middleware already owns `/logout`. Send the browser to `/logout`. Do not call `/oidc/logout` from `fetch`.
-
-   Go and Java still build the logout URL. See those tabs.
+   Create a `/logout` endpoint in your application that handles the complete logout flow: extracting the ID token, generating the Scalekit logout URL, clearing session cookies, and redirecting to Scalekit.
 
    <Tabs syncKey="tech-stack">
    <TabItem label="Node.js">

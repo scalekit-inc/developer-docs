@@ -14,9 +14,6 @@ head:
       }
 seeAlso:
   items:
-    - title: "Manage user sessions"
-      icon: "book"
-      url: "/authenticate/fsa/manage-session/"
     - title: "Browse nextjs example app"
       icon: "nextjs"
       url: "https://github.com/scalekit-inc/nextjs-example-apps/tree/main/full-stack-auth"
@@ -101,7 +98,7 @@ Scalekit handles the complex authentication flow while you focus on your core pr
    SCALEKIT_ENVIRONMENT_URL=<your-environment-url>
    SCALEKIT_CLIENT_ID=<your-client-id>
    SCALEKIT_CLIENT_SECRET=<your-client-secret>
-   COOKIE_ENCRYPTION_SECRET=   # openssl rand -base64 32 — required for Node and Python session middleware
+   COOKIE_ENCRYPTION_SECRET=   # openssl rand -base64 32 — encrypts the session cookie
    REDIRECT_URI=http://localhost:3000/callback
    ```
 
@@ -111,11 +108,9 @@ Scalekit handles the complex authentication flow while you focus on your core pr
    - **Allowed callback URLs**: The endpoint where users are sent after successful authentication to exchange authorization codes and retrieve profile information. [Learn more](/guides/dashboard/redirects/#allowed-callback-urls)
    - **Initiate login URL**: The endpoint in your app that redirects users to Scalekit’s `/authorize` endpoint. Required when authentication is not initiated from your app, for example, when a user accepts an organization invitation or starts sign-in directly from their identity provider (IdP-initiated SSO). [Learn more](/guides/dashboard/redirects/#initiate-login-url)
 
-2. ## Start login
+2. ## Redirect users to sign up (or) login
 
-   Node.js and Python use session middleware. Construct the helper and protect one route. The helper registers `/login`, `/callback`, and `/logout` and writes `sk_session`.
-
-   Go and Java still build an authorization URL. See those tabs.
+   An authorization URL is an endpoint that redirects users to Scalekit's sign-in page. Use the Scalekit SDK to construct this URL with your redirect URI and required scopes.
 
    <Tabs syncKey="tech-stack">
    <TabItem value="node" label="Node.js">
@@ -269,9 +264,6 @@ Scalekit handles the complex authentication flow while you focus on your core pr
 
    </TabItem>
    </Tabs>
-
-   Django uses settings and `@login_required`. See [Django session middleware](/saaskit/sdks/django/).
-
    </TabItem>
    <TabItem value="go" label="Go">
    ```go wrap title="internal/http/auth.go"
@@ -326,8 +318,6 @@ Scalekit handles the complex authentication flow while you focus on your core pr
 
     After successful authentication, Scalekit creates a user record and sends the user information to your callback endpoint.
     In authentication flow, Scalekit redirects to your callback URL with an authorization code. Your application exchanges this code for the user's profile information and session tokens.
-
-   Node.js and Python already registered `/callback` in step 2. The helper writes `sk_session`. Go and Java exchange the code below.
 
    <Tabs syncKey="tech-stack">
    <TabItem value="node" label="Node.js">
@@ -496,7 +486,7 @@ Scalekit handles the complex authentication flow while you focus on your core pr
 
       The access token is a JWT that contains the user's permissions and roles. It expires in 5 minutes (default) but [can be configured](/authenticate/fsa/manage-session/#configure-session-security-and-duration). When it expires, use the refresh token to obtain a new access token. The refresh token is long-lived and designed for this purpose.
 
-      Node.js and Python store the session in `sk_session` and refresh it. Protect a route with the helper. Go and Java set cookies below.
+      The Scalekit SDK provides methods to refresh access tokens automatically. However, you must log the user out when the refresh token itself expires or becomes invalid.
 
       <Tabs syncKey="tech-stack">
         <TabItem value="node" label="Node.js">
@@ -607,7 +597,7 @@ Scalekit handles the complex authentication flow while you focus on your core pr
         </TabItem>
       </Tabs>
 
-      The same helper refreshes `sk_session` on the next request. Go and Java verify tokens below.
+      This sets browser cookies with the session tokens. Every request to your backend needs to verify the `accessToken` to ensure the user is authenticated. If expired, use the `refreshToken` to get a new access token.
 
       <Tabs syncKey="tech-stack">
         <TabItem value="node" label="Node.js">
@@ -841,8 +831,6 @@ Scalekit handles the complex authentication flow while you focus on your core pr
 
       Session persistence depends on the session policy configured in the Scalekit dashboard.
       To log out a user, clear local session data and invalidate the user's session in Scalekit.
-
-      Node.js and Python already registered `GET /logout`. Send the browser there.
 
       <Tabs syncKey="tech-stack">
         <TabItem value="node" label="Node.js">
