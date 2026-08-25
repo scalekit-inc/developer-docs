@@ -7,6 +7,16 @@ export interface ProviderMeta {
 }
 
 export const catalog: Record<string, ProviderMeta> = {
+  clickupmcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/clickup.svg',
+    authType: 'OAuth 2.1/DCR',
+    categories: ['Project Management', 'Productivity', 'Collaboration'],
+  },
+  supabasemcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/supabase.svg',
+    authType: 'OAuth 2.1/DCR',
+    categories: ['Databases', 'Developer Tools'],
+  },
   googlecontacts: {
     iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/googlecontacts.svg',
     authType: 'OAuth 2.0',

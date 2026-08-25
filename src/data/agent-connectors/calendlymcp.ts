@@ -245,6 +245,42 @@ Then: Re-read schedule with \`event_types-list_event_type_availability_schedule\
     ],
   },
   {
+    name: 'calendlymcp_list_calendly_skills',
+    description: `List or search available Calendly skill guides. Each skill gives domain-specific context, recommended tool usage, and best practices for working with Calendly MCP tools. Call this when the user's goal has no obvious single tool (e.g. reschedule or move a meeting). Load a matching skill before using related workflow tools. Use \`keywords\` to search by name or description (any keyword may match), and \`include_header=true\` to include each skill's description and related skills.`,
+    params: [
+      {
+        name: 'include_header',
+        type: 'boolean',
+        required: false,
+        description: `Include each skill's description and related skills in the results.`,
+      },
+      {
+        name: 'keywords',
+        type: 'string',
+        required: false,
+        description: `Keywords to search skill names and descriptions by. Any keyword may match.`,
+      },
+    ],
+  },
+  {
+    name: 'calendlymcp_load_calendly_skill',
+    description: `Load a Calendly skill guide that provides domain-specific context, recommended queries, and best practices for working with Calendly tools. Required after listing when a skill matches; do not guess multi-step flows from tool names alone. Use \`list_calendly_skills\` to discover available skills, or load directly by name. Set \`header_only=true\` to preview a skill's description and related skills without loading full content.`,
+    params: [
+      {
+        name: 'skill_name',
+        type: 'string',
+        required: true,
+        description: `Name of the skill to load.`,
+      },
+      {
+        name: 'header_only',
+        type: 'boolean',
+        required: false,
+        description: `Preview only the skill's description and related skills without loading full content.`,
+      },
+    ],
+  },
+  {
     name: 'calendlymcp_locations_list_user_meeting_locations',
     description: `Use: List allowed meeting location kinds for a user.
 When: Before creating bookings that need a \`location\` payload.

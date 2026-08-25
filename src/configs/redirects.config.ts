@@ -413,6 +413,7 @@ export const redirects = {
   '/agentkit/frameworks/vercel-ai': '/agentkit/examples/vercel-ai/',
 
   // Agent connectors redirects
+  '/agentkit/connectors/google_ads': '/agentkit/connectors/googleads/',
   '/reference/agent-connectors/[...slug]': '/agentkit/connectors/[...slug]',
   '/reference/agent-connectors': '/agentkit/connectors/',
   '/connectors': '/agentkit/connectors/',
