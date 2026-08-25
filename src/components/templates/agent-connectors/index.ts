@@ -180,7 +180,6 @@ export { default as SectionAfterSetupFreshdeskCommonWorkflows } from './_section
 export { default as SectionAfterSetupGithubCommonWorkflows } from './_section-after-setup-github-common-workflows.mdx'
 export { default as SectionAfterSetupGmailCommonWorkflows } from './_section-after-setup-gmail-common-workflows.mdx'
 export { default as SectionAfterSetupGongCommonWorkflows } from './_section-after-setup-gong-common-workflows.mdx'
-export { default as SectionAfterSetupGoogleAdsCommonWorkflows } from './_section-after-setup-google_ads-common-workflows.mdx'
 export { default as SectionAfterSetupGooglecalendarCommonWorkflows } from './_section-after-setup-googlecalendar-common-workflows.mdx'
 export { default as SectionAfterSetupGoogledocsCommonWorkflows } from './_section-after-setup-googledocs-common-workflows.mdx'
 export { default as SectionAfterSetupGoogledriveCommonWorkflows } from './_section-after-setup-googledrive-common-workflows.mdx'

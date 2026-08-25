@@ -1099,7 +1099,6 @@ const NO_TOOL_VERIFY_ENDPOINTS = {
   confluence: { path: '/wiki/rest/api/user/current', method: 'GET' },
   dropbox: { path: '/2/users/get_current_account', method: 'POST' },
   fathom: { path: '/v1/users/me', method: 'GET' },
-  google_ads: { path: '/v17/customers', method: 'GET' },
   googlemeet: { path: '/v2/spaces', method: 'GET' },
   intercom: { path: '/me', method: 'GET' },
   microsoftexcel: { path: '/v1.0/me/drive/root/children', method: 'GET' },
