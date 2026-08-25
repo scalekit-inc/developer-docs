@@ -2,6 +2,102 @@ import type { Tool } from '../../types/agent-connectors'
 
 export const tools: Tool[] = [
   {
+    name: 'googleads_ad_group_asset_link',
+    description: `Attach an existing asset to an ad group so it can serve with that ad group, for example a sitelink, callout or structured snippet. Ad-group links override campaign-level links for the same field type. Create the asset first with the asset creation tool, then link it here. The link is immutable: to change which asset or field type is used, remove the link and create a new one.`,
+    params: [
+      {
+        name: 'ad_group',
+        type: 'string',
+        required: true,
+        description: `Resource name of the ad group to attach the asset to, in the format customers/{customer_id}/adGroups/{ad_group_id}. To find it from an ad group name, run the search tool with: SELECT ad_group.resource_name, ad_group.name FROM ad_group WHERE ad_group.name = 'Your Ad Group'. It is also returned when an ad group is created.`,
+      },
+      {
+        name: 'asset',
+        type: 'string',
+        required: true,
+        description: `Resource name of the asset to attach, in the format customers/{customer_id}/assets/{asset_id}. Returned when the asset is created. To find an existing one, run the search tool with: SELECT asset.resource_name, asset.name, asset.type FROM asset. The asset must already be of the type this link needs - sitelink, callout, structured snippet, call, price, promotion, mobile app and hotel callout assets have to exist in the account already, as the asset creation tool only makes text, image and YouTube video assets.`,
+      },
+      {
+        name: 'field_type',
+        type: 'string',
+        required: true,
+        description: `How the asset is used by the ad group. Must match the asset's own type - a SitelinkAsset can only be linked as SITELINK, a CalloutAsset as CALLOUT, and so on.`,
+      },
+      {
+        name: 'customer_id',
+        type: 'string',
+        required: false,
+        description: `Google Ads customer account ID to operate on (digits only, no hyphens). Defaults to the Google Ads Customer ID entered when the account was connected; set it only to target a different account, e.g. a specific client account under a manager (MCC).`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution`,
+      },
+    ],
+  },
+  {
+    name: 'googleads_ad_group_bid_modifier',
+    description: `Create, update or remove an ad-group-level bid adjustment, so bids are raised or lowered for a segment such as a device type. A bid modifier of 1.5 bids 50% more, 0.5 bids 50% less, and 0 opts the segment out entirely. CREATE needs the ad group and the device; UPDATE and REMOVE need the bid modifier resource name. The device cannot be changed after creation - remove the modifier and create a new one instead.`,
+    params: [
+      {
+        name: 'operation',
+        type: 'string',
+        required: true,
+        description: `Which action to perform. CREATE adds a new bid modifier, UPDATE changes the multiplier on an existing one, REMOVE deletes it.`,
+      },
+      {
+        name: 'ad_group',
+        type: 'string',
+        required: false,
+        description: `Resource name of the ad group the adjustment applies to, in the format customers/{customer_id}/adGroups/{ad_group_id}. Required for CREATE. To find it, run the search tool with: SELECT ad_group.resource_name, ad_group.name FROM ad_group WHERE ad_group.name = 'Your Ad Group'.`,
+      },
+      {
+        name: 'bid_modifier',
+        type: 'number',
+        required: false,
+        description: `Bid multiplier applied when the criterion matches. Google requires it to be in the range 0.1 - 10.0, or exactly 0 to opt out of the device type entirely. 1.5 bids 50% more, 0.5 bids 50% less, 1.0 leaves bids unchanged. Required for CREATE and UPDATE; it is the only field UPDATE can change.`,
+      },
+      {
+        name: 'customer_id',
+        type: 'string',
+        required: false,
+        description: `Google Ads customer account ID to operate on (digits only, no hyphens). Defaults to the Google Ads Customer ID entered when the account was connected; set it only to target a different account, e.g. a specific client account under a manager (MCC).`,
+      },
+      {
+        name: 'device',
+        type: 'string',
+        required: false,
+        description: `Device type the adjustment applies to. Required for CREATE and immutable afterwards.`,
+      },
+      {
+        name: 'resource_name',
+        type: 'string',
+        required: false,
+        description: `Resource name of an existing bid modifier, in the format customers/{customer_id}/adGroupBidModifiers/{ad_group_id}~{criterion_id}. Required for UPDATE and REMOVE. To find it, run the search tool with: SELECT ad_group_bid_modifier.resource_name, ad_group_bid_modifier.bid_modifier, ad_group_bid_modifier.device.type FROM ad_group_bid_modifier WHERE ad_group.id = AD_GROUP_ID.`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Optional schema version to use for tool execution`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution`,
+      },
+    ],
+  },
+  {
     name: 'googleads_ad_group_create',
     description: `Create a new ad group within an existing campaign. Ad groups contain ads and keywords that share targeting and bid settings.`,
     params: [
@@ -10,18 +106,6 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `Resource name of the campaign to add the ad group to, in the format customers/{customer_id}/campaigns/{campaign_id}.`,
-      },
-      {
-        name: 'customer_id',
-        type: 'string',
-        required: true,
-        description: `Google Ads customer account ID (without hyphens), visible in the top-right of the Google Ads UI.`,
-      },
-      {
-        name: 'developer_token',
-        type: 'string',
-        required: true,
-        description: `Google Ads API developer token required for all API calls. Obtain from your Google Ads API Center.`,
       },
       {
         name: 'name',
@@ -48,10 +132,10 @@ export const tools: Tool[] = [
         description: `Default cost-per-thousand-impressions bid in micros for Display campaigns.`,
       },
       {
-        name: 'login_customer_id',
+        name: 'customer_id',
         type: 'string',
         required: false,
-        description: `Manager account customer ID when accessing via a Google Ads manager (MCC) account. Omit if accessing a standalone account directly.`,
+        description: `Google Ads customer account ID to operate on (digits only, no hyphens). Defaults to the Google Ads Customer ID entered when the account was connected; set it only to target a different account, e.g. a specific client account under a manager (MCC).`,
       },
       {
         name: 'schema_version',
@@ -80,36 +164,6 @@ export const tools: Tool[] = [
     ],
   },
   {
-    name: 'googleads_ad_group_get',
-    description: `Retrieve the full details of a single Google Ads ad group by ID, including its status, campaign, targeting type, and default bid amounts.`,
-    params: [
-      {
-        name: 'ad_group_id',
-        type: 'string',
-        required: true,
-        description: `ID of the ad group to retrieve.`,
-      },
-      {
-        name: 'customer_id',
-        type: 'string',
-        required: true,
-        description: `Google Ads customer account ID (without hyphens) that owns the ad group.`,
-      },
-      {
-        name: 'developer_token',
-        type: 'string',
-        required: true,
-        description: `Google Ads API developer token required for all API calls. Obtain from your Google Ads API Center.`,
-      },
-      {
-        name: 'login_customer_id',
-        type: 'string',
-        required: false,
-        description: `Manager account customer ID when accessing via a Google Ads manager (MCC) account. Omit if accessing a standalone account directly.`,
-      },
-    ],
-  },
-  {
     name: 'googleads_ad_group_label_create',
     description: `Apply a label to an ad group for organization and filtering. Labels help categorize ad groups and make them easier to find and manage in the Google Ads UI.`,
     params: [
@@ -120,28 +174,16 @@ export const tools: Tool[] = [
         description: `Resource name of the ad group to apply the label to, in the format customers/{customer_id}/adGroups/{ad_group_id}.`,
       },
       {
-        name: 'customer_id',
-        type: 'string',
-        required: true,
-        description: `Google Ads customer account ID (without hyphens), visible in the top-right of the Google Ads UI.`,
-      },
-      {
-        name: 'developer_token',
-        type: 'string',
-        required: true,
-        description: `Google Ads API developer token required for all API calls. Obtain from your Google Ads API Center.`,
-      },
-      {
         name: 'label',
         type: 'string',
         required: true,
         description: `Resource name of the label to apply, in the format customers/{customer_id}/labels/{label_id}.`,
       },
       {
-        name: 'login_customer_id',
+        name: 'customer_id',
         type: 'string',
         required: false,
-        description: `Manager account customer ID when accessing via a Google Ads manager (MCC) account. Omit if accessing a standalone account directly.`,
+        description: `Google Ads customer account ID to operate on (digits only, no hyphens). Defaults to the Google Ads Customer ID entered when the account was connected; set it only to target a different account, e.g. a specific client account under a manager (MCC).`,
       },
       {
         name: 'schema_version',
@@ -162,28 +204,16 @@ export const tools: Tool[] = [
     description: `Remove an ad group and all its ads and keywords permanently. This action cannot be undone.`,
     params: [
       {
-        name: 'customer_id',
-        type: 'string',
-        required: true,
-        description: `Google Ads customer account ID (without hyphens), visible in the top-right of the Google Ads UI.`,
-      },
-      {
-        name: 'developer_token',
-        type: 'string',
-        required: true,
-        description: `Google Ads API developer token required for all API calls. Obtain from your Google Ads API Center.`,
-      },
-      {
         name: 'resource_name',
         type: 'string',
         required: true,
         description: `Resource name of the ad group to remove, in the format customers/{customer_id}/adGroups/{ad_group_id}.`,
       },
       {
-        name: 'login_customer_id',
+        name: 'customer_id',
         type: 'string',
         required: false,
-        description: `Manager account customer ID when accessing via a Google Ads manager (MCC) account. Omit if accessing a standalone account directly.`,
+        description: `Google Ads customer account ID to operate on (digits only, no hyphens). Defaults to the Google Ads Customer ID entered when the account was connected; set it only to target a different account, e.g. a specific client account under a manager (MCC).`,
       },
       {
         name: 'schema_version',
@@ -204,18 +234,6 @@ export const tools: Tool[] = [
     description: `Update an ad group's name, status, or default bid amounts. Only the fields you provide will be updated.`,
     params: [
       {
-        name: 'customer_id',
-        type: 'string',
-        required: true,
-        description: `Google Ads customer account ID (without hyphens), visible in the top-right of the Google Ads UI.`,
-      },
-      {
-        name: 'developer_token',
-        type: 'string',
-        required: true,
-        description: `Google Ads API developer token required for all API calls. Obtain from your Google Ads API Center.`,
-      },
-      {
         name: 'resource_name',
         type: 'string',
         required: true,
@@ -228,10 +246,10 @@ export const tools: Tool[] = [
         description: `New default CPC bid in micros for this ad group. 1,000,000 micros = $1.00.`,
       },
       {
-        name: 'login_customer_id',
+        name: 'customer_id',
         type: 'string',
         required: false,
-        description: `Manager account customer ID when accessing via a Google Ads manager (MCC) account. Omit if accessing a standalone account directly.`,
+        description: `Google Ads customer account ID to operate on (digits only, no hyphens). Defaults to the Google Ads Customer ID entered when the account was connected; set it only to target a different account, e.g. a specific client account under a manager (MCC).`,
       },
       { name: 'name', type: 'string', required: false, description: `New name for the ad group.` },
       {
@@ -259,28 +277,16 @@ export const tools: Tool[] = [
     description: `Remove an ad from an ad group permanently. The ad will no longer serve and cannot be recovered.`,
     params: [
       {
-        name: 'customer_id',
-        type: 'string',
-        required: true,
-        description: `Google Ads customer account ID (without hyphens), visible in the top-right of the Google Ads UI.`,
-      },
-      {
-        name: 'developer_token',
-        type: 'string',
-        required: true,
-        description: `Google Ads API developer token required for all API calls. Obtain from your Google Ads API Center.`,
-      },
-      {
         name: 'resource_name',
         type: 'string',
         required: true,
         description: `Resource name of the ad to remove, in the format customers/{customer_id}/adGroupAds/{ad_group_id}~{ad_id}.`,
       },
       {
-        name: 'login_customer_id',
+        name: 'customer_id',
         type: 'string',
         required: false,
-        description: `Manager account customer ID when accessing via a Google Ads manager (MCC) account. Omit if accessing a standalone account directly.`,
+        description: `Google Ads customer account ID to operate on (digits only, no hyphens). Defaults to the Google Ads Customer ID entered when the account was connected; set it only to target a different account, e.g. a specific client account under a manager (MCC).`,
       },
       {
         name: 'schema_version',
@@ -301,18 +307,6 @@ export const tools: Tool[] = [
     description: `Update the status of an ad group ad. Use this to enable, pause, or mark an ad for removal without deleting it.`,
     params: [
       {
-        name: 'customer_id',
-        type: 'string',
-        required: true,
-        description: `Google Ads customer account ID (without hyphens), visible in the top-right of the Google Ads UI.`,
-      },
-      {
-        name: 'developer_token',
-        type: 'string',
-        required: true,
-        description: `Google Ads API developer token required for all API calls. Obtain from your Google Ads API Center.`,
-      },
-      {
         name: 'resource_name',
         type: 'string',
         required: true,
@@ -325,10 +319,10 @@ export const tools: Tool[] = [
         description: `New status for the ad. ENABLED serves the ad; PAUSED stops it; REMOVED permanently removes it.`,
       },
       {
-        name: 'login_customer_id',
+        name: 'customer_id',
         type: 'string',
         required: false,
-        description: `Manager account customer ID when accessing via a Google Ads manager (MCC) account. Omit if accessing a standalone account directly.`,
+        description: `Google Ads customer account ID to operate on (digits only, no hyphens). Defaults to the Google Ads Customer ID entered when the account was connected; set it only to target a different account, e.g. a specific client account under a manager (MCC).`,
       },
       {
         name: 'schema_version',
@@ -357,26 +351,14 @@ export const tools: Tool[] = [
       {
         name: 'customer_id',
         type: 'string',
-        required: true,
-        description: `Google Ads customer account ID (without hyphens), visible in the top-right of the Google Ads UI.`,
-      },
-      {
-        name: 'developer_token',
-        type: 'string',
-        required: true,
-        description: `Google Ads API developer token required for all API calls. Obtain from your Google Ads API Center.`,
+        required: false,
+        description: `Google Ads customer account ID to operate on (digits only, no hyphens). Defaults to the Google Ads Customer ID entered when the account was connected; set it only to target a different account, e.g. a specific client account under a manager (MCC).`,
       },
       {
         name: 'image_url',
         type: 'string',
         required: false,
         description: `URL of the image to use for IMAGE type assets. The image will be downloaded and uploaded to Google Ads.`,
-      },
-      {
-        name: 'login_customer_id',
-        type: 'string',
-        required: false,
-        description: `Manager account customer ID when accessing via a Google Ads manager (MCC) account. Omit if accessing a standalone account directly.`,
       },
       {
         name: 'name',
@@ -415,18 +397,6 @@ export const tools: Tool[] = [
     description: `Create a shared portfolio bidding strategy that can be applied to multiple campaigns. Portfolio strategies allow centralized bid management across campaigns.`,
     params: [
       {
-        name: 'customer_id',
-        type: 'string',
-        required: true,
-        description: `Google Ads customer account ID (without hyphens), visible in the top-right of the Google Ads UI.`,
-      },
-      {
-        name: 'developer_token',
-        type: 'string',
-        required: true,
-        description: `Google Ads API developer token required for all API calls. Obtain from your Google Ads API Center.`,
-      },
-      {
         name: 'name',
         type: 'string',
         required: true,
@@ -451,10 +421,10 @@ export const tools: Tool[] = [
         description: `Minimum CPC bid floor in micros. Bids will not go below this value.`,
       },
       {
-        name: 'login_customer_id',
+        name: 'customer_id',
         type: 'string',
         required: false,
-        description: `Manager account customer ID when accessing via a Google Ads manager (MCC) account. Omit if accessing a standalone account directly.`,
+        description: `Google Ads customer account ID to operate on (digits only, no hyphens). Defaults to the Google Ads Customer ID entered when the account was connected; set it only to target a different account, e.g. a specific client account under a manager (MCC).`,
       },
       {
         name: 'schema_version',
@@ -487,28 +457,16 @@ export const tools: Tool[] = [
     description: `Update a portfolio bidding strategy's name or target values. Only the fields you provide will be updated.`,
     params: [
       {
-        name: 'customer_id',
-        type: 'string',
-        required: true,
-        description: `Google Ads customer account ID (without hyphens), visible in the top-right of the Google Ads UI.`,
-      },
-      {
-        name: 'developer_token',
-        type: 'string',
-        required: true,
-        description: `Google Ads API developer token required for all API calls. Obtain from your Google Ads API Center.`,
-      },
-      {
         name: 'resource_name',
         type: 'string',
         required: true,
         description: `Resource name of the bidding strategy to update, in the format customers/{customer_id}/biddingStrategies/{bidding_strategy_id}.`,
       },
       {
-        name: 'login_customer_id',
+        name: 'customer_id',
         type: 'string',
         required: false,
-        description: `Manager account customer ID when accessing via a Google Ads manager (MCC) account. Omit if accessing a standalone account directly.`,
+        description: `Google Ads customer account ID to operate on (digits only, no hyphens). Defaults to the Google Ads Customer ID entered when the account was connected; set it only to target a different account, e.g. a specific client account under a manager (MCC).`,
       },
       {
         name: 'name',
@@ -553,22 +511,16 @@ export const tools: Tool[] = [
         description: `Daily budget amount in micros. 1,000,000 micros = $1.00. For a $10/day budget, enter 10000000.`,
       },
       {
-        name: 'customer_id',
-        type: 'string',
-        required: true,
-        description: `Google Ads customer account ID (without hyphens), visible in the top-right of the Google Ads UI.`,
-      },
-      {
-        name: 'developer_token',
-        type: 'string',
-        required: true,
-        description: `Google Ads API developer token required for all API calls. Obtain from your Google Ads API Center.`,
-      },
-      {
         name: 'name',
         type: 'string',
         required: true,
         description: `Name of the campaign budget. Must be unique within the account.`,
+      },
+      {
+        name: 'customer_id',
+        type: 'string',
+        required: false,
+        description: `Google Ads customer account ID to operate on (digits only, no hyphens). Defaults to the Google Ads Customer ID entered when the account was connected; set it only to target a different account, e.g. a specific client account under a manager (MCC).`,
       },
       {
         name: 'delivery_method',
@@ -581,12 +533,6 @@ export const tools: Tool[] = [
         type: 'boolean',
         required: false,
         description: `Whether this budget is explicitly shared across campaigns. If false, the budget is exclusive to a single campaign.`,
-      },
-      {
-        name: 'login_customer_id',
-        type: 'string',
-        required: false,
-        description: `Manager account customer ID when accessing via a Google Ads manager (MCC) account. Omit if accessing a standalone account directly.`,
       },
       {
         name: 'schema_version',
@@ -607,28 +553,16 @@ export const tools: Tool[] = [
     description: `Remove a campaign budget permanently. The budget must not be linked to any active campaigns before removal.`,
     params: [
       {
-        name: 'customer_id',
-        type: 'string',
-        required: true,
-        description: `Google Ads customer account ID (without hyphens), visible in the top-right of the Google Ads UI.`,
-      },
-      {
-        name: 'developer_token',
-        type: 'string',
-        required: true,
-        description: `Google Ads API developer token required for all API calls. Obtain from your Google Ads API Center.`,
-      },
-      {
         name: 'resource_name',
         type: 'string',
         required: true,
         description: `Resource name of the budget to remove, in the format customers/{customer_id}/campaignBudgets/{budget_id}.`,
       },
       {
-        name: 'login_customer_id',
+        name: 'customer_id',
         type: 'string',
         required: false,
-        description: `Manager account customer ID when accessing via a Google Ads manager (MCC) account. Omit if accessing a standalone account directly.`,
+        description: `Google Ads customer account ID to operate on (digits only, no hyphens). Defaults to the Google Ads Customer ID entered when the account was connected; set it only to target a different account, e.g. a specific client account under a manager (MCC).`,
       },
       {
         name: 'schema_version',
@@ -649,18 +583,6 @@ export const tools: Tool[] = [
     description: `Update an existing campaign budget's name, daily amount, or delivery method. Only the fields you provide will be updated.`,
     params: [
       {
-        name: 'customer_id',
-        type: 'string',
-        required: true,
-        description: `Google Ads customer account ID (without hyphens), visible in the top-right of the Google Ads UI.`,
-      },
-      {
-        name: 'developer_token',
-        type: 'string',
-        required: true,
-        description: `Google Ads API developer token required for all API calls. Obtain from your Google Ads API Center.`,
-      },
-      {
         name: 'resource_name',
         type: 'string',
         required: true,
@@ -673,16 +595,16 @@ export const tools: Tool[] = [
         description: `New daily budget amount in micros. 1,000,000 micros = $1.00. For a $10/day budget, enter 10000000.`,
       },
       {
+        name: 'customer_id',
+        type: 'string',
+        required: false,
+        description: `Google Ads customer account ID to operate on (digits only, no hyphens). Defaults to the Google Ads Customer ID entered when the account was connected; set it only to target a different account, e.g. a specific client account under a manager (MCC).`,
+      },
+      {
         name: 'delivery_method',
         type: 'string',
         required: false,
         description: `Budget delivery method. STANDARD spreads budget evenly throughout the day. ACCELERATED spends as fast as possible.`,
-      },
-      {
-        name: 'login_customer_id',
-        type: 'string',
-        required: false,
-        description: `Manager account customer ID when accessing via a Google Ads manager (MCC) account. Omit if accessing a standalone account directly.`,
       },
       {
         name: 'name',
@@ -705,32 +627,44 @@ export const tools: Tool[] = [
     ],
   },
   {
-    name: 'googleads_campaign_budget_get',
-    description: `Retrieve the full details of a single Google Ads campaign budget by ID, including its amount, delivery method, and whether it is shared across campaigns.`,
+    name: 'googleads_campaign_asset_link',
+    description: `Attach an existing asset to a campaign so it can serve with that campaign, for example a sitelink, callout, structured snippet or image. Create the asset first with the asset creation tool, then link it here. The link is immutable: to change which asset or field type is used, remove the link and create a new one.`,
     params: [
       {
-        name: 'budget_id',
+        name: 'asset',
         type: 'string',
         required: true,
-        description: `ID of the campaign budget to retrieve.`,
+        description: `Resource name of the asset to attach, in the format customers/{customer_id}/assets/{asset_id}. Returned when the asset is created. To find an existing one, run the search tool with: SELECT asset.resource_name, asset.name, asset.type FROM asset. The asset must already be of the type this link needs - sitelink, callout, structured snippet, call, price, promotion, mobile app and hotel callout assets have to exist in the account already, as the asset creation tool only makes text, image and YouTube video assets.`,
+      },
+      {
+        name: 'campaign',
+        type: 'string',
+        required: true,
+        description: `Resource name of the campaign to attach the asset to, in the format customers/{customer_id}/campaigns/{campaign_id}. To find it from a campaign name, run the search tool with: SELECT campaign.resource_name, campaign.name FROM campaign WHERE campaign.name = 'Your Campaign'. It is also returned when a campaign is created.`,
+      },
+      {
+        name: 'field_type',
+        type: 'string',
+        required: true,
+        description: `How the asset is used by the campaign. Must match the asset's own type - a SitelinkAsset can only be linked as SITELINK, a CalloutAsset as CALLOUT, and so on.`,
       },
       {
         name: 'customer_id',
         type: 'string',
-        required: true,
-        description: `Google Ads customer account ID (without hyphens) that owns the budget.`,
+        required: false,
+        description: `Google Ads customer account ID to operate on (digits only, no hyphens). Defaults to the Google Ads Customer ID entered when the account was connected; set it only to target a different account, e.g. a specific client account under a manager (MCC).`,
       },
       {
-        name: 'developer_token',
-        type: 'string',
-        required: true,
-        description: `Google Ads API developer token required for all API calls. Obtain from your Google Ads API Center.`,
-      },
-      {
-        name: 'login_customer_id',
+        name: 'schema_version',
         type: 'string',
         required: false,
-        description: `Manager account customer ID when accessing via a Google Ads manager (MCC) account. Omit if accessing a standalone account directly.`,
+        description: `Optional schema version to use for tool execution`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution`,
       },
     ],
   },
@@ -751,18 +685,6 @@ export const tools: Tool[] = [
         description: `Resource name of the campaign budget to link, in the format customers/{customer_id}/campaignBudgets/{budget_id}. Create a budget first using googleads_budget_create.`,
       },
       {
-        name: 'customer_id',
-        type: 'string',
-        required: true,
-        description: `Google Ads customer account ID (without hyphens), visible in the top-right of the Google Ads UI.`,
-      },
-      {
-        name: 'developer_token',
-        type: 'string',
-        required: true,
-        description: `Google Ads API developer token required for all API calls. Obtain from your Google Ads API Center.`,
-      },
-      {
         name: 'name',
         type: 'string',
         required: true,
@@ -775,16 +697,16 @@ export const tools: Tool[] = [
         description: `Bidding strategy type to use. TARGET_CPA=optimize for conversions at a target cost. TARGET_ROAS=optimize for revenue at a target return. MAXIMIZE_CLICKS=get the most clicks. MAXIMIZE_CONVERSIONS=get the most conversions. MANUAL_CPC=set bids manually.`,
       },
       {
+        name: 'customer_id',
+        type: 'string',
+        required: false,
+        description: `Google Ads customer account ID to operate on (digits only, no hyphens). Defaults to the Google Ads Customer ID entered when the account was connected; set it only to target a different account, e.g. a specific client account under a manager (MCC).`,
+      },
+      {
         name: 'end_date',
         type: 'string',
         required: false,
         description: `Campaign end date in YYYYMMDD format. Leave blank for campaigns with no end date.`,
-      },
-      {
-        name: 'login_customer_id',
-        type: 'string',
-        required: false,
-        description: `Manager account customer ID when accessing via a Google Ads manager (MCC) account. Omit if accessing a standalone account directly.`,
       },
       {
         name: 'schema_version',
@@ -847,22 +769,16 @@ export const tools: Tool[] = [
         description: `The type of targeting criterion to add. LOCATION=geographic targeting, DEVICE=device type targeting, KEYWORD=negative keyword exclusion, PLACEMENT=placement exclusion.`,
       },
       {
-        name: 'customer_id',
-        type: 'string',
-        required: true,
-        description: `Google Ads customer account ID (without hyphens), visible in the top-right of the Google Ads UI.`,
-      },
-      {
-        name: 'developer_token',
-        type: 'string',
-        required: true,
-        description: `Google Ads API developer token required for all API calls. Obtain from your Google Ads API Center.`,
-      },
-      {
         name: 'bid_modifier',
         type: 'number',
         required: false,
         description: `Bid modifier multiplier for this criterion. 1.5 means +50% bid, 0.5 means -50% bid. Only applicable to non-negative criteria.`,
+      },
+      {
+        name: 'customer_id',
+        type: 'string',
+        required: false,
+        description: `Google Ads customer account ID to operate on (digits only, no hyphens). Defaults to the Google Ads Customer ID entered when the account was connected; set it only to target a different account, e.g. a specific client account under a manager (MCC).`,
       },
       {
         name: 'device_type',
@@ -875,12 +791,6 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Geo target constant ID for LOCATION criterion. For example, 2840 = United States, 2826 = United Kingdom. Find IDs via the GeoTargetConstant resource.`,
-      },
-      {
-        name: 'login_customer_id',
-        type: 'string',
-        required: false,
-        description: `Manager account customer ID when accessing via a Google Ads manager (MCC) account. Omit if accessing a standalone account directly.`,
       },
       {
         name: 'negative',
@@ -907,28 +817,16 @@ export const tools: Tool[] = [
     description: `Remove a targeting criterion from a campaign. This removes the targeting or exclusion rule (e.g., location targeting, device bid modifier, or negative keyword) from the campaign.`,
     params: [
       {
-        name: 'customer_id',
-        type: 'string',
-        required: true,
-        description: `Google Ads customer account ID (without hyphens), visible in the top-right of the Google Ads UI.`,
-      },
-      {
-        name: 'developer_token',
-        type: 'string',
-        required: true,
-        description: `Google Ads API developer token required for all API calls. Obtain from your Google Ads API Center.`,
-      },
-      {
         name: 'resource_name',
         type: 'string',
         required: true,
         description: `Resource name of the campaign criterion to remove, in the format customers/{customer_id}/campaignCriteria/{campaign_id}~{criterion_id}.`,
       },
       {
-        name: 'login_customer_id',
+        name: 'customer_id',
         type: 'string',
         required: false,
-        description: `Manager account customer ID when accessing via a Google Ads manager (MCC) account. Omit if accessing a standalone account directly.`,
+        description: `Google Ads customer account ID to operate on (digits only, no hyphens). Defaults to the Google Ads Customer ID entered when the account was connected; set it only to target a different account, e.g. a specific client account under a manager (MCC).`,
       },
       {
         name: 'schema_version',
@@ -945,36 +843,6 @@ export const tools: Tool[] = [
     ],
   },
   {
-    name: 'googleads_campaign_get',
-    description: `Retrieve the full details of a single Google Ads campaign by ID, including its status, channel type, budget, and bidding strategy configuration.`,
-    params: [
-      {
-        name: 'campaign_id',
-        type: 'string',
-        required: true,
-        description: `ID of the campaign to retrieve.`,
-      },
-      {
-        name: 'customer_id',
-        type: 'string',
-        required: true,
-        description: `Google Ads customer account ID (without hyphens) that owns the campaign.`,
-      },
-      {
-        name: 'developer_token',
-        type: 'string',
-        required: true,
-        description: `Google Ads API developer token required for all API calls. Obtain from your Google Ads API Center.`,
-      },
-      {
-        name: 'login_customer_id',
-        type: 'string',
-        required: false,
-        description: `Manager account customer ID when accessing via a Google Ads manager (MCC) account. Omit if accessing a standalone account directly.`,
-      },
-    ],
-  },
-  {
     name: 'googleads_campaign_label_create',
     description: `Apply a label to a campaign for organization and filtering. Labels help categorize campaigns and make them easier to find and manage in the Google Ads UI.`,
     params: [
@@ -985,28 +853,16 @@ export const tools: Tool[] = [
         description: `Resource name of the campaign to apply the label to, in the format customers/{customer_id}/campaigns/{campaign_id}.`,
       },
       {
-        name: 'customer_id',
-        type: 'string',
-        required: true,
-        description: `Google Ads customer account ID (without hyphens), visible in the top-right of the Google Ads UI.`,
-      },
-      {
-        name: 'developer_token',
-        type: 'string',
-        required: true,
-        description: `Google Ads API developer token required for all API calls. Obtain from your Google Ads API Center.`,
-      },
-      {
         name: 'label',
         type: 'string',
         required: true,
         description: `Resource name of the label to apply, in the format customers/{customer_id}/labels/{label_id}.`,
       },
       {
-        name: 'login_customer_id',
+        name: 'customer_id',
         type: 'string',
         required: false,
-        description: `Manager account customer ID when accessing via a Google Ads manager (MCC) account. Omit if accessing a standalone account directly.`,
+        description: `Google Ads customer account ID to operate on (digits only, no hyphens). Defaults to the Google Ads Customer ID entered when the account was connected; set it only to target a different account, e.g. a specific client account under a manager (MCC).`,
       },
       {
         name: 'schema_version',
@@ -1027,28 +883,16 @@ export const tools: Tool[] = [
     description: `Remove (permanently delete) a Google Ads campaign and all its child ad groups and ads. This action cannot be undone.`,
     params: [
       {
-        name: 'customer_id',
-        type: 'string',
-        required: true,
-        description: `Google Ads customer account ID (without hyphens), visible in the top-right of the Google Ads UI.`,
-      },
-      {
-        name: 'developer_token',
-        type: 'string',
-        required: true,
-        description: `Google Ads API developer token required for all API calls. Obtain from your Google Ads API Center.`,
-      },
-      {
         name: 'resource_name',
         type: 'string',
         required: true,
         description: `Resource name of the campaign to remove, in the format customers/{customer_id}/campaigns/{campaign_id}.`,
       },
       {
-        name: 'login_customer_id',
+        name: 'customer_id',
         type: 'string',
         required: false,
-        description: `Manager account customer ID when accessing via a Google Ads manager (MCC) account. Omit if accessing a standalone account directly.`,
+        description: `Google Ads customer account ID to operate on (digits only, no hyphens). Defaults to the Google Ads Customer ID entered when the account was connected; set it only to target a different account, e.g. a specific client account under a manager (MCC).`,
       },
       {
         name: 'schema_version',
@@ -1069,18 +913,6 @@ export const tools: Tool[] = [
     description: `Update an existing Google Ads campaign's settings such as name, status, budget, or bidding strategy. Only the fields you provide will be updated.`,
     params: [
       {
-        name: 'customer_id',
-        type: 'string',
-        required: true,
-        description: `Google Ads customer account ID (without hyphens), visible in the top-right of the Google Ads UI.`,
-      },
-      {
-        name: 'developer_token',
-        type: 'string',
-        required: true,
-        description: `Google Ads API developer token required for all API calls. Obtain from your Google Ads API Center.`,
-      },
-      {
         name: 'resource_name',
         type: 'string',
         required: true,
@@ -1093,10 +925,10 @@ export const tools: Tool[] = [
         description: `New budget resource name to link, in the format customers/{customer_id}/campaignBudgets/{budget_id}.`,
       },
       {
-        name: 'login_customer_id',
+        name: 'customer_id',
         type: 'string',
         required: false,
-        description: `Manager account customer ID when accessing via a Google Ads manager (MCC) account. Omit if accessing a standalone account directly.`,
+        description: `Google Ads customer account ID to operate on (digits only, no hyphens). Defaults to the Google Ads Customer ID entered when the account was connected; set it only to target a different account, e.g. a specific client account under a manager (MCC).`,
       },
       {
         name: 'name',
@@ -1147,18 +979,6 @@ export const tools: Tool[] = [
         description: `Category that best describes the conversion. PURCHASE=e-commerce transactions, SIGNUP=account registrations, LEAD=lead form submissions, CONTACT=contact page actions, PHONE_CALL_LEAD=phone call initiated, PAGE_VIEW=page views, OTHER=custom conversions.`,
       },
       {
-        name: 'customer_id',
-        type: 'string',
-        required: true,
-        description: `Google Ads customer account ID (without hyphens), visible in the top-right of the Google Ads UI.`,
-      },
-      {
-        name: 'developer_token',
-        type: 'string',
-        required: true,
-        description: `Google Ads API developer token required for all API calls. Obtain from your Google Ads API Center.`,
-      },
-      {
         name: 'name',
         type: 'string',
         required: true,
@@ -1183,10 +1003,10 @@ export const tools: Tool[] = [
         description: `How conversions are counted. ONE_PER_CLICK counts at most one conversion per ad click. MANY_PER_CLICK counts all conversions per click (useful for purchases where a user might buy multiple times).`,
       },
       {
-        name: 'login_customer_id',
+        name: 'customer_id',
         type: 'string',
         required: false,
-        description: `Manager account customer ID when accessing via a Google Ads manager (MCC) account. Omit if accessing a standalone account directly.`,
+        description: `Google Ads customer account ID to operate on (digits only, no hyphens). Defaults to the Google Ads Customer ID entered when the account was connected; set it only to target a different account, e.g. a specific client account under a manager (MCC).`,
       },
       {
         name: 'schema_version',
@@ -1225,18 +1045,6 @@ export const tools: Tool[] = [
     description: `Update a conversion action's name, status, default value, or counting type. Only the fields you provide will be updated.`,
     params: [
       {
-        name: 'customer_id',
-        type: 'string',
-        required: true,
-        description: `Google Ads customer account ID (without hyphens), visible in the top-right of the Google Ads UI.`,
-      },
-      {
-        name: 'developer_token',
-        type: 'string',
-        required: true,
-        description: `Google Ads API developer token required for all API calls. Obtain from your Google Ads API Center.`,
-      },
-      {
         name: 'resource_name',
         type: 'string',
         required: true,
@@ -1249,10 +1057,10 @@ export const tools: Tool[] = [
         description: `Updated counting type. ONE_PER_CLICK counts at most one conversion per ad click. MANY_PER_CLICK counts all conversions per click.`,
       },
       {
-        name: 'login_customer_id',
+        name: 'customer_id',
         type: 'string',
         required: false,
-        description: `Manager account customer ID when accessing via a Google Ads manager (MCC) account. Omit if accessing a standalone account directly.`,
+        description: `Google Ads customer account ID to operate on (digits only, no hyphens). Defaults to the Google Ads Customer ID entered when the account was connected; set it only to target a different account, e.g. a specific client account under a manager (MCC).`,
       },
       {
         name: 'name',
@@ -1287,26 +1095,50 @@ export const tools: Tool[] = [
     ],
   },
   {
-    name: 'googleads_customer_get',
-    description: `Retrieve details for a single Google Ads customer account, including its descriptive name, currency code, time zone, and manager status. Complements googleads_customers_list, which only returns accessible resource names.`,
+    name: 'googleads_customer_list_members_mutate',
+    description: `Add or remove members of a Customer Match user list by uploading already-hashed contact details. The list must be a CRM-based (Customer Match) user list; a basic remarketing list cannot accept members. Each email or phone number is treated as one person, and Google caps a single upload at 10 people, so send large audiences in batches. Values must be normalised then SHA-256 hashed and hex encoded before they are passed in: trim whitespace, lowercase the whole value, and put phone numbers in E.164 form first. This service does not update the "Segment members" count shown in the Google Ads UI.`,
     params: [
+      {
+        name: 'operation',
+        type: 'string',
+        required: true,
+        description: `Whether to add the supplied people to the list or remove them from it.`,
+      },
+      {
+        name: 'user_list',
+        type: 'string',
+        required: true,
+        description: `Resource name of the Customer Match user list to modify, in the format customers/{customer_id}/userLists/{user_list_id}. It must be a CRM-based list; a basic remarketing list cannot hold uploaded members and will be rejected. To find eligible lists, run the search tool with: SELECT user_list.resource_name, user_list.name FROM user_list WHERE user_list.type = 'CRM_BASED'.`,
+      },
       {
         name: 'customer_id',
         type: 'string',
-        required: true,
-        description: `Google Ads customer account ID (without hyphens) to retrieve.`,
+        required: false,
+        description: `Google Ads customer account ID to operate on (digits only, no hyphens). Defaults to the Google Ads Customer ID entered when the account was connected; set it only to target a different account, e.g. a specific client account under a manager (MCC).`,
       },
       {
-        name: 'developer_token',
-        type: 'string',
-        required: true,
-        description: `Google Ads API developer token required for all API calls. Obtain from your Google Ads API Center.`,
+        name: 'hashed_emails',
+        type: 'array',
+        required: false,
+        description: `Email addresses of the people to add or remove, each normalised then SHA-256 hashed and hex encoded. Normalise by removing leading and trailing whitespace and lowercasing the whole address; additionally, for gmail.com and googlemail.com addresses only, strip every period from the part before the @ and drop the + together with everything after it, so Jane.Doe+Shop@gmail.com is hashed as janedoe@gmail.com. Skipping those Gmail rules produces a hash that silently fails to match anyone. Each entry counts as one person.`,
       },
       {
-        name: 'login_customer_id',
+        name: 'hashed_phone_numbers',
+        type: 'array',
+        required: false,
+        description: `Phone numbers of the people to add or remove, each converted to E.164 format with a leading + and the country code (for example +14155550123), then SHA-256 hashed and hex encoded. Each entry counts as one person.`,
+      },
+      {
+        name: 'schema_version',
         type: 'string',
         required: false,
-        description: `Manager account customer ID when accessing via a Google Ads manager (MCC) account. Omit if accessing a standalone account directly.`,
+        description: `Optional schema version to use for tool execution`,
+      },
+      {
+        name: 'tool_version',
+        type: 'string',
+        required: false,
+        description: `Optional tool version to use for execution`,
       },
     ],
   },
@@ -1314,18 +1146,6 @@ export const tools: Tool[] = [
     name: 'googleads_customers_list',
     description: `List all Google Ads customer accounts accessible with the current OAuth credentials. Returns resource names for all accounts the authenticated user can access.`,
     params: [
-      {
-        name: 'developer_token',
-        type: 'string',
-        required: true,
-        description: `Google Ads API developer token required for all API calls. Obtain from your Google Ads API Center.`,
-      },
-      {
-        name: 'login_customer_id',
-        type: 'string',
-        required: false,
-        description: `Manager account customer ID when accessing via a Google Ads manager (MCC) account. Omit if accessing a standalone account directly.`,
-      },
       {
         name: 'schema_version',
         type: 'string',
@@ -1345,16 +1165,10 @@ export const tools: Tool[] = [
     description: `Look up Google Ads geo target constant resource names for location names (cities, regions, countries) or geo-target IDs. Use this to resolve human-readable place names into the geoTargetConstants resource names required by googleads_keyword_ideas_generate and location targeting.`,
     params: [
       {
-        name: 'developer_token',
-        type: 'string',
-        required: true,
-        description: `Google Ads API developer token required for all API calls. Obtain from your Google Ads API Center.`,
-      },
-      {
         name: 'geo_target_ids',
-        type: 'string',
+        type: 'array',
         required: false,
-        description: `JSON array of known geo target IDs to resolve directly into geoTargetConstants resource names.`,
+        description: `List of known geo target IDs to resolve directly into geoTargetConstants resource names.`,
       },
       {
         name: 'locale',
@@ -1364,15 +1178,9 @@ export const tools: Tool[] = [
       },
       {
         name: 'location_names',
-        type: 'string',
+        type: 'array',
         required: false,
-        description: `JSON array of free-text location names to resolve, such as city, region, or country names. Provide either location_names or geo_target_ids (or both).`,
-      },
-      {
-        name: 'login_customer_id',
-        type: 'string',
-        required: false,
-        description: `Manager account customer ID when accessing via a Google Ads manager (MCC) account. Omit if accessing a standalone account directly.`,
+        description: `List of free-text location names to resolve, such as city, region, or country names. Provide either location_names or geo_target_ids (or both).`,
       },
     ],
   },
@@ -1385,18 +1193,6 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `Resource name of the ad group to add the keyword to, in the format customers/{customer_id}/adGroups/{ad_group_id}.`,
-      },
-      {
-        name: 'customer_id',
-        type: 'string',
-        required: true,
-        description: `Google Ads customer account ID (without hyphens), visible in the top-right of the Google Ads UI.`,
-      },
-      {
-        name: 'developer_token',
-        type: 'string',
-        required: true,
-        description: `Google Ads API developer token required for all API calls. Obtain from your Google Ads API Center.`,
       },
       {
         name: 'keyword_text',
@@ -1417,10 +1213,10 @@ export const tools: Tool[] = [
         description: `CPC bid for this keyword in micros. 1,000,000 micros = $1.00. Overrides the ad group default bid.`,
       },
       {
-        name: 'login_customer_id',
+        name: 'customer_id',
         type: 'string',
         required: false,
-        description: `Manager account customer ID when accessing via a Google Ads manager (MCC) account. Omit if accessing a standalone account directly.`,
+        description: `Google Ads customer account ID to operate on (digits only, no hyphens). Defaults to the Google Ads Customer ID entered when the account was connected; set it only to target a different account, e.g. a specific client account under a manager (MCC).`,
       },
       {
         name: 'negative',
@@ -1455,20 +1251,14 @@ export const tools: Tool[] = [
       {
         name: 'customer_id',
         type: 'string',
-        required: true,
-        description: `Google Ads customer account ID (without hyphens), visible in the top-right of the Google Ads UI.`,
-      },
-      {
-        name: 'developer_token',
-        type: 'string',
-        required: true,
-        description: `Google Ads API developer token required for all API calls. Obtain from your Google Ads API Center.`,
+        required: false,
+        description: `Google Ads customer account ID to operate on (digits only, no hyphens). Defaults to the Google Ads Customer ID entered when the account was connected; set it only to target a different account, e.g. a specific client account under a manager (MCC).`,
       },
       {
         name: 'geo_target_constants',
-        type: 'string',
+        type: 'array',
         required: false,
-        description: `JSON array of geo target constant resource names to filter results by location. Example: ["geoTargetConstants/2840"] for United States.`,
+        description: `List of geo target constant resource names to filter results by location. Example: ["geoTargetConstants/2840"] for United States.`,
       },
       {
         name: 'include_adult_keywords',
@@ -1484,21 +1274,15 @@ export const tools: Tool[] = [
       },
       {
         name: 'keywords',
-        type: 'string',
+        type: 'array',
         required: false,
-        description: `JSON array of seed keyword strings for idea generation. Example: ["running shoes","athletic footwear"]. Provide either keywords or url_seed (or both).`,
+        description: `List of seed keyword strings for idea generation. Example: ["running shoes","athletic footwear"]. Provide either keywords or url_seed (or both).`,
       },
       {
         name: 'language',
         type: 'string',
         required: false,
         description: `Language resource name to filter keyword ideas. Use the languageConstants resource name, e.g., languageConstants/1000 for English.`,
-      },
-      {
-        name: 'login_customer_id',
-        type: 'string',
-        required: false,
-        description: `Manager account customer ID when accessing via a Google Ads manager (MCC) account. Omit if accessing a standalone account directly.`,
       },
       {
         name: 'page_size',
@@ -1531,28 +1315,16 @@ export const tools: Tool[] = [
     description: `Remove a keyword from an ad group permanently. The keyword can no longer trigger ads after removal.`,
     params: [
       {
-        name: 'customer_id',
-        type: 'string',
-        required: true,
-        description: `Google Ads customer account ID (without hyphens), visible in the top-right of the Google Ads UI.`,
-      },
-      {
-        name: 'developer_token',
-        type: 'string',
-        required: true,
-        description: `Google Ads API developer token required for all API calls. Obtain from your Google Ads API Center.`,
-      },
-      {
         name: 'resource_name',
         type: 'string',
         required: true,
         description: `Resource name of the keyword (ad group criterion) to remove, in the format customers/{customer_id}/adGroupCriteria/{ad_group_id}~{criterion_id}.`,
       },
       {
-        name: 'login_customer_id',
+        name: 'customer_id',
         type: 'string',
         required: false,
-        description: `Manager account customer ID when accessing via a Google Ads manager (MCC) account. Omit if accessing a standalone account directly.`,
+        description: `Google Ads customer account ID to operate on (digits only, no hyphens). Defaults to the Google Ads Customer ID entered when the account was connected; set it only to target a different account, e.g. a specific client account under a manager (MCC).`,
       },
       {
         name: 'schema_version',
@@ -1573,18 +1345,6 @@ export const tools: Tool[] = [
     description: `Update a keyword's bid amount or status. The keyword text and match type cannot be changed after creation; remove and recreate the keyword if those need to change.`,
     params: [
       {
-        name: 'customer_id',
-        type: 'string',
-        required: true,
-        description: `Google Ads customer account ID (without hyphens), visible in the top-right of the Google Ads UI.`,
-      },
-      {
-        name: 'developer_token',
-        type: 'string',
-        required: true,
-        description: `Google Ads API developer token required for all API calls. Obtain from your Google Ads API Center.`,
-      },
-      {
         name: 'resource_name',
         type: 'string',
         required: true,
@@ -1597,10 +1357,10 @@ export const tools: Tool[] = [
         description: `New CPC bid for this keyword in micros. 1,000,000 micros = $1.00.`,
       },
       {
-        name: 'login_customer_id',
+        name: 'customer_id',
         type: 'string',
         required: false,
-        description: `Manager account customer ID when accessing via a Google Ads manager (MCC) account. Omit if accessing a standalone account directly.`,
+        description: `Google Ads customer account ID to operate on (digits only, no hyphens). Defaults to the Google Ads Customer ID entered when the account was connected; set it only to target a different account, e.g. a specific client account under a manager (MCC).`,
       },
       {
         name: 'schema_version',
@@ -1627,28 +1387,16 @@ export const tools: Tool[] = [
     description: `Create a label that can be applied to campaigns, ad groups, ads, or keywords for organization and filtering. Labels help categorize and manage large accounts.`,
     params: [
       {
-        name: 'customer_id',
-        type: 'string',
-        required: true,
-        description: `Google Ads customer account ID (without hyphens), visible in the top-right of the Google Ads UI.`,
-      },
-      {
-        name: 'developer_token',
-        type: 'string',
-        required: true,
-        description: `Google Ads API developer token required for all API calls. Obtain from your Google Ads API Center.`,
-      },
-      {
         name: 'name',
         type: 'string',
         required: true,
         description: `Name of the label. Must be unique within the account. Should describe the categorization purpose.`,
       },
       {
-        name: 'login_customer_id',
+        name: 'customer_id',
         type: 'string',
         required: false,
-        description: `Manager account customer ID when accessing via a Google Ads manager (MCC) account. Omit if accessing a standalone account directly.`,
+        description: `Google Ads customer account ID to operate on (digits only, no hyphens). Defaults to the Google Ads Customer ID entered when the account was connected; set it only to target a different account, e.g. a specific client account under a manager (MCC).`,
       },
       {
         name: 'schema_version',
@@ -1687,40 +1435,28 @@ export const tools: Tool[] = [
         description: `Resource name of the ad group to add the ad to, in the format customers/{customer_id}/adGroups/{ad_group_id}.`,
       },
       {
-        name: 'customer_id',
-        type: 'string',
-        required: true,
-        description: `Google Ads customer account ID (without hyphens), visible in the top-right of the Google Ads UI.`,
-      },
-      {
         name: 'descriptions',
-        type: 'string',
+        type: 'array',
         required: true,
-        description: `JSON array of 2-4 description strings, each max 90 characters. Google will test combinations. Example: ["Shop top brands with free shipping.","Order now and save 50%."]`,
-      },
-      {
-        name: 'developer_token',
-        type: 'string',
-        required: true,
-        description: `Google Ads API developer token required for all API calls. Obtain from your Google Ads API Center.`,
+        description: `List of 2-4 description strings, each max 90 characters. Google will test combinations. Example: ["Shop top brands with free shipping.","Order now and save 50%."]`,
       },
       {
         name: 'final_urls',
-        type: 'string',
+        type: 'array',
         required: true,
-        description: `JSON array of landing page URLs for the ad. The first URL is the primary destination. Example: ["https://example.com/shoes"]`,
+        description: `List of landing page URLs for the ad. The first URL is the primary destination. Example: ["https://example.com/shoes"]`,
       },
       {
         name: 'headlines',
-        type: 'string',
+        type: 'array',
         required: true,
-        description: `JSON array of 3-15 headline strings, each max 30 characters. Google will test combinations. Example: ["Buy Shoes Online","Free Shipping","Best Prices"]`,
+        description: `List of 3-15 headline strings, each max 30 characters. Google will test combinations. Example: ["Buy Shoes Online","Free Shipping","Best Prices"]`,
       },
       {
-        name: 'login_customer_id',
+        name: 'customer_id',
         type: 'string',
         required: false,
-        description: `Manager account customer ID when accessing via a Google Ads manager (MCC) account. Omit if accessing a standalone account directly.`,
+        description: `Google Ads customer account ID to operate on (digits only, no hyphens). Defaults to the Google Ads Customer ID entered when the account was connected; set it only to target a different account, e.g. a specific client account under a manager (MCC).`,
       },
       {
         name: 'path1',
@@ -1759,28 +1495,16 @@ export const tools: Tool[] = [
     description: `Execute a GAQL (Google Ads Query Language) query to retrieve campaigns, ad groups, keywords, metrics, and any other Google Ads data. Returns paginated results.`,
     params: [
       {
-        name: 'customer_id',
-        type: 'string',
-        required: true,
-        description: `Google Ads customer account ID (without hyphens), visible in the top-right of the Google Ads UI.`,
-      },
-      {
-        name: 'developer_token',
-        type: 'string',
-        required: true,
-        description: `Google Ads API developer token required for all API calls. Obtain from your Google Ads API Center.`,
-      },
-      {
         name: 'query',
         type: 'string',
         required: true,
         description: `GAQL query string to execute. Use SELECT, FROM, WHERE, ORDER BY, and LIMIT clauses. Example: SELECT campaign.id, campaign.name, campaign.status FROM campaign WHERE campaign.status != 'REMOVED' LIMIT 50`,
       },
       {
-        name: 'login_customer_id',
+        name: 'customer_id',
         type: 'string',
         required: false,
-        description: `Manager account customer ID when accessing via a Google Ads manager (MCC) account. Omit if accessing a standalone account directly.`,
+        description: `Google Ads customer account ID to operate on (digits only, no hyphens). Defaults to the Google Ads Customer ID entered when the account was connected; set it only to target a different account, e.g. a specific client account under a manager (MCC).`,
       },
       {
         name: 'page_size',
@@ -1813,34 +1537,22 @@ export const tools: Tool[] = [
     description: `Create a remarketing audience list (user list) for targeting or exclusion in campaigns. User lists can be used to re-engage past visitors, customers, or users who completed specific actions.`,
     params: [
       {
-        name: 'customer_id',
-        type: 'string',
-        required: true,
-        description: `Google Ads customer account ID (without hyphens), visible in the top-right of the Google Ads UI.`,
-      },
-      {
-        name: 'developer_token',
-        type: 'string',
-        required: true,
-        description: `Google Ads API developer token required for all API calls. Obtain from your Google Ads API Center.`,
-      },
-      {
         name: 'name',
         type: 'string',
         required: true,
         description: `Name of the user list. Should describe the audience segment.`,
       },
       {
+        name: 'customer_id',
+        type: 'string',
+        required: false,
+        description: `Google Ads customer account ID to operate on (digits only, no hyphens). Defaults to the Google Ads Customer ID entered when the account was connected; set it only to target a different account, e.g. a specific client account under a manager (MCC).`,
+      },
+      {
         name: 'description',
         type: 'string',
         required: false,
         description: `Description of the audience list explaining what kind of users it targets.`,
-      },
-      {
-        name: 'login_customer_id',
-        type: 'string',
-        required: false,
-        description: `Manager account customer ID when accessing via a Google Ads manager (MCC) account. Omit if accessing a standalone account directly.`,
       },
       {
         name: 'membership_life_span',
@@ -1867,34 +1579,22 @@ export const tools: Tool[] = [
     description: `Update a remarketing audience list's name, description, or membership duration. Only the fields you provide will be updated.`,
     params: [
       {
-        name: 'customer_id',
-        type: 'string',
-        required: true,
-        description: `Google Ads customer account ID (without hyphens), visible in the top-right of the Google Ads UI.`,
-      },
-      {
-        name: 'developer_token',
-        type: 'string',
-        required: true,
-        description: `Google Ads API developer token required for all API calls. Obtain from your Google Ads API Center.`,
-      },
-      {
         name: 'resource_name',
         type: 'string',
         required: true,
         description: `Resource name of the user list to update, in the format customers/{customer_id}/userLists/{user_list_id}.`,
       },
       {
+        name: 'customer_id',
+        type: 'string',
+        required: false,
+        description: `Google Ads customer account ID to operate on (digits only, no hyphens). Defaults to the Google Ads Customer ID entered when the account was connected; set it only to target a different account, e.g. a specific client account under a manager (MCC).`,
+      },
+      {
         name: 'description',
         type: 'string',
         required: false,
         description: `New description of the audience list.`,
-      },
-      {
-        name: 'login_customer_id',
-        type: 'string',
-        required: false,
-        description: `Manager account customer ID when accessing via a Google Ads manager (MCC) account. Omit if accessing a standalone account directly.`,
       },
       {
         name: 'membership_life_span',
