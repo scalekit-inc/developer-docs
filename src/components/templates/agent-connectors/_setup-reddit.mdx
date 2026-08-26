@@ -1,0 +1,67 @@
+import { Steps, Tabs, TabItem, Aside } from '@astrojs/starlight/components'
+
+Register your Reddit app credentials with Scalekit so it can manage the OAuth 2.0 authentication flow and token lifecycle on your behalf. You'll need a **client ID**, a **client secret**, and a **redirect URI** from a Reddit app.
+
+Reddit exposes two dashboards for creating an OAuth app, depending on the type of Reddit account you use. Pick the tab that matches your account.
+
+<Steps>
+1. ### Create a Reddit OAuth connection in Scalekit
+
+   - In [Scalekit dashboard](https://app.scalekit.com), go to **AgentKit** > **Connections** > **Create Connection**. Search for **Reddit** and click **Create**.
+
+   - In the **Configure Reddit Connection** panel, copy the **Redirect URI**. It looks like `https://<SCALEKIT_ENVIRONMENT_URL>/sso/v1/oauth/<CONNECTION_ID>/callback`. You'll paste this into your Reddit app in the next step.
+
+2. ### Create an app in Reddit
+
+   <Tabs syncKey="reddit-app-type">
+     <TabItem label="reddit.com/prefs/apps">
+       - Go to <a href="https://www.reddit.com/prefs/apps" target="_blank" rel="noopener">reddit.com/prefs/apps</a> and sign in with the Reddit account you want the connector to act as.
+
+       - Click **create another app...** (or **create an app** if this is your first one).
+
+       - Fill in the app form:
+
+         | Field | Value |
+         |---|---|
+         | **name** | A name for your app, for example `Agent Auth` |
+         | **App type** | **web app** |
+         | **redirect uri** | Paste the Redirect URI you copied from Scalekit |
+
+       - Click **create app**. Reddit adds it under **developed applications**, showing the app's client ID directly under its name.
+
+         ![Reddit prefs/apps page showing the developed applications list with an app's client ID and an edit link](@/assets/docs/agent-connectors/reddit/classic-prefs-apps-list.png)
+
+       - Click **edit** on the app to reveal the **secret** field alongside the client ID.
+     </TabItem>
+     <TabItem label="Business Manager">
+       - Go to <a href="https://business.reddithelp.com" target="_blank" rel="noopener">Reddit Business Manager</a>, sign in, and open **Developer Portal** > **Developer Applications** in the left sidebar. Creating an app here requires a business admin with a verified account.
+
+       - Click **Add Apps** and follow the prompts to create an app. Once created, expand it to view the **App ID** and **Secret**.
+
+         ![Reddit Business Manager Developer Applications page showing an app's App ID and Secret fields](@/assets/docs/agent-connectors/reddit/business-manager-app-id-secret.png)
+
+       - Click **Edit App** to open the app's settings and paste the Redirect URI you copied from Scalekit into the **Redirect uri** field.
+
+         ![Reddit Business Manager Edit application modal with the Redirect uri field filled in](@/assets/docs/agent-connectors/reddit/business-manager-edit-app-redirect-uri.png)
+
+       - Click **Save Changes**. The app collapses back into the list with your changes saved.
+
+         ![Reddit Business Manager Developer Applications page showing the saved app collapsed in the list](@/assets/docs/agent-connectors/reddit/business-manager-app-saved.png)
+     </TabItem>
+   </Tabs>
+
+   <Aside type="caution" title="Keep your client secret private">
+     Anyone with your client secret can make API calls as your app. Never commit it to source control or share it outside Scalekit's credential fields.
+   </Aside>
+
+3. ### Add credentials in Scalekit
+
+   - In [Scalekit dashboard](https://app.scalekit.com), go to **AgentKit** > **Connections** and open the Reddit connection you created.
+
+   - Enter your credentials:
+     - **Client ID** — the App ID (Business Manager) or the string under the app's name (reddit.com/prefs/apps)
+     - **Client Secret** — the secret you revealed in the previous step
+     - **Scopes** — select the permissions your agent needs, for example `identity`, `read`, and `submit`
+
+   - Click **Save**.
+</Steps>

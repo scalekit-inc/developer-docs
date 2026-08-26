@@ -101,6 +101,7 @@ export { default as SetupPhantombusterSection } from './_setup-phantombuster.mdx
 export { default as SetupPipedriveSection } from './_setup-pipedrive.mdx'
 export { default as SetupPostmarkSection } from './_setup-postmark.mdx'
 export { default as SetupQuickbooksSection } from './_setup-quickbooks.mdx'
+export { default as SetupRedditSection } from './_setup-reddit.mdx'
 export { default as SetupResendSection } from './_setup-resend.mdx'
 export { default as SetupSalesforceSection } from './_setup-salesforce.mdx'
 export { default as SetupSalesloftSection } from './_setup-salesloft.mdx'
