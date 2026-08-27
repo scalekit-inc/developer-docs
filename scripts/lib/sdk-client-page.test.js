@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { bindToggleAll, getPageMethods } from './sdk-client-page.js'
+import { bindToggleAll, getPageMethods } from '../../public/js/sdk-client-page.js'
 
 function createNode(tagName, props = {}) {
   const classSet = new Set()

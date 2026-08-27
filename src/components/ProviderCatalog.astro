@@ -350,14 +350,9 @@ function cardAttrs(item: (typeof items)[0]) {
       Array<{ slug: string; name: string; description: string }>
     > {
       if (toolIndexCache) return toolIndexCache
-      try {
-        const res = await fetch('/data/agent-tools-index.json')
-        if (!res.ok) return []
-        toolIndexCache = await res.json()
-        return toolIndexCache || []
-      } catch {
-        return []
-      }
+      const mod = await import('@/data/agent-connectors/tools-index.json')
+      toolIndexCache = mod.default as Array<{ slug: string; name: string; description: string }>
+      return toolIndexCache
     }
 
     function scoreToolMatches(

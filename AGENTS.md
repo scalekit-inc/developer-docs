@@ -562,6 +562,13 @@ Full pipeline: `scripts/manual/API_REFERENCE_WORKFLOW.md`.
 6. **Generated outputs**: `public/api/{scalekit,agentkit,saaskit}.scalar.*` — do **not** sole-edit; re-run `pnpm run bundle:apis` + `pnpm run validate-api-split`
 7. **Do not** create MDX event catalogs under `reference/webhooks/`
 
+### Diagram SVGs (d2)
+
+Diagrams authored in fenced `d2` code blocks render to SVG files under `public/d2/`. Netlify sets `skipGeneration` for `astro-d2` (`skipGeneration: !!process.env['NETLIFY']` in `astro.config.mjs`), so production builds do NOT run the `d2` binary - they serve the pre-generated SVGs committed to the repository. A local build regenerates SVGs on the fly, which hides the problem locally.
+
+- **Check in the SVGs for the diagrams you add or change**: When you add or edit a `d2` block, run `pnpm start` or a local build (any local run where the `NETLIFY` env var is not set) to generate its SVG under `public/d2/…`, then commit that file alongside your MDX. Without it, the Netlify deploy fails when it renders the page.
+- **Commit only the SVGs related to your change**: A local build often rewrites unrelated SVGs due to `d2` version drift. Reset those with `git checkout -- <file>` and stage only the SVGs for the pages you actually touched - never commit the full `public/d2/` churn.
+
 ### Adding New Concepts
 
 Before creating new documentation articles:
@@ -622,6 +629,17 @@ Before publishing documentation, verify:
 - [ ] SDK variable names follow the NON-NEGOTIABLE naming convention
 - [ ] Security implications are explained where relevant
 - [ ] Frontmatter includes title, description, and sidebar.label
+
+---
+
+## Agentkit Code Examples
+
+Code examples for the agentkit documentation live in the external repo **[scalekit-developers/agent-auth-examples](https://github.com/scalekit-developers/agent-auth-examples)**, organized as:
+
+- `javascript/frameworks/<framework>` — JS/TS examples (anthropic, mastra, openai, quickstart, vercel-ai)
+- `python/frameworks/<framework>` — Python examples (anthropic, crewai, google-adk, langchain, openai, quickstart)
+
+When updating code snippets in `src/content/docs/agentkit/`, look up the current implementation in that repo first, then verify the docs snippets match.
 
 ---
 

@@ -2,14 +2,11 @@
 import { defineConfig, sharpImageService } from 'astro/config'
 import { unified } from '@astrojs/markdown-remark'
 import starlight from '@astrojs/starlight'
-import react from '@astrojs/react'
 import path from 'path'
 import fs from 'node:fs/promises'
 import { fileURLToPath } from 'node:url'
-import vue from '@astrojs/vue'
 import starlightSidebarTopics from 'starlight-sidebar-topics'
 import starlightImageZoom from 'starlight-image-zoom'
-import { pluginCollapsibleSections } from '@expressive-code/plugin-collapsible-sections'
 import starlightDocSearch from '@astrojs/starlight-docsearch'
 import starlightPageActions from 'starlight-page-actions'
 import starlightThemeNova from 'starlight-theme-nova'
@@ -99,7 +96,6 @@ export default defineConfig({
       customCss: [
         '@fontsource-variable/inter',
         '@fontsource-variable/outfit',
-        '@fontsource-variable/atkinson-hyperlegible-next',
         '@fontsource/jetbrains-mono',
         './src/styles/theme-priority.css',
       ],
@@ -233,8 +229,6 @@ export default defineConfig({
           },
         },
         {
-          // NOTE: Inlined from /public/js/iframe-detection.js for early execution
-          // If you need to modify this script, edit /public/js/iframe-detection.js and copy the content here
           tag: 'script',
           content: `
             ;(function () {
@@ -359,15 +353,6 @@ export default defineConfig({
         },
       ],
     }),
-    react(),
-    vue({
-      jsx: true,
-      template: {
-        compilerOptions: {
-          isCustomElement: (tag) => tag.includes('-'),
-        },
-      },
-    }),
     d2({
       skipGeneration: !!process.env['NETLIFY'],
       theme: {
@@ -434,9 +419,6 @@ export default defineConfig({
                 'Skipped nested astro-og-canvas WASM copy (nested canvaskit-wasm path not present)',
               )
             }
-            logger.info(
-              'Run /og-debug after deploy to compare resolvedWasmPath against these paths',
-            )
           } catch (e) {
             logger.warn(
               `Could not copy canvaskit.wasm: ${e instanceof Error ? e.message : String(e)}`,
@@ -465,7 +447,6 @@ export default defineConfig({
       },
     },
     optimizeDeps: {
-      include: ['vue'],
       // starlight-blog uses Astro/Starlight virtual modules that should not be pre-bundled.
       exclude: ['starlight-blog'],
     },
@@ -477,7 +458,7 @@ export default defineConfig({
     define: {
       __dirname: '"/"',
     },
-    plugins: [pluginCollapsibleSections(), tailwindcss(), Icons({ compiler: 'astro' })],
+    plugins: [tailwindcss(), Icons({ compiler: 'astro' })],
     build: {
       chunkSizeWarningLimit: 2000,
       // Disable source maps in CI to reduce peak memory during bundling

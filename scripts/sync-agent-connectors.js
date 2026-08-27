@@ -15,7 +15,6 @@ import fs from 'fs'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import { execSync } from 'child_process'
-import dotenv from 'dotenv'
 import { unified } from 'unified'
 import remarkParse from 'remark-parse'
 import remarkStringify from 'remark-stringify'
@@ -63,12 +62,24 @@ function loadDescriptionHtmlOverrides() {
 
 const DESCRIPTION_HTML_OVERRIDES = loadDescriptionHtmlOverrides()
 
-// ---------------------------------------------------------------------------
-// Env loader (using dotenv)
-// ---------------------------------------------------------------------------
-
 function loadEnv() {
-  dotenv.config({ path: path.join(__dirname, '../.env'), override: true, quiet: true })
+  const envPath = path.join(__dirname, '../.env')
+  if (!fs.existsSync(envPath)) return
+  for (const line of fs.readFileSync(envPath, 'utf8').split('\n')) {
+    const trimmed = line.trim()
+    if (!trimmed || trimmed.startsWith('#')) continue
+    const eq = trimmed.indexOf('=')
+    if (eq === -1) continue
+    const key = trimmed.slice(0, eq).trim()
+    let value = trimmed.slice(eq + 1).trim()
+    if (
+      (value.startsWith('"') && value.endsWith('"')) ||
+      (value.startsWith("'") && value.endsWith("'"))
+    ) {
+      value = value.slice(1, -1)
+    }
+    if (process.env[key] === undefined) process.env[key] = value
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -1508,10 +1519,6 @@ async function main() {
   const toolsIndexJson = JSON.stringify(toolsSearchIndex)
   const toolsIndexSrcPath = path.join(dataOutputDir, 'tools-index.json')
   fs.writeFileSync(toolsIndexSrcPath, toolsIndexJson, 'utf8')
-
-  const pubDir = path.join(__dirname, '../public/data')
-  fs.mkdirSync(pubDir, { recursive: true })
-  fs.writeFileSync(path.join(pubDir, 'agent-tools-index.json'), toolsIndexJson, 'utf8')
   console.log('✓ Written tools-index.json (connector + tool search)')
 
   // Auto-format generated TypeScript data files.

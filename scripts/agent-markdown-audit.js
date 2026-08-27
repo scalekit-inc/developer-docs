@@ -5,8 +5,6 @@ const DOCS_ROOT = new URL('../src/content/docs', import.meta.url)
 const STRICT = process.argv.includes('--strict')
 
 const supportedSources = new Set([
-  '/src/components/MethodParams.astro',
-  '/src/components/MethodReturns.astro',
   '/src/components/ProviderCatalog.astro',
   '/src/components/ToolList.astro',
   '/src/components/ui/CheckItem.astro',

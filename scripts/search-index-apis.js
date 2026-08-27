@@ -73,7 +73,6 @@ export function extractApiRecords(swagger) {
   return records
 }
 
-// Test URL generation (`pnpm run generate-search-index`)
 function testUrlGeneration() {
   console.log('🧪 Testing URL generation...\n')
 
