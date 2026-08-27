@@ -94,8 +94,8 @@ export default defineConfig({
         },
       },
       customCss: [
-        '@fontsource-variable/inter',
         '@fontsource-variable/outfit',
+        '@fontsource-variable/inter',
         '@fontsource/jetbrains-mono',
         './src/styles/theme-priority.css',
       ],
