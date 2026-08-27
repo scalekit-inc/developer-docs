@@ -102,6 +102,8 @@ Scalekit handles the complex authentication flow while you focus on your core pr
    REDIRECT_URI=http://localhost:3000/callback
    ```
 
+   Node.js and Python use `/callback`. Go and Java use `/auth/callback`. Register the path for your stack.
+
     ### Register redirect URLs for your app
     You need to register redirect URLs for your application. Go to **Scalekit dashboard** → **Authentication** → **Redirect URLs** and configure:
 
@@ -264,6 +266,11 @@ Scalekit handles the complex authentication flow while you focus on your core pr
 
    </TabItem>
    </Tabs>
+
+   <Aside type="caution" title="Set cookie_secure=False on local HTTP">
+   `cookie_secure` defaults to `True`. Some browsers drop a `Secure` cookie on plain `http://localhost`, which looks like a session that never sticks. Set `cookie_secure=False` for local HTTP. Set it `True` in production.
+   </Aside>
+
    </TabItem>
    <TabItem value="go" label="Go">
    ```go wrap title="internal/http/auth.go"
