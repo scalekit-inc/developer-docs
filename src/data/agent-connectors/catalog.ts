@@ -7,6 +7,36 @@ export interface ProviderMeta {
 }
 
 export const catalog: Record<string, ProviderMeta> = {
+  salesforcemarketingcloud: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/sales_force.svg',
+    authType: 'OAuth 2.0 Server-to-Server',
+    categories: ['Marketing', 'Automation'],
+  },
+  googletasks: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/googletasks.svg',
+    authType: 'OAuth 2.0',
+    categories: ['Productivity', 'Project Management'],
+  },
+  feltmcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/felt.svg',
+    authType: 'OAuth 2.1/DCR',
+    categories: ['Analytics', 'Collaboration', 'Productivity'],
+  },
+  scitemcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/scite.svg',
+    authType: 'OAuth2.1/DCR',
+    categories: ['Search', 'Healthcare'],
+  },
+  deeplmcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/deepl.svg',
+    authType: 'OAuth2.1/DCR',
+    categories: ['AI', 'Productivity'],
+  },
+  brandfetchmcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/brandfetch.svg',
+    authType: 'OAuth2.1/DCR',
+    categories: ['Design'],
+  },
   clickupmcp: {
     iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/clickup.svg',
     authType: 'OAuth 2.1/DCR',
@@ -1841,10 +1871,5 @@ export const catalog: Record<string, ProviderMeta> = {
     iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/gmail.svg',
     authType: 'OAuth 2.0',
     categories: ['Communication'],
-  },
-  salesforcemarketingcloud: {
-    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/sales_force.svg',
-    authType: 'OAuth 2.0 Server-to-Server',
-    categories: ['Marketing', 'Automation'],
   },
 }
