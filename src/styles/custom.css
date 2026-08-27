@@ -41,12 +41,12 @@
     --sl-text-h4: var(--sl-text-lg) !important;
     --sl-text-h5: var(--sl-text-base) !important;*/
 
-    --sl-font-system:
-      ui-sans-serif, system-ui, Roboto, 'Atkinson Hyperlegible Next Variable', 'Inter Variable',
-      Arial, sans-serif;
+    --sl-font-system: ui-sans-serif, system-ui, Roboto, 'Inter Variable', Arial, sans-serif;
     --sl-font-system-mono: 'JetBrains Mono', 'Inter Variable', ui-monospace, monospace;
     --sl-font: 'Inter Variable', Arial, sans-serif;
-    --sl-font-heading: 'Outfit Variable', var(--sl-font-system);
+    /* Do not fall back to Inter. Body already loads Inter, so headings
+       would paint in Inter and then swap to Outfit. */
+    --sl-font-heading: 'Outfit Variable', ui-sans-serif, system-ui, sans-serif;
     --sl-font-mono: var(--sl-font-mono, var(--sl-font-system-mono)), var(--sl-font-system-mono);
 
     /* Border tokens */
@@ -383,7 +383,6 @@
   }
   **/
 
-  /* Improve text rendering for Atkinson Hyperlegible Next */
   .sl-markdown-content {
     text-rendering: optimizeLegibility;
     font-feature-settings:
@@ -514,34 +513,6 @@
 
   #starlight__sidebar a.external-link:hover::after {
     opacity: 1;
-  }
-
-  /* Ensure dropdown trigger labels maintain proper styling */
-  #starlight__sidebar .authenticate-topics-dropdown .trigger-label {
-    font-size: var(--sl-text-sm) !important;
-    color: inherit;
-    text-transform: none;
-    font-weight: 500;
-  }
-
-  .starlight-sidebar-topics-dropdown-dropdown {
-    width: inherit;
-    margin: inherit;
-  }
-
-  /* Hide TopicsDropdown on tablet and desktop layouts */
-  /* Show only on mobile (max-width: 48rem) */
-  .starlight-sidebar-topics-dropdown,
-  [class*='starlight-sidebar-topics-dropdown'] {
-    display: none !important;
-  }
-
-  /* Show TopicsDropdown only on mobile */
-  @media (max-width: 48rem) {
-    .starlight-sidebar-topics-dropdown,
-    [class*='starlight-sidebar-topics-dropdown'] {
-      display: block !important;
-    }
   }
 
   /* Header and navigation overrides */

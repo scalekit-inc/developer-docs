@@ -7,13 +7,7 @@ import {
   resolveTemplateExport,
 } from './source-loader'
 import { getConnectorCatalogItems } from './renderers/connectors'
-import {
-  checkItemRenderer,
-  foldCardRenderer,
-  methodParamsRenderer,
-  methodReturnsRenderer,
-  subtitleRenderer,
-} from './renderers/common'
+import { checkItemRenderer, foldCardRenderer, subtitleRenderer } from './renderers/common'
 import { providerCatalogRenderer, toolListRenderer } from './renderers/connectors'
 import { templateComponentRenderer } from './renderers/templates'
 import type {
@@ -33,8 +27,6 @@ const componentRenderers: ComponentRenderer[] = [
   checkItemRenderer,
   foldCardRenderer,
   subtitleRenderer,
-  methodParamsRenderer,
-  methodReturnsRenderer,
 ]
 
 const cleanupHandledSources = new Set(['/src/components/ui/Tabs.astro'])
