@@ -1,7 +1,7 @@
 <div align="left">
 
 <img
-  src="./src/assets/images/logos-v4/sk-docs-white.svg"
+  src="./src/assets/images/scalekit-logo-white.svg"
   alt="Scalekit Docs"
   height="50"
 />
@@ -88,15 +88,14 @@ Open [http://localhost:4321](http://localhost:4321). Changes to MDX files hot-re
 
 #### Useful Commands
 
-| Command                      | Description                                                   |
-| ---------------------------- | ------------------------------------------------------------- |
-| `pnpm dev`                   | Start the site with Netlify Dev (matches deploy env)          |
-| `pnpm start`                 | Run Astro dev only — use when previewing D2 diagram changes   |
-| `pnpm build`                 | Build the production site to `./dist`                         |
-| `pnpm preview`               | Preview the production build locally                          |
-| `pnpm format`                | Auto-format all `.md`, `.mdx`, `.astro`, `.ts` files          |
-| `pnpm format:check`          | Check formatting without writing changes                      |
-| `pnpm generate-search-index` | Validate API deep-link URL fragments (`search-index-apis.js`) |
+| Command             | Description                                                 |
+| ------------------- | ----------------------------------------------------------- |
+| `pnpm dev`          | Start the site with Netlify Dev (matches deploy env)        |
+| `pnpm start`        | Run Astro dev only — use when previewing D2 diagram changes |
+| `pnpm build`        | Build the production site to `./dist`                       |
+| `pnpm preview`      | Preview the production build locally                        |
+| `pnpm format`       | Auto-format all `.md`, `.mdx`, `.astro`, `.ts` files        |
+| `pnpm format:check` | Check formatting without writing changes                    |
 
 ---
 
@@ -116,7 +115,7 @@ We welcome contributions from everyone — whether it's fixing a typo, improving
 
 Before writing or editing, check:
 
-- **`CLAUDE.md`** — the single source of truth for voice, structure, document types, and all documentation standards
+- **`AGENTS.md`** — the single source of truth for voice, structure, document types, and all documentation standards. `CLAUDE.md` points at that file.
 
 **Key conventions at a glance:**
 
@@ -133,7 +132,6 @@ Before writing or editing, check:
 | --------------- | ---------------------------------------------------- |
 | Framework       | [Astro](https://astro.build) v5                      |
 | Docs theme      | [Starlight](https://starlight.astro.build)           |
-| UI components   | React 19, Vue 3                                      |
 | Styling         | Tailwind CSS v4                                      |
 | API Reference   | [Scalar](https://scalar.com)                         |
 | Search          | Algolia DocSearch + AI Ask                           |

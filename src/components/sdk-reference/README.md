@@ -37,7 +37,7 @@ Starlight’s right TOC only indexes **markdown headings on the page document**.
 
 - Put `### \`methodName\`` on the **client page** (content MDX).
 - Do **not** ship a page that is only `<FullClientPartial />` if methods must appear in the TOC.
-- Partials may wrap ClassBrowser / MethodParams **bodies** under those headings.
+- Partials may wrap ClassBrowser **bodies** under those headings.
 
 ## Sidebar
 
@@ -53,7 +53,7 @@ Starlight’s right TOC only indexes **markdown headings on the page document**.
 
 1. Outcome-focused intro (“Manage your customer organizations”).
 2. Accessor in backticks (`organization` on `ScalekitClient`).
-3. Each method: `### \`name\``, one-liner, ClassBrowser and/or MethodParams, example (no line numbers).
+3. Each method: `### name` without backticks, one-liner, ClassBrowser, example (no line numbers).
 4. Labels: sentence case product objects (**Organizations**), not raw identifiers.
 5. **Methods default open** (`open={true}`) so reference pages are scannable without an extra click.
 6. Prefer a single empty chrome browser in `.sdk-client-chrome` (name, language, source) plus per-method sections. Package expand-all / copy are wired page-wide by `public/js/sdk-client-page.js` (no injected toolbar).
@@ -78,4 +78,4 @@ Do not list guide sections under the left collapsible. Add ClassBrowser only if 
 
 ## Deprecations
 
-- Prefer ClassBrowser for method chrome; **keep** `MethodParams` / `MethodReturns` when the table UX fits.
+- Prefer ClassBrowser for method chrome.

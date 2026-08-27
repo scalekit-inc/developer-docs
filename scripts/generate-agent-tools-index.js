@@ -4,7 +4,6 @@
  *
  * Produces:
  *   src/data/agent-connectors/tools-index.json
- *   public/data/agent-tools-index.json   (served statically for client-side fetch)
  *
  * The index contains minimal records: { slug, name, description }
  * Used by ProviderCatalog.astro to power cross-connector tool search.
@@ -27,7 +26,6 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
 const DATA_DIR = path.join(__dirname, '../src/data/agent-connectors')
-const PUBLIC_DATA_DIR = path.join(__dirname, '../public/data')
 
 function extractToolsFromSource(source) {
   const results = []
@@ -80,19 +78,11 @@ function main() {
   // Sort for deterministic output (prevents ranking drift)
   index.sort((a, b) => a.slug.localeCompare(b.slug) || a.name.localeCompare(b.name))
 
-  // Ensure output locations
   fs.mkdirSync(DATA_DIR, { recursive: true })
-  fs.mkdirSync(PUBLIC_DATA_DIR, { recursive: true })
 
   const srcIndexPath = path.join(DATA_DIR, 'tools-index.json')
-  const publicIndexPath = path.join(PUBLIC_DATA_DIR, 'agent-tools-index.json')
+  fs.writeFileSync(srcIndexPath, JSON.stringify(index), 'utf8')
 
-  const json = JSON.stringify(index)
-
-  fs.writeFileSync(srcIndexPath, json, 'utf8')
-  fs.writeFileSync(publicIndexPath, json, 'utf8')
-
-  // Auto-format the source index so it doesn't cause formatting-only diffs in PRs.
   try {
     execFileSync('npx', ['prettier', '--write', srcIndexPath], { stdio: 'inherit' })
   } catch {
@@ -101,9 +91,7 @@ function main() {
 
   console.log(`✓ Generated tools search index`)
   console.log(`  Total tools: ${index.length}`)
-  console.log(`  Written:`)
-  console.log(`    ${srcIndexPath}`)
-  console.log(`    ${publicIndexPath}`)
+  console.log(`  Written: ${srcIndexPath}`)
 }
 
 main()

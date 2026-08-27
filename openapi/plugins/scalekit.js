@@ -15,8 +15,7 @@
  *      x-enum-descriptions, x-tagGroups, and any other x-* Scalar supports
  *
  * Everything hand-maintained lives in the overlay files and survives every
- * spec refresh. See scripts/manual/API_REFERENCE_WORKFLOW.md
- * (and project-docs/API_REFERENCE_PIPELINE.md for a short pointer).
+ * spec refresh. See scripts/manual/API_REFERENCE_WORKFLOW.md.
  */
 import fs from 'node:fs'
 import path from 'node:path'

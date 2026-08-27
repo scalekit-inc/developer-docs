@@ -23,23 +23,7 @@ try {
     process.exit(0)
   }
 
-  // Check and remove old husky configuration
-  let currentHooksPath = ''
-  try {
-    currentHooksPath = execSync('git config --get core.hooksPath', {
-      encoding: 'utf8',
-      stdio: 'pipe',
-    }).trim()
-  } catch (error) {
-    // No hooksPath configured, which is what we want
-  }
-
-  if (currentHooksPath && (currentHooksPath === '.husky/_' || currentHooksPath.includes('husky'))) {
-    execSync('git config --unset core.hooksPath')
-  }
-
-  // Install hooks using simple-git-hooks
-  execSync('npx simple-git-hooks', { stdio: 'ignore' })
+  execSync('pnpm exec simple-git-hooks', { stdio: 'ignore' })
 
   // Verify hooks are installed
   const hooksDir = '.git/hooks'
