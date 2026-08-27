@@ -10,7 +10,7 @@ This project uses **pretty-quick** + **simple-git-hooks**.
 To install the hooks by hand:
 
 ```bash
-npx simple-git-hooks
+pnpm exec simple-git-hooks
 ```
 
-If hooks do not run, check `git config --get core.hooksPath`. If a path is set, run `git config --unset core.hooksPath` and then `npx simple-git-hooks`.
+If hooks do not run, check `git config --get core.hooksPath`. If a path is set, run `git config --unset core.hooksPath` and then `pnpm exec simple-git-hooks`.

@@ -72,11 +72,15 @@ function loadEnv() {
     if (eq === -1) continue
     const key = trimmed.slice(0, eq).trim()
     let value = trimmed.slice(eq + 1).trim()
-    if (
-      (value.startsWith('"') && value.endsWith('"')) ||
-      (value.startsWith("'") && value.endsWith("'"))
-    ) {
-      value = value.slice(1, -1)
+    if (value.startsWith('"')) {
+      const end = value.indexOf('"', 1)
+      if (end !== -1) value = value.slice(1, end)
+    } else if (value.startsWith("'")) {
+      const end = value.indexOf("'", 1)
+      if (end !== -1) value = value.slice(1, end)
+    } else {
+      const hash = value.search(/\s+#/)
+      if (hash !== -1) value = value.slice(0, hash).trim()
     }
     if (process.env[key] === undefined) process.env[key] = value
   }

@@ -235,7 +235,27 @@ function cardAttrs(item: (typeof items)[0]) {
 </div>
 
 <script>
-  import toolsIndexData from '@/data/agent-connectors/tools-index.json'
+  type ToolIndexRow = { slug: string; name: string; description: string }
+
+  let toolIndexCache: ToolIndexRow[] | null = null
+  let toolIndexPromise: Promise<ToolIndexRow[]> | null = null
+
+  function loadToolIndex(): Promise<ToolIndexRow[]> {
+    if (toolIndexCache) return Promise.resolve(toolIndexCache)
+    if (!toolIndexPromise) {
+      toolIndexPromise = import('@/data/agent-connectors/tools-index.json')
+        .then((mod) => {
+          toolIndexCache = (mod.default ?? []) as ToolIndexRow[]
+          return toolIndexCache
+        })
+        .catch(() => {
+          toolIndexCache = []
+          toolIndexPromise = null
+          return toolIndexCache
+        })
+    }
+    return toolIndexPromise
+  }
 
   // ClientRouter re-init: this bundled module executes only once, but the catalog DOM is
   // destroyed and recreated on every soft navigation. Binding at module scope leaves the
@@ -513,7 +533,7 @@ function cardAttrs(item: (typeof items)[0]) {
       // Tools join at 2+ chars so short connector lookups stay clean
       let toolCount = 0
       if (searchQuery.length >= 2) {
-        const idx = toolsIndexData as Array<{ slug: string; name: string; description: string }>
+        const idx = await loadToolIndex()
         if (revision !== searchRevision) return
         const matches = scoreToolMatches(idx, searchQuery)
         // If category filter is active, only show tools for connectors in that category

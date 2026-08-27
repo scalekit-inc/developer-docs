@@ -104,7 +104,7 @@ Copy `.env.example` to `.env` before running the project. Here's what each group
 
 | Variable       | Required | Description                                                                                                                                                                                                                                                                                           |
 | -------------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `GITHUB_TOKEN` | Optional | Personal access token for fetching SDK reference docs and repo file trees. Without it, you're limited to 60 GitHub API requests/hour. With it, 5,000/hour. Create one at [github.com/settings/tokens](https://github.com/settings/tokens?type=beta) with **Repository → Contents → Read-only** scope. |
+| `GITHUB_TOKEN` | Optional | Personal access token for fetching SDK reference docs and GitHub releases. Without it, you're limited to 60 GitHub API requests/hour. With it, 5,000/hour. Create one at [github.com/settings/tokens](https://github.com/settings/tokens?type=beta) with **Repository → Contents → Read-only** scope. |
 
 ### Scalekit Auth (OAuth / OIDC)
 
