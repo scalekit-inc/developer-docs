@@ -1,0 +1,108 @@
+import { Steps, Aside, Tabs, TabItem } from '@astrojs/starlight/components'
+
+Register a Server-to-Server Installed Package with Marketing Cloud so Scalekit can authenticate requests on your behalf using OAuth 2.0 client credentials. There is no redirect URI or user-facing authorize flow — Marketing Cloud issues a Client ID and Client Secret directly.
+
+<Steps>
+1. ### Open Setup in Marketing Cloud
+
+   - Sign in to Salesforce Marketing Cloud and click your profile menu in the top right, then select **Setup**.
+
+     ![Salesforce Marketing Cloud app with the profile menu open showing the Setup link](@/assets/docs/agent-connectors/salesforcemarketingcloud/open-setup-menu.png)
+
+2. ### Go to Installed Packages
+
+   - In Setup, under **Platform Tools** > **Apps**, click **Installed Packages**.
+
+     ![Setup Home page with Installed Packages highlighted under Platform Tools > Apps](@/assets/docs/agent-connectors/salesforcemarketingcloud/setup-home-installed-packages.png)
+
+   - Click **New** and give the package a name, for example `Scalekit Agent Auth`.
+
+     ![New Package Details dialog with the Name field filled in as Scalekit Agent Auth](@/assets/docs/agent-connectors/salesforcemarketingcloud/new-package-details.png)
+
+   - Click **Save**. Marketing Cloud creates the package with no components yet.
+
+     ![Package details page showing No Existing Components and an Add Component button](@/assets/docs/agent-connectors/salesforcemarketingcloud/package-created-no-components.png)
+
+3. ### Add an API Integration component
+
+   - Click **Add Component**, choose **API Integration** as the component type, and click **Next**.
+
+     ![Add Component dialog with API Integration selected as the component type](@/assets/docs/agent-connectors/salesforcemarketingcloud/add-component-api-integration.png)
+
+   - Choose **Server-to-Server** as the integration type and click **Next**. This is the OAuth 2.0 client credentials grant — the only integration type that issues both a Client ID and Client Secret without a redirect URI.
+
+     ![Add Component dialog with Server-to-Server selected as the integration type](@/assets/docs/agent-connectors/salesforcemarketingcloud/add-component-server-to-server.png)
+
+4. ### Set the scope and save
+
+   - Select the read/write permissions your agent needs across **Channels** (Email, SMS, Push, and so on), **Assets**, and **Automation**. Grant only what your tools call — you can add more scope later by editing the component.
+
+     ![Set Server-to-Server Properties dialog with Scope checkboxes for Channels, Assets, and Automation](@/assets/docs/agent-connectors/salesforcemarketingcloud/server-to-server-scope.png)
+
+   - Click **Save**.
+
+5. ### Copy the Client Secret
+
+   - Marketing Cloud shows the Client Secret once, immediately after you save. Copy it and store it securely.
+
+     ![Generate secret dialog showing the one-time Client Secret value](@/assets/docs/agent-connectors/salesforcemarketingcloud/generate-secret.png)
+
+   <Aside type="caution" title="This secret is shown only once">
+     If you navigate away before copying it, go back into the API Integration component and click **Generate** next to **Staged Secret**, then **Activate** it — Marketing Cloud never displays the original secret again.
+   </Aside>
+
+6. ### Copy the Client ID and tenant subdomain
+
+   - Back on the package's summary page, copy the **Client Id** and the **Authentication Base URI**.
+   - Your tenant subdomain is the part of the Authentication Base URI before `.auth.marketingcloudapis.com` — for example, `mc549xxxxxxxxxxxxxxxxxxxxxxxx` in `https://mc549xxxxxxxxxxxxxxxxxxxxxxxx.auth.marketingcloudapis.com/`.
+
+     ![Package summary page showing Client Id, Active Secret, and Authentication Base URI](@/assets/docs/agent-connectors/salesforcemarketingcloud/package-summary-credentials.png)
+
+7. ### Add credentials in Scalekit
+
+   - In the [Scalekit dashboard](https://app.scalekit.com), go to **AgentKit** > **Connections** > **Create Connection**. Find **Salesforce Marketing Cloud** and click **Create**.
+   - Note the **Connection name** — use this as `connection_name` in your code.
+
+   Add a connected account via the dashboard for testing, or via the Scalekit API in production.
+
+   **Via dashboard (for testing)**
+
+   - Open the connection, click the **Connected Accounts** tab > **Add account**.
+   - Fill in **Your User's ID**, the **Tenant Subdomain**, **Client ID**, **Client Secret**, and optionally the **Account ID (MID)** of the business unit that created the package.
+   - Click **Save**.
+
+   **Via API (for production)**
+
+   <Tabs syncKey="tech-stack">
+     <TabItem label="Node.js">
+       ```ts
+       await scalekit.connect.upsertConnectedAccount({
+         connectionName: 'salesforcemarketingcloud',
+         identifier: 'user@example.com',
+         credentials: {
+           domain: 'your-tenant-subdomain',
+           clientId: 'your-client-id',
+           clientSecret: 'your-client-secret',
+         },
+       })
+       ```
+     </TabItem>
+     <TabItem label="Python">
+       ```python
+       scalekit_client.connect.upsert_connected_account(
+           connection_name="salesforcemarketingcloud",
+           identifier="user@example.com",
+           credentials={
+               "domain": "your-tenant-subdomain",
+               "client_id": "your-client-id",
+               "client_secret": "your-client-secret",
+           },
+       )
+       ```
+     </TabItem>
+   </Tabs>
+
+   <Aside type="tip" title="Account ID (MID) is optional">
+     Omit `account_id` to issue tokens for the business unit that created the Installed Package. Set it only when your agent needs to act on a different business unit's data.
+   </Aside>
+</Steps>

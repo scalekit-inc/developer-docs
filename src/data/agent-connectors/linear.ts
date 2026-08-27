@@ -95,7 +95,7 @@ export const tools: Tool[] = [
   },
   {
     name: 'linear_comment_create',
-    description: `Create a comment on a Linear issue.`,
+    description: `Create a comment on a Linear issue. Returns the new comment id. Use comment_create to add a comment. Use comment_update to change one.`,
     params: [
       { name: 'body', type: 'string', required: true, description: `Comment text` },
       {
@@ -108,7 +108,7 @@ export const tools: Tool[] = [
   },
   {
     name: 'linear_comment_delete',
-    description: `Permanently delete a comment from a Linear issue.`,
+    description: `Permanently delete a Linear comment. Returns success. Use comment_delete to remove a comment. Use comment_update to change its text.`,
     params: [
       {
         name: 'commentId',
@@ -120,7 +120,7 @@ export const tools: Tool[] = [
   },
   {
     name: 'linear_comment_get',
-    description: `Retrieve a single comment by its ID.`,
+    description: `Get one Linear comment by id. Returns the comment body and author. Use comment_get when you have the id. Use comments_list to find comments on an issue.`,
     params: [
       {
         name: 'commentId',
@@ -132,7 +132,7 @@ export const tools: Tool[] = [
   },
   {
     name: 'linear_comment_update',
-    description: `Update the text body of an existing Linear comment.`,
+    description: `Update the body of an existing Linear comment. Returns the comment id. Use comment_update to change text. Use comment_create to add a new comment.`,
     params: [
       { name: 'body', type: 'string', required: true, description: `Updated comment text` },
       {
@@ -145,7 +145,7 @@ export const tools: Tool[] = [
   },
   {
     name: 'linear_comments_list',
-    description: `List all comments on a specific Linear issue with pagination support.`,
+    description: `List comments on one Linear issue with pagination. Returns comment nodes with id, body, and author. Use comments_list to browse a thread. Use comment_get for one comment id.`,
     params: [
       {
         name: 'issueId',
@@ -316,7 +316,7 @@ export const tools: Tool[] = [
   },
   {
     name: 'linear_issue_archive',
-    description: `Archive a Linear issue by ID using the issueArchive mutation.`,
+    description: `Archive a Linear issue by id. Returns the archived issue id. Use issue_archive to hide an issue. Use issue_unarchive to restore it. Use issue_delete to remove it.`,
     params: [
       {
         name: 'issueId',
@@ -328,7 +328,7 @@ export const tools: Tool[] = [
   },
   {
     name: 'linear_issue_create',
-    description: `Create a new issue in Linear using the issueCreate mutation. Requires a team ID and title at minimum.`,
+    description: `Create a Linear issue. Requires team id and title. Returns the new issue id, number, title, and url. Use issue_create to open a new issue. Use issue_update to change an existing one.`,
     params: [
       {
         name: 'teamId',
@@ -383,14 +383,14 @@ export const tools: Tool[] = [
   },
   {
     name: 'linear_issue_delete',
-    description: `Permanently delete a Linear issue by ID using the issueDelete mutation.`,
+    description: `Permanently delete a Linear issue by id. Returns success. Use issue_delete to remove the issue. Use issue_archive to hide it and keep the record.`,
     params: [
       { name: 'issueId', type: 'string', required: true, description: `ID of the issue to delete` },
     ],
   },
   {
     name: 'linear_issue_get',
-    description: `Get a single Linear issue by ID, including its state, assignee, team, labels, and project details.`,
+    description: `Get one Linear issue by id, including state, assignee, team, labels, and project. Returns the issue object. Use issue_get when you have the id. Use issues_list or issue_search to find an id.`,
     params: [
       {
         name: 'issueId',
@@ -445,7 +445,7 @@ export const tools: Tool[] = [
   },
   {
     name: 'linear_issue_search',
-    description: `Full-text search for issues across the workspace by query string.`,
+    description: `Search Linear issues by text across titles and descriptions. Returns matching issues with id, title, and url. Use issue_search for a text query. Use issues_list to browse with filters. Use issue_get for one known id.`,
     params: [
       {
         name: 'query',
@@ -469,7 +469,7 @@ export const tools: Tool[] = [
   },
   {
     name: 'linear_issue_unarchive',
-    description: `Restore an archived issue back to active status.`,
+    description: `Restore an archived Linear issue to active. Returns the issue id. Use issue_unarchive on an archived issue. Use issue_archive to hide it again.`,
     params: [
       {
         name: 'issueId',
@@ -481,7 +481,7 @@ export const tools: Tool[] = [
   },
   {
     name: 'linear_issue_update',
-    description: `Update an existing issue in Linear. You can update title, description, priority, state, and assignee.`,
+    description: `Update a Linear issue's title, description, priority, state, or assignee. Returns the updated issue id and title. Use issue_update to change an existing issue. Use issue_create to open a new one.`,
     params: [
       { name: 'issueId', type: 'string', required: true, description: `ID of the issue to update` },
       {
@@ -513,7 +513,7 @@ export const tools: Tool[] = [
   },
   {
     name: 'linear_issues_list',
-    description: `List issues in Linear using the issues query with simple filtering and pagination support.`,
+    description: `List Linear issues with filters (state, assignee, project, label, priority) and cursor pagination. Returns issue nodes with id, title, state, assignee, and url. Use issues_list to browse with filters. Use issue_search for a text query. Use issue_get for one known id.`,
     params: [
       {
         name: 'after',

@@ -1,0 +1,53 @@
+import { Steps, Aside } from '@astrojs/starlight/components'
+
+Register your Scalekit environment with the Google Contacts connector so Scalekit handles the OAuth flow and token lifecycle for you. The connection name you create will be used to identify and invoke the connection programmatically. Then complete the configuration in your application as follows:
+
+<Steps>
+1. ### Set up auth redirects
+
+    - In [Scalekit dashboard](https://app.scalekit.com), go to **AgentKit** > **Connections** > **Create Connection**. Find **Google Contacts** and click **Create**. Click **Use your own credentials** and copy the redirect URI. It looks like `https://<SCALEKIT_ENVIRONMENT_URL>/sso/v1/oauth/<CONNECTION_ID>/callback`.
+
+    - Navigate to [Google Cloud Console](https://console.cloud.google.com/projectselector2/home/dashboard?supportedpurview=project) → **APIs & Services** → **Credentials**.
+
+      ![Google Cloud Console Credentials page listing API keys, OAuth 2.0 client IDs, and service accounts](@/assets/docs/agent-connectors/googleoauth/credentials-page-overview.png)
+
+    - Click **+ Create Credentials**, then **OAuth client ID**.
+
+      ![Create credentials menu showing API key, OAuth client ID, and Service account options](@/assets/docs/agent-connectors/googleoauth/create-credentials-menu.png)
+
+    - Choose **Web application** from the Application type menu and give the client a name, for example `Agent Auth`.
+
+      ![Application type dropdown with Web application, Android, Chrome Extension, iOS, TVs, and Desktop app options](@/assets/docs/agent-connectors/googleoauth/select-web-application-type.png)
+
+    - Under **Authorized redirect URIs**, click **+ Add URI**, paste the redirect URI you copied from Scalekit, and click **Create**.
+
+      ![Create OAuth client ID form with Web application type and Authorized redirect URIs section](@/assets/docs/agent-connectors/googleoauth/create-oauth-client-form.png)
+
+2. ### Enable the Google People API
+
+    Google Contacts is powered by the People API — Google's underlying API for profile and contact data.
+
+    - In [Google Cloud Console](https://console.cloud.google.com/projectselector2/home/dashboard?supportedpurview=project), go to **APIs & Services** → **Library**. Search for "Google People API" and click **Enable**.
+
+      ![Google People API product page showing the Enable button and API Enabled status](@/assets/docs/agent-connectors/googlecontacts/enable-people-api.png)
+
+3. ### Get client credentials
+
+    - Open the OAuth client you created in step 1. Google shows the **Client ID** under **Additional information**, and lets you generate a **Client secret** from the same page.
+
+      ![OAuth client detail page showing Client ID and Authorized redirect URIs](@/assets/docs/agent-connectors/googleoauth/oauth-client-detail-redirect-uris.png)
+
+    <Aside type="caution" title="Client secret is shown once">
+      Copy the client secret when you generate it. If you lose it, generate a new one from the same OAuth client page — this doesn't affect the client ID.
+    </Aside>
+
+4. ### Add credentials in Scalekit
+
+    - In [Scalekit dashboard](https://app.scalekit.com), go to **AgentKit** > **Connections** and open the connection you created.
+    - Copy the **Connection name** shown on that connection and use that exact value in your code as `connection_name` or `connectionName`.
+    - Enter your credentials:
+      - **Client ID** (from above)
+      - **Client Secret** (from above)
+      - **Permissions** (scopes — see [Google API Scopes reference](https://developers.google.com/identity/protocols/oauth2/scopes))
+    - Click **Save**.
+</Steps>

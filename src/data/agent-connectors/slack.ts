@@ -40,7 +40,7 @@ export const tools: Tool[] = [
   },
   {
     name: 'slack_add_reaction',
-    description: `Add an emoji reaction to a message in Slack. Requires a valid Slack OAuth2 connection with reactions:write scope.`,
+    description: `Add an emoji reaction to a Slack message. Returns ok. Use add_reaction to react. Use remove_reaction to take it off. Use get_reactions to read reactions on one item.`,
     params: [
       {
         name: 'channel',
@@ -78,6 +78,18 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `The user who will receive the reminder. Defaults to the reminder's creator if omitted.`,
+      },
+    ],
+  },
+  {
+    name: 'slack_archive_channel',
+    description: `Archive a Slack channel. Requires a valid Slack OAuth2 connection with channels:manage (bot) or channels:write (user) scope, or groups:write for private channels.`,
+    params: [
+      {
+        name: 'channel',
+        type: 'string',
+        required: true,
+        description: `ID of the channel to archive`,
       },
     ],
   },
@@ -240,7 +252,7 @@ export const tools: Tool[] = [
   },
   {
     name: 'slack_delete_message',
-    description: `Deletes a message from a Slack channel or direct message. Requires a valid Slack OAuth2 connection with chat:write scope.`,
+    description: `Delete an existing Slack message by channel and timestamp. Returns ok and the deleted timestamp. Use delete_message to remove a posted message. Use update_message to change its text.`,
     params: [
       {
         name: 'channel',
@@ -270,7 +282,7 @@ export const tools: Tool[] = [
   },
   {
     name: 'slack_delete_scheduled_message',
-    description: `Delete a pending scheduled message from the queue before it is sent. Requires a valid Slack OAuth2 connection with the chat:write scope.`,
+    description: `Cancel a queued Slack message before it sends. Returns ok. Use delete_scheduled_message on a scheduled_message_id from list_scheduled_messages or schedule_rich_message.`,
     params: [
       {
         name: 'channel',
@@ -342,6 +354,24 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'slack_edit_canvas',
+    description: `Apply a list of change operations to an existing Slack Canvas (insert_at_end, insert_at_start, or replace, each with markdown document_content). Requires a valid Slack OAuth2 connection with canvases:write scope.`,
+    params: [
+      {
+        name: 'canvas_id',
+        type: 'string',
+        required: true,
+        description: `ID of the canvas to edit`,
+      },
+      {
+        name: 'changes',
+        type: 'array',
+        required: true,
+        description: `Array of change operation objects to apply, e.g. [{"operation": "insert_at_end", "document_content": {"type": "markdown", "markdown": "## New section"}}]`,
+      },
+    ],
+  },
+  {
     name: 'slack_enable_usergroup',
     description: `Enable a previously disabled Slack User Group. Requires a valid Slack OAuth2 connection with the usergroups:write scope.`,
     params: [
@@ -366,7 +396,7 @@ export const tools: Tool[] = [
   },
   {
     name: 'slack_fetch_conversation_history',
-    description: `Fetches conversation history from a Slack channel or direct message with pagination support. Requires a valid Slack OAuth2 connection with channels:history scope.`,
+    description: `Page messages in one Slack channel or DM in time order. Returns messages and a next_cursor. Use fetch_conversation_history to read a channel. Use search_messages to find text across the workspace. Use get_conversation_replies for one thread.`,
     params: [
       {
         name: 'channel',
@@ -414,7 +444,7 @@ export const tools: Tool[] = [
   },
   {
     name: 'slack_get_conversation_info',
-    description: `Retrieve information about a Slack channel, including metadata, settings, and member count. Requires a valid Slack OAuth2 connection with channels:read scope.`,
+    description: `Get metadata for one Slack channel, including settings and optional member count. Returns the channel object. Use get_conversation_info for one known channel. Use list_channels when you do not have the id.`,
     params: [
       {
         name: 'channel',
@@ -438,7 +468,7 @@ export const tools: Tool[] = [
   },
   {
     name: 'slack_get_conversation_replies',
-    description: `Retrieve replies to a specific message thread in a Slack channel or direct message. Requires a valid Slack OAuth2 connection with channels:history or groups:history scope.`,
+    description: `Page replies in one Slack thread by parent timestamp. Returns messages and a next_cursor. Use get_conversation_replies for a thread. Use fetch_conversation_history for the channel's main timeline.`,
     params: [
       {
         name: 'channel',
@@ -498,7 +528,7 @@ export const tools: Tool[] = [
   },
   {
     name: 'slack_get_file_info',
-    description: `Retrieve metadata and comments for a specific file shared in Slack. Requires a valid Slack OAuth2 connection with the files:read scope.`,
+    description: `Get metadata and comments for one Slack file by id. Returns the file object. Use get_file_info for a known file id. Use list_files or search_files when you do not have the id.`,
     params: [
       {
         name: 'file',
@@ -540,7 +570,7 @@ export const tools: Tool[] = [
   },
   {
     name: 'slack_get_reactions',
-    description: `Get the emoji reactions on a Slack message, file, or file comment. Requires a valid Slack OAuth2 connection with the reactions:read scope.`,
+    description: `Read emoji reactions on one Slack message, file, or file comment. Returns the item and its reactions. Use get_reactions for one item. Use list_reactions for items a user has reacted to.`,
     params: [
       {
         name: 'channel',
@@ -727,6 +757,19 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'slack_kick_user_from_channel',
+    description: `Remove a user from a Slack channel. Requires a valid Slack OAuth2 connection with channels:manage (bot) or channels:write (user) scope, or groups:write for private channels.`,
+    params: [
+      {
+        name: 'channel',
+        type: 'string',
+        required: true,
+        description: `ID of the channel to remove the user from`,
+      },
+      { name: 'user', type: 'string', required: true, description: `ID of the user to remove` },
+    ],
+  },
+  {
     name: 'slack_leave_conversation',
     description: `Leaves a Slack channel. The authenticated user will be removed from the channel and will no longer receive messages from it. Requires a valid Slack OAuth2 connection with channels:write scope for public channels or groups:write for private channels.`,
     params: [
@@ -776,7 +819,7 @@ export const tools: Tool[] = [
   },
   {
     name: 'slack_list_channels',
-    description: `List all public and private channels in a Slack workspace that the authenticated user has access to. Requires a valid Slack OAuth2 connection with channels:read, groups:read, mpim:read, and/or im:read scopes depending on conversation types needed.`,
+    description: `List public and private Slack channels the caller can see. Returns channels and a next_cursor. Use list_channels to browse the workspace. Use list_user_conversations for one user's membership. Use get_conversation_info for one channel's metadata.`,
     params: [
       {
         name: 'cursor',
@@ -817,7 +860,7 @@ export const tools: Tool[] = [
   },
   {
     name: 'slack_list_files',
-    description: `List files shared in a Slack workspace, optionally filtered by user, channel, file type, or a time range. Requires a valid Slack OAuth2 connection with the files:read scope.`,
+    description: `List Slack files, optionally filtered by user, channel, type, or time range. Returns files and paging fields. Use list_files to browse with filters. Use search_files for a text query. Use get_file_info for one file id.`,
     params: [
       {
         name: 'channel',
@@ -877,7 +920,7 @@ export const tools: Tool[] = [
   },
   {
     name: 'slack_list_reactions',
-    description: `List all items (messages, files, file comments) that a Slack user has reacted to. Requires a valid Slack OAuth2 connection with the reactions:read scope.`,
+    description: `List Slack items a user has reacted to. Returns items and a next_cursor. Use list_reactions for a user's reaction history. Use get_reactions for one message or file.`,
     params: [
       {
         name: 'cursor',
@@ -912,7 +955,7 @@ export const tools: Tool[] = [
   },
   {
     name: 'slack_list_scheduled_messages',
-    description: `Return a list of messages that are scheduled to be sent to Slack channels, optionally filtered by channel and time range.`,
+    description: `List Slack messages waiting to send, optionally filtered by channel or time. Returns scheduled_messages and a next_cursor. Use list_scheduled_messages to browse the queue. Use search_messages for text already posted.`,
     params: [
       {
         name: 'channel',
@@ -948,7 +991,7 @@ export const tools: Tool[] = [
   },
   {
     name: 'slack_list_user_conversations',
-    description: `List conversations a specific user is a member of, optionally filtered by channel type. Requires a valid Slack OAuth2 connection with the conversations:read scope.`,
+    description: `List Slack conversations one user belongs to. Returns channels and a next_cursor. Use list_user_conversations for one member. Use list_channels to browse the whole workspace.`,
     params: [
       {
         name: 'cursor',
@@ -1224,7 +1267,7 @@ export const tools: Tool[] = [
   },
   {
     name: 'slack_remove_reaction',
-    description: `Remove an emoji reaction from a message in Slack. Requires a valid Slack OAuth2 connection with reactions:write scope.`,
+    description: `Remove an emoji reaction from a Slack message. Returns ok. Use remove_reaction to clear a reaction. Use add_reaction to add one.`,
     params: [
       {
         name: 'channel',
@@ -1243,6 +1286,24 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `Timestamp of the message to remove reaction from`,
+      },
+    ],
+  },
+  {
+    name: 'slack_rename_channel',
+    description: `Rename a Slack channel. Requires a valid Slack OAuth2 connection with channels:manage (bot) or channels:write (user) scope, or groups:write for private channels.`,
+    params: [
+      {
+        name: 'channel',
+        type: 'string',
+        required: true,
+        description: `ID of the channel to rename`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: true,
+        description: `New name for the channel (lowercase letters, numbers, hyphens, underscores; max 80 characters)`,
       },
     ],
   },
@@ -1278,7 +1339,7 @@ export const tools: Tool[] = [
   },
   {
     name: 'slack_schedule_rich_message',
-    description: `Schedules a message for future delivery to a Slack channel or direct message, with full support for Block Kit blocks and legacy attachments. Use this when a scheduled message needs rich formatting (sections, dividers, buttons, images, markdown layout) or attachments. Requires a valid Slack OAuth2 connection with chat:write scope.`,
+    description: `Schedule a Slack message, including Block Kit, for a future Unix time. Returns scheduled_message_id and post_at. Use schedule_rich_message for later delivery. Use send_rich_message to post now.`,
     params: [
       {
         name: 'channel',
@@ -1337,8 +1398,45 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'slack_search_all',
+    description: `Search for both messages and files across the Slack workspace matching a query in a single call. Requires a valid Slack OAuth2 connection with search:read scope (user-token authorization; not available to bot tokens).`,
+    params: [
+      {
+        name: 'query',
+        type: 'string',
+        required: true,
+        description: `Search query. Supports Slack search modifiers like from:, in:, before:, after:`,
+      },
+      {
+        name: 'count',
+        type: 'integer',
+        required: false,
+        description: `Number of results to return per page`,
+      },
+      {
+        name: 'highlight',
+        type: 'boolean',
+        required: false,
+        description: `Enable query highlight markers in results`,
+      },
+      {
+        name: 'page',
+        type: 'integer',
+        required: false,
+        description: `Page number of results to return`,
+      },
+      {
+        name: 'sort',
+        type: 'string',
+        required: false,
+        description: `Sort results by relevance score or by timestamp`,
+      },
+      { name: 'sort_dir', type: 'string', required: false, description: `Sort direction` },
+    ],
+  },
+  {
     name: 'slack_search_files',
-    description: `Search for files matching a query across a Slack workspace. The existing slack_search_messages tool only covers messages, not files. Requires a valid Slack OAuth2 connection with the search:read scope (a user token, not a bot token).`,
+    description: `Search Slack files by query text and Slack modifiers. Returns matching files with pagination. Use search_files to find files by text. Use list_files to browse with filters. Needs a user token with search:read.`,
     params: [
       {
         name: 'query',
@@ -1386,7 +1484,7 @@ export const tools: Tool[] = [
   },
   {
     name: 'slack_search_messages',
-    description: `Search for messages matching a query across a Slack workspace. Requires a valid Slack OAuth2 connection with the search:read scope (a user token, not a bot token).`,
+    description: `Search posted Slack messages by query text and Slack modifiers (from:, in:, before:). Returns matching messages with pagination. Use search_messages to find text. Use fetch_conversation_history to page one channel in time order. Needs a user token with search:read.`,
     params: [
       {
         name: 'query',
@@ -1428,7 +1526,7 @@ export const tools: Tool[] = [
   },
   {
     name: 'slack_send_ephemeral_message',
-    description: `Sends a message to a Slack channel that is only visible to a specific user (ephemeral message), with support for Block Kit blocks and legacy attachments. Requires a valid Slack OAuth2 connection with chat:write scope.`,
+    description: `Send a Slack message that only one user can see in a channel. Returns channel and message timestamp. Use send_ephemeral_message for a private in-channel notice. Use send_message when everyone in the channel should see it.`,
     params: [
       {
         name: 'channel',
@@ -1470,7 +1568,7 @@ export const tools: Tool[] = [
   },
   {
     name: 'slack_send_me_message',
-    description: `Share an italicized '/me'-style action message into a Slack channel (e.g., '_is away from keyboard_'). Requires a valid Slack OAuth2 connection with the chat:write scope.`,
+    description: `Send an italic /me-style action line to a Slack channel. Returns channel and message timestamp. Use send_me_message for an action line. Use send_message for a normal chat line.`,
     params: [
       {
         name: 'channel',
@@ -1483,7 +1581,7 @@ export const tools: Tool[] = [
   },
   {
     name: 'slack_send_message',
-    description: `Sends a message to a Slack channel or direct message. Requires a valid Slack OAuth2 connection with chat:write scope.`,
+    description: `Send plain text to a Slack channel or DM, optionally in a thread. Returns channel and message timestamp. Use send_message for text. Use send_rich_message when the message needs Block Kit or attachments.`,
     params: [
       {
         name: 'channel',
@@ -1544,7 +1642,7 @@ export const tools: Tool[] = [
   },
   {
     name: 'slack_send_rich_message',
-    description: `Sends a message to a Slack channel or direct message with full support for Block Kit blocks and legacy attachments. Use this instead of slack_send_message whenever the message needs rich formatting (sections, dividers, buttons, images, markdown layout) or attachments — slack_send_message currently ignores those fields. Requires a valid Slack OAuth2 connection with chat:write scope.`,
+    description: `Send a Slack message with Block Kit blocks or legacy attachments. Returns channel and message timestamp. Use send_rich_message for rich layout. Use send_message for plain text.`,
     params: [
       {
         name: 'channel',
@@ -1593,6 +1691,42 @@ export const tools: Tool[] = [
         type: 'boolean',
         required: false,
         description: `Enable or disable media link previews`,
+      },
+    ],
+  },
+  {
+    name: 'slack_set_channel_purpose',
+    description: `Set the purpose/description for a Slack channel. Requires a valid Slack OAuth2 connection with channels:write.topic (or channels:manage) scope, or groups:write.topic for private channels.`,
+    params: [
+      {
+        name: 'channel',
+        type: 'string',
+        required: true,
+        description: `ID of the channel to update`,
+      },
+      {
+        name: 'purpose',
+        type: 'string',
+        required: true,
+        description: `New purpose/description string (max 250 characters)`,
+      },
+    ],
+  },
+  {
+    name: 'slack_set_channel_topic',
+    description: `Set the topic for a Slack channel. Requires a valid Slack OAuth2 connection with channels:write.topic (or channels:manage) scope, or groups:write.topic for private channels.`,
+    params: [
+      {
+        name: 'channel',
+        type: 'string',
+        required: true,
+        description: `ID of the channel to update`,
+      },
+      {
+        name: 'topic',
+        type: 'string',
+        required: true,
+        description: `New topic string (max 250 characters, no formatting or linkification)`,
       },
     ],
   },
@@ -1688,6 +1822,18 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'slack_unarchive_channel',
+    description: `Unarchive a Slack channel. Requires a valid Slack OAuth2 connection with channels:write (user) or groups:write scope. Note: Slack currently only supports unarchiving via a User Token, not a Bot Token - use a User Token Scope for this tool.`,
+    params: [
+      {
+        name: 'channel',
+        type: 'string',
+        required: true,
+        description: `ID of the channel to unarchive`,
+      },
+    ],
+  },
+  {
     name: 'slack_unarchive_conversation',
     description: `Reverse the archival of a Slack channel, restoring it to active use. Requires a valid Slack OAuth2 connection with the conversations:write scope.`,
     params: [
@@ -1724,8 +1870,26 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'slack_unpin_message',
+    description: `Remove a pinned message from a Slack channel. Requires a valid Slack OAuth2 connection with pins:write scope.`,
+    params: [
+      {
+        name: 'channel',
+        type: 'string',
+        required: true,
+        description: `Channel ID or channel name where the message is pinned`,
+      },
+      {
+        name: 'timestamp',
+        type: 'string',
+        required: true,
+        description: `Timestamp of the pinned message to unpin`,
+      },
+    ],
+  },
+  {
     name: 'slack_update_message',
-    description: `Updates/edits a previously sent message in a Slack channel or direct message. Requires a valid Slack OAuth2 connection with chat:write scope.`,
+    description: `Edit an existing Slack message by channel and timestamp. Returns the updated message timestamp. Use update_message to change text that is already posted. Use send_message to post a new line.`,
     params: [
       {
         name: 'channel',
@@ -1741,15 +1905,15 @@ export const tools: Tool[] = [
       },
       {
         name: 'attachments',
-        type: 'string',
+        type: 'array',
         required: false,
-        description: `JSON-encoded array of attachment objects for additional message formatting`,
+        description: `Array of attachment objects for additional message formatting`,
       },
       {
         name: 'blocks',
-        type: 'string',
+        type: 'array',
         required: false,
-        description: `JSON-encoded array of Block Kit block elements for rich message formatting`,
+        description: `Array of Block Kit block elements for rich message formatting`,
       },
       { name: 'text', type: 'string', required: false, description: `New message text content` },
     ],
