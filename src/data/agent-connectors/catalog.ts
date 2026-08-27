@@ -1842,4 +1842,9 @@ export const catalog: Record<string, ProviderMeta> = {
     authType: 'OAuth 2.0',
     categories: ['Communication'],
   },
+  salesforcemarketingcloud: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/sales_force.svg',
+    authType: 'OAuth 2.0 Server-to-Server',
+    categories: ['Marketing', 'Automation'],
+  },
 }
