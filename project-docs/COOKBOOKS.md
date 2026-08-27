@@ -224,7 +224,7 @@ Use heading `## Next steps`. 3–5 links or actions the developer can take to go
 
 ## Code standards
 
-All code in cookbooks must follow the project-wide standards from `CLAUDE.md`. Key rules for cookbooks:
+All code in cookbooks must follow the project-wide standards from `AGENTS.md`. Key rules for cookbooks:
 
 - **Multi-language**: Use `<Tabs syncKey="tech-stack">` with all four SDK languages (Node.js, Python, Go, Java) for at least 90% of SDK-related code blocks.
 - **SDK variable names**: `scalekit` (Node.js), `scalekit_client` (Python), `scalekitClient` (Go/Java) — non-negotiable.

@@ -32,7 +32,7 @@ A few things worth knowing before you dive in:
 - All documentation lives as **MDX files** inside `src/content/`. That's the main place contributors work.
 - The site is built with **[Astro](https://astro.build) v5** and the **[Starlight](https://starlight.astro.build)** docs framework, deployed on Netlify in SSR mode.
 - We use **pnpm** as the package manager — not npm or yarn.
-- Follow the documentation standards in `CLAUDE.md` at the root as the single source of truth for all documentation rules. Read this before writing.
+- Follow the documentation standards in `AGENTS.md` at the root as the single source of truth for all documentation rules. Read this before writing.
 
 ---
 
@@ -151,7 +151,7 @@ The site uses a rich set of Starlight plugins, each responsible for a discrete f
 | [starlight-links-validator](https://github.com/HiDeoo/starlight-links-validator)           | Validates internal links at build time (excludes `/apis/**`)                                                                                                                 |
 | [starlight-llms-txt](https://github.com/HiDeoo/starlight-llms-txt)                         | Generates a machine-readable `llms.txt` index for AI assistants                                                                                                              |
 | [starlight-videos](https://github.com/HiDeoo/starlight-videos)                             | Embeds and styles video content within docs pages                                                                                                                            |
-| [starlight-contextual-menu](https://github.com/HiDeoo/starlight-contextual-menu)           | Adds per-page contextual actions: copy, open in ChatGPT, open in Claude                                                                                                      |
+| [starlight-page-actions](https://github.com/HiDeoo/starlight-page-actions)                 | Adds per-page actions: copy markdown, open in Claude Code, Cursor                                                                                                            |
 | [@astrojs/starlight-docsearch](https://www.npmjs.com/package/@astrojs/starlight-docsearch) | Algolia DocSearch integration with AI Ask mode                                                                                                                               |
 | [astro-d2](https://astro-d2.vercel.app)                                                    | Renders `.d2` diagram files as SVGs at build time; uses `skipGeneration` when `NETLIFY` is set (see [D2 diagrams and local development](#d2-diagrams-and-local-development)) |
 
@@ -259,7 +259,7 @@ SDK variable names are fixed — do not rename them:
 | Go       | `scalekitClient`  |
 | Java     | `scalekitClient`  |
 
-For the full style guide, read `CLAUDE.md` at the root of the repo.
+For the full style guide, read `AGENTS.md` at the root of the repo.
 
 ---
 

@@ -506,7 +506,6 @@ All changes must pass:
 - Use `pnpm` for package management
 - Follow Astro + Starlight framework conventions
 - Maintain compatibility with Tailwind CSS styling
-- Ensure Vue 3 and React component compatibility
 
 ### SDK reference (ClassBrowser) — CSS and chrome
 

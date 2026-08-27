@@ -115,7 +115,7 @@ We welcome contributions from everyone — whether it's fixing a typo, improving
 
 Before writing or editing, check:
 
-- **`CLAUDE.md`** — the single source of truth for voice, structure, document types, and all documentation standards
+- **`AGENTS.md`** — the single source of truth for voice, structure, document types, and all documentation standards. `CLAUDE.md` points at that file.
 
 **Key conventions at a glance:**
 
@@ -132,7 +132,6 @@ Before writing or editing, check:
 | --------------- | ---------------------------------------------------- |
 | Framework       | [Astro](https://astro.build) v5                      |
 | Docs theme      | [Starlight](https://starlight.astro.build)           |
-| UI components   | React 19, Vue 3                                      |
 | Styling         | Tailwind CSS v4                                      |
 | API Reference   | [Scalar](https://scalar.com)                         |
 | Search          | Algolia DocSearch + AI Ask                           |
