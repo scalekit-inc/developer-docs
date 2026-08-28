@@ -2,16 +2,21 @@
 import { Code, TabItem } from '@astrojs/starlight/components'
 import Tabs from './ui/Tabs.astro'
 import { setupOneLiner } from '../configs/agent-instructions'
-import { PRODUCT_PROMPTS } from '../configs/product-prompts'
+import { PRODUCT_PROMPTS, type ProductSkill } from '../configs/product-prompts'
 
 interface Props {
-  skill: string
+  skill: ProductSkill
   example?: string
   syncKey?: string
 }
 
 const { skill, example, syncKey = 'product-agent-cli' } = Astro.props
-const prompt = example ?? PRODUCT_PROMPTS[skill as keyof typeof PRODUCT_PROMPTS] ?? `Use ${skill}.`
+if (!(skill in PRODUCT_PROMPTS)) {
+  throw new Error(
+    `ProductAgentBlock: unknown skill "${skill}". Expected one of: ${Object.keys(PRODUCT_PROMPTS).join(', ')}`,
+  )
+}
+const prompt = example ?? PRODUCT_PROMPTS[skill]
 ---
 
 <Tabs syncKey={syncKey}>

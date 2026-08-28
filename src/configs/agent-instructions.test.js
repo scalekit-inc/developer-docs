@@ -108,6 +108,10 @@ test('install story names every shipped Authstack skill and the Authstack env va
   assert.equal(text.includes('SCALEKIT_ENVIRONMENT_URL'), true)
 })
 
+test('homepage prompt does not add an admin portal on the SCIM path', () => {
+  assert.equal(homepagePrompt.includes('generatePortalLink'), false)
+})
+
 test('each product prompt names its shipped skill, the CLI, and the env var', () => {
   assert.deepEqual(Object.keys(PRODUCT_PROMPTS).sort(), [...SHIPPED_SKILLS].sort())
   for (const skill of SHIPPED_SKILLS) {

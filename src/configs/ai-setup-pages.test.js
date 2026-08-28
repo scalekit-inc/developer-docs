@@ -49,6 +49,8 @@ test('AgentKit coding-agent cookbook verify uses SCALEKIT_ENVIRONMENT_URL', () =
   )
   assert.equal(text.includes('SCALEKIT_ENVIRONMENT_URL'), true)
   assert.equal(text.includes('SCALEKIT_ENV_URL'), false)
+  assert.equal(text.includes('ProductAgentBlock'), true)
+  assert.equal(text.includes('skill="integrate-agentkit"'), true)
 })
 
 test('AI setup templates name a shipped Authstack skill', () => {
