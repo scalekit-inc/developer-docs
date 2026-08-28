@@ -58,7 +58,7 @@ Follow these in order. A step is done only when its check passes.
      Register http://localhost:12456/auth/callback under Authentication → Redirect URIs first. Path: Authentication → Redirect URLs
    - MCP auth: MCP server URL and https://<your-domain>/.well-known/oauth-protected-resource. Curl the MCP URL for 401 + WWW-Authenticate, and curl the well-known JSON. Path: MCP servers
    - SSO: authorization URL that opens the SSO simulator — Test Organization organization_id from Organizations → Test Organization, or login_hint on @example.com / @example.org. Path: Organizations → Test Organization
-   - SCIM: no auth link. Public webhook URL, plus the admin portal link (generatePortalLink or Organizations → Generate link) so IT can copy the SCIM Endpoint URL and Bearer token. Path: Webhooks and Organizations`
+   - SCIM: no auth link and no admin portal. Public webhook URL, signature-verified POST, and a Send Test Event that created or updated a local user. Name implement-sso if IT still needs the admin portal. Path: Webhooks`
 
 /**
  * Prompt stuffed into Open-in-agent deep links (Claude Code `q=`,

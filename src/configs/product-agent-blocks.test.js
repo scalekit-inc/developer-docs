@@ -9,16 +9,26 @@ const repoRoot = join(dirname(fileURLToPath(import.meta.url)), '../..')
 
 /** Product pages that host an agent block. Skill must match the page's product. */
 const AGENT_BLOCKS = [
-  ['src/content/docs/authenticate/fsa/quickstart.mdx', 'implementing-saaskit'],
-  ['src/content/docs/authenticate/mcp/quickstart.mdx', 'adding-mcp-oauth'],
-  ['src/content/docs/authenticate/sso/add-modular-sso.mdx', 'implementing-modular-sso'],
-  ['src/content/docs/sso/quickstart.mdx', 'implementing-modular-sso'],
-  ['src/content/docs/directory/scim/quickstart.mdx', 'implementing-scim-provisioning'],
-  ['src/content/docs/passwordless/quickstart.mdx', 'implementing-saaskit'],
-  ['src/content/docs/passwordless/oidc.mdx', 'implementing-saaskit'],
-  ['src/content/docs/agentkit/quickstart.mdx', 'integrating-agentkit'],
-  ['src/content/docs/home/saaskit/index.mdx', 'implementing-saaskit'],
-  ['src/content/docs/authenticate/set-up-scalekit.mdx', 'implementing-saaskit'],
+  ['src/content/docs/authenticate/fsa/quickstart.mdx', 'implement-saaskit'],
+  ['src/content/docs/authenticate/mcp/quickstart.mdx', 'add-mcp-oauth'],
+  ['src/content/docs/authenticate/sso/add-modular-sso.mdx', 'implement-sso'],
+  ['src/content/docs/sso/quickstart.mdx', 'implement-sso'],
+  ['src/content/docs/directory/scim/quickstart.mdx', 'implement-scim'],
+  ['src/content/docs/passwordless/quickstart.mdx', 'implement-saaskit'],
+  ['src/content/docs/passwordless/oidc.mdx', 'implement-saaskit'],
+  ['src/content/docs/agentkit/quickstart.mdx', 'integrate-agentkit'],
+  ['src/content/docs/home/saaskit/index.mdx', 'implement-saaskit'],
+  ['src/content/docs/authenticate/set-up-scalekit.mdx', 'implement-saaskit'],
+]
+
+/** Pages that must show the full PRODUCT_PROMPTS playbook, not a short example. */
+const FULL_PLAYBOOK_PAGES = [
+  ['src/content/docs/agentkit/quickstart.mdx', 'integrate-agentkit'],
+  ['src/content/docs/authenticate/fsa/quickstart.mdx', 'implement-saaskit'],
+  ['src/content/docs/authenticate/mcp/quickstart.mdx', 'add-mcp-oauth'],
+  ['src/content/docs/authenticate/sso/add-modular-sso.mdx', 'implement-sso'],
+  ['src/content/docs/sso/quickstart.mdx', 'implement-sso'],
+  ['src/content/docs/directory/scim/quickstart.mdx', 'implement-scim'],
 ]
 
 function read(rel) {
@@ -34,7 +44,24 @@ test('product-page agent blocks name the owned CLI and the matching shipped skil
   }
 })
 
-test('product agent block component uses the owned CLI', () => {
+test('full-playbook pages mount ProductAgentBlock without an example override', () => {
+  for (const [file, skill] of FULL_PLAYBOOK_PAGES) {
+    const text = read(file)
+    assert.equal(text.includes('ProductAgentBlock'), true, `${file} is missing ProductAgentBlock`)
+    assert.equal(text.includes(`skill="${skill}"`), true, `${file} is missing skill="${skill}"`)
+    assert.equal(/\bexample=/.test(text), false, `${file} still overrides the playbook`)
+  }
+})
+
+test('AgentKit quickstart uses SCALEKIT_ENVIRONMENT_URL', () => {
+  const text = read('src/content/docs/agentkit/quickstart.mdx')
+  assert.equal(text.includes('SCALEKIT_ENVIRONMENT_URL'), true)
+  assert.equal(text.includes('SCALEKIT_ENV_URL'), false)
+})
+
+test('product agent block component uses the owned CLI and ProductSkill', () => {
   const text = read('src/components/ProductAgentBlock.astro')
   assert.equal(text.includes('setupOneLiner'), true)
+  assert.equal(text.includes('ProductSkill'), true)
+  assert.equal(text.includes('Use ${skill}'), false)
 })

@@ -19,7 +19,7 @@ scalekit setup
 
 The CLI installs the authstack plugin for Claude Code, Cursor, GitHub Copilot, Codex, and skills for 40+ other agents.
 
-Use natural language or a shipped skill: integrating-agentkit, implementing-saaskit, adding-mcp-oauth, implementing-modular-sso, implementing-scim-provisioning.
+Use natural language or a shipped skill: integrate-agentkit, implement-saaskit, add-mcp-oauth, implement-sso, implement-scim.
 
 [Full setup guide](https://docs.scalekit.com/dev-kit/build-with-ai/)
 

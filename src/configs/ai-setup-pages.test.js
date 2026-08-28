@@ -9,11 +9,11 @@ const repoRoot = join(here, '../..')
 const templatesDir = join(repoRoot, 'src/components/templates/coding-agents')
 
 const SHIPPED_SKILLS = [
-  'integrating-agentkit',
-  'implementing-saaskit',
-  'adding-mcp-oauth',
-  'implementing-modular-sso',
-  'implementing-scim-provisioning',
+  'integrate-agentkit',
+  'implement-saaskit',
+  'add-mcp-oauth',
+  'implement-sso',
+  'implement-scim',
 ]
 
 const INVENTED_PLUGIN_LINES = [
@@ -49,6 +49,8 @@ test('AgentKit coding-agent cookbook verify uses SCALEKIT_ENVIRONMENT_URL', () =
   )
   assert.equal(text.includes('SCALEKIT_ENVIRONMENT_URL'), true)
   assert.equal(text.includes('SCALEKIT_ENV_URL'), false)
+  assert.equal(text.includes('ProductAgentBlock'), true)
+  assert.equal(text.includes('skill="integrate-agentkit"'), true)
 })
 
 test('AI setup templates name a shipped Authstack skill', () => {

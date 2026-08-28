@@ -7,7 +7,9 @@ sidebar:
 ---
 
 import { Aside, TabItem } from '@astrojs/starlight/components';
+import FoldCard from '@components/ui/FoldCard.astro';
 import Tabs from '@components/ui/Tabs.astro';
+import ProductAgentBlock from '@components/ProductAgentBlock.astro';
 import quickstartArchitecture from '@/assets/pages/hero/agentkit.svg';
 
 <img
@@ -21,7 +23,21 @@ import quickstartArchitecture from '@/assets/pages/hero/agentkit.svg';
 
 By the end of this guide, you'll have a working agent that stars a repository on GitHub on behalf of a user (authenticated with their real account). Scalekit manages the OAuth flow, token storage, and API proxy so you focus on agent logic.
 
+<FoldCard
+  title="Build with a coding agent"
+  iconKey="build-with-ai"
+  iconPosition="right"
+  href="/dev-kit/build-with-ai/"
+  cta="Build with AI"
+  showCta={false}
+  clickable={false}
+>
+  <ProductAgentBlock
+    skill="integrate-agentkit"
+    syncKey="agentkit-cli-install"
+  />
 
+</FoldCard>
 
 ## Before you start
 
@@ -37,7 +53,7 @@ Complete these steps in the Scalekit dashboard before writing any code:
 3. **Copy your API credentials** at Dashboard → **Developers → Settings → API Credentials**. Save these values as environment variables:
    - `SCALEKIT_CLIENT_ID`
    - `SCALEKIT_CLIENT_SECRET`
-   - `SCALEKIT_ENV_URL`
+   - `SCALEKIT_ENVIRONMENT_URL`
    - `GITHUB_CONNECTION_NAME` (copy the exact Connection name from **AgentKit** > **Connections** — `github-connect` in new environments)
 
 ## Build your agent
@@ -45,17 +61,7 @@ Complete these steps in the Scalekit dashboard before writing any code:
 <Tabs syncKey="build-mode">
   <TabItem label="Using a coding agent">
 
-    Install the authstack plugin for your coding agent with `npx @scalekit-inc/cli setup` (or install globally with `npm install -g @scalekit-inc/cli` then `scalekit setup`). Then load the shipped skill `integrating-agentkit`. Complete any browser authorization when prompted, then paste the implementation prompt.
-
-    ```bash title="Terminal" frame="terminal" showLineNumbers=false
-    npx @scalekit-inc/cli setup
-    ```
-
-    The CLI sets up the authstack plugin for your editors. Then load `integrating-agentkit`. Complete any browser authorization for the Scalekit MCP server when prompted. Then use the prompt below (or describe your goal in natural language).
-
-    ```md title="Implementation prompt" wrap showLineNumbers=false
-    Configure Scalekit agent authentication for GitHub. Provide code to create a connected account, generate an authorization link, and, once the user authorizes, star Scalekit's SDK repo (scalekit-inc/scalekit-sdk-python) using Scalekit's tool API.
-    ```
+    Use the playbook in **Build with a coding agent** above. It names `integrate-agentkit` and defaults to Gmail. Name GitHub if you want this page's connector instead.
 
     <Aside type="caution" title="Review generated code before deploying">
       Verify that token validation logic, error handling, and environment variable references match your application's requirements.
@@ -90,7 +96,7 @@ Complete these steps in the Scalekit dashboard before writing any code:
 
         # Constructor: env_url, client_id, client_secret
         scalekit_client = ScalekitClient(
-            os.environ["SCALEKIT_ENV_URL"],
+            os.environ["SCALEKIT_ENVIRONMENT_URL"],
             os.environ["SCALEKIT_CLIENT_ID"],
             os.environ["SCALEKIT_CLIENT_SECRET"],
         )
@@ -106,7 +112,7 @@ Complete these steps in the Scalekit dashboard before writing any code:
 
         // Constructor: envUrl, clientId, clientSecret
         const scalekit = new ScalekitClient(
-          process.env.SCALEKIT_ENV_URL!,
+          process.env.SCALEKIT_ENVIRONMENT_URL!,
           process.env.SCALEKIT_CLIENT_ID!,
           process.env.SCALEKIT_CLIENT_SECRET!
         );

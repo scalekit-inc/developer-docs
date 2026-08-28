@@ -9,13 +9,13 @@ export const setupOneLiner = 'npx @scalekit-inc/cli setup'
 /** Same Setup for a coding agent: skip npx and CLI prompts. */
 export const setupForAgent = `npx -y ${setupOneLiner.replace(/^npx\s+/, '')} -y`
 
-/** Skill IDs the authstack repo already ships. Docs copy must use these names. */
+/** Skill IDs the authstack / skills repos ship after the writing-for-agents revamp. */
 export const AUTHSTACK_SKILLS = [
-  'integrating-agentkit',
-  'implementing-saaskit',
-  'adding-mcp-oauth',
-  'implementing-modular-sso',
-  'implementing-scim-provisioning',
+  'integrate-agentkit',
+  'implement-saaskit',
+  'add-mcp-oauth',
+  'implement-sso',
+  'implement-scim',
 ] as const
 
 export const ENVIRONMENT_URL_VAR = 'SCALEKIT_ENVIRONMENT_URL'
