@@ -9,11 +9,11 @@ const repoRoot = join(here, '../..')
 const templatesDir = join(repoRoot, 'src/components/templates/coding-agents')
 
 const SHIPPED_SKILLS = [
-  'integrating-agentkit',
-  'implementing-saaskit',
-  'adding-mcp-oauth',
-  'implementing-modular-sso',
-  'implementing-scim-provisioning',
+  'integrate-agentkit',
+  'implement-saaskit',
+  'add-mcp-oauth',
+  'implement-sso',
+  'implement-scim',
 ]
 
 const INVENTED_PLUGIN_LINES = [

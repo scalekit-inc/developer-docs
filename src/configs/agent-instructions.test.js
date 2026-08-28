@@ -13,6 +13,14 @@ import {
   AGENT_PLUGIN_META,
 } from './agent-instructions.ts'
 import { homepagePrompt, pageActionsPrompt } from './page-actions.config.ts'
+import {
+  agentkitPrompt,
+  saaskitPrompt,
+  mcpAuthPrompt,
+  modularSsoPrompt,
+  modularScimPrompt,
+  PRODUCT_PROMPTS,
+} from './product-prompts.ts'
 
 const publicAgentsMd = readFileSync(
   join(dirname(fileURLToPath(import.meta.url)), '../../public/AGENTS.md'),
@@ -21,11 +29,11 @@ const publicAgentsMd = readFileSync(
 
 /** Skill IDs the authstack repo already ships. Independent of this module's internals. */
 const SHIPPED_SKILLS = [
-  'integrating-agentkit',
-  'implementing-saaskit',
-  'adding-mcp-oauth',
-  'implementing-modular-sso',
-  'implementing-scim-provisioning',
+  'integrate-agentkit',
+  'implement-saaskit',
+  'add-mcp-oauth',
+  'implement-sso',
+  'implement-scim',
 ]
 
 const INVENTED_SKILL_TOKENS = [
@@ -34,6 +42,11 @@ const INVENTED_SKILL_TOKENS = [
   'mcp-auth',
   'modular-sso',
   'modular-scim',
+  'integrating-agentkit',
+  'implementing-saaskit',
+  'adding-mcp-oauth',
+  'implementing-modular-sso',
+  'implementing-scim-provisioning',
 ]
 
 function installStoryExports() {
@@ -47,6 +60,11 @@ function installStoryExports() {
     AGENT_PLUGIN_META,
     homepagePrompt,
     pageActionsPrompt,
+    agentkitPrompt,
+    saaskitPrompt,
+    mcpAuthPrompt,
+    modularSsoPrompt,
+    modularScimPrompt,
   }
 }
 
@@ -88,4 +106,18 @@ test('install story names every shipped Authstack skill and the Authstack env va
     assert.equal(text.includes(skill), true, `missing shipped skill: ${skill}`)
   }
   assert.equal(text.includes('SCALEKIT_ENVIRONMENT_URL'), true)
+})
+
+test('each product prompt names its shipped skill, the CLI, and the env var', () => {
+  assert.deepEqual(Object.keys(PRODUCT_PROMPTS).sort(), [...SHIPPED_SKILLS].sort())
+  for (const skill of SHIPPED_SKILLS) {
+    const prompt = PRODUCT_PROMPTS[skill]
+    assert.equal(prompt.includes(skill), true, `product prompt missing skill: ${skill}`)
+    assert.equal(prompt.includes(setupForAgent), true, `product prompt missing agent CLI: ${skill}`)
+    assert.equal(
+      prompt.includes(ENVIRONMENT_URL_VAR),
+      true,
+      `product prompt missing env var: ${skill}`,
+    )
+  }
 })

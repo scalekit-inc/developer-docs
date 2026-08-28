@@ -2,14 +2,16 @@
 import { Code, TabItem } from '@astrojs/starlight/components'
 import Tabs from './ui/Tabs.astro'
 import { setupOneLiner } from '../configs/agent-instructions'
+import { PRODUCT_PROMPTS } from '../configs/product-prompts'
 
 interface Props {
   skill: string
-  example: string
+  example?: string
   syncKey?: string
 }
 
 const { skill, example, syncKey = 'product-agent-cli' } = Astro.props
+const prompt = example ?? PRODUCT_PROMPTS[skill as keyof typeof PRODUCT_PROMPTS] ?? `Use ${skill}.`
 ---
 
 <Tabs syncKey={syncKey}>
@@ -34,6 +36,6 @@ const { skill, example, syncKey = 'product-agent-cli' } = Astro.props
 </Tabs>
 
 <p>
-  Paste a task that names <code>{skill}</code>. For example:
+  Paste this prompt. It names <code>{skill}</code>:
 </p>
-<Code code={example} lang="text" title="Example prompt" showLineNumbers={false} wrap />
+<Code code={prompt} lang="text" title="Example prompt" showLineNumbers={false} wrap />

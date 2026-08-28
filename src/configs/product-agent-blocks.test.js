@@ -9,16 +9,16 @@ const repoRoot = join(dirname(fileURLToPath(import.meta.url)), '../..')
 
 /** Product pages that host an agent block. Skill must match the page's product. */
 const AGENT_BLOCKS = [
-  ['src/content/docs/authenticate/fsa/quickstart.mdx', 'implementing-saaskit'],
-  ['src/content/docs/authenticate/mcp/quickstart.mdx', 'adding-mcp-oauth'],
-  ['src/content/docs/authenticate/sso/add-modular-sso.mdx', 'implementing-modular-sso'],
-  ['src/content/docs/sso/quickstart.mdx', 'implementing-modular-sso'],
-  ['src/content/docs/directory/scim/quickstart.mdx', 'implementing-scim-provisioning'],
-  ['src/content/docs/passwordless/quickstart.mdx', 'implementing-saaskit'],
-  ['src/content/docs/passwordless/oidc.mdx', 'implementing-saaskit'],
-  ['src/content/docs/agentkit/quickstart.mdx', 'integrating-agentkit'],
-  ['src/content/docs/home/saaskit/index.mdx', 'implementing-saaskit'],
-  ['src/content/docs/authenticate/set-up-scalekit.mdx', 'implementing-saaskit'],
+  ['src/content/docs/authenticate/fsa/quickstart.mdx', 'implement-saaskit'],
+  ['src/content/docs/authenticate/mcp/quickstart.mdx', 'add-mcp-oauth'],
+  ['src/content/docs/authenticate/sso/add-modular-sso.mdx', 'implement-sso'],
+  ['src/content/docs/sso/quickstart.mdx', 'implement-sso'],
+  ['src/content/docs/directory/scim/quickstart.mdx', 'implement-scim'],
+  ['src/content/docs/passwordless/quickstart.mdx', 'implement-saaskit'],
+  ['src/content/docs/passwordless/oidc.mdx', 'implement-saaskit'],
+  ['src/content/docs/agentkit/quickstart.mdx', 'integrate-agentkit'],
+  ['src/content/docs/home/saaskit/index.mdx', 'implement-saaskit'],
+  ['src/content/docs/authenticate/set-up-scalekit.mdx', 'implement-saaskit'],
 ]
 
 function read(rel) {
