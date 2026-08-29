@@ -16,12 +16,12 @@ sidebar:
 seeAlso:
   expanded: true
   items:
-    - title: "Preserve destination post login"
-      icon: "book"
-      url: "/guides/user-auth/preserve-intended-destination/"
-    - title: "Organization session policy"
-      icon: "book"
-      url: "/authenticate/manage-organizations/organization-session-policy/"
+    - title: 'Preserve destination post login'
+      icon: 'book'
+      url: '/guides/user-auth/preserve-intended-destination/'
+    - title: 'Organization session policy'
+      icon: 'book'
+      url: '/authenticate/manage-organizations/organization-session-policy/'
 ---
 
 import {
@@ -32,15 +32,11 @@ import {
   Card,
   Badge,
 } from '@astrojs/starlight/components';
-import InstallSDK from '@components/templates/_installsdk.mdx';
-import { AuthResultTabsSection } from '@components/templates';
-import CheckItem from '@/components/ui/CheckItem.astro';
 import IconTdesignSequence from '~icons/tdesign/sequence'
 
 User sessions determine how long users stay signed in to your application. After users successfully authenticate, you receive session tokens that manage their access. These tokens control session duration, multi-device access, and cross-product authentication within your company's ecosystem.
 
-This guide shows you how to store these tokens securely with encryption and proper cookie attributes, validate them on every request, and refresh them transparently in middleware to maintain seamless user sessions.
-
+Store those tokens securely, validate them on every request, and refresh them before they expire. Session middleware writes one encrypted `sk_session` cookie and does that work for you. You can still store and refresh tokens yourself if you prefer.
 
 <details>
 <summary><IconTdesignSequence style="display: inline; width: 1rem; height: 1rem; vertical-align: middle; margin-right: 0.5rem;" /> Review the session management sequence</summary>
@@ -51,97 +47,133 @@ This guide shows you how to store these tokens securely with encryption and prop
 
 
 <Steps>
-1. ## Store session tokens securely
+1. ## Store the session
 
-    After successful identity verification using any of the auth methods (Magic Link & OTP, social, enterprise SSO), your application receives session tokens(access and refresh tokens) towards the [end of the login](/authenticate/fsa/complete-login/).
+   After hosted login, session middleware writes one encrypted `sk_session` cookie. You do not set `accessToken` or `refreshToken` cookies.
 
-   <AuthResultTabsSection />
-
-   <Aside type="caution" title="Request offline_access to receive a refresh token">
-   A refresh token is only included in the authentication response when you include the `offline_access` scope in your authorization URL. If your authorization URL does not include `offline_access`, `authResult.refreshToken` will be `null` or undefined.
-
-    Always include `offline_access` alongside `openid`, `profile`, and `email` when building your authorization URL:
-
-    ```js
-    scopes: ['openid', 'profile', 'email', 'offline_access']
-    ```
-
-   Additionally, Scalekit **rotates refresh tokens**. Every time you use a refresh token to get a new access token, you receive a new refresh token. Store the new refresh token immediately and discard the old one. Replaying a used refresh token will result in an error.
-   </Aside>
-
-   Store each token based on its security requirements. For SPAs and mobile apps, consider storing access tokens in memory and sending via `Authorization: Bearer` headers to minimize CSRF exposure. For traditional web apps, use the cookie-based approach below:
-   - **Access Token**: Store in a secure, HttpOnly cookie with proper `Path` scoping (e.g., `/api`) to prevent XSS attacks. This token has a short lifespan and provides access to protected resources.
-   - **Refresh Token**: Store in a separate HttpOnly, Secure cookie with `Path=/auth/refresh` scoping. This limits the refresh token to only be sent to your refresh endpoint, reducing exposure. Rotate the token on each use to detect theft.
-   - **ID Token**: Ensure it is stored in local storage or a cookie so that it remains accessible at runtime, which is necessary for logging the user out successfully.
-
+   Add `COOKIE_ENCRYPTION_SECRET` to `.env`. Generate it with `openssl rand -base64 32`. Use the same value on every server.
 
    <Tabs syncKey="tech-stack">
      <TabItem value="node" label="Node.js">
-     ```javascript title="Express.js" showLineNumbers=true  collapse={1-4} "accessToken" "refreshToken"
-     import cookieParser from 'cookie-parser';
-     // Enable parsing of cookies from request headers
-     app.use(cookieParser());
+     <Tabs syncKey="node-framework">
+     <TabItem value="express" label="Express">
 
-     // Extract authentication data from the successful authentication response
-     const { accessToken, expiresIn, refreshToken, user } = authResult;
+     Install `@scalekit-sdk/node` 2.12.0 or later. Mount `auth.router`. It registers `/login`, `/callback`, and `/logout`. The callback writes `sk_session`.
 
-     // Encrypt tokens before storing to add an additional security layer
-     const encryptedAccessToken = encrypt(accessToken);
-     const encryptedRefreshToken = encrypt(refreshToken);
+     ```ts title="server.ts" wrap
+     import express from 'express';
+     import { ScalekitAuth } from '@scalekit-sdk/node/express';
 
-     // Store encrypted access token in HttpOnly cookie
-     res.cookie('accessToken', encryptedAccessToken, {
-       maxAge: (expiresIn - 60) * 1000, // Subtract 60s buffer for clock skew (milliseconds)
-       httpOnly: true, // Prevents JavaScript access to mitigate XSS attacks
-       secure: process.env.NODE_ENV === 'production', // HTTPS-only in production
-       sameSite: 'strict' // Prevents CSRF attacks
+     const auth = new ScalekitAuth({
+       envUrl: process.env.SCALEKIT_ENVIRONMENT_URL,
+       clientId: process.env.SCALEKIT_CLIENT_ID,
+       clientSecret: process.env.SCALEKIT_CLIENT_SECRET,
+       redirectUri: process.env.REDIRECT_URI,
+       cookieEncryptionSecret: process.env.COOKIE_ENCRYPTION_SECRET,
      });
 
-     // Store encrypted refresh token in separate HttpOnly cookie
-     res.cookie('refreshToken', encryptedRefreshToken, {
-       httpOnly: true, // Prevents JavaScript access to mitigate XSS attacks
-       secure: process.env.NODE_ENV === 'production', // HTTPS-only in production
-       sameSite: 'strict' // Prevents CSRF attacks
+     const app = express();
+     app.use(auth.router);
+     ```
+
+     </TabItem>
+     <TabItem value="nextjs" label="Next.js">
+
+     Install `@scalekit-sdk/node` 2.12.0 or later. Create one `auth` instance. Export login, callback, and logout Route Handlers. The callback writes `sk_session`.
+
+     ```ts title="lib/auth.ts" wrap
+     import { ScalekitClient } from '@scalekit-sdk/node';
+     import { ScalekitAuthNext } from '@scalekit-sdk/node/next';
+
+     const scalekit = new ScalekitClient(
+       process.env.SCALEKIT_ENVIRONMENT_URL!,
+       process.env.SCALEKIT_CLIENT_ID!,
+       process.env.SCALEKIT_CLIENT_SECRET!
+     );
+
+     export const auth = new ScalekitAuthNext({
+       client: scalekit,
+       redirectUri: process.env.REDIRECT_URI!,
+       cookieEncryptionSecret: process.env.COOKIE_ENCRYPTION_SECRET!,
      });
      ```
+
+     ```ts title="app/login/route.ts" wrap
+     import { auth } from '../../lib/auth';
+     export const GET = auth.createLoginHandler();
+     ```
+
+     ```ts title="app/callback/route.ts" wrap
+     import { auth } from '../../lib/auth';
+     export const GET = auth.createCallbackHandler();
+     ```
+
+     ```ts title="app/logout/route.ts" wrap
+     import { auth } from '../../lib/auth';
+     export const GET = auth.createLogoutHandler();
+     ```
+
+     Pin `runtime: 'nodejs'` in `middleware.ts`, or pass [ScalekitEdgeClient](/saaskit/sdks/nextjs/#scalekitedgeclient) for Edge Runtime.
+
+     </TabItem>
+     </Tabs>
      </TabItem>
      <TabItem value="py" label="Python">
-     ```python title="Flask" collapse={1-4} {6,8}
-     from flask import Flask, make_response, request
+     <Tabs syncKey="python-framework">
+     <TabItem value="flask" label="Flask">
+
+     Install `scalekit-sdk-python` 2.17.0 or later with the Flask extra. `ScalekitAuth` registers `/login`, `/callback`, and `/logout` and writes `sk_session`.
+
+     ```py title="app.py" wrap
      import os
+     from flask import Flask
+     from scalekit.frameworks.flask import ScalekitAuth
+
      app = Flask(__name__)
-
-     # Extract authentication data from the successful authentication response
-     access_token = auth_result.access_token
-     expires_in = auth_result.expires_in
-     refresh_token = auth_result.refresh_token
-     user = auth_result.user
-
-     # Encrypt tokens before storing to add an additional security layer
-     encrypted_access_token = encrypt(access_token)
-     encrypted_refresh_token = encrypt(refresh_token)
-
-     response = make_response()
-
-     # Store encrypted access token in HttpOnly cookie
-     response.set_cookie(
-       'accessToken',
-       encrypted_access_token,
-       max_age=expires_in - 60,  # Subtract 60s buffer for clock skew (seconds in Flask)
-       httponly=True,             # Prevents JavaScript access to mitigate XSS attacks
-       secure=os.environ.get('FLASK_ENV') == 'production',  # HTTPS-only in production
-       samesite='Strict'          # Prevents CSRF attacks
-     )
-
-     # Store encrypted refresh token in separate HttpOnly cookie
-     response.set_cookie(
-       'refreshToken',
-       encrypted_refresh_token,
-       httponly=True,             # Prevents JavaScript access to mitigate XSS attacks
-       secure=os.environ.get('FLASK_ENV') == 'production',  # HTTPS-only in production
-       samesite='Strict'          # Prevents CSRF attacks
+     auth = ScalekitAuth(
+         app,
+         env_url=os.environ["SCALEKIT_ENVIRONMENT_URL"],
+         client_id=os.environ["SCALEKIT_CLIENT_ID"],
+         client_secret=os.environ["SCALEKIT_CLIENT_SECRET"],
+         redirect_uri=os.environ["REDIRECT_URI"],
+         cookie_encryption_secret=os.environ["COOKIE_ENCRYPTION_SECRET"],
+         # HTTP localhost drops a Secure cookie, so the session never sticks.
+         # A missing Secure flag on real HTTP lets the browser send sk_session in cleartext.
+         cookie_secure=False,
      )
      ```
+
+     </TabItem>
+     <TabItem value="fastapi" label="FastAPI">
+
+     Install `scalekit-sdk-python` 2.17.0 or later with the FastAPI extra. Call `auth.install(app)` to register routes and write `sk_session`.
+
+     ```py title="app.py" wrap
+     import os
+     from fastapi import FastAPI
+     from scalekit.frameworks.fastapi import ScalekitAuth
+
+     app = FastAPI()
+     auth = ScalekitAuth(
+         env_url=os.environ["SCALEKIT_ENVIRONMENT_URL"],
+         client_id=os.environ["SCALEKIT_CLIENT_ID"],
+         client_secret=os.environ["SCALEKIT_CLIENT_SECRET"],
+         redirect_uri=os.environ["REDIRECT_URI"],
+         cookie_encryption_secret=os.environ["COOKIE_ENCRYPTION_SECRET"],
+         # HTTP localhost drops a Secure cookie, so the session never sticks.
+         # A missing Secure flag on real HTTP lets the browser send sk_session in cleartext.
+         cookie_secure=False,
+     )
+     auth.install(app)
+     ```
+
+     </TabItem>
+     </Tabs>
+
+     <Aside type="caution" title="Set cookie_secure=False on local HTTP">
+     `cookie_secure` defaults to `True`. Some browsers drop a `Secure` cookie on plain `http://localhost`, which looks like a session that never sticks. Set `cookie_secure=False` for local HTTP. Set it `True` in production.
+     </Aside>
+
      </TabItem>
      <TabItem value="go" label="Go">
      ```go title="Gin" collapse={1-7}
@@ -226,121 +258,80 @@ This guide shows you how to store these tokens securely with encryption and prop
      </TabItem>
    </Tabs>
 
-2. ## Check the access token before handling requests
+2. ## Check the session before handling requests
 
-   Validate every request for a valid access token in your application. Create middleware to protect your application routes. This middleware validates the access token on every request to secured endpoints. For APIs, consider reading from `Authorization: Bearer` headers instead of cookies to minimize CSRF risk.
-
-
-   Here's an example middleware method validating the access token and refreshing it if expired for every request.
+   Session middleware refreshes `sk_session` and redirects to `/login` when the session is missing. A missing session returns **302**, not JSON **401**.
 
    <Tabs syncKey="tech-stack">
      <TabItem value="node" label="Node.js">
-     ```javascript title="middleware/auth.js" "validateAccessToken"
-     async function verifyToken(req, res, next) {
-       // Extract encrypted tokens from request cookies
-       const { accessToken, refreshToken } = req.cookies;
+     <Tabs syncKey="node-framework">
+     <TabItem value="express" label="Express">
 
-       if (!accessToken) {
-         return res.status(401).json({ error: 'Authentication required' });
-       }
+     Guard a route with `auth.requiresAuth`. On success, `req.scalekitUser` is access-token claims. `sub` is always present.
 
-       try {
-         // Decrypt the access token before validation
-         const decryptedAccessToken = decrypt(accessToken);
-
-         // Verify token validity using Scalekit's validation method
-         const isValid = await scalekit.validateAccessToken(decryptedAccessToken);
-
-         if (!isValid && refreshToken) {
-           // Token expired - refresh it transparently
-           const decryptedRefreshToken = decrypt(refreshToken);
-           const authResult = await scalekit.refreshAccessToken(decryptedRefreshToken);
-
-           // Encrypt and store new tokens
-           res.cookie('accessToken', encrypt(authResult.accessToken), {
-             maxAge: (authResult.expiresIn - 60) * 1000,
-             httpOnly: true,
-             secure: process.env.NODE_ENV === 'production',
-             sameSite: 'strict'
-           });
-
-           res.cookie('refreshToken', encrypt(authResult.refreshToken), {
-             httpOnly: true,
-             secure: process.env.NODE_ENV === 'production',
-             sameSite: 'strict'
-           });
-
-           return next();
-         }
-
-         if (!isValid) {
-           return res.status(401).json({ error: 'Session expired. Please sign in again.' });
-         }
-
-         // Token is valid, proceed to the next middleware or route handler
-         next();
-       } catch (error) {
-         return res.status(401).json({ error: 'Authentication failed' });
-       }
-     }
+     ```ts title="server.ts" wrap
+     app.get('/account', auth.requiresAuth, (req, res) => {
+       res.json({ sub: req.scalekitUser?.sub });
+     });
      ```
+
+     </TabItem>
+     <TabItem value="nextjs" label="Next.js">
+
+     Wrap a Route Handler with `withAuth`. Use `createMiddleware()` so every other path fails closed. List public paths in `publicRoutes`.
+
+     ```ts title="app/account/route.ts" wrap
+     import { auth } from '../../lib/auth';
+
+     export const GET = auth.withAuth(async (request, { user }) => {
+       return Response.json({ sub: user?.sub });
+     });
+     ```
+
+     ```ts title="middleware.ts" wrap
+     import { auth } from './lib/auth';
+
+     export default auth.createMiddleware({
+       publicRoutes: ['/', '/pricing'],
+     });
+
+     export const config = {
+       runtime: 'nodejs',
+       matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'],
+     };
+     ```
+
+     </TabItem>
+     </Tabs>
      </TabItem>
      <TabItem value="py" label="Python">
-     ```python title="middleware/auth.py" wrap collapse={1-2} "validate_access_token"
-     from flask import request, jsonify
-     from functools import wraps
-     def verify_token(f):
-         @wraps(f)
-         def decorated_function(*args, **kwargs):
-             # Extract encrypted tokens from request cookies
-             access_token = request.cookies.get('accessToken')
-             refresh_token = request.cookies.get('refreshToken')
+     <Tabs syncKey="python-framework">
+     <TabItem value="flask" label="Flask">
 
-             if not access_token:
-                 return jsonify({'error': 'Authentication required'}), 401
+     Guard a view with `@auth.requires_auth`. `auth.current_user` is access-token claims.
 
-             try:
-                 # Decrypt the access token before validation
-                 decrypted_access_token = decrypt(access_token)
-
-                 # Verify token validity using Scalekit's validation method
-                 is_valid = scalekit_client.validate_access_token(decrypted_access_token)
-
-                 if not is_valid and refresh_token:
-                     # Token expired - refresh it transparently
-                     decrypted_refresh_token = decrypt(refresh_token)
-                     auth_result = scalekit_client.refresh_access_token(decrypted_refresh_token)
-
-                     # Encrypt and store new tokens
-                     response = make_response(f(*args, **kwargs))
-                     response.set_cookie(
-                         'accessToken',
-                         encrypt(auth_result.access_token),
-                         max_age=auth_result.expires_in - 60,
-                         httponly=True,
-                         secure=os.environ.get('FLASK_ENV') == 'production',
-                         samesite='Strict'
-                     )
-                     response.set_cookie(
-                         'refreshToken',
-                         encrypt(auth_result.refresh_token),
-                         httponly=True,
-                         secure=os.environ.get('FLASK_ENV') == 'production',
-                         samesite='Strict'
-                     )
-                     return response
-
-                 if not is_valid:
-                     return jsonify({'error': 'Session expired. Please sign in again.'}), 401
-
-                 # Token is valid, proceed to the protected view function
-                 return f(*args, **kwargs)
-
-             except Exception:
-                 return jsonify({'error': 'Authentication failed'}), 401
-
-         return decorated_function
+     ```py title="app.py" wrap
+     @app.route("/account")
+     @auth.requires_auth
+     def account():
+         return {"sub": auth.current_user["sub"]}
      ```
+
+     </TabItem>
+     <TabItem value="fastapi" label="FastAPI">
+
+     Protect a route with `Depends(auth.requires_auth)`. The dependency is the user claims.
+
+     ```py title="app.py" wrap
+     from fastapi import Depends
+
+     @app.get("/account")
+     async def account(user: dict = Depends(auth.requires_auth)):
+         return {"sub": user["sub"]}
+     ```
+
+     </TabItem>
+     </Tabs>
      </TabItem>
      <TabItem value="go" label="Go">
      ```go title="middleware/auth.go" collapse={1-5} "decrypt" "ValidateAccessToken" "RefreshAccessToken"
@@ -502,6 +493,98 @@ This guide shows you how to store these tokens securely with encryption and prop
       ```
       </TabItem>
    </Tabs>
+
+   <details>
+   <summary>Build it yourself — store cookies and call validateAccessToken</summary>
+
+   Use this path when you do not use session middleware. Request `offline_access` so you receive a refresh token. Scalekit rotates refresh tokens. Store the new refresh token and discard the old one.
+
+   Store the access token in an HttpOnly cookie. Store the refresh token in a separate HttpOnly cookie. Encrypt both values.
+
+   ```javascript title="Express.js — set cookies"
+   const { accessToken, expiresIn, refreshToken } = authResult;
+   res.cookie('accessToken', encrypt(accessToken), {
+     maxAge: (expiresIn - 60) * 1000,
+     httpOnly: true,
+     secure: process.env.NODE_ENV === 'production',
+     sameSite: 'lax',
+   });
+   res.cookie('refreshToken', encrypt(refreshToken), {
+     httpOnly: true,
+     secure: process.env.NODE_ENV === 'production',
+     sameSite: 'lax',
+   });
+   ```
+
+   ```javascript title="Express.js — verify and refresh"
+   async function verifyToken(req, res, next) {
+     const { accessToken, refreshToken } = req.cookies;
+     if (!accessToken) {
+       return res.status(401).json({ error: 'Authentication required' });
+     }
+     const decryptedAccessToken = decrypt(accessToken);
+     const isValid = await scalekit.validateAccessToken(decryptedAccessToken);
+     if (!isValid && refreshToken) {
+       const authResult = await scalekit.refreshAccessToken(decrypt(refreshToken));
+       res.cookie('accessToken', encrypt(authResult.accessToken), {
+         maxAge: (authResult.expiresIn - 60) * 1000,
+         httpOnly: true,
+         secure: process.env.NODE_ENV === 'production',
+         sameSite: 'lax',
+       });
+       res.cookie('refreshToken', encrypt(authResult.refreshToken), {
+         httpOnly: true,
+         secure: process.env.NODE_ENV === 'production',
+         sameSite: 'lax',
+       });
+       return next();
+     }
+     if (!isValid) {
+       return res.status(401).json({ error: 'Session expired. Please sign in again.' });
+     }
+     next();
+   }
+   ```
+
+   ```python title="Flask — verify and refresh"
+   import os
+   from functools import wraps
+   from flask import request, jsonify, make_response
+
+   def verify_token(f):
+       @wraps(f)
+       def decorated_function(*args, **kwargs):
+           access_token = request.cookies.get("accessToken")
+           refresh_token = request.cookies.get("refreshToken")
+           if not access_token:
+               return jsonify({"error": "Authentication required"}), 401
+           is_valid = scalekit_client.validate_access_token(decrypt(access_token))
+           if not is_valid and refresh_token:
+               auth_result = scalekit_client.refresh_access_token(decrypt(refresh_token))
+               response = make_response(f(*args, **kwargs))
+               response.set_cookie(
+                   "accessToken",
+                   encrypt(auth_result.access_token),
+                   max_age=auth_result.expires_in - 60,
+                   httponly=True,
+                   secure=os.environ.get("FLASK_ENV") == "production",
+                   samesite="Lax",
+               )
+               response.set_cookie(
+                   "refreshToken",
+                   encrypt(auth_result.refresh_token),
+                   httponly=True,
+                   secure=os.environ.get("FLASK_ENV") == "production",
+                   samesite="Lax",
+               )
+               return response
+           if not is_valid:
+               return jsonify({"error": "Session expired. Please sign in again."}), 401
+           return f(*args, **kwargs)
+       return decorated_function
+   ```
+
+   </details>
 
    <details>
    <summary>TypeScript: get typed claims from validateToken</summary>
@@ -666,5 +749,7 @@ This guide shows you how to store these tokens securely with encryption and prop
     </Tabs>
 </Steps>
 
-Your application continuously validates the access token for each incoming request. When the token is valid, the user's session remains active. If the access token expires, your middleware transparently refreshes it using the stored refresh token, so users never notice this happening. If the refresh token itself expires or becomes invalid, users are prompted to sign in again.
+After you add the helper, open `/account` in the browser. A missing session goes to `/login`. After login, the browser returns to `/account`.
+
+Session middleware validates `sk_session` on each request and refreshes it before expiry. If the refresh token is invalid, the helper sends the browser to `/login`.
 

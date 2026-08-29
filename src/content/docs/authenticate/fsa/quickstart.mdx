@@ -30,7 +30,6 @@ seeAlso:
 import { CardGrid, Steps, TabItem, Aside } from '@astrojs/starlight/components';
 import Tabs from '@components/ui/Tabs.astro';
 import ProductAgentBlock from '@components/ProductAgentBlock.astro';
-import CheckItem from '@/components/ui/CheckItem.astro';
 import InstallSDK from '@components/templates/_installsdk.mdx'
 import { AuthResultTabsSection } from '@components/templates'
 import { VideoPlayer } from 'starlight-videos/components'
@@ -79,7 +78,11 @@ Scalekit handles the complex authentication flow while you focus on your core pr
    SCALEKIT_ENVIRONMENT_URL=<your-environment-url>
    SCALEKIT_CLIENT_ID=<your-client-id>
    SCALEKIT_CLIENT_SECRET=<your-client-secret>
+   COOKIE_ENCRYPTION_SECRET=   # openssl rand -base64 32 — encrypts the session cookie
+   REDIRECT_URI=http://localhost:3000/callback
    ```
+
+   Node.js and Python use `/callback`. Go and Java use `/auth/callback`. Register the path for your stack.
 
     ### Register redirect URLs for your app
     You need to register redirect URLs for your application. Go to **Scalekit dashboard** → **Authentication** → **Redirect URLs** and configure:
@@ -93,42 +96,161 @@ Scalekit handles the complex authentication flow while you focus on your core pr
 
    <Tabs syncKey="tech-stack">
    <TabItem value="node" label="Node.js">
-   ```javascript wrap title="routes/auth.ts"
-   // Must match the allowed callback URL you registered in the dashboard
-   const redirectUri = 'http://localhost:3000/auth/callback';
+   <Tabs syncKey="node-framework">
+   <TabItem value="express" label="Express">
 
-   // Request user profile data (openid, profile, email) and session tracking (offline_access)
-   // offline_access enables refresh tokens so users can stay logged in across sessions
-   const options = {
-     scopes: ['openid', 'profile', 'email', 'offline_access']
-   };
+   ```ts title="server.ts" wrap
+   import express from 'express';
+   import { ScalekitAuth } from '@scalekit-sdk/node/express';
 
-   const authorizationUrl = scalekit.getAuthorizationUrl(redirectUri, options);
-   // Generated URL will look like:
-   // https://<SCALEKIT_ENVIRONMENT_URL>/oauth/authorize?response_type=code&client_id=skc_1234&scope=openid%20profile%20email%20offline_access&redirect_uri=https%3A%2F%2Fyourapp.com%2Fauth%2Fcallback
+   const auth = new ScalekitAuth({
+     envUrl: process.env.SCALEKIT_ENVIRONMENT_URL,
+     clientId: process.env.SCALEKIT_CLIENT_ID,
+     clientSecret: process.env.SCALEKIT_CLIENT_SECRET,
+     redirectUri: process.env.REDIRECT_URI,
+     cookieEncryptionSecret: process.env.COOKIE_ENCRYPTION_SECRET,
+   });
 
-   res.redirect(authorizationUrl);
+   const app = express();
+   app.use(auth.router);
+
+   app.get('/account', auth.requiresAuth, (req, res) => {
+     res.json({ sub: req.scalekitUser?.sub });
+   });
+
+   app.listen(3000);
    ```
+
+   Open `http://localhost:3000/account`. A missing session goes to `/login`. After login, the visitor returns to `/account`. Register `http://localhost:3000/callback` as the dashboard Redirect URI.
+
+   </TabItem>
+   <TabItem value="nextjs" label="Next.js">
+
+   ```ts title="lib/auth.ts" wrap
+   import { ScalekitClient } from '@scalekit-sdk/node';
+   import { ScalekitAuthNext } from '@scalekit-sdk/node/next';
+
+   const scalekit = new ScalekitClient(
+     process.env.SCALEKIT_ENVIRONMENT_URL!,
+     process.env.SCALEKIT_CLIENT_ID!,
+     process.env.SCALEKIT_CLIENT_SECRET!
+   );
+
+   export const auth = new ScalekitAuthNext({
+     client: scalekit,
+     redirectUri: process.env.REDIRECT_URI!,
+     cookieEncryptionSecret: process.env.COOKIE_ENCRYPTION_SECRET!,
+   });
+   ```
+
+   ```ts title="app/login/route.ts" wrap
+   import { auth } from '../../lib/auth';
+   export const GET = auth.createLoginHandler();
+   ```
+
+   ```ts title="app/callback/route.ts" wrap
+   import { auth } from '../../lib/auth';
+   export const GET = auth.createCallbackHandler();
+   ```
+
+   ```ts title="app/logout/route.ts" wrap
+   import { auth } from '../../lib/auth';
+   export const GET = auth.createLogoutHandler();
+   ```
+
+   ```ts title="app/account/route.ts" wrap
+   import { auth } from '../../lib/auth';
+
+   export const GET = auth.withAuth(async (request, { user }) => {
+     return Response.json({ sub: user?.sub });
+   });
+   ```
+
+   Open `http://localhost:3000/account`. A missing session goes to `/login`.
+
+   </TabItem>
+   </Tabs>
    </TabItem>
    <TabItem value="python" label="Python">
-   ```python wrap title="app/auth/routes.py"
-   from scalekit import AuthorizationUrlOptions
+   <Tabs syncKey="python-framework">
+   <TabItem value="flask" label="Flask">
 
-   # Must match the allowed callback URL you registered in the dashboard
-   redirect_uri = 'http://localhost:3000/auth/callback'
-
-   # Request user profile data (openid, profile, email) and session tracking (offline_access)
-   # offline_access enables refresh tokens so users can stay logged in across sessions
-   options = AuthorizationUrlOptions()
-   options.scopes = ['openid', 'profile', 'email', 'offline_access']
-
-
-   authorization_url = scalekit.get_authorization_url(redirect_uri, options)
-   # Generated URL will look like:
-   # https://<SCALEKIT_ENVIRONMENT_URL>/oauth/authorize?response_type=code&client_id=skc_1234&scope=openid%20profile%20email%20offline_access&redirect_uri=https%3A%2F%2Fyourapp.com%2Fcallback
-
-   return redirect(authorization_url)
+   ```bash showLineNumbers=false
+   pip install "scalekit-sdk-python[flask]"
    ```
+
+   ```py title="app.py" wrap
+   import os
+   from flask import Flask
+   from scalekit.frameworks.flask import ScalekitAuth
+
+   app = Flask(__name__)
+   auth = ScalekitAuth(
+       app,
+       env_url=os.environ["SCALEKIT_ENVIRONMENT_URL"],
+       client_id=os.environ["SCALEKIT_CLIENT_ID"],
+       client_secret=os.environ["SCALEKIT_CLIENT_SECRET"],
+       redirect_uri=os.environ["REDIRECT_URI"],
+       cookie_encryption_secret=os.environ["COOKIE_ENCRYPTION_SECRET"],
+       # HTTP localhost drops a Secure cookie, so the session never sticks.
+       # A missing Secure flag on real HTTP lets the browser send sk_session in cleartext.
+       cookie_secure=False,
+   )
+
+   @app.route("/account")
+   @auth.requires_auth
+   def account():
+       return {"sub": auth.current_user["sub"]}
+
+   if __name__ == "__main__":
+       app.run(port=3000)
+   ```
+
+   Open `http://localhost:3000/account`. A missing session goes to `/login`. Register `http://localhost:3000/callback` as the dashboard Redirect URI.
+
+   </TabItem>
+   <TabItem value="fastapi" label="FastAPI">
+
+   ```bash showLineNumbers=false
+   pip install "scalekit-sdk-python[fastapi]"
+   ```
+
+   ```py title="app.py" wrap
+   import os
+   from fastapi import Depends, FastAPI
+   from scalekit.frameworks.fastapi import ScalekitAuth
+
+   app = FastAPI()
+   auth = ScalekitAuth(
+       env_url=os.environ["SCALEKIT_ENVIRONMENT_URL"],
+       client_id=os.environ["SCALEKIT_CLIENT_ID"],
+       client_secret=os.environ["SCALEKIT_CLIENT_SECRET"],
+       redirect_uri=os.environ["REDIRECT_URI"],
+       cookie_encryption_secret=os.environ["COOKIE_ENCRYPTION_SECRET"],
+       # HTTP localhost drops a Secure cookie, so the session never sticks.
+       # A missing Secure flag on real HTTP lets the browser send sk_session in cleartext.
+       cookie_secure=False,
+   )
+   auth.install(app)
+
+   @app.get("/account")
+   async def account(user: dict = Depends(auth.requires_auth)):
+       return {"sub": user["sub"]}
+   ```
+
+   ```bash showLineNumbers=false
+   uvicorn app:app --port 3000
+   ```
+
+   Open `http://localhost:3000/account`. Register `http://localhost:3000/callback` as the dashboard Redirect URI.
+
+   </TabItem>
+   </Tabs>
+
+   <Aside type="caution" title="Set cookie_secure=False on local HTTP">
+   `cookie_secure` defaults to `True`. Some browsers drop a `Secure` cookie on plain `http://localhost`, which looks like a session that never sticks. Set `cookie_secure=False` for local HTTP. Set it `True` in production.
+   </Aside>
+
    </TabItem>
    <TabItem value="go" label="Go">
    ```go wrap title="internal/http/auth.go"
@@ -186,80 +308,42 @@ Scalekit handles the complex authentication flow while you focus on your core pr
 
    <Tabs syncKey="tech-stack">
    <TabItem value="node" label="Node.js">
-        ```javascript collapse={19-26, 6-11} "authenticateWithCode" title="routes/auth-callback.ts"
-        import scalekit from '@/utils/auth.js'
-        const redirectUri = '<http://localhost:3000/auth/callback>';
+   <Tabs syncKey="node-framework">
+   <TabItem value="express" label="Express">
 
-        // Get the authorization code from the scalekit initiated callback
-        app.get('/auth/callback', async (req, res) => {
-          const { code, error, error_description } = req.query;
+   ```ts
+   app.use(auth.router); // GET /callback writes sk_session
+   ```
 
-          if (error) {
-            return res.status(401).json({ error, error_description });
-          }
+   </TabItem>
+   <TabItem value="nextjs" label="Next.js">
 
-          try {
-            // Exchange the authorization code for user profile and session tokens
-            // Returns: user (profile info), idToken (JWT with user claims), accessToken (JWT with roles/permissions), refreshToken
-            const authResult = await scalekit.authenticateWithCode(
-              code, redirectUri
-            );
+   ```ts title="app/callback/route.ts"
+   import { auth } from '../../lib/auth';
+   export const GET = auth.createCallbackHandler();
+   ```
 
-            const { user, idToken, accessToken, refreshToken } = authResult;
-            // idToken: Decode to access full user profile (sub, oid, email, name)
-            // accessToken: Contains roles and permissions for authorization decisions
-            // refreshToken: Use to obtain new access tokens when they expire
+   </TabItem>
+   </Tabs>
+   </TabItem>
+   <TabItem value="python" label="Python">
+   <Tabs syncKey="python-framework">
+   <TabItem value="flask" label="Flask">
 
-            // "user" object contains the user's profile information
-            // Next step: Create a session and log in the user
-            res.redirect('/dashboard/profile');
-          } catch (err) {
-            console.error('Error exchanging code:', err);
-            res.status(500).json({ error: 'Failed to authenticate user' });
-          }
-        });
-        ```
-        </TabItem>
-        <TabItem value="python" label="Python">
-        ```python collapse={1-6, 29-32} "authenticate_with_code" title="app/auth/callback.py"
-        from flask import Flask, request, redirect, jsonify
-        from scalekit import ScalekitClient, CodeAuthenticationOptions
+   ```py
+   auth = ScalekitAuth(app, ...)  # registers GET /callback
+   ```
 
-        app = Flask(__name__)
-        # scalekit imported from your auth utils
+   </TabItem>
+   <TabItem value="fastapi" label="FastAPI">
 
-        redirect_uri = 'http://localhost:3000/auth/callback'
+   ```py
+   auth.install(app)  # registers GET /callback
+   ```
 
-        @app.route('/auth/callback')
-        def callback():
-            code = request.args.get('code')
-            error = request.args.get('error')
-            error_description = request.args.get('error_description')
-
-            if error:
-                return jsonify({'error': error, 'error_description': error_description}), 401
-
-            try:
-                # Exchange the authorization code for user profile and session tokens
-                # Returns: user (profile info), id_token (JWT with user claims), access_token (JWT with roles/permissions), refresh_token
-                options = CodeAuthenticationOptions()
-                auth_result = scalekit.authenticate_with_code(
-                    code, redirect_uri, options
-                )
-
-                user = auth_result["user"]
-                # id_token: Decode to access full user profile (sub, oid, email, name)
-                # access_token: Contains roles and permissions for authorization decisions
-                # refresh_token: Use to obtain new access tokens when they expire
-
-                # "user" object contains the user's profile information
-                # Next step: Create a session and log in the user
-                return redirect('/dashboard/profile')
-            except Exception as err:
-                print(f'Error exchanging code: {err}')
-                return jsonify({'error': 'Failed to authenticate user'}), 500
-        ```
-        </TabItem>
+   </TabItem>
+   </Tabs>
+   </TabItem>
         <TabItem value="go" label="Go">
         ```go collapse={1-17, 24-32, 38-46} { 34-37 } "AuthenticateWithCode" title="internal/http/auth_callback.go"
         package main
@@ -393,61 +477,52 @@ Scalekit handles the complex authentication flow while you focus on your core pr
 
       <Tabs syncKey="tech-stack">
         <TabItem value="node" label="Node.js">
-        ```javascript collapse={1-4} { "1": 5-6 } { "2": 8-15 } { "3": 17}
-        import cookieParser from 'cookie-parser';
-        // Set cookie parser middleware
-        app.use(cookieParser());
+        <Tabs syncKey="node-framework">
+        <TabItem value="express" label="Express">
 
-        // Store access token in HttpOnly cookie with Path scoping to API routes
-        res.cookie('accessToken', authResult.accessToken, {
-          maxAge: (authResult.expiresIn - 60) * 1000,
-          httpOnly: true,
-          secure: true,
-          path: '/api',
-          sameSite: 'strict'
-        });
-
-        // Store refresh token in separate HttpOnly cookie with Path scoped to refresh endpoint
-        res.cookie('refreshToken', authResult.refreshToken, {
-          httpOnly: true,
-          secure: true,
-          path: '/auth/refresh',
-          sameSite: 'strict'
+        ```ts
+        app.get('/account', auth.requiresAuth, (req, res) => {
+          res.json({ sub: req.scalekitUser?.sub });
         });
         ```
+
+        </TabItem>
+        <TabItem value="nextjs" label="Next.js">
+
+        ```ts title="app/account/route.ts"
+        import { auth } from '../../lib/auth';
+
+        export const GET = auth.withAuth(async (request, { user }) => {
+          return Response.json({ sub: user?.sub });
+        });
+        ```
+
+        </TabItem>
+        </Tabs>
         </TabItem>
 
         <TabItem value="python" label="Python">
-        ```python collapse={1-10}  { 21-28 }
-        from flask import Flask, make_response
-        import os
+        <Tabs syncKey="python-framework">
+        <TabItem value="flask" label="Flask">
 
-        # Cookie parsing is built-in with Flask's request object
-        app = Flask(__name__)
-
-        response = make_response()
-
-        # Store access token in HttpOnly cookie with Path scoping to API routes
-        response.set_cookie(
-            'accessToken',
-            auth_result.access_token,
-            max_age=auth_result.expires_in - 60,  # seconds in Flask
-            httponly=True,
-            secure=True,
-            path='/api',
-            samesite='Strict'
-        )
-
-        # Store refresh token in separate HttpOnly cookie with Path scoped to refresh endpoint
-        response.set_cookie(
-            'refreshToken',
-            auth_result.refresh_token,
-            httponly=True,
-            secure=True,
-            path='/auth/refresh',
-            samesite='Strict'
-        )
+        ```py
+        @app.route("/account")
+        @auth.requires_auth
+        def account():
+            return {"sub": auth.current_user["sub"]}
         ```
+
+        </TabItem>
+        <TabItem value="fastapi" label="FastAPI">
+
+        ```py
+        @app.get("/account")
+        async def account(user: dict = Depends(auth.requires_auth)):
+            return {"sub": user["sub"]}
+        ```
+
+        </TabItem>
+        </Tabs>
         </TabItem>
 
         <TabItem value="go" label="Go">
@@ -513,116 +588,56 @@ Scalekit handles the complex authentication flow while you focus on your core pr
 
       <Tabs syncKey="tech-stack">
         <TabItem value="node" label="Node.js">
-        ```javascript wrap collapse={8-11, 26-37} {5-6, 13, 22}
-        // Middleware to verify and refresh tokens if needed
-        const verifyToken = async (req, res, next) => {
-          try {
-            // Get access token from cookie and decrypt it
-            const accessToken = req.cookies.accessToken;
-            const decryptedAccessToken = decrypt(accessToken);
+        <Tabs syncKey="node-framework">
+        <TabItem value="express" label="Express">
 
-            if (!accessToken) {
-              return res.status(401).json({ message: 'No access token provided' });
-            }
-
-            // Use Scalekit SDK to validate the token
-            const isValid = await scalekit.validateAccessToken(decryptedAccessToken);
-
-            if (!isValid) {
-              // Use stored refreshToken to get a new access token
-               const {
-                    user,
-                    idToken,
-                    accessToken,
-                    refreshToken: newRefreshToken,
-              } = await scalekit.refreshAccessToken(refreshToken);
-
-              // Store the new refresh token
-              // Update the cookie with the new access token
-            }
-            next();
-        };
-
-        // Example of using the middleware to protect routes
-        app.get('/dashboard', verifyToken, (req, res) => {
-          // The user object is now available in req.user
-          res.json({
-            message: 'This is a protected route',
-            user: req.user
-          });
+        ```ts
+        app.get('/dashboard', auth.requiresAuth, (req, res) => {
+          res.json({ user: req.scalekitUser });
         });
         ```
+
+        </TabItem>
+        <TabItem value="nextjs" label="Next.js">
+
+        ```ts title="middleware.ts"
+        import { auth } from './lib/auth';
+
+        export default auth.createMiddleware({
+          publicRoutes: ['/'],
+        });
+
+        export const config = {
+          runtime: 'nodejs',
+          matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'],
+        };
+        ```
+
+        </TabItem>
+        </Tabs>
         </TabItem>
         <TabItem value="python" label="Python">
-        ```python wrap collapse={1-3, 11-14, 22-27, 51-67}
-        from functools import wraps
-        from flask import request, jsonify, make_response
+        <Tabs syncKey="python-framework">
+        <TabItem value="flask" label="Flask">
 
-        def verify_token(f):
-            """Decorator to verify and refresh tokens if needed"""
-            @wraps(f)
-            def decorated_function(*args, **kwargs):
-                try:
-                    # Get access token from cookie
-                    access_token = request.cookies.get('accessToken')
-
-                    if not access_token:
-                        return jsonify({'message': 'No access token provided'}), 401
-
-                    # Decrypt the accessToken using the same encryption algorithm
-                    decrypted_access_token = decrypt(access_token)
-
-                    # Use Scalekit SDK to validate the token
-                    is_valid = scalekit.validate_access_token(decrypted_access_token)
-
-                    if not is_valid:
-                        # Get stored refresh token
-                        refresh_token = get_stored_refresh_token()
-
-                        if not refresh_token:
-                            return jsonify({'message': 'No refresh token available'}), 401
-
-                        # Use stored refreshToken to get a new access token
-                        token_response = scalekit.refresh_access_token(refresh_token)
-
-                        # Python SDK returns dict with access_token and refresh_token
-                        new_access_token = token_response.get('access_token')
-                        new_refresh_token = token_response.get('refresh_token')
-
-                        # Store the new refresh token
-                        store_refresh_token(new_refresh_token)
-
-                        # Update the cookie with the new access token
-                        encrypted_new_access_token = encrypt(new_access_token)
-                        response = make_response(f(*args, **kwargs))
-                        response.set_cookie(
-                            'accessToken',
-                            encrypted_new_access_token,
-                            httponly=True,
-                            secure=True,
-                            path='/',
-                            samesite='Strict'
-                        )
-
-                        return response
-
-                    # If the token was valid we just invoke the view as-is
-                    return f(*args, **kwargs)
-
-                except Exception as e:
-                    return jsonify({'message': f'Token verification failed: {str(e)}'}), 401
-
-            return decorated_function
-
-        # Example of using the decorator to protect routes
-        @app.route('/dashboard')
-        @verify_token
+        ```py
+        @app.route("/dashboard")
+        @auth.requires_auth
         def dashboard():
-            return jsonify({
-                'message': 'This is a protected route',
-                'user': getattr(request, 'user', None)
-            })
+            return {"user": auth.current_user}
         ```
+
+        </TabItem>
+        <TabItem value="fastapi" label="FastAPI">
+
+        ```py
+        @app.get("/dashboard")
+        async def dashboard(user: dict = Depends(auth.requires_auth)):
+            return {"user": user}
+        ```
+
+        </TabItem>
+        </Tabs>
         </TabItem>
         <TabItem value="go" label="Go">
         ```go wrap collapse={1-5,11-14, 21-25, 34-38, 42-46, 50-54, 58-62, 65-95}
@@ -806,44 +821,45 @@ Scalekit handles the complex authentication flow while you focus on your core pr
 
       <Tabs syncKey="tech-stack">
         <TabItem value="node" label="Node.js">
-          ```javascript { 3}
-          app.get('/logout', (req, res) => {
-            // Clear all session data including cookies and local storage
-            clearSessionData();
+        <Tabs syncKey="node-framework">
+        <TabItem value="express" label="Express">
 
-            const logoutUrl = scalekit.getLogoutUrl(
-              idTokenHint, // ID token to invalidate
-              postLogoutRedirectUri // URL that scalekit redirects after session invalidation
-            );
+        ```html
+        <a href="/logout">Log out</a>
+        ```
 
-            // Redirect the user to the Scalekit logout endpoint to begin invalidating the session.
-            res.redirect(logoutUrl); // This URL can only be used once and expires after logout.
-          });
-          ```
+        </TabItem>
+        <TabItem value="nextjs" label="Next.js">
+
+        ```ts title="app/logout/route.ts"
+        import { auth } from '../../lib/auth';
+        export const GET = auth.createLogoutHandler();
+        ```
+
+        ```html
+        <a href="/logout">Log out</a>
+        ```
+
+        </TabItem>
+        </Tabs>
         </TabItem>
         <TabItem value="python" label="Python">
-          ```python { 16, 13-14, 20 } collapse={1-5}
-          from flask import Flask, redirect
-          from scalekit.common.scalekit import LogoutUrlOptions
+        <Tabs syncKey="python-framework">
+        <TabItem value="flask" label="Flask">
 
-          app = Flask(__name__)
+        ```html
+        <a href="/logout">Log out</a>
+        ```
 
-          @app.route('/logout')
-          def logout():
-              # Clear all session data including cookies and local storage
-              clear_session_data()
+        </TabItem>
+        <TabItem value="fastapi" label="FastAPI">
 
-              # Generate Scalekit logout URL
-              options = LogoutUrlOptions(
-                  id_token_hint=id_token,
-                  post_logout_redirect_uri=post_logout_redirect_uri
-              )
-              logout_url = scalekit.get_logout_url(options)
+        ```html
+        <a href="/logout">Log out</a>
+        ```
 
-              # Redirect to Scalekit's logout endpoint
-              # Note: This is a one-time use URL that becomes invalid after use
-              return redirect(logout_url)
-          ```
+        </TabItem>
+        </Tabs>
         </TabItem>
         <TabItem value="go" label="Go">
           ```go collapse={1-8}
