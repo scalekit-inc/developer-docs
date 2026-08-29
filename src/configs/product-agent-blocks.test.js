@@ -65,6 +65,14 @@ test('product agent block is a copy-only CTA', () => {
   assert.equal(text.includes('PRODUCT_PROMPTS'), true)
   assert.equal(text.includes('data-product-prompt-copy'), true)
   assert.equal(text.includes('setupOneLiner'), false)
+  assert.equal(text.includes('syncKey'), false)
   assert.equal(/<Code[\s\S]*code=\{prompt\}/.test(text), false)
   assert.equal(text.includes('Use ${skill}'), false)
+})
+
+test('AgentKit pages do not point at a removed FoldCard playbook', () => {
+  const quickstart = read('src/content/docs/agentkit/quickstart.mdx')
+  const cookbook = read('src/content/docs/cookbooks/set-up-agentkit-with-your-coding-agent.mdx')
+  assert.equal(quickstart.includes('Build with a coding agent'), false)
+  assert.equal(cookbook.includes('playbook below'), false)
 })

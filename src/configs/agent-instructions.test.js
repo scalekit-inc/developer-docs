@@ -112,6 +112,14 @@ test('homepage prompt does not add an admin portal on the SCIM path', () => {
   assert.equal(homepagePrompt.includes('generatePortalLink'), false)
 })
 
+test('AgentKit product prompt defaults to GitHub', () => {
+  const prompt = PRODUCT_PROMPTS['integrate-agentkit']
+  assert.equal(prompt.includes('Default connector is GitHub'), true)
+  assert.equal(prompt.includes('github-connect'), true)
+  assert.equal(prompt.includes('scalekit-inc/developer-docs'), true)
+  assert.equal(prompt.includes('Default connector is Gmail'), false)
+})
+
 test('each product prompt names its shipped skill, the CLI, and the env var', () => {
   assert.deepEqual(Object.keys(PRODUCT_PROMPTS).sort(), [...SHIPPED_SKILLS].sort())
   for (const skill of SHIPPED_SKILLS) {

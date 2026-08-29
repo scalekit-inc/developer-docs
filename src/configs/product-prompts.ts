@@ -62,24 +62,24 @@ export const agentkitPrompt = playbook({
   skill: agentkitSkill,
   truthFor: 'APIs, SDK calls, and connection names',
   intro:
-    'This run is AgentKit. Default connector is Gmail. Connection Name is gmail unless I name another.',
-  step0: `0. Connector — Gmail unless I name another.
-   Use the Connection Name from setup-agentkit. If none is recorded and I did not name a connector, use gmail.
-   Gmail can use Connection Name gmail when the dashboard has no Gmail row. Every other connector must already exist under Dashboard → AgentKit → Connections. Use that name exactly.
-   Done: I have named a connector. The Connection Name is written down.`,
+    'This run is AgentKit. Default connector is GitHub. Connection Name is github-connect unless I name another.',
+  step0: `0. Connector — GitHub unless I name another.
+   Confirm the connection under https://app.scalekit.com → AgentKit → Connections. New environments ship github-connect (scopes user:email, repo, public_repo). Create the connection there if it is missing.
+   If I name another connector: Gmail needs no extra connection; every other connector is created first under Dashboard → AgentKit → Connections. Use that name exactly.
+   Done: I have named a connector. That connection exists in the dashboard.`,
   credentials: `${ENVIRONMENT_URL_VAR}
    SCALEKIT_CLIENT_ID
    SCALEKIT_CLIENT_SECRET
-   CONNECTION_NAME
-   CONNECTION_NAME is the exact dashboard Connection Name (gmail when I did not name another).`,
+   GITHUB_CONNECTION_NAME
+   GITHUB_CONNECTION_NAME is the exact Connection name from AgentKit → Connections (github-connect on new environments). If I named another connector, use that dashboard name instead.`,
   credentialsDone: 'Done: all four names are set in .env. Code reads them from the environment.',
   implement:
-    'Use the dashboard Connection Name exactly as written. Pass it as connection_name / connectionName.',
+    'Use the dashboard Connection Name exactly as written (GITHUB_CONNECTION_NAME, or the name I gave for another connector). Pass it as connection_name / connectionName.',
   handoff: 'https://app.scalekit.com → AgentKit → Connections',
   proof: `Proof:
    - authorization link if the connected account is not ACTIVE
    - after OAuth, status ACTIVE
-   - one successful downstream API call with the fetched token (default: five unread Gmail messages; if I named another connector, one call to that provider)`,
+   - one successful tool call: star scalekit-inc/developer-docs via Scalekit's tool API (github_repo_star). If I named another connector, one equivalent first call to that provider`,
 })
 
 export const saaskitPrompt = playbook({
