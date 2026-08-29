@@ -51,6 +51,7 @@ const label = PRODUCT_PROMPT_CTA[skill]
     </svg>
     <span data-label>{label}</span>
   </button>
+  <span class="sr-only" data-live aria-live="polite"></span>
   <script type="application/json" data-product-prompt set:html={JSON.stringify(prompt)} />
 </p>
 
@@ -120,6 +121,17 @@ const label = PRODUCT_PROMPT_CTA[skill]
       transform: none;
     }
   }
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
 </style>
 
 <script>
@@ -138,19 +150,26 @@ const label = PRODUCT_PROMPT_CTA[skill]
     const label = btn.querySelector<HTMLElement>('[data-label]')
     if (!label) return
     const idle = btn.dataset.idle ?? 'Copy prompt'
+    const actionName = btn.getAttribute('aria-label') ?? idle
+    const live = btn.closest('.product-agent-cta')?.querySelector<HTMLElement>('[data-live]')
+    let resetTimer: number | undefined
+
+    const show = (state: 'idle' | 'copied' | 'error', text: string) => {
+      btn.dataset.state = state
+      label.textContent = text
+      btn.setAttribute('aria-label', state === 'idle' ? actionName : text)
+      if (live) live.textContent = state === 'idle' ? '' : text
+    }
+
     btn.addEventListener('click', async () => {
       try {
         await navigator.clipboard.writeText(payload(btn))
-        btn.dataset.state = 'copied'
-        label.textContent = 'Copied'
+        show('copied', 'Copied')
       } catch {
-        btn.dataset.state = 'error'
-        label.textContent = 'Copy failed'
+        show('error', 'Copy failed')
       }
-      window.setTimeout(() => {
-        btn.dataset.state = 'idle'
-        label.textContent = idle
-      }, RESET_MS)
+      window.clearTimeout(resetTimer)
+      resetTimer = window.setTimeout(() => show('idle', idle), RESET_MS)
     })
   }
 
