@@ -195,3 +195,11 @@ export const PRODUCT_PROMPTS = {
 } as const
 
 export type ProductSkill = keyof typeof PRODUCT_PROMPTS
+
+export const PRODUCT_PROMPT_CTA = {
+  [agentkitSkill]: 'Copy AgentKit prompt',
+  [saaskitSkill]: 'Copy SaaSKit prompt',
+  [mcpSkill]: 'Copy MCP prompt',
+  [ssoSkill]: 'Copy SSO prompt',
+  [scimSkill]: 'Copy SCIM prompt',
+} as const satisfies Record<ProductSkill, string>
