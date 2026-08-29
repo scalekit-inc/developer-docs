@@ -94,6 +94,7 @@ function groupNavItems(items: NavItem[]): NavItem[][] {
                               class={itemClass}
                               aria-current={isCurrent ? 'page' : undefined}
                               data-astro-prefetch="viewport"
+                              data-nav-id={item.id}
                               data-product-context={
                                 item.id === 'enterprise-deployment' ? product : undefined
                               }
@@ -985,10 +986,11 @@ function groupNavItems(items: NavItem[]): NavItem[][] {
     })
     if (location.pathname === '/how-to' || location.pathname.startsWith('/how-to/')) {
       document.querySelectorAll('.secondary-nav-product .nav-item').forEach((el) => {
+        const id = el.getAttribute('data-nav-id')
         el.classList.toggle(
           'current',
           el.closest('[data-product]')?.getAttribute('data-product') === product &&
-            el.textContent.trim() === 'Cookbooks',
+            (id === 'agentkit-guides' || id === 'saaskit-guides'),
         )
       })
     }

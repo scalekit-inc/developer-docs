@@ -22,8 +22,8 @@ Do not add an `index.mdx` overview unless the shelf is long enough that a hub pa
 
 Each product has a **dedicated cookbooks sidebar** (not the journey rail):
 
-- **AgentKit** secondary nav → **Cookbooks** → left rail shows **Cookbooks** and **How-to** collapsibles
-- **Auth for SaaS** secondary nav → **Cookbooks** → same pattern (not under Developer Resources)
+- **AgentKit** secondary nav → **Keep building** → left rail shows **Cookbooks** and **How-to** collapsibles
+- **Auth for SaaS** secondary nav → **Keep building** → same pattern (not under Developer Resources)
 
 New topic IDs in `src/configs/sidebar.config.ts`:
 

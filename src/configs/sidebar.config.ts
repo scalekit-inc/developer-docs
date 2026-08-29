@@ -788,7 +788,7 @@ export const sidebarToSecondaryNav: Record<string, SecondaryNavMapping> = {
   // Agent connectors sidebar → AgentKit Connectors tab
   'agent-connectors': 'agentkit-connectors',
 
-  // Product cookbook shelves → top-level Cookbooks secondary nav (not Developer Resources)
+  // Product cookbook shelves → top-level Keep building secondary nav (not Developer Resources)
   'agentkit-guides': 'agentkit-guides',
   'saaskit-guides': 'saaskit-guides',
 

@@ -186,7 +186,7 @@ export function getActiveSecondaryNavId(
   }
 
   // Shared workspace how-tos: product (query / topic set by middleware) picks
-  // which Cookbooks tab to highlight. Do this before the path map, which would
+  // which Keep building tab to highlight. Do this before the path map, which would
   // pin /how-to/** to whichever sidebar listed the folder first.
   if (isSharedHowToPath(pathname)) {
     const product = getActiveProduct(pathname, entry?.data?.topic, searchParams)

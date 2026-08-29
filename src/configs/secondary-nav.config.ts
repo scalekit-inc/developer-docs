@@ -70,17 +70,18 @@ const agentKitItems: NavItem[] = [
     iconComponent: IconApi,
   },
   {
-    // Opens the dedicated AgentKit cookbooks sidebar (Cookbooks + How-to collapsibles)
-    id: 'agentkit-guides',
-    href: '/agentkit/cookbooks/set-up-agentkit-with-your-coding-agent/',
-    label: 'Cookbooks',
-    iconComponent: IconLucideBookOpenText,
-  },
-  {
     id: 'enterprise-deployment',
     href: '/self-hosted/overview/',
     label: 'Enterprise Deployment',
     iconComponent: IconSolarServerPathOutline,
+  },
+  {
+    // Recipe shelf — isolated from lookup/ops (Connectors, SDKs, APIs, deploy)
+    id: 'agentkit-guides',
+    href: '/agentkit/cookbooks/set-up-agentkit-with-your-coding-agent/',
+    label: 'Keep building',
+    iconComponent: IconLucideBookOpenText,
+    dividerBefore: true,
   },
 ]
 
@@ -123,17 +124,17 @@ const saasKitItems: NavItem[] = [
     iconComponent: IconApi,
   },
   {
-    // Opens the dedicated SaaSKit cookbooks sidebar (Cookbooks + How-to collapsibles)
-    id: 'saaskit-guides',
-    href: '/saaskit/cookbooks/add-hosted-auth-nextjs-app-router/',
-    label: 'Cookbooks',
-    iconComponent: IconLucideBookOpenText,
+    id: 'enterprise-deployment',
+    href: '/self-hosted/overview/',
+    label: 'Enterprise Deployment',
+    iconComponent: IconSolarServerPathOutline,
   },
   {
     id: 'developer-resources',
     href: '#developer-resources',
     label: 'Developer Resources',
     iconComponent: IconHugeiconsResourcesAdd,
+    dividerBefore: true,
     children: [
       {
         id: 'build-with-ai',
@@ -193,10 +194,11 @@ const saasKitItems: NavItem[] = [
     ],
   },
   {
-    id: 'enterprise-deployment',
-    href: '/self-hosted/overview/',
-    label: 'Enterprise Deployment',
-    iconComponent: IconSolarServerPathOutline,
+    // Recipe shelf — same group as Developer Resources (after lookup/ops)
+    id: 'saaskit-guides',
+    href: '/saaskit/cookbooks/add-hosted-auth-nextjs-app-router/',
+    label: 'Keep building',
+    iconComponent: IconLucideBookOpenText,
   },
 ]
 
