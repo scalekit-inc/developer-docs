@@ -255,14 +255,26 @@ const productLinks = [
     const getOptions = () =>
       Array.from(dropdown.querySelectorAll<HTMLElement>('.product-dropdown__item[role="option"]'))
 
+    const menu = dropdown.querySelector('.product-dropdown__menu')
+
+    const positionMenu = () => {
+      const header = document.querySelector('.header')
+      if (!(header instanceof HTMLElement) || !(menu instanceof HTMLElement)) return
+      const headerBox = header.getBoundingClientRect()
+      const triggerBox = trigger.getBoundingClientRect()
+      menu.style.top = `calc(${headerBox.bottom - triggerBox.top}px + 0.5rem)`
+    }
+
     const openMenu = () => {
       dropdown.classList.add('is-open')
       trigger.setAttribute('aria-expanded', 'true')
+      positionMenu()
     }
 
     const closeMenu = (restoreFocus = false) => {
       dropdown.classList.remove('is-open')
       trigger.setAttribute('aria-expanded', 'false')
+      if (menu instanceof HTMLElement) menu.style.top = ''
       if (restoreFocus) trigger.focus()
     }
 
@@ -395,7 +407,7 @@ const productLinks = [
   .product-phrase {
     display: inline-flex;
     align-items: center;
-    margin-left: 0.75rem;
+    margin-left: 0.5rem;
     white-space: nowrap;
   }
 
@@ -407,31 +419,31 @@ const productLinks = [
     display: inline-flex;
     align-items: center;
     gap: 0.375rem;
-    background: none;
-    border: none;
-    padding: 0;
+    padding: 0.2rem 0.45rem 0.2rem 0.5rem;
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: var(--sk-radius-md, 0.375rem);
+    background: var(--sl-color-bg);
     cursor: pointer;
+    transition:
+      background-color 0.15s ease,
+      border-color 0.15s ease;
   }
 
   .product-label {
-    font-weight: 600;
+    font-weight: 500;
     color: var(--sl-color-text);
-    text-decoration: underline;
-    text-decoration-color: var(--sl-color-gray-4);
-    text-underline-offset: 3px;
-    transition:
-      text-decoration-color 0.15s ease,
-      color 0.15s ease;
+    text-decoration: none;
   }
 
-  .product-dropdown__trigger:hover .product-label {
-    text-decoration-color: var(--sl-color-text);
+  .product-dropdown__trigger:hover {
+    background: var(--sl-color-gray-6);
+    border-color: var(--sk-hover-border, var(--sl-color-gray-4));
   }
 
   .product-dropdown__trigger:focus-visible {
     outline: var(--sk-focus-ring, 2px solid var(--sl-color-accent));
     outline-offset: var(--sk-focus-offset, 2px);
-    border-radius: var(--sk-radius-sm, 0.25rem);
+    border-radius: var(--sk-radius-md, 0.375rem);
   }
 
   .chevron {
@@ -460,11 +472,18 @@ const productLinks = [
   }
 
   .product-dropdown.is-open .product-dropdown__menu {
-    display: block;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .product-dropdown.is-open .product-dropdown__trigger {
+    background: var(--sl-color-bg);
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .chevron {
+    .chevron,
+    .product-dropdown__trigger {
       transition: none;
     }
   }
@@ -539,7 +558,7 @@ const productLinks = [
   .item-check-icon {
     width: 0.875rem;
     height: 0.875rem;
-    color: var(--sk-color-success, var(--sl-color-green-high));
+    color: var(--sl-color-accent);
     flex-shrink: 0;
     opacity: 0;
     visibility: hidden;
@@ -549,6 +568,10 @@ const productLinks = [
   }
 
   .product-dropdown__item.is-active {
+    background: transparent;
+  }
+
+  .product-dropdown__item.is-active:hover {
     background: var(--sl-color-gray-6);
   }
 
