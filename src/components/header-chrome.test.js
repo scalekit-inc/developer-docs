@@ -19,10 +19,10 @@ test('product menu stacks options without an extra flex gap', () => {
   assert.equal(open.includes('gap: 0.25rem'), false)
 })
 
-test('product menu sits below the whole header, not the chip', () => {
-  assert.match(toggle, /closest\('\.header'\)/)
-  assert.match(toggle, /headerBox\.bottom/)
-  assert.match(toggle, /top:\s*calc\(100% \+ 3\.75rem\)/)
+test('product menu sits 8pt below the chip', () => {
+  assert.match(toggle, /top:\s*calc\(100% \+ 0\.5rem\)/)
+  assert.equal(toggle.includes('headerBox.bottom'), false)
+  assert.equal(toggle.includes("closest('.header')"), false)
 })
 
 test('selected product option has no fill', () => {

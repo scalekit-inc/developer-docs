@@ -255,26 +255,14 @@ const productLinks = [
     const getOptions = () =>
       Array.from(dropdown.querySelectorAll<HTMLElement>('.product-dropdown__item[role="option"]'))
 
-    const menu = dropdown.querySelector('.product-dropdown__menu')
-
-    const positionMenu = () => {
-      const header = trigger.closest('.header')
-      if (!(header instanceof HTMLElement) || !(menu instanceof HTMLElement)) return
-      const headerBox = header.getBoundingClientRect()
-      const triggerBox = trigger.getBoundingClientRect()
-      menu.style.top = `calc(${headerBox.bottom - triggerBox.top}px + 0.5rem)`
-    }
-
     const openMenu = () => {
       dropdown.classList.add('is-open')
       trigger.setAttribute('aria-expanded', 'true')
-      positionMenu()
     }
 
     const closeMenu = (restoreFocus = false) => {
       dropdown.classList.remove('is-open')
       trigger.setAttribute('aria-expanded', 'false')
-      if (menu instanceof HTMLElement) menu.style.top = ''
       if (restoreFocus) trigger.focus()
     }
 
@@ -459,7 +447,7 @@ const productLinks = [
   .product-dropdown__menu {
     display: none;
     position: absolute;
-    top: calc(100% + 3.75rem);
+    top: calc(100% + 0.5rem);
     left: 0;
     min-width: 16rem;
     background: var(--sl-color-bg);
