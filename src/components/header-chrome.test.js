@@ -15,12 +15,14 @@ test('product menu stacks options without an extra flex gap', () => {
     toggle.indexOf('.product-dropdown.is-open .product-dropdown__menu'),
     toggle.indexOf('@media (prefers-reduced-motion'),
   )
+  assert.match(open, /gap:\s*0/)
   assert.equal(open.includes('gap: 0.25rem'), false)
 })
 
 test('product menu sits below the whole header, not the chip', () => {
-  assert.match(toggle, /\.header/)
-  assert.match(toggle, /getBoundingClientRect/)
+  assert.match(toggle, /closest\('\.header'\)/)
+  assert.match(toggle, /headerBox\.bottom/)
+  assert.match(toggle, /top:\s*calc\(100% \+ 3\.75rem\)/)
 })
 
 test('selected product option has no fill', () => {
