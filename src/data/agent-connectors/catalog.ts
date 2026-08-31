@@ -7,6 +7,31 @@ export interface ProviderMeta {
 }
 
 export const catalog: Record<string, ProviderMeta> = {
+  windsoraimcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/windsor.svg',
+    authType: 'OAuth 2.1/DCR',
+    categories: ['Analytics', 'Marketing'],
+  },
+  googlephotos: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/googlephotos.svg',
+    authType: 'OAuth 2.0',
+    categories: ['Media', 'Files & Documents'],
+  },
+  googleclassroom: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/googleclassroom.svg',
+    authType: 'OAuth 2.0',
+    categories: ['Productivity', 'Collaboration'],
+  },
+  googlechat: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/googlechat.svg',
+    authType: 'OAuth 2.0',
+    categories: ['Communication', 'Collaboration'],
+  },
+  googlecloudvision: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/googlecloudvision.svg',
+    authType: 'OAuth 2.0',
+    categories: ['AI', 'Media'],
+  },
   salesforcemarketingcloud: {
     iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/sales_force.svg',
     authType: 'OAuth 2.0 Server-to-Server',
@@ -230,7 +255,7 @@ export const catalog: Record<string, ProviderMeta> = {
     categories: ['CRM & Sales', 'AI', 'Analytics'],
   },
   momentum: {
-    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/momentum.svg',
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/momentum..svg',
     authType: 'API Key',
     categories: ['AI', 'CRM & Sales', 'Transcription'],
   },
@@ -281,7 +306,7 @@ export const catalog: Record<string, ProviderMeta> = {
     categories: ['CRM & Sales', 'AI', 'Transcription'],
   },
   cognee: {
-    iconUrl: 'https://platform.cognee.ai/icon.svg?icon.3c7f72a5.svg',
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/cognee.svg',
     authType: 'API Key',
     categories: ['AI'],
   },

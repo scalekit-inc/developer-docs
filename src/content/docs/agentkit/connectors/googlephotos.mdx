@@ -1,0 +1,72 @@
+---
+title: 'Google Photos connector'
+tableOfContents: true
+description: 'Google Photos is Google''s photo and video storage service for uploading, organizing into albums, and managing media created by your app.'
+sidebar:
+  label: 'Google Photos'
+overviewTitle: 'Quickstart'
+connectorIcon: https://cdn.scalekit.com/sk-connect/assets/provider-icons/googlephotos.svg
+connectorAuthType: OAuth 2.0
+connectorCategories: [Media, Files & Documents]
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
+---
+
+import ToolList from '@/components/ToolList.astro'
+import { tools } from '@/data/agent-connectors/googlephotos'
+import { Steps, Tabs, TabItem } from '@astrojs/starlight/components'
+import { AgentKitCredentials } from '@components/templates'
+import { QuickstartGenericOauthSection } from '@components/templates'
+
+<Steps>
+
+1. ### Install the SDK
+
+   <Tabs syncKey="tech-stack">
+     <TabItem label="Node.js">
+       ```bash frame="terminal"
+       npm install @scalekit-sdk/node
+       ```
+     </TabItem>
+     <TabItem label="Python">
+       ```bash frame="terminal"
+       pip install scalekit
+       ```
+     </TabItem>
+   </Tabs>
+
+   Full SDK reference: [Node.js](/agentkit/sdks/node/) | [Python](/agentkit/sdks/python/)
+
+2. ### Set your credentials
+
+   <AgentKitCredentials />
+
+3. ### Authorize and make your first call
+
+   <QuickstartGenericOauthSection connector="googlephotos" toolName="googlephotos_list_albums" providerName="Google Photos" />
+
+</Steps>
+
+## What you can do
+
+Connect this agent connector to let your agent:
+
+- **Update media item, album** — Update the description of a media item this app created or uploaded — the only field the Google Photos API allows changing on a media item
+- **Search media items** — Search this app's media items by album, date range, content category, media type, or favorite status — Google removed access to a user's full pre-existing Photos library in March 2025, so results are limited to media this app itself created or uploaded
+- **List picker media items, media items, albums** — Retrieve the photos and videos the user picked during a Google Photos Picker session (from create_picker_session)
+- **Get picker session, media item, album** — Check the status of a Google Photos Picker session created by create_picker_session
+- **Delete picker session** — Delete a Google Photos Picker session, e.g
+- **Create picker session, album, batch** — Start a new Google Photos Picker session, which lets the connected user pick any photos or videos from their FULL Google Photos library (unlike the other tools in this connector, which are restricted to app-created content only) and hand just those items to this app
+
+## Tool list
+
+Use the exact tool names from the **Tool list** below when you call `execute_tool`. If you're not sure which name to use, list the tools available for the current user first.
+
+<ToolList tools={tools} />
