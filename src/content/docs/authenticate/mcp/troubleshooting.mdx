@@ -118,6 +118,17 @@ The `invalid_client_metadata_url` error belongs to the CIMD path: Scalekit could
 </details>
 
 <details>
+<summary>Is an unauthenticated DCR endpoint a security risk?</summary>
+
+No. Any client can call the DCR endpoint without prior authentication and register with a `redirect_uri` you didn't pre-approve. This is expected behavior, not a misconfiguration. The MCP specification's OAuth 2.1 profile doesn't require a preshared token before a client can register. This lets clients like Claude Desktop, Cursor, or your own custom connector register themselves without you configuring each one manually.
+
+Registering a client doesn't grant it access. A registered client still needs a real user to complete the authorization flow and approve consent before Scalekit issues a token. During that step, the consent screen shows your **environment domain** (or your [custom domain](/agentkit/advanced/custom-domain)) as the party requesting access, not the connecting client's name. If a user doesn't recognize that domain, they should deny the request; Scalekit doesn't issue a code or token to that client.
+
+Scalekit also doesn't restrict `redirect_uri` values to a preapproved domain allowlist. Doing so would break legitimate MCP clients that rely on values an allowlist would normally reject, such as a custom URI scheme (for example, `cursor://`) or a loopback address for a local desktop client.
+
+</details>
+
+<details>
 <summary>View authentication logs to debug a failed connection</summary>
 
 Open **Dashboard > Authentication > Logs** to inspect the authorization and token requests for your environment. Each entry shows the OAuth client, the requested scopes, and the outcome of each step in the flow.
