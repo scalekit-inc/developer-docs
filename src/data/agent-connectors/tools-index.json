@@ -1,5 +1,965 @@
 [
   {
+    "slug": "windsoraimcp",
+    "name": "windsoraimcp_list_actions",
+    "description": "Windsor.ai: List a connector's write actions with their param JSON schemas.\n\nMeta Ads (\"facebook\"): create/pause/enable campaigns, ad sets, and ads;\nset campaign and ad set budgets; boost an organic post. Google Ads\n(\"google_ads\"): create campaigns, ad groups, and responsive sea…"
+  },
+  {
+    "slug": "windsoraimcp",
+    "name": "windsoraimcp_get_windsor_login_url",
+    "description": "Windsor.ai: Get a URL into the Windsor.ai dashboard.\n\nThe user opens it in their browser and is signed in by their existing\nWindsor.ai session; if that has expired they are asked to sign in first.\nnext_path optionally deep-links to a specific page."
+  },
+  {
+    "slug": "windsoraimcp",
+    "name": "windsoraimcp_get_subscription_url",
+    "description": "Get a one-click Markdown link to the Windsor.ai pricing page.\n\nReturns a clickable link to the Windsor.ai pricing page, or to a specific\nplan's upgrade page when target_plan is given. The user\ncompletes any checkout themselves in their browser; the tool only returns\nthe link and…"
+  },
+  {
+    "slug": "windsoraimcp",
+    "name": "windsoraimcp_get_options",
+    "description": "Windsor.ai: Get fields, date-filter columns, and options for a connector.\n\nReturns available field IDs, per-table date-filter columns, and\nconnector-specific options for the given connector and accounts."
+  },
+  {
+    "slug": "windsoraimcp",
+    "name": "windsoraimcp_get_fields",
+    "description": "Windsor.ai: Discover valid field IDs for a connector.\n\nReturns field IDs with descriptions, types, and tables. Omit \"fields\" to\nlist all. Required before get_data: field IDs passed to get_data must come\nfrom this tool — do not guess field names."
+  },
+  {
+    "slug": "windsoraimcp",
+    "name": "windsoraimcp_get_destinations",
+    "description": "Windsor.ai: List destinations that can receive scheduled data exports.\n\nA destination is where Windsor.ai repeatedly writes a connector's data on a\nschedule — BigQuery, Google Sheets, Snowflake, a database, or cloud storage.\nEach entry reports its type, whether a task can be cre…"
+  },
+  {
+    "slug": "windsoraimcp",
+    "name": "windsoraimcp_get_destination_tasks",
+    "description": "Windsor.ai: List the scheduled export tasks the user has created.\n\nA destination task is a recurring export of a connector's data to a\ndestination. Each entry reports its id, destination type and name, alias,\nsource connector, schedule, and status (active, paused, or deactivated…"
+  },
+  {
+    "slug": "windsoraimcp",
+    "name": "windsoraimcp_get_destination_setup_info",
+    "description": "Windsor.ai: Describe how to set up a scheduled export to a destination.\n\nAlways call get_destinations first to get the correct destination id.\nReturns the auth type, the target fields describing where data is written,\nthe allowed schedules, reusable credentials (OAuth or service…"
+  },
+  {
+    "slug": "windsoraimcp",
+    "name": "windsoraimcp_get_data",
+    "description": "Windsor.ai: Retrieve data from a connector.\n\nCall get_fields first — field IDs must come from it."
+  },
+  {
+    "slug": "windsoraimcp",
+    "name": "windsoraimcp_get_custom_fields",
+    "description": "Windsor.ai: List the user's custom (formula) fields across connectors.\n\nA custom field is a user-defined metric or dimension computed from a\nconnector's existing fields with a formula (for example spend times a\nmargin, or a CPA). Each entry reports the connector it belongs to, i…"
+  },
+  {
+    "slug": "windsoraimcp",
+    "name": "windsoraimcp_get_current_user",
+    "description": "Windsor.ai: Get the authenticated user's username, email and plan.\n\n`plan_id`, `plan_name` and `is_paid` come from the live Windsor.ai\nprofile; they are null when the profile lookup fails, which means the\nplan is unknown — not that the user is on a free plan."
+  },
+  {
+    "slug": "windsoraimcp",
+    "name": "windsoraimcp_get_connectors",
+    "description": "Windsor.ai: List connectors, their accounts, write actions, and options.\n\nBy default returns only connectors that have connected accounts; pass\ninclude_not_yet_connected=True for every available connector. Accounts carry\nan id and, when available, a name. Connectors that support…"
+  },
+  {
+    "slug": "windsoraimcp",
+    "name": "windsoraimcp_get_connector_connect_info",
+    "description": "Describe how the user can grant access to a connector, to guide it in chat.\n\nAlways call get_connectors(include_not_yet_connected=True) first to obtain the\ncorrect connector ID. Returns:\n- auth_type: \"oauth\" if the connector needs provider consent in the browser,\n  or \"manual\" i…"
+  },
+  {
+    "slug": "windsoraimcp",
+    "name": "windsoraimcp_get_connector_authorization_url",
+    "description": "Get the URL to connect or authorize a Windsor.ai connector.\n\nAlways call get_connectors(include_not_yet_connected=True) first to obtain the\ncorrect connector ID. Returns a URL the user can open in their browser to set up\nthe connector. For OAuth connectors the link jumps straigh…"
+  },
+  {
+    "slug": "windsoraimcp",
+    "name": "windsoraimcp_execute_action",
+    "description": "Windsor.ai: Execute a write action on a connector account.\n\nRuns an action id from list_actions against an account id from\nget_connectors, with params matching the action's JSON schema. This\nmodifies external platform state — confirm intent with the user before\ninvoking."
+  },
+  {
+    "slug": "windsoraimcp",
+    "name": "windsoraimcp_create_destination_task",
+    "description": "Windsor.ai: Create a scheduled export of connector data to a destination.\n\nCall get_destinations and get_destination_setup_info first for the\ndestination_type, its target fields and a credential_id, and get_fields\nfor the source field ids.\n\nThis creates recurring external state …"
+  },
+  {
+    "slug": "windsoraimcp",
+    "name": "windsoraimcp_create_custom_field",
+    "description": "Windsor.ai: Create a custom (formula) field on a connector.\n\nA custom field is a user-defined metric or dimension computed from a\nconnector's existing fields; once created it behaves like a normal field in\nget_fields, get_data and scheduled exports. Useful for recreating\ncalcula…"
+  },
+  {
+    "slug": "windsoraimcp",
+    "name": "windsoraimcp_contact_windsor",
+    "description": "Windsor.ai: Send feedback, a support request, or a feature request.\n\nReports a problem, shares feedback, or suggests a feature. Returns a\nreference ID the user can share with Windsor.ai support."
+  },
+  {
+    "slug": "googlephotos",
+    "name": "googlephotos_update_media_item",
+    "description": "Update the description of a media item this app created or uploaded — the only field the Google Photos API allows changing on a media item. Returns the updated media item, including its filename, MIME type, temporary base URL, creation time, dimensions, and the new description. …"
+  },
+  {
+    "slug": "googlephotos",
+    "name": "googlephotos_update_album",
+    "description": "Update the title or cover photo of an album this app itself created — Google removed access to a user's pre-existing Photos library in March 2025, so only app-owned albums can be updated. Requires the album id and an update mask naming which fields to change; only fields listed …"
+  },
+  {
+    "slug": "googlephotos",
+    "name": "googlephotos_search_media_items",
+    "description": "Search this app's media items by album, date range, content category, media type, or favorite status — Google removed access to a user's full pre-existing Photos library in March 2025, so results are limited to media this app itself created or uploaded. Returns a page of matchin…"
+  },
+  {
+    "slug": "googlephotos",
+    "name": "googlephotos_list_picker_media_items",
+    "description": "Retrieve the photos and videos the user picked during a Google Photos Picker session (from create_picker_session). Only call this once get_picker_session reports mediaItemsSet: true — otherwise the list will be empty even though the session is still valid. Returns each item's ty…"
+  },
+  {
+    "slug": "googlephotos",
+    "name": "googlephotos_list_media_items",
+    "description": "List media items this app has created or uploaded, paginated in reverse-chronological creation order. Returns each item's filename, MIME type, a temporary base URL for viewing or downloading it, creation time, dimensions, and photo/video technical metadata, plus a token for the …"
+  },
+  {
+    "slug": "googlephotos",
+    "name": "googlephotos_list_albums",
+    "description": "List the albums this app has created in Google Photos, one page at a time. Google removed access to a user's full pre-existing Photos library in March 2025, so only albums this app created are ever returned — albums made in the Google Photos app itself, or by other apps, cannot …"
+  },
+  {
+    "slug": "googlephotos",
+    "name": "googlephotos_get_picker_session",
+    "description": "Check the status of a Google Photos Picker session created by create_picker_session. Returns mediaItemsSet: true once the user has finished picking media in their browser — poll this tool (using the interval in the session's pollingConfig) until it flips true, then call list_pic…"
+  },
+  {
+    "slug": "googlephotos",
+    "name": "googlephotos_get_media_item",
+    "description": "Retrieve a single media item by its ID, restricted to media this app itself created or uploaded — Google removed access to a user's full pre-existing Photos library in March 2025. Returns the item's filename, MIME type, a temporary base URL for viewing or downloading it, creatio…"
+  },
+  {
+    "slug": "googlephotos",
+    "name": "googlephotos_get_album",
+    "description": "Retrieve an album by its ID, restricted to albums this app itself created — Google removed access to a user's full pre-existing Photos library in March 2025. Returns the album's title, product URL, whether it's editable, its media item count, and cover photo details. Use get_alb…"
+  },
+  {
+    "slug": "googlephotos",
+    "name": "googlephotos_delete_picker_session",
+    "description": "Delete a Google Photos Picker session, e.g. after you've retrieved its picked media items with list_picker_media_items or if the user abandoned the picker. This only removes the session bookkeeping — it does not affect any photos or videos in the user's library. Returns no conte…"
+  },
+  {
+    "slug": "googlephotos",
+    "name": "googlephotos_create_picker_session",
+    "description": "Start a new Google Photos Picker session, which lets the connected user pick any photos or videos from their FULL Google Photos library (unlike the other tools in this connector, which are restricted to app-created content only) and hand just those items to this app. Returns a p…"
+  },
+  {
+    "slug": "googlephotos",
+    "name": "googlephotos_create_album",
+    "description": "Create a new album owned by this app in Google Photos. Only the album title can be set at creation — Google Photos fills in every other field, and since this app cannot see or reuse albums from a user's pre-existing library (Google removed that access in March 2025), the call al…"
+  },
+  {
+    "slug": "googlephotos",
+    "name": "googlephotos_batch_remove_media_items_from_album",
+    "description": "Remove up to 50 media items from an album this app created, in a single call — Google removed access to a user's pre-existing Photos library in March 2025, so this only works on albums this app owns. The media items themselves are not deleted, only their membership in this album…"
+  },
+  {
+    "slug": "googlephotos",
+    "name": "googlephotos_batch_get_media_items",
+    "description": "Retrieve up to 50 media items in a single call by their IDs, restricted to media this app itself created or uploaded — Google removed access to a user's full pre-existing Photos library in March 2025. Returns one result per requested ID: each is either the media item's details (…"
+  },
+  {
+    "slug": "googlephotos",
+    "name": "googlephotos_batch_create_media_items",
+    "description": "Add up to 50 media items to this app's Google Photos library in one call, each identified by an upload token obtained beforehand — not by raw file bytes. Returns a per-item result list: each entry carries the original upload token plus either the created media item (filename, MI…"
+  },
+  {
+    "slug": "googlephotos",
+    "name": "googlephotos_batch_add_media_items_to_album",
+    "description": "Add up to 50 media items to an album this app created, in a single call — Google removed access to a user's pre-existing Photos library in March 2025, so both the album and the media items must belong to this app. Returns an empty response on success; calling it again with media…"
+  },
+  {
+    "slug": "googlephotos",
+    "name": "googlephotos_add_album_enrichment",
+    "description": "Add a text caption, location, or map enrichment item to an album this app created — Google removed access to a user's pre-existing Photos library in March 2025, so enrichments can only be added to app-owned albums. Provide exactly one enrichment type (text, location, or map) wit…"
+  },
+  {
+    "slug": "googleclassroom",
+    "name": "googleclassroom_user_profile_get",
+    "description": "Retrieve a single user's Google Classroom profile by numeric ID, email address, or 'me'.\nReturns the user's name, email address (if the profile-emails scope is granted), profile photo URL, and permissions.\nUse this to look up a specific person's identity details; use students_li…"
+  },
+  {
+    "slug": "googleclassroom",
+    "name": "googleclassroom_topics_list",
+    "description": "List the topics in a Google Classroom course that the requester is permitted to view.\nReturns a page of topics plus a nextPageToken for fetching further pages.\nUse this to browse or discover topics available for organizing coursework and announcements; use topic_get when you alr…"
+  },
+  {
+    "slug": "googleclassroom",
+    "name": "googleclassroom_topic_patch",
+    "description": "Update the name of an existing Google Classroom topic.\nReturns the updated topic, reflecting only the fields named in update_mask.\nUse this for partial edits instead of recreating the topic with topic_create; requires the topic to already exist and to have been created by this a…"
+  },
+  {
+    "slug": "googleclassroom",
+    "name": "googleclassroom_topic_get",
+    "description": "Retrieve a single topic from a Google Classroom course by its ID.\nReturns the topic's name and last-updated timestamp.\nUse this when you already know the topic's ID; use topics_list to browse or find topics in a course."
+  },
+  {
+    "slug": "googleclassroom",
+    "name": "googleclassroom_topic_delete",
+    "description": "Permanently delete a topic from a Google Classroom course.\nReturns an empty response on success.\nUse this to remove a topic that is no longer needed for organizing coursework; this cannot be undone. Use topic_get first if you need to confirm the topic's details before deleting i…"
+  },
+  {
+    "slug": "googleclassroom",
+    "name": "googleclassroom_topic_create",
+    "description": "Create a new topic (organizational label) in a Google Classroom course.\nReturns the created topic, including its Classroom-assigned topic ID.\nUse this to add a new category for grouping coursework and announcements in the stream; topics are labels used to organize content, disti…"
+  },
+  {
+    "slug": "googleclassroom",
+    "name": "googleclassroom_teachers_list",
+    "description": "List the teachers of a Google Classroom course that the requester is permitted to view, paginated.\nReturns an array of teacher records (profile, user ID) along with a next-page token when more results exist.\nUse this to browse a course's teaching staff; use teacher_get instead w…"
+  },
+  {
+    "slug": "googleclassroom",
+    "name": "googleclassroom_teacher_get",
+    "description": "Retrieve a single teacher's record in a Google Classroom course by user ID.\nReturns the teacher's profile and course ID.\nUse this when you already know the teacher's user ID or email; use teachers_list to browse or find a teacher in a course otherwise."
+  },
+  {
+    "slug": "googleclassroom",
+    "name": "googleclassroom_teacher_delete",
+    "description": "Remove a teacher from a Google Classroom course. The primary teacher of a course cannot be removed this way.\nReturns an empty response on success.\nUse this to remove a specific teacher you already have the user ID for; use teachers_list first if you need to look up their user ID…"
+  },
+  {
+    "slug": "googleclassroom",
+    "name": "googleclassroom_teacher_create",
+    "description": "Add a user as a teacher of a Google Classroom course, as an authorized user (e.g. a domain administrator) directly adding them by user ID.\nReturns the created teacher record, including the user's profile and course ID.\nUse this when you already know the target user's ID or email…"
+  },
+  {
+    "slug": "googleclassroom",
+    "name": "googleclassroom_students_list",
+    "description": "List the students of a Google Classroom course that the requester is permitted to view, paginated.\nReturns an array of student records (profile, user ID) along with a next-page token when more results exist.\nUse this to browse or search a course's roster; use student_get instead…"
+  },
+  {
+    "slug": "googleclassroom",
+    "name": "googleclassroom_student_submissions_list",
+    "description": "List student submissions for a piece of Google Classroom course work, or across all course work in a course.\nReturns each submission's ID, state, grade, late status, and submission content, plus a page token for more results.\nUse this to browse or filter submissions by state, la…"
+  },
+  {
+    "slug": "googleclassroom",
+    "name": "googleclassroom_student_submission_turn_in",
+    "description": "Turn in a student submission for grading, as the student who owns it.\nTransfers ownership of any attached Drive files to the teacher and updates the submission's state to TURNED_IN.\nCall this once the student has finished their work and it is ready for the teacher to grade. Only…"
+  },
+  {
+    "slug": "googleclassroom",
+    "name": "googleclassroom_student_submission_return",
+    "description": "Return a graded student submission to the student, as a teacher of the course.\nTransfers ownership of any Drive files attached to the submission back to the student and may update the submission's state; does not copy draftGrade into assignedGrade.\nCall this after grading with s…"
+  },
+  {
+    "slug": "googleclassroom",
+    "name": "googleclassroom_student_submission_reclaim",
+    "description": "Reclaim a turned-in student submission on behalf of the student who owns it, undoing the turn-in.\nTransfers ownership of any Drive files attached to the submission back to the student and updates the submission's state.\nCall this only for a submission that has already been turne…"
+  },
+  {
+    "slug": "googleclassroom",
+    "name": "googleclassroom_student_submission_patch",
+    "description": "Set or update the grade on a student submission, as a teacher of the course.\nReturns the updated student submission, including its new assignedGrade and/or draftGrade values.\nUse this to grade a submission by updating assignedGrade (the final grade visible to the student and the…"
+  },
+  {
+    "slug": "googleclassroom",
+    "name": "googleclassroom_student_submission_modify_attachments",
+    "description": "Add Drive file, link, or YouTube video attachments to a student's own submission, as the student who owns it.\nReturns the updated student submission including its new list of attachments.\nUse this to attach materials to a submission before turning it in with student_submission_t…"
+  },
+  {
+    "slug": "googleclassroom",
+    "name": "googleclassroom_student_submission_get",
+    "description": "Retrieve a single student's submission for a piece of Google Classroom course work.\nReturns the submission's state, grade (assignedGrade/draftGrade), late status, submission content (assignment, short-answer, or multiple-choice), and its Classroom link.\nUse this when you already…"
+  },
+  {
+    "slug": "googleclassroom",
+    "name": "googleclassroom_student_groups_list",
+    "description": "List the student groups defined within a Google Classroom course, paginated.\nReturns an array of student group objects (id, courseId, title) plus a nextPageToken when more results exist.\nUse this to discover existing groups and their IDs before patching, deleting, or listing/add…"
+  },
+  {
+    "slug": "googleclassroom",
+    "name": "googleclassroom_student_group_patch",
+    "description": "Update one or more fields of an existing student group in a Google Classroom course.\nReturns the updated student group object.\nRequires update_mask naming which field(s) to change; only fields listed there are applied. Use student_groups_list to find the student group's ID first…"
+  },
+  {
+    "slug": "googleclassroom",
+    "name": "googleclassroom_student_group_members_list",
+    "description": "List the students who are members of a specific student group within a Google Classroom course, paginated.\nReturns an array of student group member objects (userId, studentGroupId, courseId) plus a nextPageToken when more results exist.\nUse this to see who's already in a group b…"
+  },
+  {
+    "slug": "googleclassroom",
+    "name": "googleclassroom_student_group_member_delete",
+    "description": "Remove a student from a student group in a Google Classroom course.\nReturns an empty object on success.\nThis removes the student from the group only — they remain enrolled in the course. Use student_group_delete instead to remove the entire group, or a course roster tool to unen…"
+  },
+  {
+    "slug": "googleclassroom",
+    "name": "googleclassroom_student_group_member_create",
+    "description": "Add an already-enrolled course student as a member of a student group in Google Classroom.\nReturns the created student group member object (userId, studentGroupId, courseId).\nThe user must already be enrolled as a student in the course — use student_create to enroll them in the …"
+  },
+  {
+    "slug": "googleclassroom",
+    "name": "googleclassroom_student_group_delete",
+    "description": "Delete a student group from a Google Classroom course.\nReturns an empty object on success.\nThis removes the group itself, not the students in it — the students remain enrolled in the course. Use student_group_member_delete instead to remove a single student from a group while ke…"
+  },
+  {
+    "slug": "googleclassroom",
+    "name": "googleclassroom_student_group_create",
+    "description": "Create a student group within a Google Classroom course, used to organize students for purposes such as differentiated assignments.\nReturns the created student group's ID, course ID, and title.\nUse this to define a new group inside a course; call student_group_member_create afte…"
+  },
+  {
+    "slug": "googleclassroom",
+    "name": "googleclassroom_student_get",
+    "description": "Retrieve a single student's enrollment record in a Google Classroom course by user ID.\nReturns the student's profile, course ID, and Drive folder information for their coursework.\nUse this when you already know the student's user ID or email; use students_list to browse or find …"
+  },
+  {
+    "slug": "googleclassroom",
+    "name": "googleclassroom_student_delete",
+    "description": "Unenroll a student from a Google Classroom course, permanently removing their roster entry.\nReturns an empty response on success.\nUse this to remove a specific student you already have the user ID for; use students_list first if you need to look up their user ID. Use teacher_del…"
+  },
+  {
+    "slug": "googleclassroom",
+    "name": "googleclassroom_student_create",
+    "description": "Enroll a user as a student of a Google Classroom course, either self-enrolling with the course's enrollment code or being added directly by an authorized user such as a domain administrator.\nReturns the created student record, including the user's profile and course ID.\nUse this…"
+  },
+  {
+    "slug": "googleclassroom",
+    "name": "googleclassroom_registration_delete",
+    "description": "Delete a Registration, causing Classroom to stop sending push notifications for it.\nReturns an empty response on success.\nUse this once you no longer need Cloud Pub/Sub notifications for a course's roster or coursework changes; use registration_create to set one up again with a …"
+  },
+  {
+    "slug": "googleclassroom",
+    "name": "googleclassroom_registration_create",
+    "description": "Register a Cloud Pub/Sub topic to start receiving push notifications about roster or coursework changes for a Google Classroom course.\nReturns the created Registration, including its server-assigned registration ID and expiry time.\nUse this to set up event-driven sync instead of…"
+  },
+  {
+    "slug": "googleclassroom",
+    "name": "googleclassroom_invitations_list",
+    "description": "List invitations that the requesting user is permitted to view, optionally filtered by user or course, paginated.\nReturns an array of invitations (each with its ID, invited user ID, course ID, and role) along with a next-page token when more results exist.\nUse this to find an in…"
+  },
+  {
+    "slug": "googleclassroom",
+    "name": "googleclassroom_invitation_get",
+    "description": "Retrieve a single invitation by its ID.\nReturns the invitation's ID, invited user ID, course ID, and role.\nUse this when you already know the invitation ID; use invitations_list instead to find an invitation by user or course."
+  },
+  {
+    "slug": "googleclassroom",
+    "name": "googleclassroom_invitation_delete",
+    "description": "Delete an invitation, withdrawing it before the invited user accepts.\nReturns an empty response on success.\nUse this to cancel a pending invitation, for example to reissue it with a different role; use invitation_accept instead if the invited user actually wants to join the cour…"
+  },
+  {
+    "slug": "googleclassroom",
+    "name": "googleclassroom_invitation_create",
+    "description": "Invite a user to join a Google Classroom course in a specific role (student, teacher, or owner).\nReturns the created Invitation, including its invitation ID, invited user ID, course ID, and role.\nUse this for the polite, asynchronous path where the invited user must accept befor…"
+  },
+  {
+    "slug": "googleclassroom",
+    "name": "googleclassroom_invitation_accept",
+    "description": "Accept an invitation, removing it and adding the invited user to the course as a student, teacher, or owner as specified by the invitation.\nReturns an empty response on success.\nUse this only as the invited user themselves — Classroom rejects the call if made with any other iden…"
+  },
+  {
+    "slug": "googleclassroom",
+    "name": "googleclassroom_guardians_list",
+    "description": "List guardians currently linked to a student (or, for domain administrators, across every student they can view using '-'), optionally filtered by the email address the original invitation was sent to, paginated.\nReturns an array of Guardian records — guardian ID, the linked stu…"
+  },
+  {
+    "slug": "googleclassroom",
+    "name": "googleclassroom_guardian_invitations_list",
+    "description": "List guardian invitations for a student (or, for domain administrators, across every student they can view using '-'), optionally filtered by invited email address or invitation state, paginated.\nReturns an array of GuardianInvitation records — id, invited email (domain administ…"
+  },
+  {
+    "slug": "googleclassroom",
+    "name": "googleclassroom_guardian_invitation_patch",
+    "description": "Withdraw a pending guardian invitation by transitioning its state to COMPLETE — the only modification this endpoint supports (there is no API method to accept an invitation on the recipient's behalf).\nReturns the updated GuardianInvitation record showing its new COMPLETE state.\n…"
+  },
+  {
+    "slug": "googleclassroom",
+    "name": "googleclassroom_guardian_invitation_get",
+    "description": "Retrieve a single guardian invitation for a student by invitation ID.\nReturns the GuardianInvitation record: its state (PENDING, COMPLETE, or GUARDIAN_INVITATION_STATE_UNSPECIFIED), the invited email address (domain administrators only), and creation time.\nUse this to check the …"
+  },
+  {
+    "slug": "googleclassroom",
+    "name": "googleclassroom_guardian_invitation_create",
+    "description": "Send a guardian invitation email for a student, asking the recipient to confirm they are the student's guardian.\nReturns the created GuardianInvitation record, including its invitation ID and initial PENDING state.\nUse this to start linking a new guardian to a student; once the …"
+  },
+  {
+    "slug": "googleclassroom",
+    "name": "googleclassroom_guardian_get",
+    "description": "Retrieve a single guardian already linked to a student, by guardian ID.\nReturns the Guardian record: its guardian ID, the linked student's user ID, and the guardian's profile information.\nUse this when you already know a specific guardian's ID; use guardians_list to browse all g…"
+  },
+  {
+    "slug": "googleclassroom",
+    "name": "googleclassroom_guardian_delete",
+    "description": "Revoke an already-linked guardian's access for a student, permanently removing the Guardian resource.\nReturns an empty response on success; the guardian will stop receiving notifications and is no longer accessible via the API.\nUse this to remove a guardian who is already linked…"
+  },
+  {
+    "slug": "googleclassroom",
+    "name": "googleclassroom_coursework_update_rubric",
+    "description": "Update the rubric embedded directly on a course work item, using an explicit field mask (PATCH .../courseWork/{courseWorkId}/rubric — no separate rubric ID in the path).\nReturns the updated Rubric resource with its criteria and levels.\nUse this only for that single embedded rubr…"
+  },
+  {
+    "slug": "googleclassroom",
+    "name": "googleclassroom_coursework_rubrics_list",
+    "description": "List rubrics in Classroom's standalone rubrics sub-collection for a course work item, with pagination.\nReturns an array of Rubric resources (id, criteria, levels) plus a nextPageToken; at most 1 rubric is returned per page today since Classroom currently supports a single rubric…"
+  },
+  {
+    "slug": "googleclassroom",
+    "name": "googleclassroom_coursework_rubric_patch",
+    "description": "Update one or more fields of a rubric in Classroom's standalone rubrics sub-collection for a course work item, using an explicit field mask.\nReturns the updated Rubric resource. Only the fields named in update_mask are applied; all other current values are left unchanged.\nUse th…"
+  },
+  {
+    "slug": "googleclassroom",
+    "name": "googleclassroom_coursework_rubric_get",
+    "description": "Retrieve a single rubric from Classroom's standalone rubrics sub-collection for a course work item, by its rubric ID.\nReturns the Rubric resource: id, criteria, levels, and source spreadsheet ID if one was used.\nUse this when you already know the rubric ID; use coursework_rubric…"
+  },
+  {
+    "slug": "googleclassroom",
+    "name": "googleclassroom_coursework_rubric_delete",
+    "description": "Permanently delete a rubric from Classroom's standalone rubrics sub-collection for a course work item. The requesting user and course owner must have rubrics creation capabilities, and the request must be made by the same Google Cloud console OAuth client that created the rubric…"
+  },
+  {
+    "slug": "googleclassroom",
+    "name": "googleclassroom_coursework_rubric_create",
+    "description": "Create a rubric in Classroom's standalone rubrics sub-collection for a course work item (courseWork/{courseWorkId}/rubrics), addressed afterward by its own rubric ID.\nReturns the created Rubric resource including its Classroom-assigned rubric id, criteria, and levels.\nUse this t…"
+  },
+  {
+    "slug": "googleclassroom",
+    "name": "googleclassroom_coursework_patch",
+    "description": "Update one or more fields of an existing course work item in a Google Classroom course, using an explicit field mask.\nReturns the updated CourseWork resource. Only the fields named in update_mask are applied; all other current values are left unchanged.\nUse this to change title,…"
+  },
+  {
+    "slug": "googleclassroom",
+    "name": "googleclassroom_coursework_modify_assignees",
+    "description": "Change which students a course work item is assigned to: switch between ALL_STUDENTS and INDIVIDUAL_STUDENTS, and add or remove specific students from an individually-assigned item.\nReturns the updated CourseWork resource reflecting the new assignee mode and student list.\nUse th…"
+  },
+  {
+    "slug": "googleclassroom",
+    "name": "googleclassroom_coursework_materials_list",
+    "description": "List course work materials in a Google Classroom course, optionally filtered by state or by attached Drive/link content.\nReturns each material's ID, title, state, and metadata, plus a page token for more results.\nUse this to browse or search classwork reference materials; studen…"
+  },
+  {
+    "slug": "googleclassroom",
+    "name": "googleclassroom_coursework_material_patch",
+    "description": "Update one or more fields of an existing course work material in a Google Classroom course.\nReturns the updated course work material.\nUse this to edit fields like title, description, state, or attached materials after coursework_material_create; name the fields you are changing …"
+  },
+  {
+    "slug": "googleclassroom",
+    "name": "googleclassroom_coursework_material_get",
+    "description": "Retrieve a single course work material by ID from a Google Classroom course.\nReturns its title, description, attached materials, state, assignee mode, and Classroom link.\nUse this when you already know the course work material ID; use coursework_materials_list to find one first.…"
+  },
+  {
+    "slug": "googleclassroom",
+    "name": "googleclassroom_coursework_material_delete",
+    "description": "Permanently delete a course work material from a Google Classroom course.\nReturns an empty response on success.\nUse this to remove classwork reference material you no longer want students to see; this cannot be undone. Can only be called by the Developer Console project that ori…"
+  },
+  {
+    "slug": "googleclassroom",
+    "name": "googleclassroom_coursework_material_create",
+    "description": "Create a new course work material (classwork reference content with no grade) in a Google Classroom course.\nReturns the created course work material, including its assigned ID, state, and alternate link.\nUse this to publish reference materials like readings, links, or files for …"
+  },
+  {
+    "slug": "googleclassroom",
+    "name": "googleclassroom_coursework_list",
+    "description": "List course work items in a Google Classroom course, optionally filtered by state and sorted, with pagination.\nReturns an array of CourseWork resources plus a nextPageToken for further pages. Students only see PUBLISHED items; teachers and admins see all.\nUse this to browse or e…"
+  },
+  {
+    "slug": "googleclassroom",
+    "name": "googleclassroom_coursework_get",
+    "description": "Retrieve a single course work item (assignment, short-answer question, or multiple-choice question) from a Google Classroom course by its ID.\nReturns the CourseWork resource: title, description, work type, state, due date/time, max points, and materials.\nUse this when you alread…"
+  },
+  {
+    "slug": "googleclassroom",
+    "name": "googleclassroom_coursework_delete",
+    "description": "Permanently delete a course work item from a Google Classroom course. The request must be made by the same Developer Console project/OAuth client that originally created the item.\nReturns an empty response on success; the course work and its association with student submissions …"
+  },
+  {
+    "slug": "googleclassroom",
+    "name": "googleclassroom_coursework_create",
+    "description": "Create a course work item (assignment, short-answer question, or multiple-choice question) in a Google Classroom course.\nReturns the created CourseWork resource with its Classroom-assigned id, state, and timestamps.\nUse this to add new work to a course; use coursework_patch to u…"
+  },
+  {
+    "slug": "googleclassroom",
+    "name": "googleclassroom_courses_list",
+    "description": "List courses in Google Classroom that the requesting user is permitted to view, optionally filtered by teacher, student, or course state.\nReturns a page of Course resources (id, name, section, room, state, owner, and other course details) plus a nextPageToken for fetching subseq…"
+  },
+  {
+    "slug": "googleclassroom",
+    "name": "googleclassroom_course_update_grading_period_settings",
+    "description": "Update the grading period settings of a course in Google Classroom using an explicit field mask, adding, removing, or modifying individual grading periods.\nReturns the updated GradingPeriodSettings, including the (fully replaced) list of grading periods and the applyToExistingCo…"
+  },
+  {
+    "slug": "googleclassroom",
+    "name": "googleclassroom_course_update",
+    "description": "Replace an existing course's editable fields in Google Classroom with a full-object update (HTTP PUT).\nReturns the updated Course resource. Any editable field you omit (other than levels) is cleared, because this call replaces the whole set of editable fields rather than merging…"
+  },
+  {
+    "slug": "googleclassroom",
+    "name": "googleclassroom_course_patch",
+    "description": "Update one or more fields on an existing course in Google Classroom using an explicit field mask (HTTP PATCH).\nReturns the updated Course resource; only the fields named in update_mask are changed, everything else is left untouched.\nThis is the recommended way to change a course…"
+  },
+  {
+    "slug": "googleclassroom",
+    "name": "googleclassroom_course_get_grading_period_settings",
+    "description": "Retrieve the grading period settings configured for a course in Google Classroom.\nReturns whether grading periods apply to existing coursework (applyToExistingCoursework) and the full ordered list of grading periods (id, title, startDate, endDate) defined for the course.\nUse thi…"
+  },
+  {
+    "slug": "googleclassroom",
+    "name": "googleclassroom_course_get",
+    "description": "Retrieve a single Google Classroom course by its Classroom-assigned ID or alias.\nReturns the course's name, section, description, room, state, owner ID, enrollment codes, and other course details.\nUse this when you already know the course ID or alias; use a list or search tool t…"
+  },
+  {
+    "slug": "googleclassroom",
+    "name": "googleclassroom_course_delete",
+    "description": "Permanently delete a course from Google Classroom.\nReturns an empty object on success; the course and its data are removed and cannot be recovered.\nUse this only when you intend to permanently remove a course. If you just want to hide it from active use without losing data, use …"
+  },
+  {
+    "slug": "googleclassroom",
+    "name": "googleclassroom_course_create",
+    "description": "Create a new course in Google Classroom, adding the specified owner as its teacher.\nReturns the created Course resource, including its Classroom-assigned id, current state, and the course details you supplied.\nUse this to provision a brand-new class. Use course_patch afterward t…"
+  },
+  {
+    "slug": "googleclassroom",
+    "name": "googleclassroom_course_aliases_list",
+    "description": "List all aliases of a Google Classroom course, paginated.\nReturns an array of alias objects (each with an alias string) along with a next-page token when more results exist.\nUse this to discover the alias strings you'd pass to course_alias_delete, or to check whether a course al…"
+  },
+  {
+    "slug": "googleclassroom",
+    "name": "googleclassroom_course_alias_delete",
+    "description": "Delete an existing alias of a Google Classroom course.\nReturns an empty response on success.\nUse this to remove an alternate identifier you no longer want to resolve to the course; use course_aliases_list first if you need to look up the exact alias string. Pass the alias itself…"
+  },
+  {
+    "slug": "googleclassroom",
+    "name": "googleclassroom_course_alias_create",
+    "description": "Create an alternate identifier (alias) for a Google Classroom course, scoped either to the domain or to the calling project.\nReturns the created CourseAlias resource containing the alias string.\nUse this to give a course a memorable or system-specific ID you can reference instea…"
+  },
+  {
+    "slug": "googleclassroom",
+    "name": "googleclassroom_announcements_list",
+    "description": "List announcements posted to a Google Classroom course, optionally filtered by state and sorted.\nReturns a page of announcements plus a nextPageToken for fetching further pages.\nUse this to browse or search announcements in a course; use announcement_get when you already know a …"
+  },
+  {
+    "slug": "googleclassroom",
+    "name": "googleclassroom_announcement_patch",
+    "description": "Update one or more fields of an existing Google Classroom announcement.\nReturns the updated announcement, reflecting only the fields named in update_mask.\nUse this for partial edits instead of recreating the announcement with announcement_create; only text, state, and scheduled_…"
+  },
+  {
+    "slug": "googleclassroom",
+    "name": "googleclassroom_announcement_modify_assignees",
+    "description": "Change which students can view a Google Classroom announcement by updating its assignee mode.\nReturns the updated announcement reflecting the new assignee mode and, if applicable, its individual-student access list.\nUse this to switch an announcement between visible-to-all-stude…"
+  },
+  {
+    "slug": "googleclassroom",
+    "name": "googleclassroom_announcement_get",
+    "description": "Retrieve a single announcement from a Google Classroom course by its ID.\nReturns the announcement's text, state, assignee mode, materials, and timestamps.\nUse this when you already know the announcement's ID; use announcements_list to browse or find announcements in a course."
+  },
+  {
+    "slug": "googleclassroom",
+    "name": "googleclassroom_announcement_delete",
+    "description": "Permanently delete an announcement from a Google Classroom course.\nReturns an empty response on success.\nUse this to remove an announcement that was created by this app's OAuth client; this cannot be undone. Use announcement_get first if you need to confirm the announcement's de…"
+  },
+  {
+    "slug": "googleclassroom",
+    "name": "googleclassroom_announcement_create",
+    "description": "Create a new announcement (stream post) in a Google Classroom course.\nReturns the created announcement, including its Classroom-assigned ID, state, and creation time.\nUse this to post a new update to the class stream; use announcement_patch to edit an existing announcement inste…"
+  },
+  {
+    "slug": "googlechat",
+    "name": "googlechat_upload_media",
+    "description": "Upload a file (up to 200MB) as a Google Chat attachment, to be referenced when sending a message.\nKnown limitation — NOT currently functional: Google's upload endpoint only accepts a true multipart request (a JSON metadata part containing just `filename`, plus a separate raw-bin…"
+  },
+  {
+    "slug": "googlechat",
+    "name": "googlechat_update_user_availability",
+    "description": "Update the authenticated user's custom status message in Google Chat, with an optional emoji and expiration. Returns the updated Availability object reflecting the new custom status. Use update_user_availability to set or change a custom status message (e.g. 'In a meeting'); use…"
+  },
+  {
+    "slug": "googlechat",
+    "name": "googlechat_update_space_read_state",
+    "description": "Update the calling user's read state for a Google Chat space by setting last_read_time, used to mark the space's top-level conversation as read or unread. Returns the updated read state object. Setting last_read_time to a time at or after the latest message marks the space read;…"
+  },
+  {
+    "slug": "googlechat",
+    "name": "googlechat_update_space_notification_setting",
+    "description": "Update the calling user's notification setting or mute setting for a Google Chat space. Returns the updated SpaceNotificationSetting object. Use update_space_notification_setting to change how you're notified for a space; call get_space_notification_setting first to see the curr…"
+  },
+  {
+    "slug": "googlechat",
+    "name": "googlechat_update_space",
+    "description": "Update fields of an existing Google Chat space, such as its display name, description, guidelines, history state, or space type. Returns the updated space resource. You must pass update_mask listing exactly which fields to change — fields you set in the body but omit from update…"
+  },
+  {
+    "slug": "googlechat",
+    "name": "googlechat_update_section",
+    "description": "Update the display name of an existing custom section in Google Chat. Returns the updated section object. Only sections of type CUSTOM_SECTION can be updated, and the only currently supported field path is 'displayName'; use list_sections first to find the section_id. Known limi…"
+  },
+  {
+    "slug": "googlechat",
+    "name": "googlechat_update_message",
+    "description": "Apply a partial update to an existing Google Chat message, changing only the fields named in update_mask. Returns the updated message resource. Use update_message to change specific fields like text; use replace_message to send the complete message content instead of a partial p…"
+  },
+  {
+    "slug": "googlechat",
+    "name": "googlechat_update_member",
+    "description": "Update an existing membership in a Google Chat space, currently limited to changing a member's role (e.g. promote to manager). Returns the updated membership object. Use update_member to change a member's role; use create_member to add a new member and delete_member to remove on…"
+  },
+  {
+    "slug": "googlechat",
+    "name": "googlechat_setup_space",
+    "description": "Create a Google Chat space and add specified members to it in a single call. The calling user is added automatically and must not be listed as a member. Use this to create a named space with initial members, a group chat, or a direct message between the caller and one other huma…"
+  },
+  {
+    "slug": "googlechat",
+    "name": "googlechat_search_spaces",
+    "description": "Search for spaces across a Google Workspace organization using domain-wide admin access. Returns matching space resources plus a nextPageToken for pagination. Use list_spaces instead to just list the spaces the caller is already a member of. Requires use_admin_access to be true …"
+  },
+  {
+    "slug": "googlechat",
+    "name": "googlechat_search_messages",
+    "description": "Search Google Chat messages the caller has access to across all spaces, using a structured filter query. Returns matching message resources, each with the space they belong to, plus a page token for further results. Google's API only supports searching across all spaces at once …"
+  },
+  {
+    "slug": "googlechat",
+    "name": "googlechat_reposition_section",
+    "description": "Change the sort order of a section in Google Chat's navigation panel, moving it to an absolute position or to the start or end of the section list. Returns the updated section with its new sortOrder. Use reposition_section after create_section or list_sections to reorder how sec…"
+  },
+  {
+    "slug": "googlechat",
+    "name": "googlechat_replace_message",
+    "description": "Update an existing Google Chat message using the PUT-based update endpoint. Per Google's API, `update` (PUT) and `patch` (PATCH) take identical parameters and are both governed by update_mask -- only fields named in update_mask are changed; there is no full-replace-clears-omitte…"
+  },
+  {
+    "slug": "googlechat",
+    "name": "googlechat_move_section_item",
+    "description": "Move an item, such as a space, from one section to another in Google Chat's navigation panel. Returns the updated section item with its new resource name. Use move_section_item after list_sections and list_section_items to reorganize which section a space belongs to. Known limit…"
+  },
+  {
+    "slug": "googlechat",
+    "name": "googlechat_mark_user_do_not_disturb",
+    "description": "Mark the authenticated user as DO_NOT_DISTURB in Google Chat until a given expiration time or for a given duration, so they typically won't receive notifications. Returns the updated Availability object showing the DO_NOT_DISTURB state. Use mark_user_do_not_disturb to silence no…"
+  },
+  {
+    "slug": "googlechat",
+    "name": "googlechat_mark_user_away",
+    "description": "Mark the authenticated user as AWAY in Google Chat, regardless of their recent activity. Returns the updated Availability object showing the AWAY state. Use mark_user_away to manually set the user as away; this state persists until it is changed again. Use mark_user_active or ma…"
+  },
+  {
+    "slug": "googlechat",
+    "name": "googlechat_mark_user_active",
+    "description": "Mark the authenticated user as ACTIVE in Google Chat, optionally until a given expiration time or for a given duration. Returns the updated Availability object showing the ACTIVE state. Use mark_user_active to explicitly set the user's status to active; if the user keeps using C…"
+  },
+  {
+    "slug": "googlechat",
+    "name": "googlechat_list_spaces",
+    "description": "List Google Chat spaces that the caller is a member of. Returns a page of space resources plus a nextPageToken for pagination. Group chats and direct messages aren't listed until their first message is sent. Use search_spaces instead to search across an entire Google Workspace o…"
+  },
+  {
+    "slug": "googlechat",
+    "name": "googlechat_list_space_events",
+    "description": "List change events (new/updated messages, memberships, reactions, and more) from a Google Chat space, filtered by event type and an optional time range. Returns a page of space event objects plus a nextPageToken for pagination. Use list_space_events to poll for changes in a spac…"
+  },
+  {
+    "slug": "googlechat",
+    "name": "googlechat_list_sections",
+    "description": "List the sections the calling user has created to organize their Google Chat spaces in the Chat navigation panel. Returns an array of sections (resource name, display name, type, and sort order) plus a nextPageToken for more results. Use list_sections to find a section's ID befo…"
+  },
+  {
+    "slug": "googlechat",
+    "name": "googlechat_list_section_items",
+    "description": "List the items (currently only spaces) grouped under a section in Google Chat's navigation panel. Returns an array of section items (resource name and space) plus a nextPageToken for more results. Use list_section_items to see what's in a section before moving items with move_se…"
+  },
+  {
+    "slug": "googlechat",
+    "name": "googlechat_list_reactions",
+    "description": "List the reactions on a Google Chat message, optionally filtered by emoji and/or user. Returns a page of reaction resources plus a page token for further results. Use list_reactions to see who reacted to a message and with what emoji. Requires a valid Google Chat OAuth2 connecti…"
+  },
+  {
+    "slug": "googlechat",
+    "name": "googlechat_list_messages",
+    "description": "List messages posted in a Google Chat space, with optional filtering by creation time or thread and sorting by create time. Returns a page of message resources plus a page token for further results. Use list_messages to page through a known space's message history. Use search_me…"
+  },
+  {
+    "slug": "googlechat",
+    "name": "googlechat_list_message_pins",
+    "description": "List the message pins in a Google Chat space, so users can see which messages have been pinned for easy access.\nReturns an array of MessagePin objects (each with a name and the resource name of the pinned message) plus a next_page_token for pagination.\nUse list_message_pins to e…"
+  },
+  {
+    "slug": "googlechat",
+    "name": "googlechat_list_members",
+    "description": "List the memberships (human members, Chat apps, and optionally Google Groups) in a Google Chat space. Returns a page of membership objects (name, member/groupMember, role, state) plus a nextPageToken for pagination. Use list_members to enumerate everyone in a space; use get_memb…"
+  },
+  {
+    "slug": "googlechat",
+    "name": "googlechat_list_custom_emojis",
+    "description": "List the custom emojis visible to the authenticated user in their Google Workspace organization.\nReturns an array of CustomEmoji objects (name, emojiName, uid, temporaryImageUri) plus a next_page_token for pagination.\nUse list_custom_emojis to browse or check whether a custom em…"
+  },
+  {
+    "slug": "googlechat",
+    "name": "googlechat_get_user_availability",
+    "description": "Get the authenticated user's current availability in Google Chat, such as whether they are active, idle, away, or in do-not-disturb mode. Returns an Availability object with the user's state (ACTIVE, IDLE, AWAY, or DO_NOT_DISTURB), any custom status text and emoji, and Do Not Di…"
+  },
+  {
+    "slug": "googlechat",
+    "name": "googlechat_get_thread_read_state",
+    "description": "Get the calling user's read state for a specific thread within a Google Chat space, used to identify which replies in that thread are read or unread. Returns a read state object with the user's last_read_time for the thread. Use get_thread_read_state for a single thread; use get…"
+  },
+  {
+    "slug": "googlechat",
+    "name": "googlechat_get_space_read_state",
+    "description": "Get the calling user's read state for a Google Chat space, used to identify which messages are read or unread. Returns a read state object with the user's last_read_time for the space. Use get_space_read_state to check read status at the space level; use get_thread_read_state fo…"
+  },
+  {
+    "slug": "googlechat",
+    "name": "googlechat_get_space_notification_setting",
+    "description": "Get the calling user's notification setting for a Google Chat space, including whether notifications are muted and which events trigger them. Returns one SpaceNotificationSetting object with its notificationSetting and muteSetting values. Use get_space_notification_setting to ch…"
+  },
+  {
+    "slug": "googlechat",
+    "name": "googlechat_get_space_event",
+    "description": "Get details about a single change event from a Google Chat space, such as a new message, membership change, or reaction. The event payload contains the most recent version of the affected resource. Returns one space event object. Use get_space_event when you already know the eve…"
+  },
+  {
+    "slug": "googlechat",
+    "name": "googlechat_get_space",
+    "description": "Get details about a Google Chat space, including its display name, type, and access settings. Requires a valid Google Chat OAuth2 connection."
+  },
+  {
+    "slug": "googlechat",
+    "name": "googlechat_get_message",
+    "description": "Get the full details of a single Google Chat message by its space and message ID. Returns the message's text, sender, thread, cards, and reaction summary. Use get_message when you already know the message ID; use list_messages or search_messages to find messages when you don't. …"
+  },
+  {
+    "slug": "googlechat",
+    "name": "googlechat_get_member",
+    "description": "Get details about a single membership in a Google Chat space, including the member's role, state, and whether they are a human user, Chat app, or Google Group. Returns one membership object. Use get_member when you already know the member_id; use list_members to browse or search…"
+  },
+  {
+    "slug": "googlechat",
+    "name": "googlechat_get_custom_emoji",
+    "description": "Get the details of a single custom emoji in Google Chat by its ID or emoji name.\nReturns a CustomEmoji object with name, emojiName, uid, and a temporaryImageUri (valid for at least 10 minutes) for previewing the image.\nUse get_custom_emoji when you already know the specific emoj…"
+  },
+  {
+    "slug": "googlechat",
+    "name": "googlechat_get_attachment",
+    "description": "Get the metadata of a message attachment in Google Chat, such as its content type, source, and download/thumbnail URLs.\nReturns an Attachment object with name, contentType, contentName, source, downloadUri, and thumbnailUri fields — not the file bytes themselves.\nKnown limitatio…"
+  },
+  {
+    "slug": "googlechat",
+    "name": "googlechat_find_group_chats",
+    "description": "Find group chat spaces whose human membership contains exactly the calling user plus the specified set of other users. Returns matching space resources (or just resource names, depending on space_view) plus a nextPageToken for pagination. Use list_spaces or search_spaces instead…"
+  },
+  {
+    "slug": "googlechat",
+    "name": "googlechat_find_direct_message_space",
+    "description": "Find the existing direct message space between the caller and a specified user. With app authentication, finds the DM between that user and the calling Chat app; with user authentication, finds the DM between that user and the authenticated user. Returns the matching space resou…"
+  },
+  {
+    "slug": "googlechat",
+    "name": "googlechat_download_media",
+    "description": "Download the raw binary content of Google Chat media, such as a message attachment, using its opaque media resource name.\nReturns the raw file bytes as the response body (not JSON) — Content-Type varies with the underlying file (e.g. image/png, application/pdf). Known limitation…"
+  },
+  {
+    "slug": "googlechat",
+    "name": "googlechat_delete_space",
+    "description": "Permanently delete a named Google Chat space. This always performs a cascading delete, removing every message and membership in the space along with it. Returns an empty response on success. This action cannot be undone. Requires a valid Google Chat OAuth2 connection."
+  },
+  {
+    "slug": "googlechat",
+    "name": "googlechat_delete_section",
+    "description": "Delete a custom section from Google Chat. Only sections of type CUSTOM_SECTION can be deleted; system sections (default-direct-messages, default-spaces, default-apps) cannot be removed. If the section contains items such as spaces, those items move to Chat's default sections ins…"
+  },
+  {
+    "slug": "googlechat",
+    "name": "googlechat_delete_reaction",
+    "description": "Remove an emoji reaction from a Google Chat message by its reaction ID. Returns an empty response on success. Use delete_reaction to undo a reaction added via create_reaction. Requires a valid Google Chat OAuth2 connection with a reaction-delete scope."
+  },
+  {
+    "slug": "googlechat",
+    "name": "googlechat_delete_message_pin",
+    "description": "Unpin a message in a Google Chat space by deleting its message pin. This does not delete the underlying message, only removes the pin.\nReturns an empty response on success.\nUse delete_message_pin to unpin a message. Use list_message_pins first if you need to find the message_pin…"
+  },
+  {
+    "slug": "googlechat",
+    "name": "googlechat_delete_message",
+    "description": "Delete a message from a Google Chat space, optionally removing its threaded replies as well. Returns an empty response on success. Use delete_message to permanently remove a message; this action cannot be undone. Requires a valid Google Chat OAuth2 connection with a message-dele…"
+  },
+  {
+    "slug": "googlechat",
+    "name": "googlechat_delete_member",
+    "description": "Remove a membership from a Google Chat space, such as removing a human user, the calling Chat app, or a Google Group. Returns the deleted membership object. This is a destructive, irreversible action — use get_member first if you need to confirm who you're removing."
+  },
+  {
+    "slug": "googlechat",
+    "name": "googlechat_delete_custom_emoji",
+    "description": "Delete a custom emoji from Google Chat by its ID or emoji name. By default users can only delete emojis they created; organization-assigned emoji managers can delete any custom emoji.\nReturns an empty response on success.\nUse delete_custom_emoji to remove an emoji you no longer …"
+  },
+  {
+    "slug": "googlechat",
+    "name": "googlechat_create_space",
+    "description": "Create a new space in Google Chat as a named space, a group chat, or (with import mode) a placeholder for historical data migration. Returns the created space resource, including its resource name, display name, and type. Use setup_space instead to create a space and add members…"
+  },
+  {
+    "slug": "googlechat",
+    "name": "googlechat_create_section",
+    "description": "Create a custom section in Google Chat to group and organize the calling user's spaces in the Chat navigation panel. Returns the created section, including its resource name, display name, type (CUSTOM_SECTION), and sort order. Use create_section to add a new section, then move_…"
+  },
+  {
+    "slug": "googlechat",
+    "name": "googlechat_create_reaction",
+    "description": "Add an emoji reaction to a Google Chat message. Returns the created reaction resource, including its resource name and emoji. Use create_reaction to react to a message; use delete_reaction to remove a reaction you or the caller added. Requires a valid Google Chat OAuth2 connecti…"
+  },
+  {
+    "slug": "googlechat",
+    "name": "googlechat_create_message_pin",
+    "description": "Pin a message in a Google Chat space so it stays easily accessible to space members.\nReturns the created MessagePin object, including its resource name (spaces/{space}/messagePins/{messagePin}).\nUse create_message_pin to pin an existing message. Use list_message_pins to see curr…"
+  },
+  {
+    "slug": "googlechat",
+    "name": "googlechat_create_message",
+    "description": "Send a new message into a Google Chat space, with optional cards and thread grouping via thread_key. Returns the created message resource, including its resource name, thread, and create time. Use create_message to post new content. Use update_message or replace_message to edit …"
+  },
+  {
+    "slug": "googlechat",
+    "name": "googlechat_create_member",
+    "description": "Add or invite a human user to a Google Chat space by email address. If the invited user has auto-accept turned off they receive an invitation instead of being added directly. Returns the created (or invited) membership object. Use create_member to add people to a space; use upda…"
+  },
+  {
+    "slug": "googlechat",
+    "name": "googlechat_create_custom_emoji",
+    "description": "Create a new custom emoji in Google Chat from an image, for use across the Google Workspace organization.\nReturns the created CustomEmoji object, including its server-assigned resource name (customEmojis/{customEmoji}) and uid.\nUse create_custom_emoji to add a new emoji. Use lis…"
+  },
+  {
+    "slug": "googlechat",
+    "name": "googlechat_complete_space_import",
+    "description": "Complete the import process for a space that was created in Import Mode, making it visible to users. Call this after all historical messages and memberships have been migrated into the space; if you miss the space's importModeExpireTime, Google Chat automatically deletes the spa…"
+  },
+  {
+    "slug": "googlecloudvision",
+    "name": "googlecloudvision_reference_image_list",
+    "description": "List the reference images attached to a Product Search product.\nReturns an array of ReferenceImage objects (resource name, GCS uri, boundingPolys) plus a nextPageToken for paging through further results.\nUse reference_image_list to browse all training images on a product; use re…"
+  },
+  {
+    "slug": "googlecloudvision",
+    "name": "googlecloudvision_reference_image_get",
+    "description": "Get a single reference image by its full resource name.\nReturns a ReferenceImage object with its resource name, GCS uri, and any bounding polygons.\nUse reference_image_get to fetch one known reference image; use reference_image_list to browse or find the right one first.\nPrerequ…"
+  },
+  {
+    "slug": "googlecloudvision",
+    "name": "googlecloudvision_reference_image_delete",
+    "description": "Permanently delete a reference image from a Product Search product; this removes only the Vision API's reference to the image and does not delete the underlying image file in Google Cloud Storage.\nReturns an empty response body on success.\nUse reference_image_delete to remove on…"
+  },
+  {
+    "slug": "googlecloudvision",
+    "name": "googlecloudvision_reference_image_create",
+    "description": "Add a reference image to a Product Search product by pointing at an image file already stored in Google Cloud Storage.\nReturns a ReferenceImage object with its resource name, the GCS uri, and any bounding polygons.\nUse reference_image_create to attach a new labeled training imag…"
+  },
+  {
+    "slug": "googlecloudvision",
+    "name": "googlecloudvision_product_update",
+    "description": "Update a product's display name, description, and/or labels in Google Cloud Vision Product Search via a partial update (PATCH).\nReturns the updated Product object.\nOnly displayName, description, and productLabels can be changed this way — productCategory is immutable after creat…"
+  },
+  {
+    "slug": "googlecloudvision",
+    "name": "googlecloudvision_product_set_update",
+    "description": "Update a Google Cloud Vision product set's display name. Only displayName is mutable on a product set, so update_mask should always be set to \"displayName\".\nReturns the updated ProductSet object.\nRequires the product set's full resource name and the new display name (this tool k…"
+  },
+  {
+    "slug": "googlecloudvision",
+    "name": "googlecloudvision_product_set_remove_product",
+    "description": "Remove a product from a Google Cloud Vision product set, detaching it from that set's similarity-search scope.\nReturns an empty object on success. This does not delete the product itself, only its membership in this set — the product and its reference images remain intact and ca…"
+  },
+  {
+    "slug": "googlecloudvision",
+    "name": "googlecloudvision_product_set_products_list",
+    "description": "List only the products that belong to one specific Google Cloud Vision product set.\nReturns an array of Product objects (name, displayName, productCategory, productLabels) plus a nextPageToken for pagination.\nDistinct from product_list, which lists ALL products in a project/loca…"
+  },
+  {
+    "slug": "googlecloudvision",
+    "name": "googlecloudvision_product_set_list",
+    "description": "List all product sets in a Google Cloud Vision project and location, regardless of which products belong to them.\nReturns an array of ProductSet objects (name, displayName, indexTime/indexError) plus a nextPageToken for pagination.\nUse this to browse every product set defined fo…"
+  },
+  {
+    "slug": "googlecloudvision",
+    "name": "googlecloudvision_product_set_import",
+    "description": "Bulk-import products, product sets, and reference images into Google Cloud Vision Product Search from a CSV manifest file stored in Google Cloud Storage.\nStarts a long-running operation and returns an Operation object (not the import result inline) — poll it with operations_get …"
+  },
+  {
+    "slug": "googlecloudvision",
+    "name": "googlecloudvision_product_set_get",
+    "description": "Retrieve details of a single Google Cloud Vision product set by its full resource name.\nReturns a ProductSet object with name, displayName, and index status (indexTime when last indexed, or indexError if indexing failed).\nUse this to check a specific product set's current state;…"
+  },
+  {
+    "slug": "googlecloudvision",
+    "name": "googlecloudvision_product_set_delete",
+    "description": "Permanently delete a Google Cloud Vision product set by its full resource name.\nReturns an empty object on success.\nThis is NON-cascading: the products that belonged to this set are NOT deleted and are unaffected — they simply lose membership in this set (contrast with product_d…"
+  },
+  {
+    "slug": "googlecloudvision",
+    "name": "googlecloudvision_product_set_create",
+    "description": "Create a new product set in Google Cloud Vision Product Search, a named group used to scope similarity search to a subset of products.\nReturns the created ProductSet object with its full resource name, display name, and index status.\nUse this before adding products to a set with…"
+  },
+  {
+    "slug": "googlecloudvision",
+    "name": "googlecloudvision_product_set_add_product",
+    "description": "Add an existing product to a Google Cloud Vision product set, so the product becomes part of that set's similarity-search scope.\nReturns an empty object on success. Adding a product that is already in the set, or that has reached the 100-product-set limit, has no additional effe…"
+  },
+  {
+    "slug": "googlecloudvision",
+    "name": "googlecloudvision_product_purge",
+    "description": "Bulk-delete products in Google Cloud Vision Product Search: either every product in one product set, or every product that belongs to no product set at all.\nReturns a long-running Operation immediately; the deletion itself happens asynchronously. Poll operations_get with the ret…"
+  },
+  {
+    "slug": "googlecloudvision",
+    "name": "googlecloudvision_product_list",
+    "description": "List all products in a Google Cloud Vision Product Search catalog under a project and location, paginated.\nReturns an array of Product objects (name, displayName, productCategory, description, productLabels) plus a nextPageToken when more results are available.\nUse this to brows…"
+  },
+  {
+    "slug": "googlecloudvision",
+    "name": "googlecloudvision_product_get",
+    "description": "Get a single product from Google Cloud Vision Product Search by its full resource name.\nReturns the Product object: name, displayName, productCategory, description, and productLabels.\nUse this when you already have a product's full resource name (e.g. returned by product_create …"
+  },
+  {
+    "slug": "googlecloudvision",
+    "name": "googlecloudvision_product_delete",
+    "description": "Permanently delete a product from Google Cloud Vision Product Search by its full resource name.\nReturns an empty response on success.\nDeleting a product also permanently deletes all of its reference images and removes it from any product sets — this cannot be undone. Use product…"
+  },
+  {
+    "slug": "googlecloudvision",
+    "name": "googlecloudvision_product_create",
+    "description": "Create a new product in Google Cloud Vision Product Search under a project and location.\nReturns the created Product object, including its generated resource name (or the caller-supplied product ID if one was provided), productCategory, displayName, description, and productLabel…"
+  },
+  {
+    "slug": "googlecloudvision",
+    "name": "googlecloudvision_operations_list",
+    "description": "List Google Cloud Vision long-running operations, optionally filtered by an AIP-160 filter expression.\nReturns operations (an array of Operation objects with name, metadata, and done) and a nextPageToken for fetching further pages when more results exist.\nThe name field must be …"
+  },
+  {
+    "slug": "googlecloudvision",
+    "name": "googlecloudvision_operations_get",
+    "description": "Get the current status and result of a Google Cloud Vision long-running operation by its full operation name.\nReturns an Operation object with name, an optional metadata object, a done boolean, and — once done — either an error or the operation-specific response payload (e.g. As…"
+  },
+  {
+    "slug": "googlecloudvision",
+    "name": "googlecloudvision_operations_delete",
+    "description": "Delete the record of a completed Google Cloud Vision long-running operation by its full operation name.\nReturns an empty object on success. Deleting the operation record does not cancel or otherwise affect any underlying job or the output it already produced (e.g. files already …"
+  },
+  {
+    "slug": "googlecloudvision",
+    "name": "googlecloudvision_operations_cancel",
+    "description": "Request best-effort cancellation of an in-progress Google Cloud Vision long-running operation by its full operation name.\nReturns an empty object on success. Cancellation is best-effort and not guaranteed to take effect before the operation finishes on its own — poll operations_…"
+  },
+  {
+    "slug": "googlecloudvision",
+    "name": "googlecloudvision_images_async_batch_annotate",
+    "description": "Start an asynchronous, Cloud-Storage-backed batch image annotation job for image sets too large or slow for the synchronous images_annotate call. The job runs in the background and writes its results as JSON files to a Cloud Storage destination shared by the whole batch.\nReturns…"
+  },
+  {
+    "slug": "googlecloudvision",
+    "name": "googlecloudvision_images_annotate",
+    "description": "Run one or more Vision API feature detectors (labels, text/OCR, faces, landmarks, logos, objects, safe search, image properties, web detection, crop hints, document text) against up to 16 images in a single synchronous call.\nReturns a responses array in the same order as the sub…"
+  },
+  {
+    "slug": "googlecloudvision",
+    "name": "googlecloudvision_files_async_batch_annotate",
+    "description": "Start an asynchronous, Cloud-Storage-backed batch file annotation job (typically OCR on multi-page PDFs or TIFFs) for files that already live in Cloud Storage. The job runs in the background and writes its results as JSON files to a Cloud Storage destination.\nReturns immediately…"
+  },
+  {
+    "slug": "googlecloudvision",
+    "name": "googlecloudvision_files_annotate",
+    "description": "Run Vision API feature detectors — primarily OCR/document text detection — against a single multi-page file (PDF, TIFF, or GIF) in one synchronous call, optionally scoped to up to 5 of its pages.\nReturns a responses array with exactly one entry (the API's BatchAnnotateFilesReque…"
+  },
+  {
     "slug": "salesforcemarketingcloud",
     "name": "salesforcemarketingcloud_workflow_teams_list",
     "description": "Retrieve active workflow teams from Salesforce Marketing Cloud's Approvals Hub REST API (GET /hub/v1/workflowteams/{objecttype}). Workflow teams are the groups of users that approval items (content pending review, e.g. emails or journeys) can be assigned to. Optionally scope res…"

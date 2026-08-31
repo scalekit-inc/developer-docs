@@ -1,0 +1,72 @@
+---
+title: 'Google Cloud Vision connector'
+tableOfContents: true
+description: 'Google Cloud Vision API lets you derive insights from images using pre-trained machine learning models — label detection, OCR/text extraction, face and...'
+sidebar:
+  label: 'Google Cloud Vision'
+overviewTitle: 'Quickstart'
+connectorIcon: https://cdn.scalekit.com/sk-connect/assets/provider-icons/googlecloudvision.svg
+connectorAuthType: OAuth 2.0
+connectorCategories: [AI, Media]
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
+---
+
+import ToolList from '@/components/ToolList.astro'
+import { tools } from '@/data/agent-connectors/googlecloudvision'
+import { Steps, Tabs, TabItem } from '@astrojs/starlight/components'
+import { AgentKitCredentials } from '@components/templates'
+import { QuickstartGenericOauthSection } from '@components/templates'
+
+<Steps>
+
+1. ### Install the SDK
+
+   <Tabs syncKey="tech-stack">
+     <TabItem label="Node.js">
+       ```bash frame="terminal"
+       npm install @scalekit-sdk/node
+       ```
+     </TabItem>
+     <TabItem label="Python">
+       ```bash frame="terminal"
+       pip install scalekit
+       ```
+     </TabItem>
+   </Tabs>
+
+   Full SDK reference: [Node.js](/agentkit/sdks/node/) | [Python](/agentkit/sdks/python/)
+
+2. ### Set your credentials
+
+   <AgentKitCredentials />
+
+3. ### Authorize and make your first call
+
+   <QuickstartGenericOauthSection connector="googlecloudvision" toolName="googlecloudvision_operations_list" providerName="Google Cloud Vision" />
+
+</Steps>
+
+## What you can do
+
+Connect this agent connector to let your agent:
+
+- **List reference image, product set products, product set** — List the reference images attached to a Product Search product
+- **Get reference image, product set, product** — Get a single reference image by its full resource name
+- **Delete reference image, product set, product** — Permanently delete a reference image from a Product Search product; this removes only the Vision API's reference to the image and does not delete the underlying image file in Google Cloud Storage
+- **Create reference image, product set, product** — Add a reference image to a Product Search product by pointing at an image file already stored in Google Cloud Storage
+- **Update product, product set** — Update a product's display name, description, and/or labels in Google Cloud Vision Product Search via a partial update (PATCH)
+- **Product set remove product, set add product** — Remove a product from a Google Cloud Vision product set, detaching it from that set's similarity-search scope
+
+## Tool list
+
+Use the exact tool names from the **Tool list** below when you call `execute_tool`. If you're not sure which name to use, list the tools available for the current user first.
+
+<ToolList tools={tools} />
