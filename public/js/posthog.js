@@ -221,7 +221,8 @@ if (!isNonProdHost) {
 
   // Initialize PostHog — keep pageviews + identify; drop heavy remote modules
   // (session recorder, surveys, dead-clicks, exception autocapture) that dominate
-  // lab main-thread time on docs.
+  // lab main-thread time on docs. capture_exceptions: false is required; the
+  // hosted array.js still autocaptures unhandled errors by default.
   posthog.init('phc_85pLP8gwYvRCQdxgLQP24iqXHPRGaLgEw4S4dgZHJZ', {
     api_host: 'https://ph.scalekit.com',
     person_profiles: 'identified_only',
@@ -229,6 +230,7 @@ if (!isNonProdHost) {
     disable_surveys: true,
     capture_dead_clicks: false,
     capture_performance: false,
+    capture_exceptions: false,
     enable_recording_console_log: false,
   })
 
@@ -287,6 +289,7 @@ if (ENABLE_NON_PROD_ANALYTICS) {
     disable_surveys: true,
     capture_dead_clicks: false,
     capture_performance: false,
+    capture_exceptions: false,
     enable_recording_console_log: false,
   })
   console.log(
