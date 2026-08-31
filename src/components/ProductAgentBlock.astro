@@ -4,9 +4,11 @@ import { PRODUCT_PROMPT_CTA, PRODUCT_PROMPTS, type ProductSkill } from '../confi
 interface Props {
   skill: ProductSkill
   example?: string
+  /** Hide the "Using a coding agent?" lead when the surrounding heading already says it. */
+  hideLead?: boolean
 }
 
-const { skill, example } = Astro.props
+const { skill, example, hideLead = false } = Astro.props
 if (!(skill in PRODUCT_PROMPTS)) {
   throw new Error(
     `ProductAgentBlock: unknown skill "${skill}". Expected one of: ${Object.keys(PRODUCT_PROMPTS).join(', ')}`,
@@ -17,7 +19,7 @@ const label = PRODUCT_PROMPT_CTA[skill]
 ---
 
 <p class="product-agent-cta">
-  Using a coding agent?
+  {hideLead ? null : 'Using a coding agent?'}
   <button
     type="button"
     class="product-agent-cta__copy"
