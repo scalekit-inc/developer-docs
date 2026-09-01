@@ -14,15 +14,15 @@ How-to guides (short dashboard answers) live beside them:
 | Shared (both product rails) | `src/content/docs/how-to/`          | `/how-to/<slug>/`          |
 | AgentKit only               | `src/content/docs/agentkit/how-to/` | `/agentkit/how-to/<slug>/` |
 
-Shared how-tos appear in both Cookbooks sidebars from one file. Product chrome on `/how-to/**` uses the same session/cookie as Enterprise Deployment.
+Shared how-tos appear in both Keep building rails from one file. Product chrome on `/how-to/**` uses the same session/cookie as Enterprise Deployment.
 
 Do not add an `index.mdx` overview unless the shelf is long enough that a hub page helps. The secondary nav lands on the first recipe.
 
 ## How readers find them
 
-Each product has a **dedicated cookbooks sidebar** (not the journey rail):
+Each product has a **dedicated Keep building sidebar** (not the journey rail):
 
-- **AgentKit** secondary nav → **Keep building** → left rail shows **Cookbooks** and **How-to** collapsibles
+- **AgentKit** secondary nav → **Keep building** → left rail shows **How-to** then **Recipes**
 - **Auth for SaaS** secondary nav → **Keep building** → same pattern (not under Developer Resources)
 
 New topic IDs in `src/configs/sidebar.config.ts`:

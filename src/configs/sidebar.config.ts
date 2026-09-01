@@ -240,41 +240,42 @@ export const sidebar = [
   },
   // Product cookbook shelves — dedicated sidebars entered from secondary nav, not journey rails
   {
-    label: 'AgentKit cookbooks',
+    label: 'Keep building',
     id: 'agentkit-guides',
     link: '/agentkit/cookbooks/set-up-agentkit-with-your-coding-agent/',
     icon: 'open-book',
     items: [
       {
-        label: 'Cookbooks',
-        collapsed: false,
-        items: [{ autogenerate: { directory: 'agentkit/cookbooks' } }],
-      },
-      {
         label: 'How-to',
         collapsed: false,
         items: [
+          'how-to/environments',
           { autogenerate: { directory: 'agentkit/how-to' } },
           { autogenerate: { directory: 'how-to' } },
         ],
       },
+      {
+        label: 'Recipes',
+        collapsed: false,
+        items: [{ autogenerate: { directory: 'agentkit/cookbooks' } }],
+      },
     ],
   },
   {
-    label: 'SaaSKit cookbooks',
+    label: 'Keep building',
     id: 'saaskit-guides',
     link: '/saaskit/cookbooks/add-hosted-auth-nextjs-app-router/',
     icon: 'open-book',
     items: [
       {
-        label: 'Cookbooks',
-        collapsed: false,
-        items: [{ autogenerate: { directory: 'saaskit/cookbooks' } }],
-      },
-      {
         label: 'How-to',
         collapsed: false,
-        items: [{ autogenerate: { directory: 'how-to' } }],
+        items: ['how-to/environments', { autogenerate: { directory: 'how-to' } }],
+      },
+      {
+        label: 'Recipes',
+        collapsed: false,
+        items: [{ autogenerate: { directory: 'saaskit/cookbooks' } }],
       },
     ],
   },
