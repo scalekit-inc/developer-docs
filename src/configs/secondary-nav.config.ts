@@ -76,9 +76,9 @@ const agentKitItems: NavItem[] = [
     iconComponent: IconSolarServerPathOutline,
   },
   {
-    // Recipe shelf — isolated from lookup/ops (Connectors, SDKs, APIs, deploy)
+    // Keep building hub — isolated from lookup/ops (Connectors, SDKs, APIs, deploy)
     id: 'agentkit-guides',
-    href: '/agentkit/cookbooks/set-up-agentkit-with-your-coding-agent/',
+    href: '/agentkit/cookbooks/',
     label: 'Keep building',
     iconComponent: IconLucideBookOpenText,
     dividerBefore: true,
@@ -194,9 +194,9 @@ const saasKitItems: NavItem[] = [
     ],
   },
   {
-    // Recipe shelf — same group as Developer Resources (after lookup/ops)
+    // Keep building hub — same group as Developer Resources (after lookup/ops)
     id: 'saaskit-guides',
-    href: '/saaskit/cookbooks/add-hosted-auth-nextjs-app-router/',
+    href: '/saaskit/cookbooks/',
     label: 'Keep building',
     iconComponent: IconLucideBookOpenText,
   },

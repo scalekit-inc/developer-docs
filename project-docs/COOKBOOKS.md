@@ -16,7 +16,7 @@ How-to guides (short dashboard answers) live beside them:
 
 Shared how-tos appear in both Keep building rails from one file. Product chrome on `/how-to/**` uses the same session/cookie as Enterprise Deployment.
 
-Do not add an `index.mdx` overview unless the shelf is long enough that a hub page helps. The secondary nav lands on the first recipe.
+Each product shelf has a Keep building hub at `index.mdx`. The secondary nav lands on that hub. Hide the hub from the Recipes autogenerate list (`sidebar.hidden: true`).
 
 ## How readers find them
 
@@ -32,10 +32,10 @@ New topic IDs in `src/configs/sidebar.config.ts`:
 
 Each uses `autogenerate` on the product directory. Drop a new `.mdx` file in the folder and it appears in the collapsible.
 
-A cross-product hub remains at `/cookbooks/` (`src/content/docs/cookbooks.mdx`). It belongs to no
+A cross-product page remains at `/cookbooks/` (`src/content/docs/cookbooks.mdx`). It belongs to no
 single product, so it is listed in `exclude` in `src/configs/sidebar.config.ts` — that keeps it from
-inheriting a product journey rail or lighting up a product nav pill. The hub links to the first
-recipe on each shelf.
+inheriting a product journey rail or lighting up a product nav pill. Each product Keep building
+tab opens `/<product>/cookbooks/`, not the first recipe.
 
 ## What a cookbook is
 
@@ -129,7 +129,7 @@ tableOfContents: true
 3. Write the recipe body (problem, steps, working code, failure modes).
 4. Put images under `src/assets/docs/<product>/cookbooks/<slug>/` and reference them as
    `@/assets/docs/<product>/cookbooks/<slug>/<file>.png`.
-5. Run a local build or `pnpm start` and confirm the page appears under the product **Cookbooks** sidebar.
+5. Run a local build or `pnpm start` and confirm the page appears under the product **Recipes** group.
 
 **Redirects:** a brand-new cookbook needs none. Only a page whose published URL changes needs an
 entry in `src/configs/redirects.config.ts`, and it must be listed one slug at a time — a

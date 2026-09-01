@@ -53,6 +53,8 @@ const liveTable = {
       '/cookbooks': 'cookbooks',
     },
   },
+  'agentkit-guides': 'agentkit-guides',
+  'saaskit-guides': 'saaskit-guides',
 }
 
 /**
@@ -93,6 +95,25 @@ const liveSidebar = [
       'guides/webhooks-best-practices',
       'authenticate/interceptors/auth-flow-interceptors',
       'reference/interceptors/triggers',
+    ],
+  },
+  {
+    id: 'agentkit-guides',
+    link: '/agentkit/cookbooks/',
+    items: [
+      'how-to/environments',
+      { autogenerate: { directory: 'agentkit/how-to' } },
+      { autogenerate: { directory: 'how-to' } },
+      { autogenerate: { directory: 'agentkit/cookbooks' } },
+    ],
+  },
+  {
+    id: 'saaskit-guides',
+    link: '/saaskit/cookbooks/',
+    items: [
+      'how-to/environments',
+      { autogenerate: { directory: 'how-to' } },
+      { autogenerate: { directory: 'saaskit/cookbooks' } },
     ],
   },
 ]
@@ -429,4 +450,95 @@ test('Keep building rail: environments is first; delete-your-account is off the 
     /hidden:\s*true/,
     'environments is listed first by hand, so autogenerate must hide the duplicate',
   )
+})
+
+/** Ticket 02: Keep building tab opens the product hub. */
+const keepBuildingTabs = [
+  {
+    product: 'agentkit',
+    id: 'agentkit-guides',
+    hub: '/agentkit/cookbooks/',
+    recipe: '/agentkit/cookbooks/set-up-agentkit-with-your-coding-agent/',
+    howTo: '/how-to/environments/',
+  },
+  {
+    product: 'saaskit',
+    id: 'saaskit-guides',
+    hub: '/saaskit/cookbooks/',
+    recipe: '/saaskit/cookbooks/add-hosted-auth-nextjs-app-router/',
+    howTo: '/how-to/environments/',
+  },
+]
+
+test('Keep building tab href is the product hub on desktop and mobile', () => {
+  const navSrc = readFileSync(join(here, '../configs/secondary-nav.config.ts'), 'utf8')
+  const sidebarSrc = readFileSync(join(here, '../configs/sidebar.config.ts'), 'utf8')
+
+  for (const tab of keepBuildingTabs) {
+    const navBlock = navSrc.slice(navSrc.indexOf(`id: '${tab.id}'`))
+    const navHref = navBlock.match(/href: '([^']+)'/)?.[1]
+    assert.equal(navHref, tab.hub, `${tab.id} secondary-nav href must be the hub`)
+
+    const rail = keepBuildingRail(sidebarSrc, tab.id)
+    const sidebarLink = rail.match(/link: '([^']+)'/)?.[1]
+    assert.equal(sidebarLink, tab.hub, `${tab.id} sidebar link is the mobile topic href`)
+    assert.equal(navHref, sidebarLink, `${tab.id} mobile and desktop must share the hub href`)
+  }
+})
+
+test('Keep building tab lights on the hub, a how-to, and a recipe', () => {
+  for (const tab of keepBuildingTabs) {
+    assert.equal(ssrTab(tab.hub), tab.id, `${tab.hub} must light Keep building`)
+    assert.equal(ssrTab(tab.recipe), tab.id, `${tab.recipe} must light Keep building`)
+    assert.equal(
+      getActiveSecondaryNavId(
+        tab.howTo,
+        { data: { topic: tab.id } },
+        undefined,
+        liveMap,
+        liveTable,
+      ),
+      tab.id,
+      `${tab.howTo} with ${tab.id} topic must light Keep building`,
+    )
+  }
+
+  assert.equal(
+    ssrTab('/how-to/environments/'),
+    'saaskit-guides',
+    'how-to cold default stays SaaSKit',
+  )
+})
+
+test('client rematch: Keep building hub href lights the hub and recipes', () => {
+  const items = keepBuildingTabs.map((tab) => ({ id: tab.id, href: tab.hub }))
+
+  for (const tab of keepBuildingTabs) {
+    assert.equal(matchCurrentByHrefPrefix(tab.hub, items)?.id, tab.id)
+    assert.equal(matchCurrentByHrefPrefix(tab.recipe, items)?.id, tab.id)
+  }
+})
+
+test('product cookbook index URLs are hubs, not first-recipe redirects', () => {
+  const src = readFileSync(join(here, '../configs/redirects.config.ts'), 'utf8')
+  const docsRoot = join(here, '../content/docs')
+
+  for (const tab of keepBuildingTabs) {
+    const bare = tab.hub.replace(/\/$/, '')
+    assert.equal(
+      new RegExp(`['"]${bare}/?['"]\\s*:`).test(src),
+      false,
+      `${bare} must not redirect to a recipe`,
+    )
+
+    const hubPage = readFileSync(join(docsRoot, `${tab.product}/cookbooks/index.mdx`), 'utf8')
+    assert.match(hubPage, /hidden:\s*true/, `${tab.product} hub stays off the Recipes rail`)
+    assert.match(hubPage, /how-to\/environments/, `${tab.product} hub names environments`)
+    const visible = hubPage.replace(/^---[\s\S]*?---/, '').replace(/href="[^"]+"/g, '')
+    assert.equal(
+      /\bcookbooks?\b/i.test(visible),
+      false,
+      `${tab.product} hub copy must not say Cookbooks`,
+    )
+  }
 })

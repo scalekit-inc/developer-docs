@@ -242,7 +242,7 @@ export const sidebar = [
   {
     label: 'Keep building',
     id: 'agentkit-guides',
-    link: '/agentkit/cookbooks/set-up-agentkit-with-your-coding-agent/',
+    link: '/agentkit/cookbooks/',
     icon: 'open-book',
     items: [
       {
@@ -264,7 +264,7 @@ export const sidebar = [
   {
     label: 'Keep building',
     id: 'saaskit-guides',
-    link: '/saaskit/cookbooks/add-hosted-auth-nextjs-app-router/',
+    link: '/saaskit/cookbooks/',
     icon: 'open-book',
     items: [
       {

@@ -521,13 +521,9 @@ export const redirects = {
   '/cookbooks/4': '/cookbooks/',
   '/cookbooks/5': '/cookbooks/',
 
-  // Product shelf indexes removed — lists are short enough to land on the first page
-  '/agentkit/cookbooks': '/agentkit/cookbooks/set-up-agentkit-with-your-coding-agent/',
-  '/agentkit/cookbooks/': '/agentkit/cookbooks/set-up-agentkit-with-your-coding-agent/',
+  // Product cookbook index URLs are the Keep building hubs.
   '/agentkit/how-to': '/agentkit/how-to/inspect-connected-accounts-in-the-dashboard/',
   '/agentkit/how-to/': '/agentkit/how-to/inspect-connected-accounts-in-the-dashboard/',
-  '/saaskit/cookbooks': '/saaskit/cookbooks/add-hosted-auth-nextjs-app-router/',
-  '/saaskit/cookbooks/': '/saaskit/cookbooks/add-hosted-auth-nextjs-app-router/',
   '/how-to': '/how-to/environments/',
   '/how-to/': '/how-to/environments/',
 
