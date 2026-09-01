@@ -7,6 +7,16 @@ export interface ProviderMeta {
 }
 
 export const catalog: Record<string, ProviderMeta> = {
+  roammcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/roam.svg',
+    authType: 'OAuth2.1/DCR',
+    categories: ['Communication', 'Collaboration', 'Calendar'],
+  },
+  higgsfieldmcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/higgsfield.svg',
+    authType: 'OAuth2.1/DCR',
+    categories: ['AI', 'Media'],
+  },
   windsoraimcp: {
     iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/windsor.svg',
     authType: 'OAuth 2.1/DCR',
