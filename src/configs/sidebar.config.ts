@@ -391,10 +391,6 @@ export const sidebar = [
             link: 'saaskit/cookbooks/sync-b2b-billing-with-chargebee',
           },
           { label: 'Migrate from Auth0', link: 'saaskit/cookbooks/migrate-from-auth0-to-scalekit' },
-          {
-            label: 'Search docs in IDE',
-            link: 'saaskit/cookbooks/search-scalekit-docs-in-your-ide',
-          },
         ],
       },
     ],

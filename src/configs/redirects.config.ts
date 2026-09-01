@@ -504,8 +504,9 @@ export const redirects = {
   '/cookbooks/m2m-jwks-and-oauth-scopes': '/saaskit/cookbooks/m2m-jwks-and-oauth-scopes/',
   '/cookbooks/migrate-from-auth0-to-scalekit': '/saaskit/cookbooks/migrate-from-auth0-to-scalekit/',
   '/cookbooks/scim-seat-limit-enforcement': '/saaskit/cookbooks/scim-seat-limit-enforcement/',
-  '/cookbooks/search-scalekit-docs-in-your-ide':
-    '/saaskit/cookbooks/search-scalekit-docs-in-your-ide/',
+  '/cookbooks/search-scalekit-docs-in-your-ide': '/saaskit/cookbooks/',
+  '/saaskit/cookbooks/search-scalekit-docs-in-your-ide': '/saaskit/cookbooks/',
+  '/saaskit/cookbooks/search-scalekit-docs-in-your-ide/': '/saaskit/cookbooks/',
   '/cookbooks/sync-b2b-billing-with-chargebee':
     '/saaskit/cookbooks/sync-b2b-billing-with-chargebee/',
 
