@@ -420,6 +420,8 @@ export const redirects = {
   '/guides/integrations/agent-connectors': '/agentkit/connectors/',
 
   // Other redirects
+  '/dev-kit/apis': '/dev-kit/error-handling/',
+  '/dev-kit/apis/': '/dev-kit/error-handling/',
   '/fsa/data-modeling': '/fsa/data-modelling/',
   '/guides': '/',
   '/mcp': '/authenticate/mcp/quickstart/',
