@@ -394,7 +394,7 @@ test('Keep building rail: How-to then Recipes on both products', () => {
     const rail = keepBuildingRail(src, id)
     const groupLabels = [...rail.matchAll(/label: '([^']+)'/g)].map((match) => match[1])
     assert.deepEqual(
-      groupLabels,
+      groupLabels.slice(0, 3),
       ['Keep building', 'How-to', 'Recipes'],
       `${id} rail must be Keep building, then How-to, then Recipes`,
     )
@@ -450,6 +450,21 @@ test('Keep building rail: environments is first; delete-your-account is off the 
     /hidden:\s*true/,
     'environments is listed first by hand, so autogenerate must hide the duplicate',
   )
+})
+
+test('Keep building recipes nest by job type', () => {
+  const src = readFileSync(join(here, '../configs/sidebar.config.ts'), 'utf8')
+
+  const agentRecipes = keepBuildingRail(src, 'agentkit-guides').split("label: 'Recipes'")[1]
+  for (const label of ['Triage email', 'Add voice', 'Call tools', 'Connect a user']) {
+    assert.match(agentRecipes, new RegExp(`label: '${label}'`), `AgentKit recipes nest ${label}`)
+  }
+  assert.match(agentRecipes, /collapsed: true/, 'AgentKit recipe clusters start collapsed')
+
+  const saasRecipes = keepBuildingRail(src, 'saaskit-guides').split("label: 'Recipes'")[1]
+  assert.match(saasRecipes, /label: 'Add sign-in'/, 'SaaSKit recipes nest Add sign-in')
+  assert.match(saasRecipes, /label: 'Verify tokens'/, 'SaaSKit recipes nest Verify tokens')
+  assert.match(saasRecipes, /collapsed: true/, 'SaaSKit recipe clusters start collapsed')
 })
 
 /** Ticket 02: Keep building tab opens the product hub. */

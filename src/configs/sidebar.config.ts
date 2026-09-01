@@ -257,7 +257,77 @@ export const sidebar = [
       {
         label: 'Recipes',
         collapsed: false,
-        items: [{ autogenerate: { directory: 'agentkit/cookbooks' } }],
+        items: [
+          {
+            label: 'Triage email',
+            collapsed: true,
+            items: [
+              {
+                label: 'CrewAI email triage',
+                link: 'agentkit/cookbooks/crewai-agentkit-email-triage',
+              },
+              {
+                label: 'LiteLLM inbox triage',
+                link: 'agentkit/cookbooks/litellm-agentkit-inbox-triage',
+              },
+              {
+                label: 'Daily briefing agent',
+                link: 'agentkit/cookbooks/daily-briefing-agent',
+              },
+              {
+                label: 'Book meetings',
+                link: 'agentkit/cookbooks/schedule-meeting-and-draft-email',
+              },
+            ],
+          },
+          {
+            label: 'Add voice',
+            collapsed: true,
+            items: [
+              {
+                label: 'Build a Vapi assistant',
+                link: 'agentkit/cookbooks/build-voice-assistant-1000-tools',
+              },
+              {
+                label: 'Build a LiveKit agent',
+                link: 'agentkit/cookbooks/livekit-agentkit-voice-tool-calling',
+              },
+            ],
+          },
+          {
+            label: 'Call tools',
+            collapsed: true,
+            items: [
+              { label: 'Build a Mastra agent', link: 'agentkit/cookbooks/mastra-agentkit' },
+              {
+                label: 'Call tools via FastRouter',
+                link: 'agentkit/cookbooks/fastrouter-agentkit-tool-calling',
+              },
+              {
+                label: 'Trace calls in LangSmith',
+                link: 'agentkit/cookbooks/langsmith-tracing-agentkit',
+              },
+            ],
+          },
+          {
+            label: 'Connect a user',
+            collapsed: true,
+            items: [
+              {
+                label: 'Set up in a coding agent',
+                link: 'agentkit/cookbooks/set-up-agentkit-with-your-coding-agent',
+              },
+              {
+                label: 'Summarize GitHub PRs',
+                link: 'agentkit/cookbooks/render-github-pr-summarizer',
+              },
+              {
+                label: 'Per-user OAuth on Apify',
+                link: 'agentkit/cookbooks/apify-actor-per-user-oauth',
+              },
+            ],
+          },
+        ],
       },
     ],
   },
@@ -275,7 +345,57 @@ export const sidebar = [
       {
         label: 'Recipes',
         collapsed: false,
-        items: [{ autogenerate: { directory: 'saaskit/cookbooks' } }],
+        items: [
+          {
+            label: 'Add sign-in',
+            collapsed: true,
+            items: [
+              {
+                label: 'Hosted auth in Next.js',
+                link: 'saaskit/cookbooks/add-hosted-auth-nextjs-app-router',
+              },
+              {
+                label: 'Passwordless in Next.js',
+                link: 'saaskit/cookbooks/implement-nextjs-auth',
+              },
+              {
+                label: 'Custom org switcher',
+                link: 'saaskit/cookbooks/building-custom-org-switcher',
+              },
+              {
+                label: 'SSO with Auth.js',
+                link: 'saaskit/cookbooks/add-enterprise-sso-nextjs-authjs',
+              },
+            ],
+          },
+          {
+            label: 'Verify tokens',
+            collapsed: true,
+            items: [
+              {
+                label: 'M2M JWT and scopes',
+                link: 'saaskit/cookbooks/m2m-jwks-and-oauth-scopes',
+              },
+              {
+                label: 'Spring Boot JWT timeout',
+                link: 'saaskit/cookbooks/java-spring-boot-jwt-timeout',
+              },
+            ],
+          },
+          {
+            label: 'Enforce seat limits',
+            link: 'saaskit/cookbooks/scim-seat-limit-enforcement',
+          },
+          {
+            label: 'Sync Chargebee billing',
+            link: 'saaskit/cookbooks/sync-b2b-billing-with-chargebee',
+          },
+          { label: 'Migrate from Auth0', link: 'saaskit/cookbooks/migrate-from-auth0-to-scalekit' },
+          {
+            label: 'Search docs in IDE',
+            link: 'saaskit/cookbooks/search-scalekit-docs-in-your-ide',
+          },
+        ],
       },
     ],
   },
