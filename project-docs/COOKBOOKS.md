@@ -2,10 +2,10 @@
 
 Cookbooks are plain Starlight docs pages under product shelves:
 
-| Product       | Path                                   | URL                           |
-| ------------- | -------------------------------------- | ----------------------------- |
-| AgentKit      | `src/content/docs/agentkit/cookbooks/` | `/agentkit/cookbooks/<slug>/` |
-| Auth for SaaS | `src/content/docs/saaskit/cookbooks/`  | `/saaskit/cookbooks/<slug>/`  |
+| Product       | Path                                 | URL                         |
+| ------------- | ------------------------------------ | --------------------------- |
+| AgentKit      | `src/content/docs/agentkit/recipes/` | `/agentkit/recipes/<slug>/` |
+| Auth for SaaS | `src/content/docs/saaskit/recipes/`  | `/saaskit/recipes/<slug>/`  |
 
 How-to guides (short dashboard answers) live beside them:
 
@@ -35,7 +35,7 @@ Each uses `autogenerate` on the product directory. Drop a new `.mdx` file in the
 A cross-product page remains at `/cookbooks/` (`src/content/docs/cookbooks.mdx`). It belongs to no
 single product, so it is listed in `exclude` in `src/configs/sidebar.config.ts` — that keeps it from
 inheriting a product journey rail or lighting up a product nav pill. Each product Keep building
-tab opens `/<product>/cookbooks/`, not the first recipe.
+tab opens `/<product>/recipes/`, not the first recipe. Old `/<product>/cookbooks/` URLs redirect there.
 
 ## What a cookbook is
 
@@ -124,7 +124,7 @@ tableOfContents: true
 
 ## Create a cookbook
 
-1. Choose the product shelf (`agentkit/cookbooks` or `saaskit/cookbooks`).
+1. Choose the product shelf (`agentkit/recipes` or `saaskit/recipes`).
 2. Create `src/content/docs/<product>/cookbooks/<slug>.mdx`.
 3. Write the recipe body (problem, steps, working code, failure modes).
 4. Put images under `src/assets/docs/<product>/cookbooks/<slug>/` and reference them as

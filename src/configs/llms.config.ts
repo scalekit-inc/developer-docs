@@ -57,7 +57,7 @@ Start with the Quickstart Collection, then follow the developer's question to th
         'directory/scim/**',
         'guides/user-auth/**',
         'guides/user-management/**',
-        'saaskit/cookbooks/**',
+        'saaskit/recipes/**',
         'how-to/**',
       ],
     },
@@ -142,8 +142,8 @@ Start with the Quickstart Collection, then follow the developer's question to th
     '**/overview', // All overview pages
     '**/quickstart', // All quickstart guides
     'agentkit/examples/**', // Framework examples (high value for agent queries)
-    'agentkit/cookbooks/**', // Practical AgentKit cookbooks
-    'saaskit/cookbooks/**', // Practical SaaSKit cookbooks
+    'agentkit/recipes/**', // Practical AgentKit cookbooks
+    'saaskit/recipes/**', // Practical SaaSKit cookbooks
     'fsa/data-modelling', // Critical data modeling guide
     'authenticate/set-up-scalekit', // Initial setup
     'authenticate/fsa/complete-login', // Core FSA flow

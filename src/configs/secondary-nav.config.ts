@@ -78,7 +78,7 @@ const agentKitItems: NavItem[] = [
   {
     // Keep building hub — isolated from lookup/ops (Connectors, SDKs, APIs, deploy)
     id: 'agentkit-guides',
-    href: '/agentkit/cookbooks/',
+    href: '/agentkit/recipes/',
     label: 'Keep building',
     iconComponent: IconLucideBookOpenText,
     dividerBefore: true,
@@ -196,7 +196,7 @@ const saasKitItems: NavItem[] = [
   {
     // Keep building hub — same group as Developer Resources (after lookup/ops)
     id: 'saaskit-guides',
-    href: '/saaskit/cookbooks/',
+    href: '/saaskit/recipes/',
     label: 'Keep building',
     iconComponent: IconLucideBookOpenText,
   },

@@ -99,21 +99,21 @@ const liveSidebar = [
   },
   {
     id: 'agentkit-guides',
-    link: '/agentkit/cookbooks/',
+    link: '/agentkit/recipes/',
     items: [
       'how-to/environments',
       { autogenerate: { directory: 'agentkit/how-to' } },
       { autogenerate: { directory: 'how-to' } },
-      { autogenerate: { directory: 'agentkit/cookbooks' } },
+      { autogenerate: { directory: 'agentkit/recipes' } },
     ],
   },
   {
     id: 'saaskit-guides',
-    link: '/saaskit/cookbooks/',
+    link: '/saaskit/recipes/',
     items: [
       'how-to/environments',
       { autogenerate: { directory: 'how-to' } },
-      { autogenerate: { directory: 'saaskit/cookbooks' } },
+      { autogenerate: { directory: 'saaskit/recipes' } },
     ],
   },
 ]
@@ -472,16 +472,16 @@ const keepBuildingTabs = [
   {
     product: 'agentkit',
     id: 'agentkit-guides',
-    hub: '/agentkit/cookbooks/',
-    recipe: '/agentkit/cookbooks/set-up-agentkit-with-your-coding-agent/',
+    hub: '/agentkit/recipes/',
+    recipe: '/agentkit/recipes/set-up-agentkit-with-your-coding-agent/',
     howTo: '/how-to/environments/',
     firstSuccess: 'agentkit/quickstart.mdx',
   },
   {
     product: 'saaskit',
     id: 'saaskit-guides',
-    hub: '/saaskit/cookbooks/',
-    recipe: '/saaskit/cookbooks/add-hosted-auth-nextjs-app-router/',
+    hub: '/saaskit/recipes/',
+    recipe: '/saaskit/recipes/add-hosted-auth-nextjs-app-router/',
     howTo: '/how-to/environments/',
     firstSuccess: 'authenticate/fsa/quickstart.mdx',
   },
@@ -548,7 +548,7 @@ test('product cookbook index URLs are hubs, not first-recipe redirects', () => {
       `${bare} must not redirect to a recipe`,
     )
 
-    const hubPage = readFileSync(join(docsRoot, `${tab.product}/cookbooks/index.mdx`), 'utf8')
+    const hubPage = readFileSync(join(docsRoot, `${tab.product}/recipes/index.mdx`), 'utf8')
     assert.match(hubPage, /hidden:\s*true/, `${tab.product} hub stays off the Recipes rail`)
     assert.match(hubPage, /how-to\/environments/, `${tab.product} hub names environments`)
     const visible = hubPage.replace(/^---[\s\S]*?---/, '').replace(/href="[^"]+"/g, '')
@@ -597,18 +597,24 @@ test('cross-product cookbooks page points at the two product hubs', () => {
   }
 })
 
+test('old product cookbook URLs redirect to the recipe hubs', () => {
+  const src = readFileSync(join(here, '../configs/redirects.config.ts'), 'utf8')
+  assert.match(src, /['"]\/agentkit\/cookbooks['"]\s*:\s*['"]\/agentkit\/recipes\/['"]/)
+  assert.match(src, /['"]\/saaskit\/cookbooks['"]\s*:\s*['"]\/saaskit\/recipes\/['"]/)
+})
+
 test('old per-slug cookbook URLs still resolve to the same recipes', () => {
   const src = readFileSync(join(here, '../configs/redirects.config.ts'), 'utf8')
   const slugs = [
-    ['/cookbooks/mastra-agentkit', '/agentkit/cookbooks/mastra-agentkit/'],
-    ['/cookbooks/daily-briefing-agent', '/agentkit/cookbooks/daily-briefing-agent/'],
+    ['/cookbooks/mastra-agentkit', '/agentkit/recipes/mastra-agentkit/'],
+    ['/cookbooks/daily-briefing-agent', '/agentkit/recipes/daily-briefing-agent/'],
     [
       '/cookbooks/add-hosted-auth-nextjs-app-router',
-      '/saaskit/cookbooks/add-hosted-auth-nextjs-app-router/',
+      '/saaskit/recipes/add-hosted-auth-nextjs-app-router/',
     ],
     [
       '/cookbooks/migrate-from-auth0-to-scalekit',
-      '/saaskit/cookbooks/migrate-from-auth0-to-scalekit/',
+      '/saaskit/recipes/migrate-from-auth0-to-scalekit/',
     ],
   ]
 

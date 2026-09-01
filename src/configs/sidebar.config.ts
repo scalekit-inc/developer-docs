@@ -242,7 +242,7 @@ export const sidebar = [
   {
     label: 'Keep building',
     id: 'agentkit-guides',
-    link: '/agentkit/cookbooks/',
+    link: '/agentkit/recipes/',
     icon: 'open-book',
     items: [
       {
@@ -264,19 +264,19 @@ export const sidebar = [
             items: [
               {
                 label: 'CrewAI email triage',
-                link: 'agentkit/cookbooks/crewai-agentkit-email-triage',
+                link: 'agentkit/recipes/crewai-agentkit-email-triage',
               },
               {
                 label: 'LiteLLM inbox triage',
-                link: 'agentkit/cookbooks/litellm-agentkit-inbox-triage',
+                link: 'agentkit/recipes/litellm-agentkit-inbox-triage',
               },
               {
                 label: 'Daily briefing agent',
-                link: 'agentkit/cookbooks/daily-briefing-agent',
+                link: 'agentkit/recipes/daily-briefing-agent',
               },
               {
                 label: 'Book meetings',
-                link: 'agentkit/cookbooks/schedule-meeting-and-draft-email',
+                link: 'agentkit/recipes/schedule-meeting-and-draft-email',
               },
             ],
           },
@@ -286,11 +286,11 @@ export const sidebar = [
             items: [
               {
                 label: 'Build a Vapi assistant',
-                link: 'agentkit/cookbooks/build-voice-assistant-1000-tools',
+                link: 'agentkit/recipes/build-voice-assistant-1000-tools',
               },
               {
                 label: 'Build a LiveKit agent',
-                link: 'agentkit/cookbooks/livekit-agentkit-voice-tool-calling',
+                link: 'agentkit/recipes/livekit-agentkit-voice-tool-calling',
               },
             ],
           },
@@ -298,14 +298,14 @@ export const sidebar = [
             label: 'Call tools',
             collapsed: true,
             items: [
-              { label: 'Build a Mastra agent', link: 'agentkit/cookbooks/mastra-agentkit' },
+              { label: 'Build a Mastra agent', link: 'agentkit/recipes/mastra-agentkit' },
               {
                 label: 'Call tools via FastRouter',
-                link: 'agentkit/cookbooks/fastrouter-agentkit-tool-calling',
+                link: 'agentkit/recipes/fastrouter-agentkit-tool-calling',
               },
               {
                 label: 'Trace calls in LangSmith',
-                link: 'agentkit/cookbooks/langsmith-tracing-agentkit',
+                link: 'agentkit/recipes/langsmith-tracing-agentkit',
               },
             ],
           },
@@ -315,15 +315,15 @@ export const sidebar = [
             items: [
               {
                 label: 'Set up in a coding agent',
-                link: 'agentkit/cookbooks/set-up-agentkit-with-your-coding-agent',
+                link: 'agentkit/recipes/set-up-agentkit-with-your-coding-agent',
               },
               {
                 label: 'Summarize GitHub PRs',
-                link: 'agentkit/cookbooks/render-github-pr-summarizer',
+                link: 'agentkit/recipes/render-github-pr-summarizer',
               },
               {
                 label: 'Per-user OAuth on Apify',
-                link: 'agentkit/cookbooks/apify-actor-per-user-oauth',
+                link: 'agentkit/recipes/apify-actor-per-user-oauth',
               },
             ],
           },
@@ -334,7 +334,7 @@ export const sidebar = [
   {
     label: 'Keep building',
     id: 'saaskit-guides',
-    link: '/saaskit/cookbooks/',
+    link: '/saaskit/recipes/',
     icon: 'open-book',
     items: [
       {
@@ -352,19 +352,19 @@ export const sidebar = [
             items: [
               {
                 label: 'Hosted auth in Next.js',
-                link: 'saaskit/cookbooks/add-hosted-auth-nextjs-app-router',
+                link: 'saaskit/recipes/add-hosted-auth-nextjs-app-router',
               },
               {
                 label: 'Passwordless in Next.js',
-                link: 'saaskit/cookbooks/implement-nextjs-auth',
+                link: 'saaskit/recipes/implement-nextjs-auth',
               },
               {
                 label: 'Custom org switcher',
-                link: 'saaskit/cookbooks/building-custom-org-switcher',
+                link: 'saaskit/recipes/building-custom-org-switcher',
               },
               {
                 label: 'SSO with Auth.js',
-                link: 'saaskit/cookbooks/add-enterprise-sso-nextjs-authjs',
+                link: 'saaskit/recipes/add-enterprise-sso-nextjs-authjs',
               },
             ],
           },
@@ -374,23 +374,23 @@ export const sidebar = [
             items: [
               {
                 label: 'M2M JWT and scopes',
-                link: 'saaskit/cookbooks/m2m-jwks-and-oauth-scopes',
+                link: 'saaskit/recipes/m2m-jwks-and-oauth-scopes',
               },
               {
                 label: 'Spring Boot JWT timeout',
-                link: 'saaskit/cookbooks/java-spring-boot-jwt-timeout',
+                link: 'saaskit/recipes/java-spring-boot-jwt-timeout',
               },
             ],
           },
           {
             label: 'Enforce seat limits',
-            link: 'saaskit/cookbooks/scim-seat-limit-enforcement',
+            link: 'saaskit/recipes/scim-seat-limit-enforcement',
           },
           {
             label: 'Sync Chargebee billing',
-            link: 'saaskit/cookbooks/sync-b2b-billing-with-chargebee',
+            link: 'saaskit/recipes/sync-b2b-billing-with-chargebee',
           },
-          { label: 'Migrate from Auth0', link: 'saaskit/cookbooks/migrate-from-auth0-to-scalekit' },
+          { label: 'Migrate from Auth0', link: 'saaskit/recipes/migrate-from-auth0-to-scalekit' },
         ],
       },
     ],
@@ -795,14 +795,14 @@ export const topics = {
 
   // Product guide shelves (before connect catch-all and resources)
   'agentkit-guides': [
-    '/agentkit/cookbooks',
-    '/agentkit/cookbooks/**/*',
+    '/agentkit/recipes',
+    '/agentkit/recipes/**/*',
     '/agentkit/how-to',
     '/agentkit/how-to/**/*',
     '/how-to',
     '/how-to/**/*',
   ],
-  'saaskit-guides': ['/saaskit/cookbooks', '/saaskit/cookbooks/**/*', '/how-to', '/how-to/**/*'],
+  'saaskit-guides': ['/saaskit/recipes', '/saaskit/recipes/**/*', '/how-to', '/how-to/**/*'],
 
   // Product SDK sidebars (before connect catch-all)
   'agentkit-sdks': ['/agentkit/sdks/**/*'],

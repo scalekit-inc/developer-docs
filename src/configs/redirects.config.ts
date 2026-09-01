@@ -217,9 +217,9 @@ export const redirects = {
   // Note: With trailingSlash: 'ignore', single redirect without slash handles both /path and /path/ variants
 
   '/agentkit/start-agentkit-coding-agents':
-    '/agentkit/cookbooks/set-up-agentkit-with-your-coding-agent/',
+    '/agentkit/recipes/set-up-agentkit-with-your-coding-agent/',
   '/agent-auth/start-agent-auth-coding-agents':
-    '/agentkit/cookbooks/set-up-agentkit-with-your-coding-agent/',
+    '/agentkit/recipes/set-up-agentkit-with-your-coding-agent/',
   '/authenticate/fsa/start-fsa-coding-agents': '/dev-kit/build-with-ai/full-stack-auth/',
   '/authenticate/mcp/start-mcp-auth-coding-agents': '/dev-kit/build-with-ai/mcp-auth/',
   '/authenticate/sso/start-sso-coding-agents': '/dev-kit/build-with-ai/sso/',
@@ -227,13 +227,12 @@ export const redirects = {
 
   // Build with AI moved from /build-with-ai/ to /dev-kit/build-with-ai/
   // Agent Auth variant now lives in cookbooks
-  '/agentkit/build-with-ai': '/agentkit/cookbooks/set-up-agentkit-with-your-coding-agent/',
+  '/agentkit/build-with-ai': '/agentkit/recipes/set-up-agentkit-with-your-coding-agent/',
   '/build-with-ai': '/dev-kit/build-with-ai/',
   '/build-with-ai/full-stack-auth': '/dev-kit/build-with-ai/full-stack-auth/',
-  '/build-with-ai/agent-auth': '/agentkit/cookbooks/set-up-agentkit-with-your-coding-agent/',
-  '/dev-kit/build-with-ai/agentkit': '/agentkit/cookbooks/set-up-agentkit-with-your-coding-agent/',
-  '/dev-kit/build-with-ai/agent-auth':
-    '/agentkit/cookbooks/set-up-agentkit-with-your-coding-agent/',
+  '/build-with-ai/agent-auth': '/agentkit/recipes/set-up-agentkit-with-your-coding-agent/',
+  '/dev-kit/build-with-ai/agentkit': '/agentkit/recipes/set-up-agentkit-with-your-coding-agent/',
+  '/dev-kit/build-with-ai/agent-auth': '/agentkit/recipes/set-up-agentkit-with-your-coding-agent/',
   '/build-with-ai/mcp-auth': '/dev-kit/build-with-ai/mcp-auth/',
   '/build-with-ai/sso': '/dev-kit/build-with-ai/sso/',
   '/build-with-ai/scim': '/dev-kit/build-with-ai/scim/',
@@ -475,40 +474,49 @@ export const redirects = {
   '/sdks/java/reference': '/saaskit/sdks/java/',
 
   // =============================================================================
+  // COOKBOOK → RECIPE PREFIX (Keep building hubs)
+  // =============================================================================
+  '/agentkit/cookbooks': '/agentkit/recipes/',
+  '/agentkit/cookbooks/[...slug]': '/agentkit/recipes/[...slug]',
+  '/saaskit/cookbooks': '/saaskit/recipes/',
+  '/saaskit/cookbooks/[...slug]': '/saaskit/recipes/[...slug]',
+
+  // =============================================================================
   // COOKBOOK REDIRECTS (per-product shelves)
   // =============================================================================
-  '/cookbooks/apify-actor-per-user-oauth': '/agentkit/cookbooks/apify-actor-per-user-oauth/',
+  '/cookbooks/apify-actor-per-user-oauth': '/agentkit/recipes/apify-actor-per-user-oauth/',
   '/cookbooks/build-voice-assistant-1000-tools':
-    '/agentkit/cookbooks/build-voice-assistant-1000-tools/',
-  '/cookbooks/crewai-agentkit-email-triage': '/agentkit/cookbooks/crewai-agentkit-email-triage/',
-  '/cookbooks/daily-briefing-agent': '/agentkit/cookbooks/daily-briefing-agent/',
+    '/agentkit/recipes/build-voice-assistant-1000-tools/',
+  '/cookbooks/crewai-agentkit-email-triage': '/agentkit/recipes/crewai-agentkit-email-triage/',
+  '/cookbooks/daily-briefing-agent': '/agentkit/recipes/daily-briefing-agent/',
   '/cookbooks/fastrouter-agentkit-tool-calling':
-    '/agentkit/cookbooks/fastrouter-agentkit-tool-calling/',
-  '/cookbooks/langsmith-tracing-agentkit': '/agentkit/cookbooks/langsmith-tracing-agentkit/',
-  '/cookbooks/litellm-agentkit-inbox-triage': '/agentkit/cookbooks/litellm-agentkit-inbox-triage/',
+    '/agentkit/recipes/fastrouter-agentkit-tool-calling/',
+  '/cookbooks/langsmith-tracing-agentkit': '/agentkit/recipes/langsmith-tracing-agentkit/',
+  '/cookbooks/litellm-agentkit-inbox-triage': '/agentkit/recipes/litellm-agentkit-inbox-triage/',
   '/cookbooks/livekit-agentkit-voice-tool-calling':
-    '/agentkit/cookbooks/livekit-agentkit-voice-tool-calling/',
-  '/cookbooks/mastra-agentkit': '/agentkit/cookbooks/mastra-agentkit/',
-  '/cookbooks/render-github-pr-summarizer': '/agentkit/cookbooks/render-github-pr-summarizer/',
+    '/agentkit/recipes/livekit-agentkit-voice-tool-calling/',
+  '/cookbooks/mastra-agentkit': '/agentkit/recipes/mastra-agentkit/',
+  '/cookbooks/render-github-pr-summarizer': '/agentkit/recipes/render-github-pr-summarizer/',
   '/cookbooks/schedule-meeting-and-draft-email':
-    '/agentkit/cookbooks/schedule-meeting-and-draft-email/',
+    '/agentkit/recipes/schedule-meeting-and-draft-email/',
   '/cookbooks/set-up-agentkit-with-your-coding-agent':
-    '/agentkit/cookbooks/set-up-agentkit-with-your-coding-agent/',
+    '/agentkit/recipes/set-up-agentkit-with-your-coding-agent/',
   '/cookbooks/add-enterprise-sso-nextjs-authjs':
-    '/saaskit/cookbooks/add-enterprise-sso-nextjs-authjs/',
+    '/saaskit/recipes/add-enterprise-sso-nextjs-authjs/',
   '/cookbooks/add-hosted-auth-nextjs-app-router':
-    '/saaskit/cookbooks/add-hosted-auth-nextjs-app-router/',
-  '/cookbooks/building-custom-org-switcher': '/saaskit/cookbooks/building-custom-org-switcher/',
-  '/cookbooks/implement-nextjs-auth': '/saaskit/cookbooks/implement-nextjs-auth/',
-  '/cookbooks/java-spring-boot-jwt-timeout': '/saaskit/cookbooks/java-spring-boot-jwt-timeout/',
-  '/cookbooks/m2m-jwks-and-oauth-scopes': '/saaskit/cookbooks/m2m-jwks-and-oauth-scopes/',
-  '/cookbooks/migrate-from-auth0-to-scalekit': '/saaskit/cookbooks/migrate-from-auth0-to-scalekit/',
-  '/cookbooks/scim-seat-limit-enforcement': '/saaskit/cookbooks/scim-seat-limit-enforcement/',
-  '/cookbooks/search-scalekit-docs-in-your-ide': '/saaskit/cookbooks/',
-  '/saaskit/cookbooks/search-scalekit-docs-in-your-ide': '/saaskit/cookbooks/',
-  '/saaskit/cookbooks/search-scalekit-docs-in-your-ide/': '/saaskit/cookbooks/',
-  '/cookbooks/sync-b2b-billing-with-chargebee':
-    '/saaskit/cookbooks/sync-b2b-billing-with-chargebee/',
+    '/saaskit/recipes/add-hosted-auth-nextjs-app-router/',
+  '/cookbooks/building-custom-org-switcher': '/saaskit/recipes/building-custom-org-switcher/',
+  '/cookbooks/implement-nextjs-auth': '/saaskit/recipes/implement-nextjs-auth/',
+  '/cookbooks/java-spring-boot-jwt-timeout': '/saaskit/recipes/java-spring-boot-jwt-timeout/',
+  '/cookbooks/m2m-jwks-and-oauth-scopes': '/saaskit/recipes/m2m-jwks-and-oauth-scopes/',
+  '/cookbooks/migrate-from-auth0-to-scalekit': '/saaskit/recipes/migrate-from-auth0-to-scalekit/',
+  '/cookbooks/scim-seat-limit-enforcement': '/saaskit/recipes/scim-seat-limit-enforcement/',
+  '/cookbooks/search-scalekit-docs-in-your-ide': '/saaskit/recipes/',
+  '/saaskit/cookbooks/search-scalekit-docs-in-your-ide': '/saaskit/recipes/',
+  '/saaskit/cookbooks/search-scalekit-docs-in-your-ide/': '/saaskit/recipes/',
+  '/saaskit/recipes/search-scalekit-docs-in-your-ide': '/saaskit/recipes/',
+  '/saaskit/recipes/search-scalekit-docs-in-your-ide/': '/saaskit/recipes/',
+  '/cookbooks/sync-b2b-billing-with-chargebee': '/saaskit/recipes/sync-b2b-billing-with-chargebee/',
 
   // Routes that `starlight-blog` generated and nothing replaces. It injected
   // `/[...prefix]/tags/[tag]`, `/[...prefix]/authors/[author]`, and a paginated
