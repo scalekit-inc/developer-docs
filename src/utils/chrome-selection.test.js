@@ -460,6 +460,7 @@ const keepBuildingTabs = [
     hub: '/agentkit/cookbooks/',
     recipe: '/agentkit/cookbooks/set-up-agentkit-with-your-coding-agent/',
     howTo: '/how-to/environments/',
+    firstSuccess: 'agentkit/quickstart.mdx',
   },
   {
     product: 'saaskit',
@@ -467,6 +468,7 @@ const keepBuildingTabs = [
     hub: '/saaskit/cookbooks/',
     recipe: '/saaskit/cookbooks/add-hosted-auth-nextjs-app-router/',
     howTo: '/how-to/environments/',
+    firstSuccess: 'authenticate/fsa/quickstart.mdx',
   },
 ]
 
@@ -539,6 +541,67 @@ test('product cookbook index URLs are hubs, not first-recipe redirects', () => {
       /\bcookbooks?\b/i.test(visible),
       false,
       `${tab.product} hub copy must not say Cookbooks`,
+    )
+  }
+})
+
+/** Ticket 03: First success sends to the hub. */
+function frontmatterNext(src) {
+  const fm = src.match(/^---\r?\n([\s\S]*?)\r?\n---/)?.[1] ?? ''
+  const block = fm.match(/^next:\n((?:[ \t]+.+\n?)+)/m)?.[1] ?? ''
+  return {
+    label: block.match(/label:\s*['"]([^'"]+)['"]/)?.[1],
+    link: block.match(/link:\s*['"]([^'"]+)['"]/)?.[1],
+  }
+}
+
+test('first-success pages send Next to the product Keep building hub', () => {
+  const docsRoot = join(here, '../content/docs')
+
+  for (const tab of keepBuildingTabs) {
+    const next = frontmatterNext(readFileSync(join(docsRoot, tab.firstSuccess), 'utf8'))
+    assert.equal(next.link, tab.hub, `${tab.firstSuccess} Next must open the ${tab.product} hub`)
+    assert.equal(next.label, 'Keep building', `${tab.firstSuccess} Next label is Keep building`)
+  }
+})
+
+test('cross-product cookbooks page points at the two product hubs', () => {
+  const src = readFileSync(join(here, '../content/docs/cookbooks.mdx'), 'utf8')
+
+  for (const tab of keepBuildingTabs) {
+    assert.match(
+      src,
+      new RegExp(`href="${tab.hub}"`),
+      `${tab.product} card must open the ${tab.product} hub`,
+    )
+    assert.equal(
+      src.includes(tab.recipe),
+      false,
+      `cross-product page must not send ${tab.product} readers to the first recipe`,
+    )
+  }
+})
+
+test('old per-slug cookbook URLs still resolve to the same recipes', () => {
+  const src = readFileSync(join(here, '../configs/redirects.config.ts'), 'utf8')
+  const slugs = [
+    ['/cookbooks/mastra-agentkit', '/agentkit/cookbooks/mastra-agentkit/'],
+    ['/cookbooks/daily-briefing-agent', '/agentkit/cookbooks/daily-briefing-agent/'],
+    [
+      '/cookbooks/add-hosted-auth-nextjs-app-router',
+      '/saaskit/cookbooks/add-hosted-auth-nextjs-app-router/',
+    ],
+    [
+      '/cookbooks/migrate-from-auth0-to-scalekit',
+      '/saaskit/cookbooks/migrate-from-auth0-to-scalekit/',
+    ],
+  ]
+
+  for (const [from, to] of slugs) {
+    assert.match(
+      src,
+      new RegExp(`['"]${from}['"]\\s*:\\s*['"]${to}['"]`),
+      `${from} must still open ${to}`,
     )
   }
 })
