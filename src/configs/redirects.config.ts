@@ -422,6 +422,8 @@ export const redirects = {
   // Other redirects
   '/dev-kit/apis': '/dev-kit/error-handling/',
   '/dev-kit/apis/': '/dev-kit/error-handling/',
+  '/dev-kit/apis.md': '/dev-kit/error-handling/',
+  '/dev-kit/apis.mdx': '/dev-kit/error-handling/',
   '/fsa/data-modeling': '/fsa/data-modelling/',
   '/guides': '/',
   '/mcp': '/authenticate/mcp/quickstart/',
