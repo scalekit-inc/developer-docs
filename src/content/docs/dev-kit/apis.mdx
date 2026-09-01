@@ -1,35 +1,372 @@
 ---
-title: APIs
-template: doc
-description: Learn how to work with Scalekit REST APIs, including authentication, pagination, error handling, and rate limits.
+title: 'Error handling'
+description: 'Catch and respond to invalid tokens, bad requests, missing resources, and rate limits on the Scalekit REST API.'
+tags: [api, errors, rate-limits]
 sidebar:
-  label: APIs
+  label: 'Error handling'
+tableOfContents: true
 ---
 
-The Scalekit REST APIs provide endpoints for authentication, user management, organization handling, and more.
+import { Aside, Tabs, TabItem } from '@astrojs/starlight/components'
 
-For the complete API reference, see the [REST API documentation](/apis/#description/overview).
+{/* Keep #error-handling for the URL Patrick opened. */}
+<div id="error-handling"></div>
 
-## Authentication
+Catch and respond to invalid tokens, bad requests, missing resources, and rate limits.
 
-Coming soon: API key authentication and examples.
+A failed REST call returns an HTTP status and a JSON body. Official SDKs raise typed exceptions for the same failures. Use the body, or the exception fields, to choose a response.
 
-## Pagination
+For the endpoint catalog, open the [API reference](/apis/#description/overview). Product catalogs live at [SaaSKit APIs](/saaskit/apis/#description/overview) and [AgentKit APIs](/agentkit/apis/#description/overview).
 
-Coming soon: Pagination patterns and examples.
+## Read the error body
 
-## Error handling
+| Field | Meaning |
+|---|---|
+| `code` | gRPC (remote procedure call) status **number**. This is not the HTTP status. Example: `16` means Unauthenticated. |
+| `message` | Human-readable reason. Safe for logs. Do not show raw messages to end users. |
+| `details[].error_code` | Stable slug to switch on, such as `UNAUTHENTICATED`. |
+| `details[].validation_error_info` | Present on some `400` responses. Lists field violations (`field`, `description`, `constraint`). |
+| `details[].tool_error_info` | Present when a tool call fails. Includes `execution_id`, `tool_error_message`, and `tool_error_code`. |
+| `details[].help_info` | Optional documentation links when the server attaches them. |
 
-Coming soon: Status codes, error response format, and handling examples.
+Scalekit does not return a request ID or a dashboard log URL in this envelope.
 
-## External ID
+```json title="401 when the bearer token is missing"
+{
+  "code": 16,
+  "message": "Token empty",
+  "details": [
+    {
+      "@type": "type.googleapis.com/scalekit.v1.errdetails.ErrorInfo",
+      "error_code": "UNAUTHENTICATED"
+    }
+  ]
+}
+```
 
-Coming soon: Using external IDs to correlate resources.
+Switch on `details[].error_code`. Do not switch on `code` alone.
 
-## Metadata
+## HTTP status codes
 
-Coming soon: Storing custom key-value pairs on resources.
+- Codes in the `2xx` range mean success.
+- Codes in the `4xx` range mean the request failed given the data you sent. Fix the request. Do not retry the same payload, except for `429`.
+- Codes in the `5xx` range mean a server fault. Retry with backoff. Treat the result as unknown until a later call succeeds.
 
-## Rate limits
+| HTTP | Typical `error_code` | Meaning |
+|---|---|---|
+| `200` / `201` | — | Success |
+| `400` | `INVALID_ARGUMENT`, `BAD_REQUEST` | Invalid request or validation failure |
+| `401` | `UNAUTHENTICATED` | Missing or invalid bearer token |
+| `403` | `PERMISSION_DENIED`, `FORBIDDEN` | Authenticated, but not allowed |
+| `404` | `NOT_FOUND`, `RESOURCE_NOT_FOUND` | Resource does not exist |
+| `409` | `RESOURCE_ALREADY_EXISTS` | Duplicate resource |
+| `429` | `RATE_LIMITED`, `TOO_MANY_REQUESTS` | Rate limit exceeded |
+| `500` | `INTERNAL_ERROR` | Server error |
 
-Coming soon: Rate limit details and retry patterns.
+## Catch exceptions
+
+SDKs translate non-success HTTP responses into exceptions. Catch the specific type first, then fall back to the base server exception.
+
+<Tabs syncKey="tech-stack">
+<TabItem label="Node.js">
+```ts title="catch-api-errors.ts"
+import {
+  ScalekitNotFoundException,
+  ScalekitUnauthorizedException,
+  ScalekitTooManyRequestsException,
+  ScalekitServerException,
+} from '@scalekit-sdk/node'
+
+try {
+  // Your Scalekit SDK call
+  await scalekit.organization.listOrganization({ pageSize: 30 })
+} catch (err) {
+  if (err instanceof ScalekitUnauthorizedException) {
+    // Get a new access token. Do not retry the same bearer token.
+  } else if (err instanceof ScalekitNotFoundException) {
+    // Create the resource or return not-found to the caller.
+  } else if (err instanceof ScalekitTooManyRequestsException) {
+    // Back off. Read err.errorCode: RATE_LIMITED vs TOOL_ERROR.
+  } else if (err instanceof ScalekitServerException) {
+    // Log err.message and err.errorCode. Retry only on 5xx or 429.
+  } else {
+    throw err
+  }
+}
+```
+</TabItem>
+<TabItem label="Python">
+```py title="catch_api_errors.py"
+from scalekit.common.exceptions import (
+    ScalekitNotFoundException,
+    ScalekitUnauthorizedException,
+    ScalekitTooManyRequestsException,
+    ScalekitServerException,
+)
+
+try:
+    # Your Scalekit SDK call
+    scalekit_client.organization.list_organizations(page_size=30)
+except ScalekitUnauthorizedException:
+    # Get a new access token. Do not retry the same bearer token.
+    pass
+except ScalekitNotFoundException:
+    # Create the resource or return not-found to the caller.
+    pass
+except ScalekitTooManyRequestsException as e:
+    # Back off. Read e.error_code: RATE_LIMITED vs TOOL_ERROR.
+    print(e.error_code, e.message)
+except ScalekitServerException as e:
+    # Log e.message and e.error_code. Retry only on 5xx or 429.
+    print(e.error_code, e.http_status)
+```
+</TabItem>
+<TabItem label="Go">
+```go title="catch_api_errors.go"
+_, err := scalekitClient.Organization().ListOrganization(ctx, &scalekit.ListOrganizationOptions{
+    PageSize: 30,
+})
+if err != nil {
+    // Inspect the error. Retry only on HTTP 429 or 5xx.
+    // Do not retry the same payload on 400, 401, 403, 404, or 409.
+    log.Printf("scalekit API error: %v", err)
+    return err
+}
+```
+</TabItem>
+<TabItem label="Java">
+```java title="CatchApiErrors.java"
+try {
+    scalekitClient.organizations().listOrganizations(30, "");
+} catch (ScalekitException error) {
+    // Inspect the error. Retry only on HTTP 429 or 5xx.
+    // Do not retry the same payload on 400, 401, 403, 404, or 409.
+    System.err.println(error.getMessage());
+}
+```
+</TabItem>
+</Tabs>
+
+Typed exception names and tool-specific types are listed on [AgentKit Node error handling](/agentkit/sdks/node/errors/) and [AgentKit Python error handling](/agentkit/sdks/python/errors/).
+
+## Choose a response
+
+| `error_code` | Problem | What to do |
+|---|---|---|
+| `UNAUTHENTICATED` | Missing or invalid bearer token | Request a new token. Do not retry the same token. |
+| `INVALID_ARGUMENT` / `BAD_REQUEST` | The request is malformed or fails validation | Fix the fields. Do not retry the same payload. |
+| `PERMISSION_DENIED` / `FORBIDDEN` | The caller is authenticated but not allowed | Change roles, scopes, or the target resource. |
+| `NOT_FOUND` / `RESOURCE_NOT_FOUND` | The resource does not exist | Create it, or return not-found to your user. |
+| `RESOURCE_ALREADY_EXISTS` | A create conflicts with an existing resource | Use the existing ID, or pick a new unique value. |
+| `RATE_LIMITED` / `TOO_MANY_REQUESTS` | A Scalekit service rejected the call | Back off, then retry. See [API rate limits](/reference/rate-limits/). |
+| `TOOL_ERROR` | A tool call failed | Read `tool_error_info.tool_error_code`. An inner `RATE_LIMITED` is the upstream provider. |
+| `INTERNAL_ERROR` | A server fault | Retry with backoff. Treat the result as unknown until a later call succeeds. |
+
+## Validation errors
+
+Some `400` responses include `validation_error_info.field_violations`. Each violation names the field, a description, and the constraint that failed. The JSON below is an example of that shape.
+
+```json title="Example validation error shape"
+{
+  "code": 3,
+  "message": "Validation error",
+  "details": [
+    {
+      "@type": "type.googleapis.com/scalekit.v1.errdetails.ErrorInfo",
+      "error_code": "INVALID_ARGUMENT",
+      "validation_error_info": {
+        "field_violations": [
+          {
+            "field": "page_size",
+            "description": "value must be less than or equal to 30",
+            "constraint": "lte"
+          }
+        ]
+      }
+    }
+  ]
+}
+```
+
+## Tool errors
+
+Tool execution sets the **outer** `error_code` to `TOOL_ERROR`. The inner slug is `tool_error_info.tool_error_code`. An upstream provider `429` still returns HTTP `429`.
+
+```json title="Upstream provider rate limit on a tool call"
+{
+  "code": 8,
+  "message": "tool execution failed - rate limited",
+  "details": [
+    {
+      "@type": "type.googleapis.com/scalekit.v1.errdetails.ErrorInfo",
+      "error_code": "TOOL_ERROR",
+      "tool_error_info": {
+        "execution_id": "exec_123",
+        "tool_error_message": "rate limit",
+        "tool_error_code": "RATE_LIMITED"
+      }
+    }
+  ]
+}
+```
+
+Read the outer code first. Then read `tool_error_info.tool_error_code` when the outer code is `TOOL_ERROR`.
+
+## Handle 429s
+
+When a service exceeds its limit, Scalekit returns HTTP `429`. The response body uses the same error envelope.
+
+| Outer `error_code` | Meaning |
+|---|---|
+| `RATE_LIMITED` | A Scalekit service rejected the call |
+| `TOO_MANY_REQUESTS` | Email, one-time password (OTP), or time-based one-time password (TOTP) traffic hit a limit |
+| `TOOL_ERROR` with inner `tool_error_code` `RATE_LIMITED` | The upstream provider rate-limited the tool call |
+
+Back off and retry with exponential backoff. Do not retry immediately.
+
+Scalekit does not send a `Retry-After` header on these responses. Limits vary by service and account. For 429 handling in the SDKs, see [API rate limits](/reference/rate-limits/).
+
+## Get an access token
+
+The REST API uses **OAuth 2.0 client credentials**. Copy credentials from the Scalekit dashboard **API Config** section first. Store them in environment variables. Do not hard-code secrets — a leaked secret lets anyone act as your environment.
+
+```sh title="Environment variables"
+# Security: keep secrets out of source. A leaked client_secret can create tokens for this environment.
+SCALEKIT_ENVIRONMENT_URL='<YOUR_ENVIRONMENT_URL>'
+SCALEKIT_CLIENT_ID='<ENVIRONMENT_CLIENT_ID>'
+SCALEKIT_CLIENT_SECRET='<ENVIRONMENT_CLIENT_SECRET>'
+```
+
+### Request a token
+
+Send a `POST` to `/oauth/token` with `application/x-www-form-urlencoded`:
+
+```bash title="Request an access token"
+curl https://$SCALEKIT_ENVIRONMENT_URL/oauth/token \
+  -X POST \
+  -H 'Content-Type: application/x-www-form-urlencoded' \
+  -d "grant_type=client_credentials" \
+  -d "client_id=$SCALEKIT_CLIENT_ID" \
+  -d "client_secret=$SCALEKIT_CLIENT_SECRET"
+```
+
+A wrong `client_id` or `client_secret` fails the token request. Do not use that response as a bearer token.
+
+The token response includes these fields. `expires_in` is an example. The default client-token lifetime is 1440 minutes (about 24 hours). Your environment or client can use a different value.
+
+```json title="Token response"
+{
+  "access_token": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "token_type": "Bearer",
+  "expires_in": 86399,
+  "scope": "openid"
+}
+```
+
+### Send the token
+
+Put the access token in the `Authorization` header as `Bearer <token>`:
+
+```bash title="Call an API with the token"
+curl https://$SCALEKIT_ENVIRONMENT_URL/api/v1/organizations \
+  -H 'Content-Type: application/json' \
+  -H "Authorization: Bearer $ACCESS_TOKEN"
+```
+
+A missing header returns HTTP `401` with `error_code` `UNAUTHENTICATED` and message `Token empty`. A value that is not `Bearer <token>` returns `UNAUTHENTICATED` with message `Invalid Token`.
+
+For a longer walkthrough, see [Authenticate with the Scalekit API](/guides/authenticate-scalekit-api/). Official SDKs send the bearer token after you pass the same environment variables.
+
+<Aside type="caution" title="Do not send an API key on /api/v1">
+`/api/v1` accepts a bearer access token from client credentials. It does not accept an API key header.
+</Aside>
+
+## Page through lists
+
+Most list endpoints take `page_size` and `page_token` as query parameters. The response returns `next_page_token`, `prev_page_token`, and often `total_size`.
+
+Omit `page_token` on the first request. Pass `next_page_token` back as `page_token` to fetch the next page.
+
+```bash title="List organizations, first page"
+curl "https://$SCALEKIT_ENVIRONMENT_URL/api/v1/organizations?page_size=30" \
+  -H "Authorization: Bearer $ACCESS_TOKEN"
+```
+
+```bash title="List organizations, next page"
+curl "https://$SCALEKIT_ENVIRONMENT_URL/api/v1/organizations?page_size=30&page_token=$NEXT_PAGE_TOKEN" \
+  -H "Authorization: Bearer $ACCESS_TOKEN"
+```
+
+On most ID-cursor lists, including organizations:
+
+| Request | Server behavior |
+|---|---|
+| `page_size` omitted or `0` | Returns **10** items |
+| `page_size` between 1 and 100 | Returns that many items |
+| `page_size` greater than 100 | Caps at **100** |
+
+Search endpoints cap `page_size` at **30**. Some AgentKit log lists default to **20**. Check the operation in the [API reference](/apis/#description/overview) when you need an exact bound.
+
+A malformed `page_token` returns HTTP `400` with `error_code` `INVALID_ARGUMENT`.
+
+`GET /api/v1/organizations` pages the environment. It does not filter by `external_id`. Look up one organization by your ID with `GET /api/v1/organizations:external/{external_id}`.
+
+## Use external IDs
+
+An **external ID** is the identifier you already use in your system. Scalekit stores it so you can look up the same organization or user without a separate mapping table. External IDs are unique per environment when you set them.
+
+Set `external_id` when you create or update the resource.
+
+```bash title="Create an organization with your tenant ID"
+curl https://$SCALEKIT_ENVIRONMENT_URL/api/v1/organizations \
+  -X POST \
+  -H 'Content-Type: application/json' \
+  -H "Authorization: Bearer $ACCESS_TOKEN" \
+  -d '{
+    "display_name": "Megasoft Inc",
+    "external_id": "CUST-12345-MGSFT"
+  }'
+```
+
+Look up an organization by the external ID:
+
+```bash title="Get an organization by external ID"
+curl "https://$SCALEKIT_ENVIRONMENT_URL/api/v1/organizations:external/CUST-12345-MGSFT" \
+  -H "Authorization: Bearer $ACCESS_TOKEN"
+```
+
+`GET /api/v1/organizations:external/{external_id}` must not also send an `id` query parameter. If both are present, the request fails with HTTP `400` and the message `ExternalId is required`.
+
+Users also expose colon paths:
+
+| Resource | Public `:external` paths |
+|---|---|
+| Organization | `GET /api/v1/organizations:external/{external_id}` |
+| User | `GET`, `PATCH`, and `DELETE /api/v1/users:external/{external_id}` |
+| Membership | `POST`, `PATCH`, and `DELETE /api/v1/memberships/organizations/{organization_id}/users:external/{external_id}` |
+
+Connected accounts use `identifier`, not `:external`.
+
+## Store metadata
+
+**Metadata** is a string-to-string map you attach to a resource. Use it for your own context, such as a billing code or office location.
+
+| Resource | Max pairs | Key length | Value length |
+|---|---|---|---|
+| Organization | 10 | 3–25 | 1–256 |
+| User, membership, member, custom provider | 20 | 3–25 | 1–256 |
+
+```bash title="Update organization metadata"
+curl "https://$SCALEKIT_ENVIRONMENT_URL/api/v1/organizations/{id}" \
+  -X PATCH \
+  -H 'Content-Type: application/json' \
+  -H "Authorization: Bearer $ACCESS_TOKEN" \
+  -d '{
+    "metadata": {
+      "plan": "enterprise",
+      "region": "us-east"
+    }
+  }'
+```
+
+Do not store secrets in metadata. For more create and update examples, see [organization identifiers](/guides/external-ids-and-metadata/).

@@ -276,8 +276,9 @@ export const sidebar = [
         label: 'SDKs & APIs',
         items: [
           'dev-kit/sdks',
+          'dev-kit/apis',
           {
-            label: 'APIs',
+            label: 'API reference',
             link: '/apis/#description/overview',
           },
           'dev-kit/api-collections/openapi-spec',
