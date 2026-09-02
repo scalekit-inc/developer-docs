@@ -75,6 +75,14 @@ const agentKitItems: NavItem[] = [
     label: 'Enterprise Deployment',
     iconComponent: IconSolarServerPathOutline,
   },
+  {
+    // Keep building hub — isolated from lookup/ops (Connectors, SDKs, APIs, deploy)
+    id: 'agentkit-guides',
+    href: '/agentkit/recipes/',
+    label: 'Keep building',
+    iconComponent: IconLucideBookOpenText,
+    dividerBefore: true,
+  },
 ]
 
 const saasKitItems: NavItem[] = [
@@ -126,6 +134,7 @@ const saasKitItems: NavItem[] = [
     href: '#developer-resources',
     label: 'Developer Resources',
     iconComponent: IconHugeiconsResourcesAdd,
+    dividerBefore: true,
     children: [
       {
         id: 'build-with-ai',
@@ -175,15 +184,6 @@ const saasKitItems: NavItem[] = [
         columnGroup: 'right',
       },
       {
-        id: 'cookbooks',
-        href: '/cookbooks/',
-        label: 'Developer Resources',
-        dropdownLabel: 'Cookbooks',
-        iconComponent: IconLucideBookOpenText,
-        description: 'Implement common patterns with step-by-step recipes',
-        columnGroup: 'right',
-      },
-      {
         id: 'code-samples',
         href: '/resources/code-samples/',
         label: 'Code Samples',
@@ -192,6 +192,13 @@ const saasKitItems: NavItem[] = [
         columnGroup: 'right',
       },
     ],
+  },
+  {
+    // Keep building hub — same group as Developer Resources (after lookup/ops)
+    id: 'saaskit-guides',
+    href: '/saaskit/recipes/',
+    label: 'Keep building',
+    iconComponent: IconLucideBookOpenText,
   },
 ]
 

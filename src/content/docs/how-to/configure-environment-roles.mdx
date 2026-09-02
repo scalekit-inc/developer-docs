@@ -1,0 +1,94 @@
+---
+title: 'Configure roles per environment'
+description: 'Override a member’s dashboard role on Development or Production so they cannot change the wrong environment.'
+tableOfContents: true
+sidebar:
+  label: 'Set environment roles'
+  order: 3
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 { font-size: var(--sl-text-xl); }
+      .sl-markdown-content h3 { font-size: var(--sl-text-lg); }
+---
+
+import { Steps, Aside } from '@astrojs/starlight/components'
+
+A workspace role is the default for every environment. An environment override replaces that default on one Development or Production environment.
+
+Use an override when someone should edit Development but not Production. Create the role first in [Define custom dashboard roles](/how-to/define-custom-dashboard-roles/). Environment list and types are in [Manage environments](/how-to/environments/).
+
+## Before you start
+
+- You can open **Team Members** and **Edit role**
+- You hold `environment_access:write` to set or reset overrides
+- The member already has a workspace role
+- You know which environment they should use: **Development** or **Production**
+
+<Steps>
+
+1. ## Open Edit role
+
+   In the header, click the **workspace name** and choose **Team Members**.
+
+   Open the member's row menu and choose **Edit role**.
+
+2. ## Confirm the workspace default
+
+   **Workspace role** is the default dashboard role. It applies across every environment unless you override it below.
+
+   Leave this set to the role they should have on most environments.
+
+3. ## Override one environment
+
+   In **Environment access**, each row shows **Environment**, **Effective role**, and **Source**.
+
+   | Source | Meaning |
+   | ------ | ------- |
+   | Workspace Default | Uses the workspace role above |
+   | Overridden | This environment uses a different dashboard role |
+
+   Choose **Set override** on the environment. Select the dashboard role for that environment, or **No access** to hide it.
+
+   Repeat for each environment that should differ from the default.
+
+   <Aside type="caution" title="Production is a separate grant">
+     Development access does not include Production. Grant a Production override only to people who ship live auth changes.
+   </Aside>
+
+4. ## Save
+
+   Click **Save**.
+
+   Tell the teammate which environment to open. They switch with the environment name in the header (right of the workspace name).
+
+</Steps>
+
+## Reset an override
+
+In **Environment access**, choose **Reset to Default** on that environment.
+
+The row source returns to **Workspace Default**. The member uses the workspace role again on that environment.
+
+## Verify
+
+1. Sign in as the member
+2. Switch to the granted environment and confirm settings load
+3. Switch to an environment set to **No access** and confirm it is blocked or hidden
+4. Re-open **Edit role** and confirm **Source** is **Overridden** on the environments you changed
+
+## Common questions
+
+<details>
+<summary>Do application roles follow the same per-environment switch?</summary>
+
+No. This page is about Scalekit dashboard access. Application roles for your product's users are not scoped here.
+
+</details>
+
+<details>
+<summary>Why is Staging not in the list?</summary>
+
+Scalekit environment types are **Development** and **Production**. Create extra environments of either type from **Workspace > Environments** if you need a separate test stack.
+
+</details>

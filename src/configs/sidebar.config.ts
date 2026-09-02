@@ -238,6 +238,163 @@ export const sidebar = [
       },
     ],
   },
+  // Product cookbook shelves — dedicated sidebars entered from secondary nav, not journey rails
+  {
+    label: 'Keep building',
+    id: 'agentkit-guides',
+    link: '/agentkit/recipes/',
+    icon: 'open-book',
+    items: [
+      {
+        label: 'How-to',
+        collapsed: false,
+        items: [
+          'how-to/environments',
+          { autogenerate: { directory: 'agentkit/how-to' } },
+          { autogenerate: { directory: 'how-to' } },
+        ],
+      },
+      {
+        label: 'Recipes',
+        collapsed: false,
+        items: [
+          {
+            label: 'Triage email',
+            collapsed: true,
+            items: [
+              {
+                label: 'CrewAI email triage',
+                link: 'agentkit/recipes/crewai-agentkit-email-triage',
+              },
+              {
+                label: 'LiteLLM inbox triage',
+                link: 'agentkit/recipes/litellm-agentkit-inbox-triage',
+              },
+              {
+                label: 'Daily briefing agent',
+                link: 'agentkit/recipes/daily-briefing-agent',
+              },
+              {
+                label: 'Book meetings',
+                link: 'agentkit/recipes/schedule-meeting-and-draft-email',
+              },
+            ],
+          },
+          {
+            label: 'Add voice',
+            collapsed: true,
+            items: [
+              {
+                label: 'Build a Vapi assistant',
+                link: 'agentkit/recipes/build-voice-assistant-1000-tools',
+              },
+              {
+                label: 'Build a LiveKit agent',
+                link: 'agentkit/recipes/livekit-agentkit-voice-tool-calling',
+              },
+            ],
+          },
+          {
+            label: 'Call tools',
+            collapsed: true,
+            items: [
+              { label: 'Build a Mastra agent', link: 'agentkit/recipes/mastra-agentkit' },
+              {
+                label: 'Call tools via FastRouter',
+                link: 'agentkit/recipes/fastrouter-agentkit-tool-calling',
+              },
+              {
+                label: 'Trace calls in LangSmith',
+                link: 'agentkit/recipes/langsmith-tracing-agentkit',
+              },
+            ],
+          },
+          {
+            label: 'Connect a user',
+            collapsed: true,
+            items: [
+              {
+                label: 'Set up in a coding agent',
+                link: 'agentkit/recipes/set-up-agentkit-with-your-coding-agent',
+              },
+              {
+                label: 'Summarize GitHub PRs',
+                link: 'agentkit/recipes/render-github-pr-summarizer',
+              },
+              {
+                label: 'Per-user OAuth on Apify',
+                link: 'agentkit/recipes/apify-actor-per-user-oauth',
+              },
+            ],
+          },
+        ],
+      },
+    ],
+  },
+  {
+    label: 'Keep building',
+    id: 'saaskit-guides',
+    link: '/saaskit/recipes/',
+    icon: 'open-book',
+    items: [
+      {
+        label: 'How-to',
+        collapsed: false,
+        items: ['how-to/environments', { autogenerate: { directory: 'how-to' } }],
+      },
+      {
+        label: 'Recipes',
+        collapsed: false,
+        items: [
+          {
+            label: 'Add sign-in',
+            collapsed: true,
+            items: [
+              {
+                label: 'Hosted auth in Next.js',
+                link: 'saaskit/recipes/add-hosted-auth-nextjs-app-router',
+              },
+              {
+                label: 'Passwordless in Next.js',
+                link: 'saaskit/recipes/implement-nextjs-auth',
+              },
+              {
+                label: 'Custom org switcher',
+                link: 'saaskit/recipes/building-custom-org-switcher',
+              },
+              {
+                label: 'SSO with Auth.js',
+                link: 'saaskit/recipes/add-enterprise-sso-nextjs-authjs',
+              },
+            ],
+          },
+          {
+            label: 'Verify tokens',
+            collapsed: true,
+            items: [
+              {
+                label: 'M2M JWT and scopes',
+                link: 'saaskit/recipes/m2m-jwks-and-oauth-scopes',
+              },
+              {
+                label: 'Spring Boot JWT timeout',
+                link: 'saaskit/recipes/java-spring-boot-jwt-timeout',
+              },
+            ],
+          },
+          {
+            label: 'Enforce seat limits',
+            link: 'saaskit/recipes/scim-seat-limit-enforcement',
+          },
+          {
+            label: 'Sync Chargebee billing',
+            link: 'saaskit/recipes/sync-b2b-billing-with-chargebee',
+          },
+          { label: 'Migrate from Auth0', link: 'saaskit/recipes/migrate-from-auth0-to-scalekit' },
+        ],
+      },
+    ],
+  },
   {
     label: 'Developer Kit',
     id: 'dev-kit',
@@ -269,6 +426,7 @@ export const sidebar = [
         items: [
           'dev-kit/tools/scalekit-dryrun',
           'dev-kit/tools/sso-simulator',
+          'dev-kit/tools/scim-simulator',
           'dev-kit/tools/use-scalekit-credentials',
         ],
       },
@@ -608,6 +766,9 @@ export const exclude = [
   '/blog',
   '/404', // Error page
   '/apis/**/*', // REST API reference has Scalar-powered navigation
+  // Cross-product cookbook hub: belongs to no single product, so it must not
+  // inherit the Auth for SaaS journey rail or light up a product nav pill.
+  '/cookbooks',
 ]
 
 /**
@@ -632,6 +793,17 @@ export const topics = {
   // Agent connectors (dedicated connectors sidebar — must come before connect)
   'agent-connectors': ['/agentkit/connectors/**/*'],
 
+  // Product guide shelves (before connect catch-all and resources)
+  'agentkit-guides': [
+    '/agentkit/recipes',
+    '/agentkit/recipes/**/*',
+    '/agentkit/how-to',
+    '/agentkit/how-to/**/*',
+    '/how-to',
+    '/how-to/**/*',
+  ],
+  'saaskit-guides': ['/saaskit/recipes', '/saaskit/recipes/**/*', '/how-to', '/how-to/**/*'],
+
   // Product SDK sidebars (before connect catch-all)
   'agentkit-sdks': ['/agentkit/sdks/**/*'],
   'saaskit-sdks': ['/saaskit/sdks/**/*', '/sdks', '/sdks/', '/sdks/expo/**/*', '/sdks/ios/**/*'],
@@ -651,8 +823,6 @@ export const topics = {
     '/guides/**/*',
     '/browse/**/*',
     '/reference/**/*',
-    '/cookbooks',
-    '/cookbooks/**/*',
     '/**/*', // Catch-all: anything not matched above defaults here
   ],
 
@@ -735,6 +905,10 @@ export const sidebarToSecondaryNav: Record<string, SecondaryNavMapping> = {
   // Agent connectors sidebar → AgentKit Connectors tab
   'agent-connectors': 'agentkit-connectors',
 
+  // Product cookbook shelves → top-level Keep building secondary nav (not Developer Resources)
+  'agentkit-guides': 'agentkit-guides',
+  'saaskit-guides': 'saaskit-guides',
+
   // AgentKit sidebar → AgentKit tabs
   connect: {
     default: 'agentkit-quickstart',
@@ -772,7 +946,6 @@ export const sidebarToSecondaryNav: Record<string, SecondaryNavMapping> = {
       '/authenticate/interceptors': 'workflows',
       '/reference/interceptors': 'workflows',
       '/reference/admin-portal': 'workflows',
-      '/cookbooks': 'cookbooks',
     },
   },
 

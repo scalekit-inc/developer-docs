@@ -1,0 +1,125 @@
+---
+title: 'Define custom dashboard roles'
+description: 'Create a custom dashboard role and pick which Scalekit dashboard permissions it grants.'
+tableOfContents: true
+sidebar:
+  label: 'Define dashboard roles'
+  order: 2
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 { font-size: var(--sl-text-xl); }
+      .sl-markdown-content h3 { font-size: var(--sl-text-lg); }
+---
+
+import { Steps, Aside } from '@astrojs/starlight/components'
+
+Custom dashboard roles grant access to specific Scalekit dashboard areas. Use one when **Admin** is too broad and a fixed role such as **Member** or **Developer** is too narrow.
+
+These permissions apply to the dashboard, not to users in your application. Application roles stay in [Create roles and permissions](/authenticate/authz/create-roles-permissions/).
+
+## Before you start
+
+- **Roles** appears under **Workspace** in workspace settings, between **Team Members** and **Billing**
+- You hold `dashboard_roles:write` (and you can only grant permissions you already have)
+- You know which dashboard areas the job must open
+
+<Aside type="note" title="If Roles is missing">
+  The **Roles** item is shown when dashboard roles are enabled on the workspace. If you only see **General**, **Environments**, **Team Members**, and **Billing**, ask an Admin or [Scalekit support](mailto:support@scalekit.com).
+</Aside>
+
+## Permission groups
+
+The role drawer groups dashboard permissions. Typical groups:
+
+| Area | What it gates |
+| ---- | ------------- |
+| Workspace | Workspace name and settings |
+| Members | **Team Members** invites and removals |
+| Dashboard roles | Creating and editing dashboard roles |
+| Environment access | Per-environment role overrides |
+| Billing | Plan, invoices, and payment method |
+| Environments | Creating and renaming environments |
+| Environment settings | Auth methods, session policy, and related env settings |
+| Branding, emails, custom domain | **Customize** pages |
+| Applications and API credentials | **Applications** and client secrets |
+| Organizations, users, SSO, SCIM | Customer-tenant configuration |
+| Webhooks, interceptors, logs | Developer tooling |
+
+Permissions marked **Sensitive** cover irreversible actions, live credentials, or the ability to grant access to others.
+
+<Steps>
+
+1. ## Open Roles
+
+   In the header, click the **workspace name** and open workspace settings.
+
+   In the workspace left nav, click **Roles**.
+
+   The table lists **Name**, **Permissions**, **Description**, and **Type**. **Fixed** roles ship with Scalekit. **Custom** roles are ones you created.
+
+2. ## Create a role
+
+   Click **Create role**.
+
+   Enter a **Role name** (50 characters or fewer). Name it after the job, not the person — for example **Billing Owner** or **Support**.
+
+   Add a **Description** so the next Admin knows when to assign it.
+
+3. ## Start from a preset (optional)
+
+   In **Start from**, pick a preset if one matches the job:
+
+   | Preset | Use when |
+   | ------ | -------- |
+   | Member floor | Baseline read access |
+   | Developer | Apps, credentials, and env configuration |
+   | Auditor | Read-only review |
+   | Support | Helping customers without billing or role admin |
+   | Billing Owner | Plan and invoices |
+   | Designer | Branding and emails |
+
+   A preset is a starting point. You can change any permission after you pick one.
+
+4. ## Choose permissions
+
+   Enable only the permissions this job needs. Use **Filter permissions**, **Select all** on a group, or **Clear all**.
+
+   <Aside type="caution" title="You can only grant what you hold">
+     The drawer blocks permissions you do not have. Ask an Admin to create the role if you need a grant above your own.
+   </Aside>
+
+   <Aside type="caution" title="Sensitive permissions">
+     Roles that include **Sensitive** permissions can delete resources, expose live credentials, or invite others. Assign those roles only to people you trust.
+   </Aside>
+
+5. ## Save and assign
+
+   Click **Save changes**.
+
+   Open **Team Members**, choose **Edit role** on the member, select the new role under **Workspace role**, and click **Save**. See [Set up workspace roles](/how-to/set-up-workspace-roles/).
+
+</Steps>
+
+## Verify
+
+1. Open **Roles** and confirm the new row shows **Custom** and the permission count
+2. Assign the role to a test member
+3. Sign in as that member and confirm allowed pages load
+4. Confirm a denied page shows an access error instead of the setting
+
+## Common questions
+
+<details>
+<summary>Can I delete a custom role?</summary>
+
+Open the role's **Role actions** menu and choose **Delete**. You cannot delete a role that is still assigned. Reassign those members first. Fixed roles cannot be deleted.
+
+</details>
+
+<details>
+<summary>Does this role apply inside my application?</summary>
+
+No. Dashboard roles only gate `app.scalekit.com`. Application roles for your users live in left-nav **Roles & Permissions** and in [Create roles and permissions](/authenticate/authz/create-roles-permissions/).
+
+</details>
