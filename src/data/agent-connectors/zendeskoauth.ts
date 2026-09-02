@@ -1890,6 +1890,54 @@ export const tools: Tool[] = [
     ],
   },
   {
+    name: 'zendeskoauth_theme_delete',
+    description: `Delete a Guide theme by its ID. Cannot delete the account's currently live theme. Returns no content on success. Use this to remove an unused theme once you have its ID from zendeskoauth_themes_list; publish a different theme first with zendeskoauth_theme_publish if this one is currently live.`,
+    params: [
+      {
+        name: 'theme_id',
+        type: 'string',
+        required: true,
+        description: `The unique ID of the Guide theme to delete. Get this from zendeskoauth_themes_list. The account's currently live theme cannot be deleted. Example: 01ecd35c-fe4f-11ea-adc1-0242ac120002.`,
+      },
+    ],
+  },
+  {
+    name: 'zendeskoauth_theme_get',
+    description: `Retrieve a single Guide theme by its ID. Returns the theme's id, name, author, version, live status, and created/updated timestamps. Use this once you have a theme_id from zendeskoauth_themes_list to check a specific theme's details or live status.`,
+    params: [
+      {
+        name: 'theme_id',
+        type: 'string',
+        required: true,
+        description: `The unique ID of the Guide theme to retrieve. Get this from zendeskoauth_themes_list. Example: 01ecd35c-fe4f-11ea-adc1-0242ac120002.`,
+      },
+    ],
+  },
+  {
+    name: 'zendeskoauth_theme_publish',
+    description: `Publish a Guide theme, making it the live theme shown to end users in the Help Center. Returns the updated theme with its live status. Use this once you have a theme_id from zendeskoauth_themes_list to switch which theme is live; use zendeskoauth_theme_get to check a theme's current live status first.`,
+    params: [
+      {
+        name: 'theme_id',
+        type: 'string',
+        required: true,
+        description: `The unique ID of the Guide theme to publish and make live. Get this from zendeskoauth_themes_list. Example: 01ecd35c-fe4f-11ea-adc1-0242ac120002.`,
+      },
+    ],
+  },
+  {
+    name: 'zendeskoauth_themes_list',
+    description: `List the Guide themes installed on the account, optionally filtered by brand. Returns each theme's id, name, author, version, live status, and created/updated timestamps. Use this to browse all themes and find a theme's ID. Use zendeskoauth_theme_get to fetch full details for one theme by ID.`,
+    params: [
+      {
+        name: 'brand_id',
+        type: 'number',
+        required: false,
+        description: `Numeric ID of the brand to filter themes by. Only themes installed for this brand are returned. Leave blank to list themes across all brands. Example: 360000123.`,
+      },
+    ],
+  },
+  {
     name: 'zendeskoauth_ticket_audits_get',
     description: `Retrieve the full audit trail for a specific ticket including all field changes, status transitions, comments, and timestamps.`,
     params: [
