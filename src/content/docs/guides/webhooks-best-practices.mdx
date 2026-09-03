@@ -33,40 +33,47 @@ While you can listen to all events from Scalekit, it's best to subscribe only to
 
 ## Verify webhook signatures
 
-Scalekit sends POST requests to your registered webhook endpoint. To ensure the request is coming from Scalekit and not a malicious actor, you should verify the request using the signing secret found in the Scalekit dashboard > Webhook > _Any Endpoint_.
+Scalekit sends POST requests to your registered webhook endpoint. Verify each request with the signing secret from **Dashboard > Webhooks > Any Endpoint** (`whsec_…`).
 
-Here's an example of how to verify webhooks using the Svix library:
+Pass the raw body and these headers to the SDK: `webhook-id`, `webhook-timestamp`, and `webhook-signature`.
 
-<Tabs>
+<Tabs syncKey="tech-stack">
 <TabItem label="Node.js">
 
 ```javascript
-app.post('/webhook', async (req, res) => {
-  // Parse the JSON body of the request
-  const event = await req.json();
+app.post(
+  '/webhook',
+  express.raw({ type: 'application/json' }),
+  async (req, res) => {
+    const secret = process.env.SCALEKIT_WEBHOOK_SECRET
+    const payload = req.body.toString()
+    const headers = {
+      'webhook-id': req.headers['webhook-id'],
+      'webhook-timestamp': req.headers['webhook-timestamp'],
+      'webhook-signature': req.headers['webhook-signature'],
+    }
 
-  // Get headers from the request
-  const headers = req.headers;
+    try {
+      scalekit.verifyWebhookPayload(secret, headers, payload)
+    } catch (error) {
+      return res.status(401).json({ error: 'Invalid signature' })
+    }
 
-  // Secret from Scalekit dashboard > Webhooks
-  const secret = process.env.SCALEKIT_WEBHOOK_SECRET;
-
-  try {
-    // Verify the webhook payload
-    await scalekit.verifyWebhookPayload(secret, headers, event);
-  } catch (error) {
-    return res.status(400).json({
-      error: 'Invalid signature',
-    });
+    const event = JSON.parse(payload)
+    await processWebhookEvent(event)
+    return res.status(201).json({ received: true })
   }
-});
+)
 ```
 </TabItem>
 
 <TabItem label="Python">
 
 ```python
+import os
+
 from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse
 
 app = FastAPI()
 
@@ -82,18 +89,16 @@ async def api_webhook(request: Request):
         'webhook-timestamp': request.headers.get('webhook-timestamp')
     }
 
-    # Verify webhook signature
-    is_valid = scalekit.verify_webhook_payload(
-        secret='<secret>',
-        headers=headers,
-        payload=body
-    )
-    print(is_valid)
+    try:
+        scalekit_client.verify_webhook_payload(
+            secret=os.environ["SCALEKIT_WEBHOOK_SECRET"],
+            headers=headers,
+            payload=body,
+        )
+    except Exception:
+        return JSONResponse(status_code=401, content={"error": "Invalid signature"})
 
-    return JSONResponse(
-        status_code=201,
-        content=''
-    )
+    return JSONResponse(status_code=201, content={"status": "received"})
 ```
 </TabItem>
 
@@ -117,14 +122,13 @@ mux.HandleFunc("POST /webhook", func(w http.ResponseWriter, r *http.Request) {
         "webhook-timestamp": r.Header.Get("webhook-timestamp"),
     }
 
-    // Verify webhook signature
-    _, err = sc.VerifyWebhookPayload(
+    valid, err := scalekitClient.VerifyWebhookPayload(
         webhookSecret,
         headers,
-        bodyBytes
+        bodyBytes,
     )
-    if err != nil {
-        http.Error(w, err.Error(), http.StatusUnauthorized)
+    if err != nil || !valid {
+        http.Error(w, "Invalid signature", http.StatusUnauthorized)
         return
     }
 })
@@ -138,10 +142,9 @@ mux.HandleFunc("POST /webhook", func(w http.ResponseWriter, r *http.Request) {
 public String webhook(@RequestBody String body, @RequestHeader Map<String, String> headers) {
   String secret = "<WEBHOOK SECRET>";
 
-  // Verify webhook signature
-  boolean valid = scalekit.webhook().verifyWebhookPayload(secret, headers, body.getBytes());
-
-  if (!valid) {
+  try {
+    scalekitClient.webhook().verifyWebhookPayload(secret, headers, body.getBytes());
+  } catch (Exception error) {
     return "error";
   }
 
@@ -281,9 +284,10 @@ mux.HandleFunc("POST /webhook", func(w http.ResponseWriter, r *http.Request) {
 ```java
 @PostMapping("/webhook")
 public String webhook(@RequestBody String body, @RequestHeader Map<String, String> headers) {
-  // Verify webhook signature first
-  String secret = "<WEBHOOK_SECRET>";
-  if (!verifyWebhookSignature(secret, headers, body)) {
+  String secret = System.getenv("SCALEKIT_WEBHOOK_SECRET");
+  try {
+    scalekitClient.webhook().verifyWebhookPayload(secret, headers, body.getBytes());
+  } catch (Exception error) {
     return "error";
   }
 
@@ -325,58 +329,15 @@ By following these best practices, you can ensure that your application effectiv
 
 Do not overlook repeated 4xx and 5xx error codes. Instead, verify that your API interactions are correct. For instance, if an endpoint expects a string but receives a numeric value, a validation error should occur. Likewise, trying to access an unauthorized or nonexistent endpoint will trigger a 4xx error.
 
-## Advanced signature verification
+## Manual verification without an SDK
 
-While using the Scalekit SDK is recommended for webhook signature verification, you can also verify signatures manually using HMAC-SHA256 libraries when the SDK isn't available for your language.
+Use the SDK when your language has one. If it does not, HMAC-SHA256 the string `{webhook-id}.{webhook-timestamp}.{rawBody}`.
 
-### Manual signature verification
+The key is the base64-decoded text after the first `_` in the `whsec_…` secret. The `webhook-signature` header is a space-separated list of `v1,<base64>` values. Reject timestamps older than 5 minutes.
 
-```javascript title="Manual signature verification"
-function verifySignatureManually(rawBody, signature, secret) {
-  const crypto = require('crypto');
+Do not use Stripe-style `t=<timestamp>,v1=<hex>` headers, a `scalekit-signature` header, or a `sha256=` hex digest. Those are not Scalekit webhook signatures.
 
-  // Extract timestamp and signature from header
-  // Header format: "t=<timestamp>,v1=<signature>"
-  const elements = signature.split(',');
-  const timestamp = elements.find(el => el.startsWith('t=')).substring(2);
-  const receivedSignature = elements.find(el => el.startsWith('v1=')).substring(3);
-
-  // Create expected signature
-  // Payload format: <timestamp>.<raw_body>
-  const payload = `${timestamp}.${rawBody}`;
-  const expectedSignature = crypto
-    .createHmac('sha256', secret)
-    .update(payload, 'utf8')
-    .digest('hex');
-
-  // Compare signatures securely using timing-safe comparison
-  // This prevents timing attacks
-  return crypto.timingSafeEqual(
-    Buffer.from(receivedSignature, 'hex'),
-    Buffer.from(expectedSignature, 'hex')
-  );
-}
-```
-
-### Timestamp validation
-
-Always validate the webhook timestamp to prevent replay attacks:
-
-```javascript title="Timestamp validation"
-function validateWebhookTimestamp(timestamp, toleranceSeconds = 300) {
-  // Convert timestamp to milliseconds
-  const webhookTime = parseInt(timestamp) * 1000;
-  const currentTime = Date.now();
-  const timeDifference = Math.abs(currentTime - webhookTime);
-
-  // Reject webhooks older than tolerance period (default 5 minutes)
-  if (timeDifference > toleranceSeconds * 1000) {
-    throw new Error('Webhook timestamp too old or too far in future');
-  }
-
-  return true;
-}
-```
+See [Handle webhook events](/authenticate/implement-workflows/implement-webhooks/#verify-with-the-three-webhook-headers) for the SDK call.
 
 ## Advanced error handling and reliability
 
@@ -514,47 +475,6 @@ async function testWebhookHandler() {
   // Test your webhook processing
   await processWebhookEvent(sampleUserCreatedEvent);
   console.log('Test webhook processed successfully');
-}
-
-// Mock webhook signature for testing
-function createTestSignature(payload, secret) {
-  const crypto = require('crypto');
-  const timestamp = Math.floor(Date.now() / 1000);
-  const payloadString = typeof payload === 'string' ? payload : JSON.stringify(payload);
-  const signature = crypto
-    .createHmac('sha256', secret)
-    .update(`${timestamp}.${payloadString}`)
-    .digest('hex');
-
-  return {
-    'webhook-id': 'evt_test_' + Date.now(),
-    'webhook-timestamp': timestamp.toString(),
-    'webhook-signature': `t=${timestamp},v1=${signature}`
-  };
-}
-
-// Integration test
-async function testWebhookIntegration() {
-  const testSecret = 'test_secret_key';
-  const testEvent = {
-    type: 'organization.directory.user_created',
-    data: { /* test data */ }
-  };
-
-  const headers = createTestSignature(testEvent, testSecret);
-
-  // Make request to your webhook endpoint
-  const response = await fetch('http://localhost:3000/webhooks/manage-users', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      ...headers
-    },
-    body: JSON.stringify(testEvent)
-  });
-
-  assert(response.status === 201, 'Expected 201 status');
-  console.log('Integration test passed');
 }
 ```
 
