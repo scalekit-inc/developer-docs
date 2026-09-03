@@ -713,15 +713,15 @@ This approach is ideal for scenarios requiring immediate action, such as new emp
 
         String secret = System.getenv("SCALEKIT_WEBHOOK_SECRET");
 
+        Map<String, String> verifyHeaders = new HashMap<>();
+        verifyHeaders.put("webhook-id", headers.get("webhook-id"));
+        verifyHeaders.put("webhook-timestamp", headers.get("webhook-timestamp"));
+        verifyHeaders.put("webhook-signature", headers.get("webhook-signature"));
+
         try {
-            // Verify webhook signature using Scalekit SDK
-            boolean isValid = scalekitClient.webhook()
-                .verifyWebhookPayload(secret, headers, body.getBytes());
-
-            if (!isValid) {
-                return ResponseEntity.badRequest().body("Invalid webhook signature");
-            }
-
+            // Java throws WebHookException. It does not return false.
+            scalekitClient.webhook()
+                .verifyWebhookPayload(secret, verifyHeaders, body.getBytes());
         } catch (Exception verificationError) {
             System.err.println("Webhook verification failed: " + verificationError.getMessage());
             return ResponseEntity.badRequest().body("Webhook verification failed");
@@ -795,8 +795,8 @@ This approach is ideal for scenarios requiring immediate action, such as new emp
         }
 
         // Verify webhook signature to prevent malicious requests
-        _, err = scalekitClient.VerifyWebhookPayload(webhookSecret, headers, body)
-        if err != nil {
+        valid, err := scalekitClient.VerifyWebhookPayload(webhookSecret, headers, body)
+        if err != nil || !valid {
             http.Error(w, "Invalid webhook signature", http.StatusBadRequest)
             return
         }

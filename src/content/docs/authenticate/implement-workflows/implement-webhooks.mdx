@@ -507,7 +507,7 @@ Create secure webhook handlers in your application to process incoming events fr
    | Header | Role |
    | --- | --- |
    | `webhook-id` | Event id in the HMAC |
-   | `webhook-timestamp` | Unix seconds. The SDK rejects timestamps older than 5 minutes |
+   | `webhook-timestamp` | Unix seconds. The SDK rejects timestamps more than 5 minutes in the past or future |
    | `webhook-signature` | Space-separated `v1,<base64>` values |
 
    | Language | Method |
@@ -521,8 +521,8 @@ Create secure webhook handlers in your application to process incoming events fr
 
    There is no `webhooks.verifySignature` method and no `scalekit-signature` header.
 
-   <Aside type="caution" title="Verify the raw body">
-   Sign the exact bytes Scalekit posted. `JSON.parse` / `request.get_json()` / `req.json()` change whitespace and fail the HMAC. Use `express.raw`, `request.get_data()`, or `io.ReadAll`.
+   <Aside type="caution" title="Verify before you trust the payload">
+   A forged POST can create or delete users in your app. Verify first. Sign the exact bytes Scalekit posted. `JSON.parse` / `request.get_json()` / `req.json()` change whitespace and fail the HMAC. Use `express.raw`, `request.get_data()`, or `io.ReadAll`.
    </Aside>
 
 </Steps>

@@ -139,8 +139,17 @@ mux.HandleFunc("POST /webhook", func(w http.ResponseWriter, r *http.Request) {
 
 ```java
 @PostMapping("/webhook")
-public String webhook(@RequestBody String body, @RequestHeader Map<String, String> headers) {
-  String secret = "<WEBHOOK SECRET>";
+public String webhook(
+  @RequestBody String body,
+  @RequestHeader Map<String, String> requestHeaders
+) {
+  // Spring may keep title-case keys. The Java SDK reads lowercase names only.
+  Map<String, String> headers = new HashMap<>();
+  headers.put("webhook-id", requestHeaders.get("webhook-id"));
+  headers.put("webhook-timestamp", requestHeaders.get("webhook-timestamp"));
+  headers.put("webhook-signature", requestHeaders.get("webhook-signature"));
+
+  String secret = System.getenv("SCALEKIT_WEBHOOK_SECRET");
 
   try {
     scalekitClient.webhook().verifyWebhookPayload(secret, headers, body.getBytes());
@@ -283,7 +292,15 @@ mux.HandleFunc("POST /webhook", func(w http.ResponseWriter, r *http.Request) {
 
 ```java
 @PostMapping("/webhook")
-public String webhook(@RequestBody String body, @RequestHeader Map<String, String> headers) {
+public String webhook(
+  @RequestBody String body,
+  @RequestHeader Map<String, String> requestHeaders
+) {
+  Map<String, String> headers = new HashMap<>();
+  headers.put("webhook-id", requestHeaders.get("webhook-id"));
+  headers.put("webhook-timestamp", requestHeaders.get("webhook-timestamp"));
+  headers.put("webhook-signature", requestHeaders.get("webhook-signature"));
+
   String secret = System.getenv("SCALEKIT_WEBHOOK_SECRET");
   try {
     scalekitClient.webhook().verifyWebhookPayload(secret, headers, body.getBytes());
@@ -333,7 +350,7 @@ Do not overlook repeated 4xx and 5xx error codes. Instead, verify that your API 
 
 Use the SDK when your language has one. If it does not, HMAC-SHA256 the string `{webhook-id}.{webhook-timestamp}.{rawBody}`.
 
-The key is the base64-decoded text after the first `_` in the `whsec_…` secret. The `webhook-signature` header is a space-separated list of `v1,<base64>` values. Reject timestamps older than 5 minutes.
+The key is the base64-decoded text after the first `_` in the `whsec_…` secret. The `webhook-signature` header is a space-separated list of `v1,<base64>` values. Reject timestamps more than 5 minutes in the past or future. Compare digests with a timing-safe function.
 
 Do not use Stripe-style `t=<timestamp>,v1=<hex>` headers, a `scalekit-signature` header, or a `sha256=` hex digest. Those are not Scalekit webhook signatures.
 
