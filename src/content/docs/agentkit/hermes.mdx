@@ -1,0 +1,187 @@
+---
+title: 'Connect Hermes to AgentKit'
+description: 'Connect Hermes Agent to Gmail, Slack, and other apps through Scalekit. Hermes runs the agent loop. Scalekit handles auth and tools.'
+tags: [agentkit, hermes, nous, ai-agents, tools, integrations]
+sidebar:
+  label: 'Hermes'
+  prev:
+    label: 'OpenClaw'
+    link: '/agentkit/openclaw'
+seeAlso:
+  expanded: true
+  items:
+    - title: 'Hermes Agent docs'
+      icon: 'book'
+      url: 'https://hermes-agent.nousresearch.com/docs/'
+    - title: 'OpenClaw skill (analog)'
+      icon: 'github'
+      url: 'https://github.com/scalekit-inc/openclaw-skill'
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 { font-size: var(--sl-text-xl); }
+      .sl-markdown-content h3 { font-size: var(--sl-text-lg); }
+tableOfContents: true
+---
+
+import { Aside, Steps, Tabs, TabItem, CardGrid, LinkCard, Badge } from '@astrojs/starlight/components';
+
+<Aside type="caution" title="Draft — skill is not published">
+  This page is a draft for SK-1876. The Hermes skill repo is not public yet. Do not treat the install command as live until that repo exists. The flow below matches the shipped [OpenClaw skill](/agentkit/openclaw/).
+</Aside>
+
+Hermes Agent is the host. It runs the loop, memory, cron, and chat.
+
+Scalekit AgentKit is the vault. It holds each user's tokens and runs tools as that user.
+
+You talk to Hermes. Hermes calls Scalekit. Scalekit calls Gmail, Slack, or Salesforce as you. Hermes never stores those tokens.
+
+## Prerequisites
+
+- [Hermes Agent](https://hermes-agent.nousresearch.com/docs/getting-started/quickstart) installed
+- A Scalekit account with AgentKit enabled: [sign up at app.scalekit.com](https://app.scalekit.com)
+- At least one connection in **Dashboard > AgentKit > Connections** (for example, Gmail)
+- `python3` and `uv` on your `PATH`
+
+## Get started
+
+<Steps>
+1. ## Install the skill
+
+   Install from GitHub so Hermes copies `SKILL.md` and the scripts:
+
+   ```bash showLineNumbers=false
+   hermes skills install scalekit-inc/hermes-skill/skills/scalekit-agent-auth
+   ```
+
+   Do not install from a raw `SKILL.md` URL. That path can miss `scripts/`.
+
+   The skill lands in `~/.hermes/skills/scalekit-agent-auth/` and is also available as `/scalekit-agent-auth`.
+
+2. ## Configure credentials
+
+   Add your Scalekit **client** credentials to `~/.hermes/.env`. These are not Gmail or Slack tokens.
+
+   ```bash title="~/.hermes/.env"
+   SCALEKIT_CLIENT_ID=skc_your_client_id
+   SCALEKIT_CLIENT_SECRET=your_client_secret
+   SCALEKIT_ENVIRONMENT_URL=https://your-env.scalekit.cloud
+   SCALEKIT_IDENTIFIER=your_default_user_identifier
+   ```
+
+   | Parameter | Description |
+   |-----------|-------------|
+   | `SCALEKIT_CLIENT_ID` | Your Scalekit client ID <Badge text="Required" /> |
+   | `SCALEKIT_CLIENT_SECRET` | Your Scalekit client secret <Badge text="Required" /> |
+   | `SCALEKIT_ENVIRONMENT_URL` | Your Scalekit environment URL <Badge text="Required" /> |
+   | `SCALEKIT_IDENTIFIER` | Default user for tool calls <Badge text="Recommended" /> |
+
+   Copy these values from **Dashboard > Developers > Settings > API Credentials**.
+
+   <Aside type="caution" title="Do not store provider tokens">
+     Put only Scalekit client credentials in Hermes. Scalekit stores Gmail, Slack, and Salesforce tokens and refreshes them.
+   </Aside>
+
+3. ## Ask Hermes to act
+
+   Start a chat and ask for a real action:
+
+   <Tabs>
+   <TabItem label="Gmail">
+   ```txt showLineNumbers=false
+   You: Show me my latest unread emails
+   ```
+
+   Hermes loads the skill and:
+
+   1. Looks up the Gmail connection
+   2. Checks that the connected account is `ACTIVE` (or gives you a magic link)
+   3. Fetches the tool schema
+   4. Calls the tool and returns the mail
+   </TabItem>
+   <TabItem label="Notion">
+   ```txt showLineNumbers=false
+   You: Read my Notion page https://notion.so/My-Page-abc123
+   ```
+
+   Hermes:
+
+   1. Looks up the Notion connection
+   2. Gives you a magic link if you have not authorized yet
+   3. Fetches the page tool schema
+   4. Returns the page content
+   </TabItem>
+   </Tabs>
+
+   You can also force the skill:
+
+   ```txt showLineNumbers=false
+   /scalekit-agent-auth show my unread emails
+   ```
+
+</Steps>
+
+## Verify it works
+
+Confirm all of these:
+
+- The skill is listed (`hermes skills` or `/skills`)
+- The connected account is `ACTIVE` after you finish the magic link
+- Hermes returns data from the provider (unread mail, or the Notion page)
+
+If the account stays inactive, open the magic link again and retry the same prompt.
+
+## Supported connectors
+
+Any connection in your Scalekit dashboard works with this skill. That includes Gmail, Slack, Notion, GitHub, Salesforce, HubSpot, Linear, Snowflake, and the rest of the catalog.
+
+<CardGrid>
+  <LinkCard
+    title="Browse connections"
+    description="See supported connectors in the Scalekit dashboard"
+    href="/agentkit/connectors/"
+  />
+  <LinkCard
+    title="Authorize a user"
+    description="How magic links and connected accounts work"
+    href="/agentkit/tools/authorize/"
+  />
+</CardGrid>
+
+## Common scenarios
+
+<details>
+<summary>How do I authorize a new connection?</summary>
+
+If the account is not `ACTIVE`, the skill returns a magic link. Open the link. Finish OAuth. Return to Hermes and retry.
+
+For API key connections (for example Snowflake), set the key in **Dashboard > Connections**. The skill cannot complete that flow in chat.
+
+</details>
+
+<details>
+<summary>How do I switch users?</summary>
+
+Set `SCALEKIT_IDENTIFIER` in `~/.hermes/.env` as the default.
+
+To act as someone else for one turn, tell Hermes the identifier to use. Scalekit scopes tools to that connected account.
+
+</details>
+
+<details>
+<summary>Why do I see "connection not found"?</summary>
+
+1. Confirm the connection exists in **Dashboard > AgentKit > Connections**
+2. Confirm it is complete, not a draft
+3. Confirm `SCALEKIT_ENVIRONMENT_URL` matches that environment
+
+</details>
+
+<details>
+<summary>Should I use Virtual MCP instead?</summary>
+
+No, not for this guide. Hermes is a long-lived host. A skill calls `execute_tool` with client credentials. You do not mint a session token.
+
+Use [Virtual MCP](/agentkit/mcp/overview/) when your **app** starts a short agent run (Claude Managed Agents, Mastra, CrewAI).
+
+</details>
