@@ -139,7 +139,7 @@ mux.HandleFunc("POST /webhook", func(w http.ResponseWriter, r *http.Request) {
 
 ```java
 @PostMapping("/webhook")
-public String webhook(
+public ResponseEntity<String> webhook(
   @RequestBody String body,
   @RequestHeader Map<String, String> requestHeaders
 ) {
@@ -152,9 +152,13 @@ public String webhook(
   String secret = System.getenv("SCALEKIT_WEBHOOK_SECRET");
 
   try {
-    scalekitClient.webhook().verifyWebhookPayload(secret, headers, body.getBytes());
+    scalekitClient.webhook().verifyWebhookPayload(
+      secret,
+      headers,
+      body.getBytes(java.nio.charset.StandardCharsets.UTF_8)
+    );
   } catch (Exception error) {
-    return "error";
+    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid signature");
   }
 
   ObjectMapper mapper = new ObjectMapper();
@@ -177,10 +181,10 @@ public String webhook(
         System.out.println("Unhandled event type: " + eventType);
     }
   } catch (IOException e) {
-    return "error";
+    return ResponseEntity.badRequest().body("error");
   }
 
-  return "ok";
+  return ResponseEntity.ok("ok");
 }
 ```
 </TabItem>
@@ -292,7 +296,7 @@ mux.HandleFunc("POST /webhook", func(w http.ResponseWriter, r *http.Request) {
 
 ```java
 @PostMapping("/webhook")
-public String webhook(
+public ResponseEntity<String> webhook(
   @RequestBody String body,
   @RequestHeader Map<String, String> requestHeaders
 ) {
@@ -303,9 +307,13 @@ public String webhook(
 
   String secret = System.getenv("SCALEKIT_WEBHOOK_SECRET");
   try {
-    scalekitClient.webhook().verifyWebhookPayload(secret, headers, body.getBytes());
+    scalekitClient.webhook().verifyWebhookPayload(
+      secret,
+      headers,
+      body.getBytes(java.nio.charset.StandardCharsets.UTF_8)
+    );
   } catch (Exception error) {
-    return "error";
+    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid signature");
   }
 
   try {
@@ -327,10 +335,10 @@ public String webhook(
         System.out.println("Unhandled event type: " + eventType);
     }
   } catch (IOException e) {
-    return "error";
+    return ResponseEntity.badRequest().body("error");
   }
 
-  return "ok";
+  return ResponseEntity.ok("ok");
 }
 ```
 </TabItem>

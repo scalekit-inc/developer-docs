@@ -612,7 +612,7 @@ This approach is ideal for scenarios requiring immediate action, such as new emp
         scalekit.verifyWebhookPayload(secret, headers, payload)
       } catch (error) {
         console.error('Webhook signature verification failed:', error)
-        return res.status(400).json({ error: 'Invalid signature' })
+        return res.status(401).json({ error: 'Invalid signature' })
       }
 
       const event = JSON.parse(payload)
@@ -674,7 +674,7 @@ This approach is ideal for scenarios requiring immediate action, such as new emp
             )
         except Exception as verification_error:
             print(f"Webhook verification failed: {verification_error}")
-            raise HTTPException(status_code=400, detail="Webhook verification failed")
+            raise HTTPException(status_code=401, detail="Webhook verification failed")
 
         body = json.loads(raw_body.decode("utf-8"))
 
@@ -721,7 +721,7 @@ This approach is ideal for scenarios requiring immediate action, such as new emp
         try {
             // Java throws WebHookException. It does not return false.
             scalekitClient.webhook()
-                .verifyWebhookPayload(secret, verifyHeaders, body.getBytes());
+                .verifyWebhookPayload(secret, verifyHeaders, body.getBytes(java.nio.charset.StandardCharsets.UTF_8));
         } catch (Exception verificationError) {
             System.err.println("Webhook verification failed: " + verificationError.getMessage());
             return ResponseEntity.badRequest().body("Webhook verification failed");
@@ -797,7 +797,7 @@ This approach is ideal for scenarios requiring immediate action, such as new emp
         // Verify webhook signature to prevent malicious requests
         valid, err := scalekitClient.VerifyWebhookPayload(webhookSecret, headers, body)
         if err != nil || !valid {
-            http.Error(w, "Invalid webhook signature", http.StatusBadRequest)
+            http.Error(w, "Invalid webhook signature", http.StatusUnauthorized)
             return
         }
 

@@ -195,7 +195,7 @@ Create secure webhook handlers in your application to process incoming events fr
        scalekit "github.com/scalekit-inc/scalekit-sdk-go"
    )
 
-   scalekitClient := scalekit.NewScalekitClient(
+   var scalekitClient = scalekit.NewScalekitClient(
        os.Getenv("SCALEKIT_ENVIRONMENT_URL"),
        os.Getenv("SCALEKIT_CLIENT_ID"),
        os.Getenv("SCALEKIT_CLIENT_SECRET"),
@@ -241,6 +241,7 @@ Create secure webhook handlers in your application to process incoming events fr
    ```java title="Spring webhook handler" wrap collapse={1-8}
    import com.fasterxml.jackson.databind.ObjectMapper;
    import com.scalekit.ScalekitClient;
+   import java.nio.charset.StandardCharsets;
    import java.util.HashMap;
    import java.util.Map;
    import org.springframework.http.HttpStatus;
@@ -272,7 +273,7 @@ Create secure webhook handlers in your application to process incoming events fr
            .verifyWebhookPayload(
              System.getenv("SCALEKIT_WEBHOOK_SECRET"),
              headers,
-             rawBody.getBytes()
+             rawBody.getBytes(StandardCharsets.UTF_8)
            );
        } catch (Exception error) {
          return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
