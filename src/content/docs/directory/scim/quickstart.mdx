@@ -596,27 +596,29 @@ This approach is ideal for scenarios requiring immediate action, such as new emp
     <TabItem value="nodejs" label="Node.js">
 
     ```javascript title="Express.js"
-    app.post('/webhook', async (req, res) => {
-      // Security: ALWAYS verify requests are from Scalekit before processing
-      // This prevents unauthorized parties from triggering your provisioning logic
-
-      const event = req.body;
-      const headers = req.headers;
-      const secret = process.env.SCALEKIT_WEBHOOK_SECRET;
-
-      try {
-        // Verify webhook signature to prevent replay attacks and forged requests
-        await scalekit.verifyWebhookPayload(secret, headers, event);
-      } catch (error) {
-        console.error('Webhook signature verification failed:', error);
-        // Return 400 for invalid signatures - this prevents processing malicious requests
-        return res.status(400).json({ error: 'Invalid signature' });
+    app.post(
+      '/webhook',
+      express.raw({ type: 'application/json' }),
+      async (req, res) => {
+      const secret = process.env.SCALEKIT_WEBHOOK_SECRET
+      const payload = req.body.toString()
+      const headers = {
+        'webhook-id': req.headers['webhook-id'],
+        'webhook-timestamp': req.headers['webhook-timestamp'],
+        'webhook-signature': req.headers['webhook-signature'],
       }
 
       try {
-        // Use case: Real-time user provisioning based on directory events
-        // Examples: New hire onboarding, emergency access revocation, role changes
-        const { email, name } = event.data;
+        scalekit.verifyWebhookPayload(secret, headers, payload)
+      } catch (error) {
+        console.error('Webhook signature verification failed:', error)
+        return res.status(400).json({ error: 'Invalid signature' })
+      }
+
+      const event = JSON.parse(payload)
+
+      try {
+        const { email, name } = event.data
 
         // Process the webhook event based on its type
         switch (event.type) {
@@ -657,27 +659,25 @@ This approach is ideal for scenarios requiring immediate action, such as new emp
         # Security: ALWAYS verify webhook signatures before processing events
         # This prevents unauthorized webhook calls and replay attacks
 
-        headers = request.headers
-        body = await request.json()
+        raw_body = await request.body()
+        headers = {
+            "webhook-id": request.headers.get("webhook-id"),
+            "webhook-timestamp": request.headers.get("webhook-timestamp"),
+            "webhook-signature": request.headers.get("webhook-signature"),
+        }
 
         try:
-            # Verify webhook payload using the secret from Scalekit dashboard
-            # Get this from Dashboard > Webhooks after registering your endpoint
-            is_valid = scalekit_client.verify_webhook_payload(
+            scalekit_client.verify_webhook_payload(
                 secret=os.getenv("SCALEKIT_WEBHOOK_SECRET"),
                 headers=headers,
-                payload=json.dumps(body).encode('utf-8')
+                payload=raw_body,
             )
-
-            if not is_valid:
-                raise HTTPException(status_code=400, detail="Invalid webhook signature")
-
         except Exception as verification_error:
             print(f"Webhook verification failed: {verification_error}")
             raise HTTPException(status_code=400, detail="Webhook verification failed")
 
-        # Use case: Instant user provisioning based on directory events
-        # Examples: Automated onboarding, immediate access revocation, role updates
+        body = json.loads(raw_body.decode("utf-8"))
+
         try:
             event_type = body.get("type")
             event_data = body.get("data", {})
@@ -713,15 +713,15 @@ This approach is ideal for scenarios requiring immediate action, such as new emp
 
         String secret = System.getenv("SCALEKIT_WEBHOOK_SECRET");
 
+        Map<String, String> verifyHeaders = new HashMap<>();
+        verifyHeaders.put("webhook-id", headers.get("webhook-id"));
+        verifyHeaders.put("webhook-timestamp", headers.get("webhook-timestamp"));
+        verifyHeaders.put("webhook-signature", headers.get("webhook-signature"));
+
         try {
-            // Verify webhook signature using Scalekit SDK
-            boolean isValid = scalekitClient.webhook()
-                .verifyWebhookPayload(secret, headers, body.getBytes());
-
-            if (!isValid) {
-                return ResponseEntity.badRequest().body("Invalid webhook signature");
-            }
-
+            // Java throws WebHookException. It does not return false.
+            scalekitClient.webhook()
+                .verifyWebhookPayload(secret, verifyHeaders, body.getBytes());
         } catch (Exception verificationError) {
             System.err.println("Webhook verification failed: " + verificationError.getMessage());
             return ResponseEntity.badRequest().body("Webhook verification failed");
@@ -795,8 +795,8 @@ This approach is ideal for scenarios requiring immediate action, such as new emp
         }
 
         // Verify webhook signature to prevent malicious requests
-        _, err = scalekitClient.VerifyWebhookPayload(webhookSecret, headers, body)
-        if err != nil {
+        valid, err := scalekitClient.VerifyWebhookPayload(webhookSecret, headers, body)
+        if err != nil || !valid {
             http.Error(w, "Invalid webhook signature", http.StatusBadRequest)
             return
         }
