@@ -362,24 +362,6 @@ export const tools: Tool[] = [
     ],
   },
   {
-    name: 'mailerlitemcp_generate_email_content',
-    description: `[STALE: upstream tool 'generate_email_content' is no longer present in the MailerLite MCP tool list as of 2026-08-19; it appears to have been renamed to 'validate_email_content' (added as mailerlitemcp_validate_email_content).] Generate email body content from a subject line and optional plain text.`,
-    params: [
-      {
-        name: 'plain_text',
-        type: 'string',
-        required: true,
-        description: `The plain text email body to validate`,
-      },
-      {
-        name: 'subject',
-        type: 'string',
-        required: true,
-        description: `The email subject line to validate`,
-      },
-    ],
-  },
-  {
     name: 'mailerlitemcp_get_auth_status',
     description: `Check the current authentication status and account details for the connected MailerLite account.`,
     params: [],
@@ -1249,18 +1231,6 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `What the user asked for`,
-      },
-    ],
-  },
-  {
-    name: 'mailerlitemcp_suggest_subject_lines',
-    description: `[STALE: upstream tool 'suggest_subject_lines' is no longer present in the MailerLite MCP tool list as of 2026-08-19; it appears to have been renamed to 'validate_subject_lines' (added as mailerlitemcp_validate_subject_lines).] Generate and return improved subject line suggestions based on provided input.`,
-    params: [
-      {
-        name: 'subject_lines',
-        type: 'array',
-        required: true,
-        description: `Array of subject line candidates to validate`,
       },
     ],
   },

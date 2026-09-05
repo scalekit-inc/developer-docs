@@ -32,18 +32,6 @@ export const tools: Tool[] = [
     ],
   },
   {
-    name: 'runwaremcp_image_upload',
-    description: `[STALE: upstream removed this tool; replaced by media_storage (operation=upload/delete), see runwaremcp_media_storage] Upload an image to Runware for use as input in subsequent generation tasks. Returns an image UUID that can be used as seedImage, maskImage, etc.`,
-    params: [
-      {
-        name: 'image',
-        type: 'string',
-        required: true,
-        description: `URL, data URI, or base64 of the image to upload`,
-      },
-    ],
-  },
-  {
     name: 'runwaremcp_list_capabilities',
     description: `List every model capability Runware supports, with their human-readable labels. Use this to discover the taxonomy (e.g. "io:text-to-image", "op:upscale") before filtering list_models by capability, or to answer "what can Runware do?".`,
     params: [],

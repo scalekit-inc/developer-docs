@@ -384,24 +384,6 @@ export const tools: Tool[] = [
     ],
   },
   {
-    name: 'memberstackmcp_explore_tools',
-    description: `[STALE: no longer present in upstream Memberstack MCP tools/list as of 2026-08-19 refresh; left in repo per policy, not deleted] Browse available Memberstack tools by category or search term. Returns tool names with brief descriptions. Use get_tool_schema to load the full schema for a specific tool before calling it.`,
-    params: [
-      {
-        name: 'category',
-        type: 'string',
-        required: false,
-        description: `Filter tools by category. Accepted values: core, members, plans, dataTables, gatedContent, teams, customFields, stripe. Omit to see all.`,
-      },
-      {
-        name: 'search',
-        type: 'string',
-        required: false,
-        description: `Search term to filter tools by name or description.`,
-      },
-    ],
-  },
-  {
     name: 'memberstackmcp_exportmembers',
     description: `Initiates background job to export member data. Data analysis, backups, migration planning, regulatory compliance, or business intelligence. Choose export type (MEMBER for basic data, MEMBER_PLANS for subscriptions). Apply filters to target segments. Returns job ID for monitoring. Environment-specific (SANDBOX or LIVE). Job ID for tracking export progress.`,
     params: [
@@ -422,18 +404,6 @@ export const tools: Tool[] = [
         type: 'object',
         required: true,
         description: `Structured input payload for this operation. See the tool description for the expected shape.`,
-      },
-    ],
-  },
-  {
-    name: 'memberstackmcp_get_tool_schema',
-    description: `[STALE: no longer present in upstream Memberstack MCP tools/list as of 2026-08-19 refresh; left in repo per policy, not deleted] Load the full input schema and usage instructions for a specific Memberstack tool by name.`,
-    params: [
-      {
-        name: 'toolName',
-        type: 'string',
-        required: true,
-        description: `Exact tool name returned by explore_tools, e.g. getMember.`,
       },
     ],
   },

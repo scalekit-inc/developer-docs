@@ -26,24 +26,6 @@ export const tools: Tool[] = [
     ],
   },
   {
-    name: 'fullenrichmcp_enrich_personal_email_bulk',
-    description: `[STALE: no longer present in upstream FullEnrich MCP tools/list as of 2026-08-19 refresh (SK-1675) - kept for reference, not upstream-callable] Launch an asynchronous bulk enrichment job to find personal email addresses for a list of contacts. Requires personal email enrichment to be enabled on your workspace.`,
-    params: [
-      {
-        name: 'contacts',
-        type: 'string',
-        required: true,
-        description: `List of contacts to enrich`,
-      },
-      {
-        name: 'name',
-        type: 'string',
-        required: true,
-        description: `Short human-readable label for this enrichment (e.g. Google Engineers Personal Emails)`,
-      },
-    ],
-  },
-  {
     name: 'fullenrichmcp_enrich_search_contact',
     description: `Launch an asynchronous enrichment job for contacts matching search filters, enriching them with professional emails or phone numbers. Returns an enrichment ID to track progress.`,
     params: [

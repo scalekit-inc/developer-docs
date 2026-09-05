@@ -579,25 +579,6 @@ confirmation before calling this tool. You can verify the page was created by ca
     ],
   },
   {
-    name: 'airopsmcp_create_report',
-    description: `[STALE: no longer present in the upstream airopsmcp MCP tools/list as of 2026-08-19 — upstream only exposes get_report and list_reports now, with no create_report equivalent] Create a new analytics report for a Brand Kit. Reports contain one or more modules that visualize metrics like citation_rate, mention_rate, share_of_voice, etc.`,
-    params: [
-      { name: 'brand_kit_id', type: 'integer', required: true, description: `The Brand Kit ID` },
-      {
-        name: 'modules',
-        type: 'array',
-        required: true,
-        description: `Array of module configurations`,
-      },
-      {
-        name: 'name',
-        type: 'string',
-        required: true,
-        description: `Report name (must be unique per brand kit)`,
-      },
-    ],
-  },
-  {
     name: 'airopsmcp_create_topic',
     description: `Create a new AEO topic on a Brand Kit. Topics are categories used to group AEO prompts.
 
