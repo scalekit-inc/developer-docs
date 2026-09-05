@@ -92,42 +92,6 @@ export const tools: Tool[] = [
     ],
   },
   {
-    name: 'kitmcp_bulk_add_subscribers_to_forms',
-    description: `[Forms] Subscribe multiple existing subscribers to one or more forms in a single call, triggering the form's confirmation or incentive email for each. Use this instead of calling add_subscriber_to_form repeatedly for onboarding or lead-import workflows.
-
-Subscribers must already exist. Each entry in \`additions\` requires a \`form_id\` and \`subscriber_id\`; \`referrer\` is optional. Use list_forms to find form IDs and list_subscribers or filter_subscribers to find subscriber IDs.
-
-Batches of 100 or fewer are processed synchronously (200). Larger batches are queued asynchronously (202) — supply \`callback_url\` to receive results when processing completes.
-
-Returns: \`subscribers\` (successfully added, each with id, first_name, email_address, created_at, added_at, referrer, referrer_utm_parameters) and \`failures\` (with error details per entry).`,
-    params: [
-      {
-        name: 'additions',
-        type: 'array',
-        required: true,
-        description: `Form subscriptions to create (required). Each item must include \`form_id\` and \`subscriber_id\`.`,
-      },
-      {
-        name: 'callback_url',
-        type: 'string',
-        required: false,
-        description: `URL to POST results to when the batch is processed asynchronously (batches > 100).`,
-      },
-      {
-        name: 'session_id',
-        type: 'string',
-        required: false,
-        description: `UUID v4 identifier for grouping tool calls in the same conversation. Generate once at the start of the session and reuse it on every call.`,
-      },
-      {
-        name: 'user_goal',
-        type: 'string',
-        required: false,
-        description: `What the creator is trying to accomplish with this tool call. Pick the closest match; use 'unknown' only when no category fits.`,
-      },
-    ],
-  },
-  {
     name: 'kitmcp_bulk_create_custom_fields',
     description: `Create multiple custom subscriber fields in one request. Use list_custom_fields to view existing fields.`,
     params: [
@@ -300,36 +264,6 @@ Returns: \`failures\` (with error details per entry; empty array means all remov
         type: 'array',
         required: true,
         description: `Tag-subscriber pairs to apply (required). Each item must include \`tag_id\` (integer) and \`subscriber_id\` (integer).`,
-      },
-      {
-        name: 'callback_url',
-        type: 'string',
-        required: false,
-        description: `URL to POST results to when the batch is processed asynchronously (batches > 100).`,
-      },
-      {
-        name: 'session_id',
-        type: 'string',
-        required: false,
-        description: `UUID v4 identifier for grouping tool calls in the same conversation. Generate once at the start of the session and reuse it on every call.`,
-      },
-      {
-        name: 'user_goal',
-        type: 'string',
-        required: false,
-        description: `What the creator is trying to accomplish with this tool call. Pick the closest match; use 'unknown' only when no category fits.`,
-      },
-    ],
-  },
-  {
-    name: 'kitmcp_bulk_untag_subscribers',
-    description: `[STALE — upstream renamed 'bulk_untag_subscribers' to 'bulk_remove_tags_from_subscribers'; kept for compatibility, no longer exposed by upstream MCP server] Remove a tag from multiple subscribers in one request. Batches over 100 are processed asynchronously.`,
-    params: [
-      {
-        name: 'taggings',
-        type: 'array',
-        required: true,
-        description: `Tag-subscriber pairs to remove (required). Each item must include \`tag_id\` (integer) and \`subscriber_id\` (integer).`,
       },
       {
         name: 'callback_url',
@@ -1075,42 +1009,6 @@ Returns: the created product in the same shape as list_products entries — \`id
     ],
   },
   {
-    name: 'kitmcp_get_account',
-    description: `[STALE — upstream renamed 'get_account' to 'get_current_account'; kept for compatibility, no longer exposed by upstream MCP server] Retrieve the Kit account details for the authenticated user.`,
-    params: [
-      {
-        name: 'session_id',
-        type: 'string',
-        required: false,
-        description: `UUID v4 identifier for grouping tool calls in the same conversation. Generate once at the start of the session and reuse it on every call.`,
-      },
-      {
-        name: 'user_goal',
-        type: 'string',
-        required: false,
-        description: `What the creator is trying to accomplish with this tool call. Pick the closest match; use 'unknown' only when no category fits.`,
-      },
-    ],
-  },
-  {
-    name: 'kitmcp_get_account_colors',
-    description: `[STALE — upstream renamed 'get_account_colors' to 'list_colors'; kept for compatibility, no longer exposed by upstream MCP server] Retrieve the custom brand color palette for the Kit account.`,
-    params: [
-      {
-        name: 'session_id',
-        type: 'string',
-        required: false,
-        description: `UUID v4 identifier for grouping tool calls in the same conversation. Generate once at the start of the session and reuse it on every call.`,
-      },
-      {
-        name: 'user_goal',
-        type: 'string',
-        required: false,
-        description: `What the creator is trying to accomplish with this tool call. Pick the closest match; use 'unknown' only when no category fits.`,
-      },
-    ],
-  },
-  {
     name: 'kitmcp_get_broadcast',
     description: `Retrieve a single broadcast record by ID.`,
     params: [
@@ -1120,116 +1018,6 @@ Returns: the created product in the same shape as list_products entries — \`id
         type: 'string',
         required: false,
         description: `UUID v4 identifier for grouping tool calls in the same conversation. Generate once at the start of the session and reuse it on every call.`,
-      },
-      {
-        name: 'user_goal',
-        type: 'string',
-        required: false,
-        description: `What the creator is trying to accomplish with this tool call. Pick the closest match; use 'unknown' only when no category fits.`,
-      },
-    ],
-  },
-  {
-    name: 'kitmcp_get_broadcast_clicks',
-    description: `[STALE — upstream renamed 'get_broadcast_clicks' to 'get_link_clicks_for_a_broadcast'; kept for compatibility, no longer exposed by upstream MCP server] Retrieve click data for a specific broadcast, paginated by cursor.`,
-    params: [
-      { name: 'id', type: 'integer', required: true, description: `The broadcast ID` },
-      {
-        name: 'after',
-        type: 'string',
-        required: false,
-        description: `Cursor for next page. Use \`pagination.end_cursor\` from a previous response.`,
-      },
-      {
-        name: 'before',
-        type: 'string',
-        required: false,
-        description: `Cursor for previous page. Use \`pagination.start_cursor\` from a previous response.`,
-      },
-      {
-        name: 'per_page',
-        type: 'integer',
-        required: false,
-        description: `Results per page (1-100)`,
-      },
-      {
-        name: 'session_id',
-        type: 'string',
-        required: false,
-        description: `UUID v4 identifier for grouping tool calls in the same conversation. Generate once at the start of the session and reuse it on every call.`,
-      },
-      {
-        name: 'user_goal',
-        type: 'string',
-        required: false,
-        description: `What the creator is trying to accomplish with this tool call. Pick the closest match; use 'unknown' only when no category fits.`,
-      },
-    ],
-  },
-  {
-    name: 'kitmcp_get_broadcast_stats',
-    description: `[STALE — upstream renamed 'get_broadcast_stats' to 'get_stats_for_a_broadcast'; kept for compatibility, no longer exposed by upstream MCP server] Retrieve performance statistics (opens, clicks, etc.) for a specific broadcast.`,
-    params: [
-      { name: 'id', type: 'integer', required: true, description: `The broadcast ID` },
-      {
-        name: 'session_id',
-        type: 'string',
-        required: false,
-        description: `UUID v4 identifier for grouping tool calls in the same conversation. Generate once at the start of the session and reuse it on every call.`,
-      },
-      {
-        name: 'user_goal',
-        type: 'string',
-        required: false,
-        description: `What the creator is trying to accomplish with this tool call. Pick the closest match; use 'unknown' only when no category fits.`,
-      },
-    ],
-  },
-  {
-    name: 'kitmcp_get_broadcasts_stats',
-    description: `[STALE — upstream renamed 'get_broadcasts_stats' to 'get_stats_for_a_list_of_broadcasts'; kept for compatibility, no longer exposed by upstream MCP server] Retrieve aggregated performance statistics for multiple broadcasts, with optional date and status filters.`,
-    params: [
-      {
-        name: 'after',
-        type: 'string',
-        required: false,
-        description: `Cursor for next page. Use \`pagination.end_cursor\` from a previous response.`,
-      },
-      {
-        name: 'before',
-        type: 'string',
-        required: false,
-        description: `Cursor for previous page. Use \`pagination.start_cursor\` from a previous response.`,
-      },
-      {
-        name: 'per_page',
-        type: 'integer',
-        required: false,
-        description: `Results per page (1-100)`,
-      },
-      {
-        name: 'sent_after',
-        type: 'string',
-        required: false,
-        description: `ISO 8601 date or datetime (e.g. \`2026-01-15\` or \`2026-01-15T10:00:00Z\`). Only include broadcasts with \`send_at >= sent_after\`.`,
-      },
-      {
-        name: 'sent_before',
-        type: 'string',
-        required: false,
-        description: `ISO 8601 date or datetime (e.g. \`2026-01-15\` or \`2026-01-15T10:00:00Z\`). Only include broadcasts with \`send_at < sent_before\`.`,
-      },
-      {
-        name: 'session_id',
-        type: 'string',
-        required: false,
-        description: `UUID v4 identifier for grouping tool calls in the same conversation. Generate once at the start of the session and reuse it on every call.`,
-      },
-      {
-        name: 'status',
-        type: 'string',
-        required: false,
-        description: `Filter to broadcasts in this state. Omit to return all states.`,
       },
       {
         name: 'user_goal',
@@ -1671,62 +1459,6 @@ Returns: paginated array of broadcasts, each with \`id\`, \`subject\`, \`send_at
     ],
   },
   {
-    name: 'kitmcp_get_subscriber_stats',
-    description: `[STALE — upstream renamed 'get_subscriber_stats' to 'list_stats_for_a_subscriber'; kept for compatibility, no longer exposed by upstream MCP server] Retrieve engagement statistics for a single subscriber.`,
-    params: [
-      { name: 'id', type: 'integer', required: true, description: `The subscriber ID` },
-      {
-        name: 'session_id',
-        type: 'string',
-        required: false,
-        description: `UUID v4 identifier for grouping tool calls in the same conversation. Generate once at the start of the session and reuse it on every call.`,
-      },
-      {
-        name: 'user_goal',
-        type: 'string',
-        required: false,
-        description: `What the creator is trying to accomplish with this tool call. Pick the closest match; use 'unknown' only when no category fits.`,
-      },
-    ],
-  },
-  {
-    name: 'kitmcp_get_subscriber_tags',
-    description: `[STALE — upstream renamed 'get_subscriber_tags' to 'list_tags_for_a_subscriber'; kept for compatibility, no longer exposed by upstream MCP server] Retrieve all tags applied to a specific subscriber, paginated.`,
-    params: [
-      { name: 'id', type: 'integer', required: true, description: `The subscriber ID` },
-      {
-        name: 'after',
-        type: 'string',
-        required: false,
-        description: `Cursor for next page. Use \`pagination.end_cursor\` from a previous response.`,
-      },
-      {
-        name: 'before',
-        type: 'string',
-        required: false,
-        description: `Cursor for previous page. Use \`pagination.start_cursor\` from a previous response.`,
-      },
-      {
-        name: 'per_page',
-        type: 'integer',
-        required: false,
-        description: `Results per page (1-100)`,
-      },
-      {
-        name: 'session_id',
-        type: 'string',
-        required: false,
-        description: `UUID v4 identifier for grouping tool calls in the same conversation. Generate once at the start of the session and reuse it on every call.`,
-      },
-      {
-        name: 'user_goal',
-        type: 'string',
-        required: false,
-        description: `What the creator is trying to accomplish with this tool call. Pick the closest match; use 'unknown' only when no category fits.`,
-      },
-    ],
-  },
-  {
     name: 'kitmcp_list_broadcasts',
     description: `List all broadcasts with optional status filter and cursor pagination.`,
     params: [
@@ -1866,54 +1598,6 @@ Returns: \`domains\` — each with \`id\`, \`domain\` (the hostname) and \`verif
         type: 'string',
         required: false,
         description: `Cursor for previous page. Use \`pagination.start_cursor\` from a previous response.`,
-      },
-      {
-        name: 'per_page',
-        type: 'integer',
-        required: false,
-        description: `Results per page (1-100)`,
-      },
-      {
-        name: 'session_id',
-        type: 'string',
-        required: false,
-        description: `UUID v4 identifier for grouping tool calls in the same conversation. Generate once at the start of the session and reuse it on every call.`,
-      },
-      {
-        name: 'user_goal',
-        type: 'string',
-        required: false,
-        description: `What the creator is trying to accomplish with this tool call. Pick the closest match; use 'unknown' only when no category fits.`,
-      },
-    ],
-  },
-  {
-    name: 'kitmcp_list_form_subscribers',
-    description: `[STALE — upstream renamed 'list_form_subscribers' to 'list_subscribers_for_form'; kept for compatibility, no longer exposed by upstream MCP server] List all subscribers on a specific form, paginated.`,
-    params: [
-      {
-        name: 'id',
-        type: 'integer',
-        required: true,
-        description: `The form ID. Use list_forms to find IDs.`,
-      },
-      {
-        name: 'after',
-        type: 'string',
-        required: false,
-        description: `Cursor for next page. Use \`pagination.end_cursor\` from a previous response.`,
-      },
-      {
-        name: 'before',
-        type: 'string',
-        required: false,
-        description: `Cursor for previous page. Use \`pagination.start_cursor\` from a previous response.`,
-      },
-      {
-        name: 'include',
-        type: 'array',
-        required: false,
-        description: `Extra data to include per subscriber. \`fields\` adds custom field values (omit for slim responses).`,
       },
       {
         name: 'per_page',
@@ -2212,49 +1896,6 @@ Returns: paginated \`products\`, each with \`id\`, \`name\`, \`currency\`, \`pro
         type: 'boolean',
         required: false,
         description: `Include HTML content in each email (default: false)`,
-      },
-      {
-        name: 'per_page',
-        type: 'integer',
-        required: false,
-        description: `Results per page (1-100)`,
-      },
-      {
-        name: 'session_id',
-        type: 'string',
-        required: false,
-        description: `UUID v4 identifier for grouping tool calls in the same conversation. Generate once at the start of the session and reuse it on every call.`,
-      },
-      {
-        name: 'user_goal',
-        type: 'string',
-        required: false,
-        description: `What the creator is trying to accomplish with this tool call. Pick the closest match; use 'unknown' only when no category fits.`,
-      },
-    ],
-  },
-  {
-    name: 'kitmcp_list_sequence_subscribers',
-    description: `[STALE — upstream renamed 'list_sequence_subscribers' to 'list_subscribers_for_sequence'; kept for compatibility, no longer exposed by upstream MCP server] List all subscribers enrolled in a specific sequence.`,
-    params: [
-      { name: 'id', type: 'integer', required: true, description: `The sequence ID` },
-      {
-        name: 'after',
-        type: 'string',
-        required: false,
-        description: `Cursor for next page. Use \`pagination.end_cursor\` from a previous response.`,
-      },
-      {
-        name: 'before',
-        type: 'string',
-        required: false,
-        description: `Cursor for previous page. Use \`pagination.start_cursor\` from a previous response.`,
-      },
-      {
-        name: 'include',
-        type: 'array',
-        required: false,
-        description: `Extra data to include per subscriber. \`fields\` adds custom field values (omit for slim responses).`,
       },
       {
         name: 'per_page',
@@ -2627,54 +2268,6 @@ Use list_tags first to find the tag ID.`,
     ],
   },
   {
-    name: 'kitmcp_list_tag_subscribers',
-    description: `[STALE — upstream renamed 'list_tag_subscribers' to 'list_subscribers_for_tag'; kept for compatibility, no longer exposed by upstream MCP server] List all subscribers who have a specific tag applied.`,
-    params: [
-      {
-        name: 'id',
-        type: 'integer',
-        required: true,
-        description: `The tag ID. Use list_tags to find IDs.`,
-      },
-      {
-        name: 'after',
-        type: 'string',
-        required: false,
-        description: `Cursor for next page. Use \`pagination.end_cursor\` from a previous response.`,
-      },
-      {
-        name: 'before',
-        type: 'string',
-        required: false,
-        description: `Cursor for previous page. Use \`pagination.start_cursor\` from a previous response.`,
-      },
-      {
-        name: 'include',
-        type: 'array',
-        required: false,
-        description: `Extra data to include per subscriber. \`fields\` adds custom field values (omit for slim responses).`,
-      },
-      {
-        name: 'per_page',
-        type: 'integer',
-        required: false,
-        description: `Results per page (1-100)`,
-      },
-      {
-        name: 'session_id',
-        type: 'string',
-        required: false,
-        description: `UUID v4 identifier for grouping tool calls in the same conversation. Generate once at the start of the session and reuse it on every call.`,
-      },
-      {
-        name: 'user_goal',
-        type: 'string',
-        required: false,
-        description: `What the creator is trying to accomplish with this tool call. Pick the closest match; use 'unknown' only when no category fits.`,
-      },
-    ],
-  },
-  {
     name: 'kitmcp_list_tags',
     description: `List all tags in the account.`,
     params: [
@@ -2877,60 +2470,6 @@ Use list_tags to find tag IDs, and list_subscribers_for_tag or get_subscriber to
         type: 'integer',
         required: true,
         description: `The subscriber ID (required). Use list_subscribers or get_subscriber to find IDs.`,
-      },
-      {
-        name: 'session_id',
-        type: 'string',
-        required: false,
-        description: `UUID v4 identifier for grouping tool calls in the same conversation. Generate once at the start of the session and reuse it on every call.`,
-      },
-      {
-        name: 'user_goal',
-        type: 'string',
-        required: false,
-        description: `What the creator is trying to accomplish with this tool call. Pick the closest match; use 'unknown' only when no category fits.`,
-      },
-    ],
-  },
-  {
-    name: 'kitmcp_untag_subscriber',
-    description: `[STALE — upstream renamed 'untag_subscriber' to 'remove_tag_from_subscriber'; kept for compatibility, no longer exposed by upstream MCP server] Remove a tag from a subscriber by subscriber ID and tag ID.`,
-    params: [
-      {
-        name: 'subscriber_id',
-        type: 'integer',
-        required: true,
-        description: `The subscriber ID (required)`,
-      },
-      {
-        name: 'tag_id',
-        type: 'integer',
-        required: true,
-        description: `The tag ID (required). Use list_tags to find IDs.`,
-      },
-      {
-        name: 'session_id',
-        type: 'string',
-        required: false,
-        description: `UUID v4 identifier for grouping tool calls in the same conversation. Generate once at the start of the session and reuse it on every call.`,
-      },
-      {
-        name: 'user_goal',
-        type: 'string',
-        required: false,
-        description: `What the creator is trying to accomplish with this tool call. Pick the closest match; use 'unknown' only when no category fits.`,
-      },
-    ],
-  },
-  {
-    name: 'kitmcp_update_account_colors',
-    description: `[STALE — upstream renamed 'update_account_colors' to 'update_colors'; kept for compatibility, no longer exposed by upstream MCP server] Update the custom brand color palette for the Kit account.`,
-    params: [
-      {
-        name: 'colors',
-        type: 'array',
-        required: true,
-        description: `Array of up to 10 hex color codes (e.g. ["#FF6900", "#FCB900"]). Replaces the existing palette entirely.`,
       },
       {
         name: 'session_id',
@@ -3405,31 +2944,6 @@ Returns: the updated product in the same shape as list_products entries — \`id
         description: `Custom field values to update as key-value pairs`,
       },
       { name: 'first_name', type: 'string', required: false, description: `New first name` },
-      {
-        name: 'session_id',
-        type: 'string',
-        required: false,
-        description: `UUID v4 identifier for grouping tool calls in the same conversation. Generate once at the start of the session and reuse it on every call.`,
-      },
-      {
-        name: 'user_goal',
-        type: 'string',
-        required: false,
-        description: `What the creator is trying to accomplish with this tool call. Pick the closest match; use 'unknown' only when no category fits.`,
-      },
-    ],
-  },
-  {
-    name: 'kitmcp_update_tag',
-    description: `[STALE — upstream renamed 'update_tag' to 'update_tag_name'; kept for compatibility, no longer exposed by upstream MCP server] Rename a tag by ID.`,
-    params: [
-      { name: 'name', type: 'string', required: true, description: `New tag name (required)` },
-      {
-        name: 'tag_id',
-        type: 'integer',
-        required: true,
-        description: `The tag ID (required). Use list_tags to find IDs.`,
-      },
       {
         name: 'session_id',
         type: 'string',

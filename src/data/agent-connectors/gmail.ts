@@ -62,18 +62,6 @@ export const tools: Tool[] = [
     ],
   },
   {
-    name: 'gmail_create_delegate',
-    description: `Grant another user delegate access to the authenticated Gmail mailbox, letting them read, send, and manage mail on its behalf. The delegate must accept an invitation email before access becomes effective, and delegation is only available on Google Workspace accounts. Uses OAuth credentials.`,
-    params: [
-      {
-        name: 'delegate_email',
-        type: 'string',
-        required: true,
-        description: `Email address of the user to grant delegate access to.`,
-      },
-    ],
-  },
-  {
     name: 'gmail_create_draft',
     description: `Create a new draft email in Gmail for the authenticated user. Constructs a MIME message and saves it as a draft. Supports plain text and HTML content types, CC, BCC, and threading. Uses OAuth credentials.`,
     params: [
@@ -242,18 +230,6 @@ export const tools: Tool[] = [
     ],
   },
   {
-    name: 'gmail_create_forwarding_address',
-    description: `Add a new forwarding address to the authenticated Gmail account. Gmail sends a confirmation email to the address; the recipient must click the confirmation link before the address can be used for auto-forwarding or set as a filter action. Uses OAuth credentials.`,
-    params: [
-      {
-        name: 'forwarding_email',
-        type: 'string',
-        required: true,
-        description: `The email address to add as a forwarding address. A confirmation email is sent to this address.`,
-      },
-    ],
-  },
-  {
     name: 'gmail_create_label',
     description: `Create a new user label in the authenticated Gmail account. Labels can be applied to messages for organization and are visible in the Gmail label list and message list based on the visibility settings. Uses OAuth credentials.`,
     params: [
@@ -286,48 +262,6 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Optional tool version to use for execution`,
-      },
-    ],
-  },
-  {
-    name: 'gmail_create_send_as',
-    description: `Add a new send-as alias to the authenticated Gmail account, letting the user send mail that appears to come from a different address. Unless the address is on a domain the account owns via Workspace, Gmail sends a confirmation email that must be clicked before the alias can send mail (see verify_send_as). Uses OAuth credentials.`,
-    params: [
-      {
-        name: 'send_as_email',
-        type: 'string',
-        required: true,
-        description: `The email address to send as. Example: 'sales@example.com'.`,
-      },
-      {
-        name: 'display_name',
-        type: 'string',
-        required: false,
-        description: `The name shown in the 'From' header when sending as this address.`,
-      },
-      {
-        name: 'is_default',
-        type: 'boolean',
-        required: false,
-        description: `Whether this alias should become the default 'From' address for the account.`,
-      },
-      {
-        name: 'reply_to_address',
-        type: 'string',
-        required: false,
-        description: `An optional address that replies to messages sent as this alias should be routed to instead.`,
-      },
-      {
-        name: 'signature',
-        type: 'string',
-        required: false,
-        description: `HTML signature appended to messages sent as this alias.`,
-      },
-      {
-        name: 'treat_as_alias',
-        type: 'boolean',
-        required: false,
-        description: `Whether Gmail should treat this address as an alias of the primary account for purposes such as delegated access and reply-from behavior.`,
       },
     ],
   },
@@ -380,18 +314,6 @@ export const tools: Tool[] = [
     ],
   },
   {
-    name: 'gmail_delete_forwarding_address',
-    description: `Permanently remove a forwarding address from the authenticated Gmail account. If auto-forwarding or any filter currently uses this address, remove those references first. Uses OAuth credentials.`,
-    params: [
-      {
-        name: 'forwarding_email',
-        type: 'string',
-        required: true,
-        description: `The forwarding email address to remove. Use List Forwarding Addresses to find configured addresses.`,
-      },
-    ],
-  },
-  {
     name: 'gmail_delete_label',
     description: `Permanently delete a user label from the authenticated Gmail account. This removes the label from all messages it was applied to and cannot be undone. Use the List Labels tool to find the label ID. Uses OAuth credentials.`,
     params: [
@@ -436,18 +358,6 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Optional tool version to use for execution`,
-      },
-    ],
-  },
-  {
-    name: 'gmail_delete_send_as',
-    description: `Permanently delete a send-as alias from the authenticated Gmail account. The primary email address of the account cannot be deleted this way. Uses OAuth credentials.`,
-    params: [
-      {
-        name: 'send_as_email',
-        type: 'string',
-        required: true,
-        description: `The send-as alias email address to delete. Use List Send-As Aliases to find configured aliases.`,
       },
     ],
   },
@@ -870,11 +780,6 @@ export const tools: Tool[] = [
         description: `Label IDs to apply to the inserted message. Example: ["INBOX", "UNREAD"].`,
       },
     ],
-  },
-  {
-    name: 'gmail_list_delegates',
-    description: `List the delegate accounts (other users granted access to read, send, and manage mail) for the authenticated Gmail account. Delegates can be added only in a Google Workspace account. Uses OAuth credentials.`,
-    params: [],
   },
   {
     name: 'gmail_list_drafts',
@@ -1379,30 +1284,6 @@ export const tools: Tool[] = [
     ],
   },
   {
-    name: 'gmail_update_auto_forwarding',
-    description: `Update the auto-forwarding settings for the authenticated Gmail account. The target address must already be a verified forwarding address (see create_forwarding_address) before auto-forwarding to it can be enabled. Uses OAuth credentials.`,
-    params: [
-      {
-        name: 'enabled',
-        type: 'boolean',
-        required: true,
-        description: `Whether all incoming mail is automatically forwarded to email_address.`,
-      },
-      {
-        name: 'disposition',
-        type: 'string',
-        required: false,
-        description: `What happens to the local copy of a forwarded message. leaveInInbox keeps it in the inbox, archive skips the inbox, trash moves it to Trash, markRead marks it read and keeps it in the inbox.`,
-      },
-      {
-        name: 'email_address',
-        type: 'string',
-        required: false,
-        description: `The verified forwarding address mail is auto-forwarded to. Required when enabled is true.`,
-      },
-    ],
-  },
-  {
     name: 'gmail_update_draft',
     description: `Replace the content of an existing Gmail draft. Constructs a new MIME message and overwrites the draft identified by draft_id. Supports plain text and HTML content types, CC, BCC, and threading. Uses OAuth credentials.`,
     params: [
@@ -1621,18 +1502,6 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Optional tool version to use for execution`,
-      },
-    ],
-  },
-  {
-    name: 'gmail_verify_send_as',
-    description: `Send a verification email for a pending send-as alias on the authenticated Gmail account. The recipient must click the link in that email before the alias can be used to send mail. Has no effect on aliases that are already verified. Uses OAuth credentials.`,
-    params: [
-      {
-        name: 'send_as_email',
-        type: 'string',
-        required: true,
-        description: `The unverified send-as alias to trigger a verification email for.`,
       },
     ],
   },

@@ -550,42 +550,6 @@ export const tools: Tool[] = [
     ],
   },
   {
-    name: 'clickupmcp_clickup_create_task_comment',
-    description: `[DEPRECATED â clickup_create_comment] Legacy name for creating a task comment, kept for clients with stale tool listings. Prefer the replacement tool; it takes entity_id instead of task_id.`,
-    params: [
-      {
-        name: 'comment_text',
-        type: 'string',
-        required: true,
-        description: `Comment content. Supports Markdown formatting.`,
-      },
-      {
-        name: 'task_id',
-        type: 'string',
-        required: true,
-        description: `Task ID (supports custom IDs like 'DEV-1234')`,
-      },
-      {
-        name: 'assignee',
-        type: 'number',
-        required: false,
-        description: `User ID to assign the comment to. Use clickup_resolve_assignees to convert email, username, or "me" to user ID if needed.`,
-      },
-      {
-        name: 'notify_all',
-        type: 'boolean',
-        required: false,
-        description: `Whether to notify all assignees. Default is false.`,
-      },
-      {
-        name: 'workspace_id',
-        type: 'string',
-        required: false,
-        description: `Workspace ID (digits only). Only needed when you have multiple workspaces.`,
-      },
-    ],
-  },
-  {
     name: 'clickupmcp_clickup_delete_comment',
     description: `Delete a comment by comment_id. This cannot be undone. Use clickup_get_task_comments or clickup_get_threaded_comments to find the comment ID.`,
     params: [

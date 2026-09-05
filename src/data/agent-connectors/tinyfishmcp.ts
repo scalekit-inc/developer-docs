@@ -14,24 +14,6 @@ export const tools: Tool[] = [
     ],
   },
   {
-    name: 'tinyfishmcp_batch_create',
-    description: `[STALE-2026-08-19: not found in the live upstream tools/list; may have been removed or renamed by TinyFish. Kept here for review, not deleted, pending confirmation.] Start up to 8 web automations simultaneously and return all run IDs immediately. Poll progress with batch_status.`,
-    params: [
-      {
-        name: 'runs',
-        type: 'array',
-        required: true,
-        description: `Array of 1–8 run configurations to start simultaneously.`,
-      },
-      {
-        name: 'profile_id',
-        type: 'string',
-        required: false,
-        description: `Browser profile ID to use when use_profile is true.`,
-      },
-    ],
-  },
-  {
     name: 'tinyfishmcp_batch_status',
     description: `Check the status, result, and error for up to 8 automation runs by their IDs.`,
     params: [

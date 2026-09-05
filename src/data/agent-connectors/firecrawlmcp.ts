@@ -38,60 +38,6 @@ export const tools: Tool[] = [
     ],
   },
   {
-    name: 'firecrawlmcp_firecrawl_browser_create',
-    description: `[STALE: upstream firecrawlmcp MCP server no longer exposes a \`firecrawl_browser_create\` tool as of the 2026-08-19 refresh (SK-1675); tool_version left untouched pending removal decision] Create a persistent browser session for interactive scraping.`,
-    params: [
-      {
-        name: 'activityTtl',
-        type: 'number',
-        required: false,
-        description: `Seconds of inactivity after which the session is automatically destroyed.`,
-      },
-      {
-        name: 'profile',
-        type: 'object',
-        required: false,
-        description: `Named browser profile to use for authenticated scraping.`,
-      },
-      {
-        name: 'streamWebView',
-        type: 'boolean',
-        required: false,
-        description: `Set to true to stream the browser viewport during the session.`,
-      },
-      {
-        name: 'ttl',
-        type: 'number',
-        required: false,
-        description: `Session lifetime in seconds after creation.`,
-      },
-    ],
-  },
-  {
-    name: 'firecrawlmcp_firecrawl_browser_delete',
-    description: `[STALE: upstream firecrawlmcp MCP server no longer exposes a \`firecrawl_browser_delete\` tool as of the 2026-08-19 refresh (SK-1675); tool_version left untouched pending removal decision] Destroy a browser session and release its resources.`,
-    params: [
-      {
-        name: 'sessionId',
-        type: 'string',
-        required: true,
-        description: `The ID of the browser session. Get it from firecrawlmcp_firecrawl_browser_create.`,
-      },
-    ],
-  },
-  {
-    name: 'firecrawlmcp_firecrawl_browser_list',
-    description: `[STALE: upstream firecrawlmcp MCP server no longer exposes a \`firecrawl_browser_list\` tool as of the 2026-08-19 refresh (SK-1675); tool_version left untouched pending removal decision] List active or destroyed browser sessions for the account.`,
-    params: [
-      {
-        name: 'status',
-        type: 'string',
-        required: false,
-        description: `Filter browser sessions by status. Accepted values: active, destroyed.`,
-      },
-    ],
-  },
-  {
     name: 'firecrawlmcp_firecrawl_check_crawl_status',
     description: `Check the progress and results of an in-progress crawl job by its ID.`,
     params: [
@@ -220,48 +166,6 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Set to only to limit the search to agent-skill files.`,
-      },
-    ],
-  },
-  {
-    name: 'firecrawlmcp_firecrawl_extract',
-    description: `[STALE: upstream firecrawlmcp MCP server no longer exposes a \`firecrawl_extract\` tool as of the 2026-08-19 refresh (SK-1675); tool_version left untouched pending removal decision] Extract structured data from one or more URLs using a natural-language prompt and optional JSON Schema.`,
-    params: [
-      {
-        name: 'urls',
-        type: 'array',
-        required: true,
-        description: `List of URLs to extract structured data from.`,
-      },
-      {
-        name: 'allowExternalLinks',
-        type: 'boolean',
-        required: false,
-        description: `Set to true to follow links to external domains.`,
-      },
-      {
-        name: 'enableWebSearch',
-        type: 'boolean',
-        required: false,
-        description: `Set to true to supplement extraction with live web search results.`,
-      },
-      {
-        name: 'includeSubdomains',
-        type: 'boolean',
-        required: false,
-        description: `Set to true to include subdomains of the target domain.`,
-      },
-      {
-        name: 'prompt',
-        type: 'string',
-        required: false,
-        description: `Natural-language instruction to guide extraction or crawling.`,
-      },
-      {
-        name: 'schema',
-        type: 'object',
-        required: false,
-        description: `JSON Schema defining the structure of data to extract.`,
       },
     ],
   },
