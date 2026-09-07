@@ -7,6 +7,9 @@ sidebar:
   prev:
     label: 'OpenClaw'
     link: '/agentkit/openclaw'
+  next:
+    label: 'AgentKit examples'
+    link: '/agentkit/examples'
 seeAlso:
   expanded: true
   items:
@@ -30,11 +33,53 @@ import { Aside, Steps, Tabs, TabItem, CardGrid, LinkCard, Badge } from '@astrojs
   This page is a draft for SK-1876. The Hermes skill repo is not public yet. Do not treat the install command as live until that repo exists. The flow below matches the shipped [OpenClaw skill](/agentkit/openclaw/).
 </Aside>
 
+```d2
+direction: right
+
+Hermes: "Hermes Agent" {
+  style.font-size: 18
+}
+
+Scalekit: {
+  label: "Scalekit AgentKit"
+  Auth: "OAuth handler"
+  Vault: "Token vault"
+}
+
+Providers: {
+  label: "Third-party services"
+  Gmail: "Gmail"
+  Slack: "Slack"
+  Salesforce: "Salesforce"
+  More: "200+ more"
+}
+
+Hermes -> Scalekit.Auth: "Execute tools"
+Scalekit.Vault -> Providers.Gmail
+Scalekit.Vault -> Providers.Slack
+Scalekit.Vault -> Providers.Salesforce
+Scalekit.Vault -> Providers.More
+```
+
 Hermes Agent is the host. It runs the loop, memory, cron, and chat.
 
 Scalekit AgentKit is the vault. It holds each user's tokens and runs tools as that user.
 
 You talk to Hermes. Hermes calls Scalekit. Scalekit calls Gmail, Slack, or Salesforce as you. Hermes never stores those tokens.
+
+Use this path when the agent must **act as a named user** in a Scalekit connection. Skip Scalekit when Hermes already covers the job: the bundled GitHub skill, official Linear MCP, or the Slack gateway as a bot.
+
+<Aside type="caution" title="Security considerations for AI agents">
+  Scalekit stores tokens and API keys and keeps an audit log. Hermes, like other agent hosts, is open to prompt injection. Treat the host as untrusted for provider secrets.
+</Aside>
+
+When you ask Hermes to use a third-party service, the skill:
+
+- Finds the Scalekit connection for that action (for example [Gmail](/agentkit/connectors/gmail/))
+- Checks that the connected account is `ACTIVE`. For OAuth, it returns a magic link. For an API key, it points you to the Dashboard
+- Fetches the tool schema
+- Calls the tool and returns the result
+- Falls back to the Scalekit HTTP proxy when no named tool exists
 
 ## Prerequisites
 
@@ -46,7 +91,7 @@ You talk to Hermes. Hermes calls Scalekit. Scalekit calls Gmail, Slack, or Sales
 ## Get started
 
 <Steps>
-1. ## Install the skill
+1. ### Install the skill
 
    Install from GitHub so Hermes copies `SKILL.md` and the scripts:
 
@@ -58,7 +103,9 @@ You talk to Hermes. Hermes calls Scalekit. Scalekit calls Gmail, Slack, or Sales
 
    The skill lands in `~/.hermes/skills/scalekit-agent-auth/` and is also available as `/scalekit-agent-auth`.
 
-2. ## Configure credentials
+   Installed skills apply to new sessions. Run `/reset` if you want the skill in the current chat.
+
+2. ### Configure credentials
 
    Add your Scalekit **client** credentials to `~/.hermes/.env`. These are not Gmail or Slack tokens.
 
@@ -82,7 +129,7 @@ You talk to Hermes. Hermes calls Scalekit. Scalekit calls Gmail, Slack, or Sales
      Put only Scalekit client credentials in Hermes. Scalekit stores Gmail, Slack, and Salesforce tokens and refreshes them.
    </Aside>
 
-3. ## Ask Hermes to act
+3. ### Ask Hermes to act
 
    Start a chat and ask for a real action:
 
@@ -125,7 +172,7 @@ You talk to Hermes. Hermes calls Scalekit. Scalekit calls Gmail, Slack, or Sales
 
 Confirm all of these:
 
-- The skill is listed (`hermes skills` or `/skills`)
+- The skill is listed (`hermes skills list` or `/skills`)
 - The connected account is `ACTIVE` after you finish the magic link
 - Hermes returns data from the provider (unread mail, or the Notion page)
 
@@ -183,5 +230,18 @@ To act as someone else for one turn, tell Hermes the identifier to use. Scalekit
 No, not for this guide. Hermes is a long-lived host. A skill calls `execute_tool` with client credentials. You do not mint a session token.
 
 Use [Virtual MCP](/agentkit/mcp/overview/) when your **app** starts a short agent run (Claude Managed Agents, Mastra, CrewAI).
+
+</details>
+
+<details>
+<summary>When should I skip Scalekit?</summary>
+
+Keep the native Hermes path when:
+
+- You only need `gh` on the operator machine
+- Official Linear MCP for your own Linear is enough (`hermes mcp install linear`)
+- Slack is only a chat channel. The Hermes Slack gateway uses a **bot** token. It is not the human.
+
+Add Scalekit when the agent must act as a named user: read Gmail as `alice`, post as a Slack **user**, or write that user's Google Calendar.
 
 </details>
