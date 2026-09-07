@@ -204,8 +204,14 @@ const OTHER_SECTIONS = [
     match: (p) => p.startsWith('/reference/') || p.startsWith('/dev-kit/sdks/'),
   },
   {
-    heading: 'Cookbooks & Examples',
-    match: (p) => p.startsWith('/cookbooks/') || p.startsWith('/resources/'),
+    heading: 'Recipes & Examples',
+    match: (p) =>
+      p.startsWith('/agentkit/recipes/') ||
+      p.startsWith('/saaskit/recipes/') ||
+      p.startsWith('/agentkit/how-to/') ||
+      p.startsWith('/how-to/') ||
+      p.startsWith('/saaskit/how-to/') ||
+      p.startsWith('/resources/'),
   },
   {
     heading: 'Developer Kit & AI-Assisted Development',

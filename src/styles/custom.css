@@ -547,11 +547,14 @@
 
   /* Fix: Nova theme's markdown link styles apply text-decoration: underline to
       .sl-markdown-content a:not(:where(.not-content *)), which incorrectly matches
-      LinkButton because .not-content is on the <a> itself (not a parent wrapper).
-      Override here to restore text-decoration: none for all sl-link-button elements. */
+      LinkButton and LinkCard. FoldCard already sets decoration none. Match that. */
   .sl-link-button {
     text-decoration: none;
     text-underline-offset: initial;
+  }
+
+  .sl-markdown-content .sl-link-card a {
+    text-decoration: none;
   }
 
   /* Apply Outfit font to headings — keep SDK method H3s mono (ClassBrowser pages) */
@@ -594,33 +597,6 @@
 /* =============================================================================
    UNLAYERED OVERRIDES - Must be outside @layer to beat third-party unlayered rules
    ============================================================================= */
-
-/* Fix: starlight-blog injects a global rule that hides .right-sidebar-panel and
-   mobile-starlight-toc on all pages (not just blog pages) when data-has-toc is set.
-   The rule [data-has-toc] :is(.right-sidebar-panel, ...) has specificity (0,2,0).
-   This rule uses html selector for specificity (0,2,1) to win without !important. */
-@media (min-width: 72rem) {
-  html[data-has-toc] .right-sidebar-panel {
-    display: block;
-  }
-}
-
-/* Fix: starlight-blog's Blog.astro has :global(.content-panel:first-of-type) { display: none }
-   which leaks to ALL pages via Vite's shared CSS chunking (because starlight-blog's
-   MarkdownContent override is rendered on every page, pulling in the CSS bundle).
-   Blog pages are identifiable by .posts (blog index) or .post-footer (blog post) elements.
-   Specificity (0,2,1) beats Blog.astro's (0,1,0). */
-main:not(:has(.posts, .post-footer)) .content-panel:first-of-type {
-  display: block;
-}
-
-/* Fix: starlight-blog's Blog.astro leaks :global(.content-panel:nth-of-type(2)) { border-top: none }
-   to ALL pages via Vite's shared CSS chunking.
-   Non-blog pages need the hairline border between title and content panels.
-   Specificity (0,2,1) beats Blog.astro's (0,1,0). */
-main:not(:has(.posts, .post-footer)) .content-panel:nth-of-type(2) {
-  border-top: 1px solid var(--sl-color-hairline);
-}
 
 /* Readable article column for `.sl-container` (unlayered so it wins over starlight-theme-nova; do not use 100%). */
 :root,

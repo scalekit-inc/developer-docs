@@ -1,5 +1,12 @@
 import { defineMiddleware } from 'astro:middleware'
 import { verifyJwt } from '@/utils/auth/jwt'
+import {
+  PRODUCT_STORAGE_KEY,
+  SHARED_HOW_TO_COLD_DEFAULT_PRODUCT,
+  isDocsProduct,
+  isSharedHowToPath,
+  type DocsProduct,
+} from '@/configs/self-hosted'
 
 const PUBLIC_PATH_PREFIXES = [
   '/auth/',
@@ -25,6 +32,17 @@ function isProtectedPath(pathname: string): boolean {
 
 export const onRequest = defineMiddleware(async (context, next) => {
   const { pathname } = context.url
+
+  if (isSharedHowToPath(pathname)) {
+    const fromQuery = context.url.searchParams.get('product')
+    const fromCookie = context.cookies.get(PRODUCT_STORAGE_KEY)?.value
+    const product: DocsProduct = isDocsProduct(fromQuery)
+      ? fromQuery
+      : isDocsProduct(fromCookie)
+        ? fromCookie
+        : SHARED_HOW_TO_COLD_DEFAULT_PRODUCT
+    ;(context.locals as { skHowToProduct?: DocsProduct }).skHowToProduct = product
+  }
 
   // Only allow access to public paths without authentication
   if (isPublicPath(pathname)) {

@@ -21,6 +21,8 @@ export {
   type SecondaryNavProps,
 } from './chrome-selection.js'
 
+export { isSharedHowToPath, isSharedProductPath } from '../configs/self-hosted'
+
 // Bind the live sidebar table once for SSR. Client rematch does not use this map.
 const pathToSidebarMap = buildPathToSidebarMap(sidebar)
 
