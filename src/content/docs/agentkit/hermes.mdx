@@ -16,9 +16,12 @@ seeAlso:
     - title: 'Hermes Agent docs'
       icon: 'book'
       url: 'https://hermes-agent.nousresearch.com/docs/'
-    - title: 'OpenClaw skill (analog)'
+    - title: 'OpenClaw how-to'
+      icon: 'book'
+      url: '/agentkit/openclaw'
+    - title: 'integrate-agentkit-host'
       icon: 'github'
-      url: 'https://github.com/scalekit-inc/openclaw-skill'
+      url: 'https://github.com/scalekit-inc/authstack/tree/main/kits/agentkit/skills/integrate-agentkit-host'
     - title: 'Hermes Slack gateway'
       icon: 'book'
       url: 'https://hermes-agent.nousresearch.com/docs/user-guide/messaging/slack'
@@ -34,10 +37,6 @@ tableOfContents: true
 ---
 
 import { Aside, Steps, Tabs, TabItem, CardGrid, LinkCard, Badge } from '@astrojs/starlight/components';
-
-<Aside type="caution" title="Draft — skill is not published">
-  This page is a draft for SK-1876. The Hermes skill repo is not public yet. Do not treat the install command as live until that repo exists. The flow below matches the shipped [OpenClaw skill](/agentkit/openclaw/).
-</Aside>
 
 ```d2
 direction: right
@@ -97,19 +96,27 @@ When you ask Hermes to use a third-party service, the skill:
 ## Get started
 
 <Steps>
-1. ### Install the skill
+1. ### Copy the runtime skill
 
-   Install from GitHub so Hermes copies `SKILL.md` and the scripts:
+   Coding agents use `integrate-agentkit-host`. Hermes chat uses `scalekit-agent-auth`.
+
+   Get `integrate-agentkit-host` from [authstack](https://github.com/scalekit-inc/authstack/tree/main/kits/agentkit/skills/integrate-agentkit-host) or the [skills pack](https://github.com/scalekit-inc/skills/tree/main/skills/integrate-agentkit-host). From that skill directory, copy the runtime file and scripts onto the Hermes profile:
 
    ```bash showLineNumbers=false
-   hermes skills install scalekit-inc/hermes-skill/skills/scalekit-agent-auth
+   DEST="${HERMES_HOME:-$HOME/.hermes}/skills/scalekit-agent-auth"
+   mkdir -p "$DEST/scripts"
+   cp references/runtime-skill.md "$DEST/SKILL.md"
+   cp scripts/tool_exec.py scripts/pyproject.toml "$DEST/scripts/"
+   cd "$DEST/scripts" && uv sync
    ```
 
-   Do not install from a raw `SKILL.md` URL. That path can miss `scripts/`.
+   Do not run `hermes skills install` on the parent folder. That folder is for coding agents.
+
+   Do not install from a raw `SKILL.md` URL. You need `runtime-skill.md` plus `scripts/`.
 
    The skill lands in `~/.hermes/skills/scalekit-agent-auth/` and is also available as `/scalekit-agent-auth`.
 
-   Installed skills apply to new sessions. Run `/reset` if you want the skill in the current chat.
+   New sessions pick up the skill. Run `/reset` if you want it in the current chat.
 
 2. ### Configure credentials
 
