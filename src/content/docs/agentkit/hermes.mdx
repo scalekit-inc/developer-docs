@@ -74,7 +74,7 @@ When you ask Hermes to use a third-party app, `scalekit-agent-auth`:
 
 - Finds the Scalekit connection for that action (for example [Gmail](/agentkit/connectors/gmail/))
 - Checks that the user's connected account is `ACTIVE`, which means Scalekit holds a working token for it
-- Returns a magic link when the account is not `ACTIVE`. A magic link is a one-time URL the user opens to authorize the app. An API key connection points you to the Dashboard instead
+- Returns a magic link when the account is not `ACTIVE`. A magic link is a one-time URL that opens a Scalekit hosted page, which adapts to the connection: OAuth consent for an OAuth connector, a credential form for an API key connector
 - Fetches the tool schema, calls the tool, and returns the result
 - Falls back to the Scalekit HTTP proxy when the connection exposes no named tool for the action
 
@@ -102,6 +102,8 @@ When you ask Hermes to use a third-party app, `scalekit-agent-auth`:
    cp scripts/tool_exec.py scripts/pyproject.toml "$DEST/scripts/"
    cd "$DEST/scripts" && uv sync
    ```
+
+   The commands honor `HERMES_HOME`. The rest of this page writes the default profile path, `~/.hermes`.
 
    The [skills pack](https://github.com/scalekit-inc/skills/tree/main/skills/integrate-agentkit-host) carries the same skill if you prefer that repo.
 
@@ -274,9 +276,9 @@ Keep the gateway running on a headless host so a new magic link can land in Slac
 <details>
 <summary>How do I authorize a new connection?</summary>
 
-The skill returns a magic link if the account is not `ACTIVE`. Open the link. Finish OAuth. Return to Hermes and retry.
+The skill returns a magic link if the account is not `ACTIVE`. Open the link, finish the flow on the hosted page, then return to Hermes and retry.
 
-Set the key in **Dashboard > Connections** for API key connections (for example Snowflake). The skill cannot complete the API key flow in chat.
+The hosted page adapts to the connection. An OAuth connector asks for your consent. An API key connector, such as Snowflake, asks for the credential. Hermes never collects that credential in chat.
 
 </details>
 
