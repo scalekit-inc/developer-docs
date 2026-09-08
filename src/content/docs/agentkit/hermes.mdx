@@ -1,6 +1,6 @@
 ---
 title: 'Connect Hermes to AgentKit'
-description: 'Connect Hermes Agent to Gmail, Slack, and other apps through Scalekit without storing provider tokens on the host.'
+description: 'Wire Hermes Agent to Gmail, Slack, and other apps through Scalekit so the agent can act as the user.'
 tags: [agentkit, hermes, nous, ai-agents, tools, integrations]
 sidebar:
   label: 'Hermes'
@@ -38,9 +38,9 @@ tableOfContents: true
 
 import { Steps, Tabs, TabItem, CardGrid, LinkCard, Badge } from '@astrojs/starlight/components';
 
-Connect Hermes Agent to Gmail, Slack, and other apps through Scalekit. Hermes runs the agent loop, memory, cron, and chat. Scalekit stores each user's tokens and runs tools as that user, so Hermes never holds Gmail, Slack, or Salesforce credentials.
+Scalekit lets a Hermes agent act as your user in Gmail, Slack, Linear, Salesforce, and other apps. Scalekit holds the connected account for each app the user authorized, then the agent calls tools with that account — it can do anything the user can do there.
 
-Use Scalekit when the agent must act as a named user in a Scalekit connection. Keep the native Hermes path when the bundled GitHub skill, official Linear Model Context Protocol (MCP) server, or the Slack gateway as a bot already covers the job.
+Hermes does not ship this wiring — add it as a skill. Scalekit publishes the skill as `integrate-agentkit-host`; copy its runtime files into Hermes under the name `scalekit-agent-auth`. Without `scalekit-agent-auth`, Hermes cannot look up Scalekit connections, send a magic link, or run tools as the user.
 
 ```d2
 direction: right
@@ -70,35 +70,32 @@ Scalekit.Vault -> Providers.Salesforce
 Scalekit.Vault -> Providers.More
 ```
 
-You talk to Hermes. Hermes calls Scalekit. Scalekit calls Gmail, Slack, or Salesforce as you.
-
-Scalekit stores tokens and API keys and keeps an audit log. Hermes, like other agent hosts, is open to prompt injection. Treat the Hermes host as untrusted for provider secrets.
-
-When you ask Hermes to use a third-party service, the skill:
+When you ask Hermes to use a third-party app, `scalekit-agent-auth`:
 
 - Finds the Scalekit connection for that action (for example [Gmail](/agentkit/connectors/gmail/))
-- Checks that the connected account is `ACTIVE`. For Open Authorization (OAuth), the skill returns a magic link. For an API key, the skill points you to the Dashboard
-- Fetches the tool schema
-- Calls the tool and returns the result
-- Falls back to the Scalekit HTTP proxy when no named tool exists
+- Checks that the user's connected account is `ACTIVE`, which means Scalekit holds a working token for it
+- Returns a magic link when the account is not `ACTIVE`. A magic link is a one-time URL the user opens to authorize the app. An API key connection points you to the Dashboard instead
+- Fetches the tool schema, calls the tool, and returns the result
+- Falls back to the Scalekit HTTP proxy when the connection exposes no named tool for the action
 
 ## Prerequisites
 
 - [Hermes Agent](https://hermes-agent.nousresearch.com/docs/getting-started/quickstart) installed
 - A Scalekit account with AgentKit enabled: [sign up at app.scalekit.com](https://app.scalekit.com)
 - At least one connection in **Dashboard > AgentKit > Connections** (for example, Gmail)
-- `python3` and `uv` on your `PATH`
+- `python3` and [`uv`](https://docs.astral.sh/uv/), the Python package manager, on your `PATH`
 
-## Get started
+## Install the skill on Hermes
 
 <Steps>
-1. ### Copy the runtime skill
+1. ### Copy the runtime skill onto the Hermes profile
 
-   Coding agents use `integrate-agentkit-host`. Hermes chat uses `scalekit-agent-auth`.
-
-   Get `integrate-agentkit-host` from [authstack](https://github.com/scalekit-inc/authstack/tree/main/kits/agentkit/skills/integrate-agentkit-host) or the [skills pack](https://github.com/scalekit-inc/skills/tree/main/skills/integrate-agentkit-host). From the `integrate-agentkit-host` directory, copy the runtime file and scripts onto the Hermes profile:
+   Clone [authstack](https://github.com/scalekit-inc/authstack/tree/main/kits/agentkit/skills/integrate-agentkit-host), then copy the runtime file and its scripts into a Hermes skill folder:
 
    ```bash showLineNumbers=false
+   git clone --depth 1 https://github.com/scalekit-inc/authstack.git
+   cd authstack/kits/agentkit/skills/integrate-agentkit-host
+
    DEST="${HERMES_HOME:-$HOME/.hermes}/skills/scalekit-agent-auth"
    mkdir -p "$DEST/scripts"
    cp references/runtime-skill.md "$DEST/SKILL.md"
@@ -106,19 +103,23 @@ When you ask Hermes to use a third-party service, the skill:
    cd "$DEST/scripts" && uv sync
    ```
 
-   Confirm `hermes skills list` shows `scalekit-agent-auth`. Re-run `uv sync` from `$DEST/scripts` if the skill is missing or the script fails to import.
+   The [skills pack](https://github.com/scalekit-inc/skills/tree/main/skills/integrate-agentkit-host) carries the same skill if you prefer that repo.
 
-   Do not run `hermes skills install` on `integrate-agentkit-host`. That parent folder is for coding agents.
+   Run `hermes skills list`. The table lists `scalekit-agent-auth` with status `enabled`:
 
-   Do not install from a raw `SKILL.md` URL. You need `runtime-skill.md` plus `scripts/`.
+   ```txt showLineNumbers=false
+   │ scalekit-agent-auth │          │ local  │ local │ enabled │
+   ```
 
-   The skill lands in `~/.hermes/skills/scalekit-agent-auth/` and is also available as `/scalekit-agent-auth`.
+   If the row is missing, or the script fails to import, run `uv sync` again from `$DEST/scripts`.
 
-   New sessions pick up the skill. Run `/reset` to load it in the current chat.
+   Copy the files — do not run `hermes skills install` on `integrate-agentkit-host`, and do not install from a raw `SKILL.md` URL. Hermes needs `runtime-skill.md` as the skill file, plus `scripts/`.
+
+   Hermes now answers to `/scalekit-agent-auth`. New chats pick the skill up on their own. Run `/reset` to load it in the chat you already have open.
 
 2. ### Configure credentials
 
-   Add Scalekit client credentials to `~/.hermes/.env`. The values in `~/.hermes/.env` are Scalekit client credentials, not Gmail or Slack tokens. Scalekit stores provider tokens and refreshes them.
+   Put only Scalekit client credentials in `~/.hermes/.env`. Gmail and Slack tokens never go in that file. Scalekit stores the provider tokens and refreshes them.
 
    ```bash title="~/.hermes/.env"
    SCALEKIT_CLIENT_ID=skc_your_client_id
@@ -134,7 +135,7 @@ When you ask Hermes to use a third-party service, the skill:
    | `SCALEKIT_ENVIRONMENT_URL` | Your Scalekit environment URL <Badge text="Required" /> |
    | `SCALEKIT_IDENTIFIER` | Default user for tool calls <Badge text="Recommended" /> |
 
-   Copy the client ID, client secret, environment URL, and identifier from **Dashboard > Developers > Settings > API Credentials**.
+   Copy the client ID, client secret, and environment URL from **Dashboard > Developers > Settings > API Credentials**. The identifier is not a dashboard credential. Set it to the user you want Hermes to act as, for example `alice`.
 
 3. ### Ask Hermes to act
 
@@ -341,14 +342,14 @@ Use the `scalekit-agent-auth` skill, or set a bearer header as in [Set up a Virt
 </details>
 
 <details>
-<summary>When should I skip Scalekit?</summary>
+<summary>When do I not need Scalekit?</summary>
 
-Keep the native Hermes path when:
+Skip Scalekit when no named user is involved:
 
-- You only need `gh` on the operator machine
-- Official Linear MCP for your own Linear is enough (`hermes mcp install linear`)
-- Slack is only a chat channel. Use the Hermes Slack gateway.
+- GitHub work through `gh` on the operator's own machine
+- Your own Linear account through the connector Hermes ships (`hermes mcp install linear`)
+- Slack used only as a chat channel, through the Hermes Slack gateway
 
-Add Scalekit when the agent must act as a named user: read Gmail as `alice`, post as a Slack **user**, or write that user's Google Calendar.
+Add Scalekit when Hermes must act as a specific person: read Gmail as `alice`, post to Slack as that person, or write to that person's Google Calendar.
 
 </details>
