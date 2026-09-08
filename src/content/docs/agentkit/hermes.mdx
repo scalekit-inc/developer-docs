@@ -1,6 +1,6 @@
 ---
 title: 'Connect Hermes to AgentKit'
-description: 'Connect Hermes Agent to Gmail, Slack, and other apps through Scalekit. Hermes runs the agent loop. Scalekit handles auth and tools.'
+description: 'Connect Hermes Agent to Gmail, Slack, and other apps through Scalekit without storing provider tokens on the host.'
 tags: [agentkit, hermes, nous, ai-agents, tools, integrations]
 sidebar:
   label: 'Hermes'
@@ -19,7 +19,7 @@ seeAlso:
     - title: 'OpenClaw how-to'
       icon: 'book'
       url: '/agentkit/openclaw'
-    - title: 'integrate-agentkit-host'
+    - title: 'Host skill on GitHub'
       icon: 'github'
       url: 'https://github.com/scalekit-inc/authstack/tree/main/kits/agentkit/skills/integrate-agentkit-host'
     - title: 'Hermes Slack gateway'
@@ -36,7 +36,11 @@ head:
 tableOfContents: true
 ---
 
-import { Aside, Steps, Tabs, TabItem, CardGrid, LinkCard, Badge } from '@astrojs/starlight/components';
+import { Steps, Tabs, TabItem, CardGrid, LinkCard, Badge } from '@astrojs/starlight/components';
+
+Connect Hermes Agent to Gmail, Slack, and other apps through Scalekit. Hermes runs the agent loop, memory, cron, and chat. Scalekit stores each user's tokens and runs tools as that user, so Hermes never holds Gmail, Slack, or Salesforce credentials.
+
+Use Scalekit when the agent must act as a named user in a Scalekit connection. Keep the native Hermes path when the bundled GitHub skill, official Linear Model Context Protocol (MCP) server, or the Slack gateway as a bot already covers the job.
 
 ```d2
 direction: right
@@ -66,22 +70,14 @@ Scalekit.Vault -> Providers.Salesforce
 Scalekit.Vault -> Providers.More
 ```
 
-Hermes Agent is the host. It runs the loop, memory, cron, and chat.
+You talk to Hermes. Hermes calls Scalekit. Scalekit calls Gmail, Slack, or Salesforce as you.
 
-Scalekit AgentKit is the vault. It holds each user's tokens and runs tools as that user.
-
-You talk to Hermes. Hermes calls Scalekit. Scalekit calls Gmail, Slack, or Salesforce as you. Hermes never stores those tokens.
-
-Use this path when the agent must **act as a named user** in a Scalekit connection. Skip Scalekit when Hermes already covers the job: the bundled GitHub skill, official Linear MCP, or the Slack gateway as a bot.
-
-<Aside type="caution" title="Security considerations for AI agents">
-  Scalekit stores tokens and API keys and keeps an audit log. Hermes, like other agent hosts, is open to prompt injection. Treat the host as untrusted for provider secrets.
-</Aside>
+Scalekit stores tokens and API keys and keeps an audit log. Hermes, like other agent hosts, is open to prompt injection. Treat the Hermes host as untrusted for provider secrets.
 
 When you ask Hermes to use a third-party service, the skill:
 
 - Finds the Scalekit connection for that action (for example [Gmail](/agentkit/connectors/gmail/))
-- Checks that the connected account is `ACTIVE`. For OAuth, it returns a magic link. For an API key, it points you to the Dashboard
+- Checks that the connected account is `ACTIVE`. For Open Authorization (OAuth), the skill returns a magic link. For an API key, the skill points you to the Dashboard
 - Fetches the tool schema
 - Calls the tool and returns the result
 - Falls back to the Scalekit HTTP proxy when no named tool exists
@@ -100,7 +96,7 @@ When you ask Hermes to use a third-party service, the skill:
 
    Coding agents use `integrate-agentkit-host`. Hermes chat uses `scalekit-agent-auth`.
 
-   Get `integrate-agentkit-host` from [authstack](https://github.com/scalekit-inc/authstack/tree/main/kits/agentkit/skills/integrate-agentkit-host) or the [skills pack](https://github.com/scalekit-inc/skills/tree/main/skills/integrate-agentkit-host). From that skill directory, copy the runtime file and scripts onto the Hermes profile:
+   Get `integrate-agentkit-host` from [authstack](https://github.com/scalekit-inc/authstack/tree/main/kits/agentkit/skills/integrate-agentkit-host) or the [skills pack](https://github.com/scalekit-inc/skills/tree/main/skills/integrate-agentkit-host). From the `integrate-agentkit-host` directory, copy the runtime file and scripts onto the Hermes profile:
 
    ```bash showLineNumbers=false
    DEST="${HERMES_HOME:-$HOME/.hermes}/skills/scalekit-agent-auth"
@@ -110,21 +106,23 @@ When you ask Hermes to use a third-party service, the skill:
    cd "$DEST/scripts" && uv sync
    ```
 
-   Do not run `hermes skills install` on the parent folder. That folder is for coding agents.
+   Confirm `hermes skills list` shows `scalekit-agent-auth`. Re-run `uv sync` from `$DEST/scripts` if the skill is missing or the script fails to import.
+
+   Do not run `hermes skills install` on `integrate-agentkit-host`. That parent folder is for coding agents.
 
    Do not install from a raw `SKILL.md` URL. You need `runtime-skill.md` plus `scripts/`.
 
    The skill lands in `~/.hermes/skills/scalekit-agent-auth/` and is also available as `/scalekit-agent-auth`.
 
-   New sessions pick up the skill. Run `/reset` if you want it in the current chat.
+   New sessions pick up the skill. Run `/reset` to load it in the current chat.
 
 2. ### Configure credentials
 
-   Add your Scalekit **client** credentials to `~/.hermes/.env`. These are not Gmail or Slack tokens.
+   Add Scalekit client credentials to `~/.hermes/.env`. The values in `~/.hermes/.env` are Scalekit client credentials, not Gmail or Slack tokens. Scalekit stores provider tokens and refreshes them.
 
    ```bash title="~/.hermes/.env"
    SCALEKIT_CLIENT_ID=skc_your_client_id
-   SCALEKIT_CLIENT_SECRET=your_client_secret
+   SCALEKIT_CLIENT_SECRET=your_client_secret  # Never hardcode secrets; use environment variables.
    SCALEKIT_ENVIRONMENT_URL=https://your-env.scalekit.cloud
    SCALEKIT_IDENTIFIER=your_default_user_identifier
    ```
@@ -136,11 +134,7 @@ When you ask Hermes to use a third-party service, the skill:
    | `SCALEKIT_ENVIRONMENT_URL` | Your Scalekit environment URL <Badge text="Required" /> |
    | `SCALEKIT_IDENTIFIER` | Default user for tool calls <Badge text="Recommended" /> |
 
-   Copy these values from **Dashboard > Developers > Settings > API Credentials**.
-
-   <Aside type="caution" title="Do not store provider tokens">
-     Put only Scalekit client credentials in Hermes. Scalekit stores Gmail, Slack, and Salesforce tokens and refreshes them.
-   </Aside>
+   Copy the client ID, client secret, environment URL, and identifier from **Dashboard > Developers > Settings > API Credentials**.
 
 3. ### Ask Hermes to act
 
@@ -179,9 +173,9 @@ When you ask Hermes to use a third-party service, the skill:
    Hermes:
 
    1. Looks up the Slack **user** connection
-   2. Gives you a magic link if that account is not `ACTIVE`
+   2. Gives you a magic link if the Slack user account is not `ACTIVE`
    3. Fetches the Slack tool schema
-   4. Returns the DMs as `alice`, not as the Hermes bot
+   4. Returns the direct messages (DMs) as `alice`, not as the Hermes bot
    </TabItem>
    <TabItem label="Google Calendar">
    ```txt showLineNumbers=false
@@ -207,17 +201,17 @@ When you ask Hermes to use a third-party service, the skill:
 
 ## Verify it works
 
-Confirm all of these:
+Confirm all of the following:
 
 - The skill is listed (`hermes skills list` or `/skills`)
 - The connected account is `ACTIVE` after you finish the magic link
 - Hermes returns data from the provider (unread mail, or the Notion page)
 
-If the account stays inactive, open the magic link again and retry the same prompt.
+Open the magic link again and retry the same prompt if the account stays inactive.
 
-## Slack bot vs Slack user
+## Use Slack as a bot or as a user
 
-These are two different identities. Do not mix them.
+The Slack gateway and the Slack user connection are two identities. Do not mix them.
 
 | Job | Use |
 |-----|-----|
@@ -228,7 +222,7 @@ The gateway bot is a channel. It is not `alice`.
 
 A typical always-on setup uses both: the gateway hears the channel, and Scalekit acts as the user.
 
-## Run on a schedule
+## Run jobs on a schedule
 
 Attach the skill to a Hermes cron job. Each fire is a fresh session. The skill uses Scalekit client credentials. You do not mint a session token.
 
@@ -244,34 +238,17 @@ Or in chat:
 
 The connected account must already be `ACTIVE`. Cron cannot click a magic link.
 
-On a headless host, keep the gateway running so a new magic link can land in Slack or Telegram. Do not put Gmail or Calendar refresh tokens in `~/.hermes/.env`.
+Keep the gateway running on a headless host so a new magic link can land in Slack or Telegram. Do not put Gmail or Calendar refresh tokens in `~/.hermes/.env`.
 
-## What not to do
+## Avoid these mistakes
 
 - Do not put provider tokens in `~/.hermes/.env`. Put only Scalekit client credentials there.
-- Do not use the bundled Google Workspace skill (`~/.hermes/google_token.json`) if AgentKit owns that user. That file is one laptop login, not a named identifier.
-- Do not run `hermes mcp login` against Scalekit Virtual MCP. Virtual MCP uses a static bearer session token. It is not MCP OAuth.
+- Do not use the bundled Google Workspace skill (`~/.hermes/google_token.json`) if AgentKit owns the Google user. `~/.hermes/google_token.json` is one laptop login, not a named identifier.
+- Do not run `hermes mcp login` against Scalekit Virtual MCP (a Scalekit MCP URL plus a session token). Virtual MCP uses a static bearer session token. It is not MCP OAuth.
 - Do not treat the Slack bot token as “send as alice”.
-- Do not use this Hermes host as a multi-tenant identity provider. One gateway is one operator. Switch identifiers on the same host. Do not mint per-customer session tokens inside Hermes.
+- Do not use a Hermes host as a multi-tenant identity provider. One gateway is one operator. Switch identifiers on the same host. Do not mint per-customer session tokens inside Hermes.
 
-## Optional: Virtual MCP for a short demo
-
-The default on this page is the skill. Use [Virtual MCP](/agentkit/mcp/configure-mcp-server/) only for a short `hermes chat` demo.
-
-Virtual MCP needs a session token **before each run**. Hermes gateway and cron stay up for days. A bearer in `~/.hermes/.env` expires. There is no shipped remint hook.
-
-If you still want the demo:
-
-1. Create a Virtual MCP config in the Dashboard.
-2. Mint a session token for one identifier.
-3. Point Hermes at the static `mcp_server_url` with `Authorization: Bearer ${SCALEKIT_MCP_SESSION_TOKEN}`.
-4. Start a new chat before the token expires.
-
-Do not set `auth: oauth` on that server.
-
-## Supported connectors
-
-Any connection in your Scalekit dashboard works with this skill. That includes Gmail, Slack, Notion, GitHub, Salesforce, HubSpot, Linear, Snowflake, and the rest of the catalog.
+## Next steps
 
 <CardGrid>
   <LinkCard
@@ -284,16 +261,21 @@ Any connection in your Scalekit dashboard works with this skill. That includes G
     description="How magic links and connected accounts work"
     href="/agentkit/tools/authorize/"
   />
+  <LinkCard
+    title="OpenClaw how-to"
+    description="The same AgentKit skill on OpenClaw"
+    href="/agentkit/openclaw"
+  />
 </CardGrid>
 
-## Common scenarios
+## Fix common errors
 
 <details>
 <summary>How do I authorize a new connection?</summary>
 
-If the account is not `ACTIVE`, the skill returns a magic link. Open the link. Finish OAuth. Return to Hermes and retry.
+The skill returns a magic link if the account is not `ACTIVE`. Open the link. Finish OAuth. Return to Hermes and retry.
 
-For API key connections (for example Snowflake), set the key in **Dashboard > Connections**. The skill cannot complete that flow in chat.
+Set the key in **Dashboard > Connections** for API key connections (for example Snowflake). The skill cannot complete the API key flow in chat.
 
 </details>
 
@@ -302,7 +284,7 @@ For API key connections (for example Snowflake), set the key in **Dashboard > Co
 
 Set `SCALEKIT_IDENTIFIER` in `~/.hermes/.env` as the default.
 
-To act as someone else for one turn, tell Hermes the identifier to use. Scalekit scopes tools to that connected account.
+Name the identifier in the prompt to act as someone else for one turn, for example `as identifier alice`. Scalekit scopes tools to the named user's connected account.
 
 </details>
 
@@ -311,7 +293,7 @@ To act as someone else for one turn, tell Hermes the identifier to use. Scalekit
 
 1. Confirm the connection exists in **Dashboard > AgentKit > Connections**
 2. Confirm it is complete, not a draft
-3. Confirm `SCALEKIT_ENVIRONMENT_URL` matches that environment
+3. Confirm `SCALEKIT_ENVIRONMENT_URL` matches the environment that holds the connection
 
 </details>
 
@@ -336,16 +318,25 @@ See [Manage connected accounts](/agentkit/connected-accounts/).
 
 No, not as the default. Hermes is a long-lived host. The skill calls `execute_tool` with client credentials. You do not mint a session token.
 
-Use Virtual MCP in your **app** for a short agent run (Claude Managed Agents, Mastra, CrewAI), or for the optional CLI demo above.
+Virtual MCP is a Scalekit MCP URL plus a session token that your app mints. Hermes gateway and cron stay up for days. A bearer in `~/.hermes/.env` expires. There is no shipped remint hook.
+
+Use Virtual MCP in your **app** for a short agent run (Claude Managed Agents, Mastra, CrewAI), or for a short `hermes chat` demo:
+
+1. Create a Virtual MCP config in the Dashboard.
+2. Mint a session token for one identifier.
+3. Point Hermes at the static `mcp_server_url` with `Authorization: Bearer ${SCALEKIT_MCP_SESSION_TOKEN}`.
+4. Start a new chat before the token expires.
+
+Do not set `auth: oauth` on the Virtual MCP server.
 
 </details>
 
 <details>
 <summary>Why does hermes mcp login fail against Scalekit?</summary>
 
-That command is for vendor MCP OAuth. Scalekit Virtual MCP is a static URL plus a session token that **your app** mints.
+`hermes mcp login` is for vendor MCP OAuth. Scalekit Virtual MCP is a static URL plus a session token that **your app** mints.
 
-Use the skill on this page, or set a bearer header as in [Set up a Virtual MCP server](/agentkit/mcp/configure-mcp-server/).
+Use the `scalekit-agent-auth` skill, or set a bearer header as in [Set up a Virtual MCP server](/agentkit/mcp/configure-mcp-server/).
 
 </details>
 
