@@ -71,13 +71,15 @@ Scalekit.Vault -> Providers.Salesforce
 Scalekit.Vault -> Providers.More
 ```
 
-When you ask Hermes to use a third-party app, `hermes-delegated-auth`:
+`hermes-delegated-auth` runs this loop when you name an app:
 
-1. Looks up the [GitHub](/agentkit/connectors/github/), [Gmail](/agentkit/connectors/gmail/), or other connection you asked for
-2. Checks that the named user's connected account is `ACTIVE`, which means Scalekit holds a working token for it
-3. Returns a magic link when the account is not `ACTIVE`. A magic link is a one-time URL that opens a Scalekit hosted page. The page adapts to the connection: OAuth consent for an OAuth connector, a credential form for an API key connector
+1. Looks up the Scalekit connection for [GitHub](/agentkit/connectors/github/), [Gmail](/agentkit/connectors/gmail/), or the app you named
+2. Checks the named user's connected account. `ACTIVE` means Scalekit holds a working token
+3. Returns a magic link if the connected account is not `ACTIVE`
 4. Fetches the tool schema, calls the tool, and returns the result
-5. Falls back to the Scalekit HTTP proxy when the connection exposes no named tool for the action
+5. Calls the Scalekit HTTP proxy if no named tool exists
+
+A magic link is a one-time URL. The hosted page shows OAuth consent, or an API-key form.
 
 ## Prerequisites
 
@@ -116,11 +118,11 @@ When you ask Hermes to use a third-party app, `hermes-delegated-auth`:
 
    New chats load `/hermes-delegated-auth`. Run `/reset` in a chat that is already open.
 
-   If you set `HERMES_HOME`, the skill lands in that profile. This page uses `~/.hermes`.
+   `HERMES_HOME` changes the skill path. The commands on this page use `~/.hermes`.
 
    Do not install from a raw `SKILL.md` URL. Hermes will miss `scripts/`.
 
-   Do not install `integrate-agentkit-host`. That skill is for coding agents, not Hermes.
+   Do not install `integrate-agentkit-host`. `integrate-agentkit-host` is for coding agents, not Hermes.
 
 2. ### Configure credentials
 
@@ -143,9 +145,9 @@ When you ask Hermes to use a third-party app, `hermes-delegated-auth`:
 
    Copy the client ID, client secret, and environment URL from **Dashboard > Developers > Settings > API Credentials**.
 
-   `SCALEKIT_IDENTIFIER` is not a dashboard credential. Pick an opaque id that only your system knows, for example `usr_8f3a2c`. Every `tool_exec.py` command, including `--list-connections`, needs that value.
+   `SCALEKIT_IDENTIFIER` is not a dashboard credential. Pick an opaque id that only your system knows, for example `usr_8f3a2c`. Every `tool_exec.py` command needs `SCALEKIT_IDENTIFIER`, including `--list-connections`.
 
-   Do not use an email, a first name, or another guessable string. Anyone who has `SCALEKIT_CLIENT_SECRET` can call tools as any `ACTIVE` identifier.
+   Do not use an email, a first name, or another guessable string. `SCALEKIT_CLIENT_SECRET` lets anyone call tools as any `ACTIVE` identifier.
 
    In a multi-user product, add [user verification](/agentkit/user-verification/) so the wrong person cannot activate the slot.
 
@@ -212,7 +214,7 @@ When you ask Hermes to use a third-party app, `hermes-delegated-auth`:
    1. Looks up the Google Calendar connection for `usr_8f3a2c`
    2. Gives you a magic link if needed
    3. Calls the create-event tool
-   4. Scalekit writes the event with that user's token
+   4. Scalekit writes the event with the `usr_8f3a2c` token
    </TabItem>
    </Tabs>
 
@@ -243,9 +245,9 @@ The Slack gateway and the Slack user connection are two identities. Do not mix t
 | Chat with the agent in a channel or DM | Hermes Slack **gateway**. Bot tokens (`xoxb-` + `xapp-`) in `~/.hermes/.env`. See the [Hermes Slack setup](https://hermes-agent.nousresearch.com/docs/user-guide/messaging/slack). |
 | Read private history, post, or act as a named person | Scalekit Slack **user** connection on that identifier |
 
-The gateway bot is a channel. It is not `usr_8f3a2c`.
+The gateway bot is a channel. The gateway bot is not `usr_8f3a2c`.
 
-A typical always-on setup uses both: the gateway hears the channel, and Scalekit acts as the user.
+Always-on hosts use both. The gateway hears the channel. Scalekit acts as the named user.
 
 ## Run jobs on a schedule
 
@@ -263,7 +265,7 @@ Or in chat:
 
 The connected account must already be `ACTIVE`. Cron cannot click a magic link.
 
-Keep the gateway running on a headless host so a new magic link can land in Slack or Telegram. Do not put Gmail or Calendar refresh tokens in `~/.hermes/.env`.
+Leave the gateway running on a headless host. A new magic link can then land in Slack or Telegram. Do not put Gmail or Calendar refresh tokens in `~/.hermes/.env`.
 
 ## Avoid these mistakes
 
