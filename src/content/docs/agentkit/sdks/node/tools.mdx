@@ -130,13 +130,24 @@ const res = await scalekit.tools.listAvailableTools('user@example.com', {
 
       Searches tools ranked by relevance to a natural-language query—the job to be done, not an exact tool name. Use this instead of the list methods when the catalog is large and you want the few tools that fit the task at hand.
 
-      Pass `identifier` to also get per-connection readiness on each result, so you can send the user through the right auth step before calling `executeTool`. `connections` is populated only when you pass `identifier`. An empty `connections` array means the identifier has no connected account for that tool's provider, which is not an error. More than one entry means the identifier has accounts on several connections for the same provider, such as two Slack workspaces, so check each entry's own `readinessState`.
+      Pass `identifier` to also get per-connection readiness on each result, so you can send the user through the right auth step before calling `executeTool`.
 
-      | Readiness state | What it means |
-      | --- | --- |
-      | `READY` | The connection is usable now. Its `connectedAccountId` is safe to pass to `executeTool`. |
-      | `NEEDS_CONNECTION` | A connected account exists for the provider but is inactive. Send the user through the connect flow again. |
-      | `NEEDS_REAUTH` | The connected account needs the user to re-authorize before it can be used. |
+      Readiness is per connection, not per tool. Each entry in a result's `connections` carries its own `readinessState`:
+
+      <CB.ClassProperty name="READY" label="state" highlight="constant">
+        Usable now. Pass this connection's `connectedAccountId` to `executeTool`.
+      </CB.ClassProperty>
+      <CB.ClassProperty name="NEEDS_CONNECTION" label="state" highlight="constant">
+        A connected account exists for the provider but is inactive. Send the user through the connect flow again.
+      </CB.ClassProperty>
+      <CB.ClassProperty name="NEEDS_REAUTH" label="state" highlight="constant">
+        The connected account needs the user to re-authorize before it can be used.
+      </CB.ClassProperty>
+
+      `connections` is populated only when you pass `identifier`. Two cases are easy to misread:
+
+      - **An empty array** means the identifier has no connected account for that tool's provider. This is not an error, and it is different from `NEEDS_CONNECTION`.
+      - **Several entries** mean the identifier holds accounts on more than one connection for the same provider, such as two Slack workspaces.
 
       <CB.ClassMethodInput name="query" type="string">
         Natural-language query or keywords describing the job to be done. 1–256 characters.
