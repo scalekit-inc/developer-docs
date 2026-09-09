@@ -1,6 +1,6 @@
 ---
 title: 'Connect Hermes to AgentKit'
-description: 'Wire Hermes Agent to Gmail, Slack, and other apps through Scalekit so the agent can act as the user.'
+description: 'Install hermes-delegated-auth so Hermes can act as a named user in GitHub, Gmail, Slack, and other apps.'
 tags: [agentkit, hermes, nous, ai-agents, tools, integrations]
 sidebar:
   label: 'Hermes'
@@ -21,7 +21,7 @@ seeAlso:
       url: '/agentkit/openclaw'
     - title: 'Host skill on GitHub'
       icon: 'github'
-      url: 'https://github.com/scalekit-inc/authstack/tree/main/kits/agentkit/skills/integrate-agentkit-host'
+      url: 'https://github.com/scalekit-inc/authstack/tree/main/kits/agentkit/host/hermes-delegated-auth'
     - title: 'Hermes Slack gateway'
       icon: 'book'
       url: 'https://hermes-agent.nousresearch.com/docs/user-guide/messaging/slack'
@@ -38,9 +38,9 @@ tableOfContents: true
 
 import { Steps, Tabs, TabItem, CardGrid, LinkCard, Badge } from '@astrojs/starlight/components';
 
-Scalekit lets a Hermes agent act as your user in Gmail, Slack, Linear, Salesforce, and other apps. Scalekit holds the connected account for each app the user authorized, then the agent calls tools with that account — it can do anything the user can do there.
+Scalekit lets a Hermes agent act as a named user in GitHub, Gmail, Slack, and other apps. Scalekit holds the connected account. Hermes calls tools with that account.
 
-Hermes does not ship this wiring — add it as a skill. Scalekit publishes the skill as `integrate-agentkit-host`; copy its runtime files into Hermes under the name `scalekit-agent-auth`. Without `scalekit-agent-auth`, Hermes cannot look up Scalekit connections, send a magic link, or run tools as the user.
+Hermes does not ship this wiring. Install the `hermes-delegated-auth` skill. Without that skill, Hermes cannot look up Scalekit connections, send a magic link, or run tools as the named user.
 
 ```d2
 direction: right
@@ -70,11 +70,11 @@ Scalekit.Vault -> Providers.Salesforce
 Scalekit.Vault -> Providers.More
 ```
 
-When you ask Hermes to use a third-party app, `scalekit-agent-auth`:
+When you ask Hermes to use a third-party app, `hermes-delegated-auth`:
 
-- Finds the Scalekit connection for that action (for example [Gmail](/agentkit/connectors/gmail/))
-- Checks that the user's connected account is `ACTIVE`, which means Scalekit holds a working token for it
-- Returns a magic link when the account is not `ACTIVE`. A magic link is a one-time URL that opens a Scalekit hosted page, which adapts to the connection: OAuth consent for an OAuth connector, a credential form for an API key connector
+- Finds the Scalekit connection for that action (for example [GitHub](/agentkit/connectors/github/) or [Gmail](/agentkit/connectors/gmail/))
+- Checks that the named user's connected account is `ACTIVE`, which means Scalekit holds a working token for it
+- Returns a magic link when the account is not `ACTIVE`. A magic link is a one-time URL that opens a Scalekit hosted page. The page adapts to the connection: OAuth consent for an OAuth connector, a credential form for an API key connector
 - Fetches the tool schema, calls the tool, and returns the result
 - Falls back to the Scalekit HTTP proxy when the connection exposes no named tool for the action
 
@@ -82,52 +82,51 @@ When you ask Hermes to use a third-party app, `scalekit-agent-auth`:
 
 - [Hermes Agent](https://hermes-agent.nousresearch.com/docs/getting-started/quickstart) installed
 - A Scalekit account with AgentKit enabled: [sign up at app.scalekit.com](https://app.scalekit.com)
-- At least one connection in **Dashboard > AgentKit > Connections** (for example, Gmail)
-- `python3` and [`uv`](https://docs.astral.sh/uv/), the Python package manager, on your `PATH`
+- At least one connection in **Dashboard > AgentKit > Connections** (for example, GitHub)
+- [`uv`](https://docs.astral.sh/uv/) on your `PATH`
 
 ## Install the skill on Hermes
 
 <Steps>
-1. ### Copy the runtime skill onto the Hermes profile
+1. ### Install hermes-delegated-auth
 
-   Clone [authstack](https://github.com/scalekit-inc/authstack/tree/main/kits/agentkit/skills/integrate-agentkit-host), then copy the runtime file and its scripts into a Hermes skill folder:
+   Install the skill from the public [authstack](https://github.com/scalekit-inc/authstack/tree/main/kits/agentkit/host/hermes-delegated-auth) repo:
 
    ```bash showLineNumbers=false
-   git clone --depth 1 https://github.com/scalekit-inc/authstack.git
-   cd authstack/kits/agentkit/skills/integrate-agentkit-host
-
-   DEST="${HERMES_HOME:-$HOME/.hermes}/skills/scalekit-agent-auth"
-   mkdir -p "$DEST/scripts"
-   cp references/runtime-skill.md "$DEST/SKILL.md"
-   cp scripts/tool_exec.py scripts/pyproject.toml "$DEST/scripts/"
-   cd "$DEST/scripts" && uv sync
+   hermes skills install scalekit-inc/authstack/kits/agentkit/host/hermes-delegated-auth
    ```
 
-   The commands honor `HERMES_HOME`. The rest of this page writes the default profile path, `~/.hermes`.
+   Do not install from a raw `SKILL.md` URL. That path can miss `scripts/`.
 
-   The [skills pack](https://github.com/scalekit-inc/skills/tree/main/skills/integrate-agentkit-host) carries the same skill if you prefer that repo.
+   Do not run `hermes skills install` on `integrate-agentkit-host`. That folder is the coding-agent router for OpenClaw. It is not the Hermes runtime.
 
-   Run `hermes skills list`. The table lists `scalekit-agent-auth` with status `enabled`:
+   The command honors `HERMES_HOME`. The rest of this page writes the default profile path, `~/.hermes`.
+
+   Run `hermes skills list`. The table lists `hermes-delegated-auth` with status `enabled`:
 
    ```txt showLineNumbers=false
-   │ scalekit-agent-auth │          │ local  │ local │ enabled │
+   │ hermes-delegated-auth │          │ local  │ local │ enabled │
    ```
 
-   If the row is missing, or the script fails to import, run `uv sync` again from `$DEST/scripts`.
+   Then sync the skill scripts:
 
-   Copy the files — do not run `hermes skills install` on `integrate-agentkit-host`, and do not install from a raw `SKILL.md` URL. Hermes needs `runtime-skill.md` as the skill file, plus `scripts/`.
+   ```bash showLineNumbers=false
+   cd "${HERMES_HOME:-$HOME/.hermes}/skills/hermes-delegated-auth"
+   uv sync
+   ```
 
-   Hermes now answers to `/scalekit-agent-auth`. New chats pick the skill up on their own. Run `/reset` to load it in the chat you already have open.
+   Hermes now answers to `/hermes-delegated-auth`. New chats pick the skill up on their own. Run `/reset` to load it in the chat you already have open.
 
 2. ### Configure credentials
 
-   Put only Scalekit client credentials in `~/.hermes/.env`. Gmail and Slack tokens never go in that file. Scalekit stores the provider tokens and refreshes them.
+   Put only Scalekit client credentials in `~/.hermes/.env`. GitHub, Gmail, and Slack tokens never go in that file. Scalekit stores the provider tokens and refreshes them.
 
    ```bash title="~/.hermes/.env"
    SCALEKIT_CLIENT_ID=skc_your_client_id
-   SCALEKIT_CLIENT_SECRET=your_client_secret  # Never hardcode secrets; use environment variables.
+   # Threat: a leaked secret lets anyone call tools as any ACTIVE identifier.
+   SCALEKIT_CLIENT_SECRET=your_client_secret
    SCALEKIT_ENVIRONMENT_URL=https://your-env.scalekit.cloud
-   SCALEKIT_IDENTIFIER=your_default_user_identifier
+   SCALEKIT_IDENTIFIER=alice
    ```
 
    | Parameter | Description |
@@ -135,26 +134,44 @@ When you ask Hermes to use a third-party app, `scalekit-agent-auth`:
    | `SCALEKIT_CLIENT_ID` | Your Scalekit client ID <Badge text="Required" /> |
    | `SCALEKIT_CLIENT_SECRET` | Your Scalekit client secret <Badge text="Required" /> |
    | `SCALEKIT_ENVIRONMENT_URL` | Your Scalekit environment URL <Badge text="Required" /> |
-   | `SCALEKIT_IDENTIFIER` | Default user for tool calls <Badge text="Recommended" /> |
+   | `SCALEKIT_IDENTIFIER` | Named user this host acts as <Badge text="Required" /> |
 
-   Copy the client ID, client secret, and environment URL from **Dashboard > Developers > Settings > API Credentials**. The identifier is not a dashboard credential. Set it to the user you want Hermes to act as, for example `alice`.
+   Copy the client ID, client secret, and environment URL from **Dashboard > Developers > Settings > API Credentials**.
+
+   `SCALEKIT_IDENTIFIER` is not a dashboard credential. It is a stable user id you choose, for example `alice` or `user_123`. Every `tool_exec.py` command, including `--list-connections`, needs that value.
+
+   Do not set the identifier to an email. Anyone who has `SCALEKIT_CLIENT_SECRET` can call tools as any `ACTIVE` identifier. An email is easy to guess.
+
+   In a multi-user product, add [user verification](/agentkit/user-verification/) so the wrong person cannot activate the slot.
 
 3. ### Ask Hermes to act
 
    Start a chat and ask for a real action:
 
    <Tabs>
+   <TabItem label="GitHub">
+   ```txt showLineNumbers=false
+   You: Who am I on GitHub?
+   ```
+
+   Hermes loads the skill and:
+
+   1. Looks up the GitHub connection
+   2. Checks that the connected account is `ACTIVE` (or gives you a magic link)
+   3. Fetches the tool schema
+   4. Calls the tool and returns the GitHub login
+   </TabItem>
    <TabItem label="Gmail">
    ```txt showLineNumbers=false
    You: Show me my latest unread emails
    ```
 
-   Hermes loads the skill and:
+   Hermes:
 
    1. Looks up the Gmail connection
-   2. Checks that the connected account is `ACTIVE` (or gives you a magic link)
+   2. Gives you a magic link if you have not authorized yet
    3. Fetches the tool schema
-   4. Calls the tool and returns the mail
+   4. Returns the mail
    </TabItem>
    <TabItem label="Notion">
    ```txt showLineNumbers=false
@@ -197,7 +214,7 @@ When you ask Hermes to use a third-party app, `scalekit-agent-auth`:
    You can also force the skill:
 
    ```txt showLineNumbers=false
-   /scalekit-agent-auth show my unread emails
+   /hermes-delegated-auth who am I on GitHub?
    ```
 
 </Steps>
@@ -206,9 +223,9 @@ When you ask Hermes to use a third-party app, `scalekit-agent-auth`:
 
 Confirm all of the following:
 
-- The skill is listed (`hermes skills list` or `/skills`)
+- The skill is listed (`hermes skills list` or `/skills`) as `hermes-delegated-auth`
 - The connected account is `ACTIVE` after you finish the magic link
-- Hermes returns data from the provider (unread mail, or the Notion page)
+- Hermes returns data from the provider (the GitHub login, or unread mail)
 
 Open the magic link again and retry the same prompt if the account stays inactive.
 
@@ -230,13 +247,13 @@ A typical always-on setup uses both: the gateway hears the channel, and Scalekit
 Attach the skill to a Hermes cron job. Each fire is a fresh session. The skill uses Scalekit client credentials. You do not mint a session token.
 
 ```bash showLineNumbers=false
-hermes cron create "0 9 * * *" "List alice's unread emails and post a 5-line summary" --skill scalekit-agent-auth
+hermes cron create "0 9 * * *" "List alice's unread emails and post a 5-line summary" --skill hermes-delegated-auth
 ```
 
 Or in chat:
 
 ```txt showLineNumbers=false
-/cron add "every weekday at 9am" "List alice's unread emails and post a 5-line summary" --skill scalekit-agent-auth
+/cron add "every weekday at 9am" "List alice's unread emails and post a 5-line summary" --skill hermes-delegated-auth
 ```
 
 The connected account must already be `ACTIVE`. Cron cannot click a magic link.
@@ -246,6 +263,7 @@ Keep the gateway running on a headless host so a new magic link can land in Slac
 ## Avoid these mistakes
 
 - Do not put provider tokens in `~/.hermes/.env`. Put only Scalekit client credentials there.
+- Do not set `SCALEKIT_IDENTIFIER` to an email or another guessable value.
 - Do not use the bundled Google Workspace skill (`~/.hermes/google_token.json`) if AgentKit owns the Google user. `~/.hermes/google_token.json` is one laptop login, not a named identifier.
 - Do not run `hermes mcp login` against Scalekit Virtual MCP (a Scalekit MCP URL plus a session token). Virtual MCP uses a static bearer session token. It is not MCP OAuth.
 - Do not treat the Slack bot token as “send as alice”.
@@ -298,6 +316,8 @@ Name the identifier in the prompt to act as someone else for one turn, for examp
 2. Confirm it is complete, not a draft
 3. Confirm `SCALEKIT_ENVIRONMENT_URL` matches the environment that holds the connection
 
+Use the connection `key_id` as the connection name, for example `github-connect`. Do not use the `conn_…` id.
+
 </details>
 
 <details>
@@ -339,7 +359,7 @@ Do not set `auth: oauth` on the Virtual MCP server.
 
 `hermes mcp login` is for vendor MCP OAuth. Scalekit Virtual MCP is a static URL plus a session token that **your app** mints.
 
-Use the `scalekit-agent-auth` skill, or set a bearer header as in [Set up a Virtual MCP server](/agentkit/mcp/configure-mcp-server/).
+Use the `hermes-delegated-auth` skill, or set a bearer header as in [Set up a Virtual MCP server](/agentkit/mcp/configure-mcp-server/).
 
 </details>
 
