@@ -186,7 +186,56 @@ export const modularScimPrompt = playbook({
    Name implement-sso if IT still needs the admin portal to turn on the directory.`,
 })
 
+/**
+ * Hermes host playbook. Off the shared 0–5 shell on purpose: the host installs a
+ * Hermes skill with `hermes skills install`, not an authstack skill with `npx skills add`,
+ * and it syncs its own Python dependencies. Same voice, same checkable Done on every step.
+ * Only the GitHub path is verified end to end; every fact here comes from the shipped skill.
+ */
+export const hermesPrompt = `Connect Hermes to Scalekit AgentKit.
+
+Load https://docs.scalekit.com/llms.txt, then the AgentKit set at https://docs.scalekit.com/_llms-txt/agentkit.txt, before writing any Scalekit code. The installed hermes-delegated-auth skill is the source of truth for tool names, connection names, and script flags. Credentials live in the environment.
+
+This run wires a Hermes Agent to Scalekit. Hermes holds no provider tokens. Scalekit holds the connected account and refreshes the access token. Default connector is GitHub, connection name github-connect, unless I name another.
+
+Follow these in order. A step is done only when its check passes.
+
+0. Host — confirm Hermes Agent is installed and uv is on PATH. Confirm the connector I want exists under https://app.scalekit.com → AgentKit → Connections, and use that Connection name exactly. New environments ship github-connect.
+   Done: hermes and uv both report a version. I have named a connector and that connection exists in the dashboard.
+
+1. Skill — install the Hermes host skill from authstack:
+   hermes skills install scalekit-inc/authstack/kits/agentkit/host/hermes-delegated-auth
+   Install from that authstack path. A raw SKILL.md URL omits scripts/ and the skill fails at run time. The integrate-agentkit-host skill is for coding agents, not for Hermes.
+   Done: hermes skills list shows hermes-delegated-auth as enabled.
+
+2. Dependencies — sync the skill's Python dependencies. Install copies files only:
+   cd "\${HERMES_HOME:-$HOME/.hermes}/skills/hermes-delegated-auth" && uv sync
+   Done: uv sync exits 0.
+
+3. Credentials — write these four names into ~/.hermes/.env, from https://app.scalekit.com → Developers → Settings → API Credentials:
+   ${ENVIRONMENT_URL_VAR}
+   SCALEKIT_CLIENT_ID
+   SCALEKIT_CLIENT_SECRET
+   SCALEKIT_IDENTIFIER
+   SCALEKIT_IDENTIFIER is not a dashboard credential. Pick an opaque id that only my system resolves, for example usr_8f3a2c. Every script command reads it, including --list-connections. Provider tokens for GitHub, Gmail, and Slack stay out of this file: Scalekit stores and refreshes them. If I paste values into this chat, use them only for ~/.hermes/.env and remind me to rotate them in the dashboard afterward.
+   Done: all four names are set. The identifier is opaque, not an email address.
+
+4. Call — run the skill's script once for the connector from step 0:
+   cd "\${HERMES_HOME:-$HOME/.hermes}/skills/hermes-delegated-auth"
+   uv run scripts/tool_exec.py --list-connections
+   Then open a Hermes chat and ask for a real action, for example "Who am I on GitHub?". A connected account that is not ACTIVE returns a magic link. Open the link, finish the hosted flow, then retry the same prompt. Run /reset first in a chat that was already open.
+   Done: --list-connections prints the connector from step 0, and the chat returns provider data.
+
+5. Handoff — return proof plus https://app.scalekit.com → AgentKit → Connected accounts.
+   Done: both are in your reply.
+
+   Proof:
+   - hermes skills list showing hermes-delegated-auth enabled
+   - the magic link if the connected account was not ACTIVE, and status ACTIVE after the hosted flow
+   - one successful tool call: the GitHub login from github_user_get_authenticated on github-connect, or one equivalent first call to the connector I named`
+
 export const PRODUCT_PROMPTS = {
+  'hermes-delegated-auth': hermesPrompt,
   [agentkitSkill]: agentkitPrompt,
   [saaskitSkill]: saaskitPrompt,
   [mcpSkill]: mcpAuthPrompt,
@@ -197,6 +246,7 @@ export const PRODUCT_PROMPTS = {
 export type ProductSkill = keyof typeof PRODUCT_PROMPTS
 
 export const PRODUCT_PROMPT_CTA = {
+  'hermes-delegated-auth': 'Copy Hermes prompt',
   [agentkitSkill]: 'Copy AgentKit prompt',
   [saaskitSkill]: 'Copy SaaSKit prompt',
   [mcpSkill]: 'Copy MCP prompt',
