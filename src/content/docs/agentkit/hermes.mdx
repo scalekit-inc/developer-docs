@@ -73,7 +73,7 @@ Scalekit.Vault -> Providers.More
 
 When you ask Hermes to use a third-party app, `hermes-delegated-auth`:
 
-1. Finds the Scalekit connection for the requested action (for example [GitHub](/agentkit/connectors/github/) or [Gmail](/agentkit/connectors/gmail/))
+1. Looks up the [GitHub](/agentkit/connectors/github/), [Gmail](/agentkit/connectors/gmail/), or other connection you asked for
 2. Checks that the named user's connected account is `ACTIVE`, which means Scalekit holds a working token for it
 3. Returns a magic link when the account is not `ACTIVE`. A magic link is a one-time URL that opens a Scalekit hosted page. The page adapts to the connection: OAuth consent for an OAuth connector, a credential form for an API key connector
 4. Fetches the tool schema, calls the tool, and returns the result
@@ -91,32 +91,36 @@ When you ask Hermes to use a third-party app, `hermes-delegated-auth`:
 <Steps>
 1. ### Install hermes-delegated-auth
 
-   Install the skill from the public [authstack](https://github.com/scalekit-inc/authstack/tree/main/kits/agentkit/host/hermes-delegated-auth) repo:
+   Run this command:
 
    ```bash showLineNumbers=false
    hermes skills install scalekit-inc/authstack/kits/agentkit/host/hermes-delegated-auth
    ```
 
-   Do not install from a raw `SKILL.md` URL. That path can miss `scripts/`.
+   Confirm the skill is enabled:
 
-   Do not run `hermes skills install` on `integrate-agentkit-host`. That folder is the coding-agent router for OpenClaw. It is not the Hermes runtime.
-
-   The command honors `HERMES_HOME`. The rest of this page writes the default profile path, `~/.hermes`.
-
-   Run `hermes skills list`. The table lists `hermes-delegated-auth` with status `enabled`:
+   ```bash showLineNumbers=false
+   hermes skills list
+   ```
 
    ```txt showLineNumbers=false
    │ hermes-delegated-auth │          │ local  │ local │ enabled │
    ```
 
-   Then sync the skill scripts:
+   Install the Python dependencies:
 
    ```bash showLineNumbers=false
    cd "${HERMES_HOME:-$HOME/.hermes}/skills/hermes-delegated-auth"
    uv sync
    ```
 
-   Hermes now answers to `/hermes-delegated-auth`. New chats pick the skill up on their own. Run `/reset` to load it in the chat you already have open.
+   New chats load `/hermes-delegated-auth`. Run `/reset` in a chat that is already open.
+
+   If you set `HERMES_HOME`, the skill lands in that profile. This page uses `~/.hermes`.
+
+   Do not install from a raw `SKILL.md` URL. Hermes will miss `scripts/`.
+
+   Do not install `integrate-agentkit-host`. That skill is for coding agents, not Hermes.
 
 2. ### Configure credentials
 
