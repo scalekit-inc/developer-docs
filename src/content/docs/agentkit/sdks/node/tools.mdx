@@ -21,11 +21,12 @@ import '@/styles/sdk-reference.css'
 
 Use this client when you need tool definitions (name, parameters, connector) for frameworks or your own executor. For connect + execute flows, prefer [Connected accounts](/agentkit/sdks/node/actions/). These methods throw on 4xx/5xx. See [Error handling](/agentkit/sdks/node/errors/).
 
-Pick a list method:
+Pick a discovery method:
 
 - `listTools` — workspace catalog
 - `listScopedTools` — tools already bound to one identifier (the list you pass to an LLM)
 - `listAvailableTools` — tools you can make available for that identifier
+- `searchTools` — catalog ranked by relevance to a natural-language query, with per-connection readiness
 
 ### listTools
 <div class="sdk-method-section">
@@ -110,6 +111,58 @@ const res = await scalekit.tools.listAvailableTools('user@example.com', {
   pageSize: 50,
 });
 ```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### searchTools
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="ToolsClient" type="class" language="typescript" source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main/src/tools.ts">
+    <CB.ClassMethod name="searchTools" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Searches tools ranked by relevance to a natural-language query—the job to be done, not an exact tool name. Use this instead of the list methods when the catalog is large and you want the few tools that fit the task at hand.
+
+      Pass `identifier` to also get per-connection readiness on each result, so you can send the user through the right auth step before calling `executeTool`. `connections` is populated only when you pass `identifier`. An empty `connections` array means the identifier has no connected account for that tool's provider, which is not an error. More than one entry means the identifier has accounts on several connections for the same provider, such as two Slack workspaces, so check each entry's own `readinessState`.
+
+      | Readiness state | What it means |
+      | --- | --- |
+      | `READY` | The connection is usable now. Its `connectedAccountId` is safe to pass to `executeTool`. |
+      | `NEEDS_CONNECTION` | A connected account exists for the provider but is inactive. Send the user through the connect flow again. |
+      | `NEEDS_REAUTH` | The connected account needs the user to re-authorize before it can be used. |
+
+      <CB.ClassMethodInput name="query" type="string">
+        Natural-language query or keywords describing the job to be done. 1–256 characters.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="options" type="object" hint="identifier, topK">
+        Optional fields: `identifier` (annotates each result with readiness for that identifier's connections), `topK` (defaults to 10, capped at 50).
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="SearchToolsResponse">
+        Ranked `tools`, each with `name`, `provider`, `description`, `score`, and `connections`. `score` is comparable only within one response, not across calls.
+      </CB.ClassMethodOutput>
+
+
+```typescript wrap showLineNumbers=false
+import { ToolReadinessState } from '@scalekit-sdk/node';
+
+const res = await scalekit.tools.searchTools('send a message to a slack channel', {
+  identifier: 'user@example.com',
+  topK: 10,
+});
+
+for (const tool of res.tools) {
+  console.log(tool.name, tool.score);
+  for (const connection of tool.connections) {
+    // readinessState is a number at runtime — always compare against the
+    // named enum constant, never a raw number or a string.
+    const isReady = connection.readinessState === ToolReadinessState.READY;
+    console.log(' ', connection.connectionName, isReady, connection.connectedAccountId);
+  }
+}
+```
+
+Only pass a result's `connectedAccountId` to `executeTool` when its `readinessState` is `ToolReadinessState.READY`.
 
     </CB.ClassMethod>
   </CB.ClassBrowser>
