@@ -716,6 +716,11 @@ paths:
           content:
             application/json:
               schema: {}
+        '403':
+          description: Insufficient permission - the connected account's credentials are valid but lack the scope required for this tool. The connected account stays ACTIVE; no reconnection is required. Grant the missing scope for this tool's provider, then retry.
+          content:
+            application/json:
+              schema: {}
         '404':
           description: Tool or connected account not found - occurs when the specified tool name or connected account does not exist
           content:
@@ -1937,7 +1942,7 @@ paths:
           required: true
         - schema:
             type: string
-          description: 'Include additional data in the response. Valid values: ''permissions'' (direct permissions only), ''permissions:all'' (includes inherited permissions)'
+          description: "Include additional data in the response. Valid values: 'permissions' (direct permissions only), 'permissions:all' (includes inherited permissions)"
           name: include
           in: query
       responses:
@@ -2062,7 +2067,7 @@ paths:
           required: true
         - schema:
             type: string
-          description: 'Include additional data in the response. Valid values: ''permissions'' (direct permissions only), ''permissions:all'' (includes inherited permissions)'
+          description: "Include additional data in the response. Valid values: 'permissions' (direct permissions only), 'permissions:all' (includes inherited permissions)"
           name: include
           in: query
       responses:
@@ -4553,7 +4558,7 @@ paths:
       parameters:
         - schema:
             type: string
-          description: 'Include additional data in the response. Valid values: ''permissions'' (direct permissions only), ''permissions:all'' (includes inherited permissions from role hierarchy)'
+          description: "Include additional data in the response. Valid values: 'permissions' (direct permissions only), 'permissions:all' (includes inherited permissions from role hierarchy)"
           name: include
           in: query
       responses:
@@ -4686,7 +4691,7 @@ paths:
           required: true
         - schema:
             type: string
-          description: 'Include additional data in the response. Valid values: ''permissions'' (direct permissions only), ''permissions:all'' (includes inherited permissions from role hierarchy)'
+          description: "Include additional data in the response. Valid values: 'permissions' (direct permissions only), 'permissions:all' (includes inherited permissions from role hierarchy)"
           name: include
           in: query
       responses:
@@ -5485,6 +5490,84 @@ paths:
           source: |-
             // List available tools is not part of the Java SDK public API yet.
             // Use GET /api/v1/tools/available or the Node.js SDK.
+  /api/v1/tools:search:
+    post:
+      description: Ranks tools in the environment against a natural-language query and returns the best matches, drawn from every connection enabled in the environment. Pass `identifier` to also annotate each result with per-connection readiness (`TOOL_READINESS_STATE_READY`, `TOOL_READINESS_STATE_NEEDS_CONNECTION`, `TOOL_READINESS_STATE_NEEDS_REAUTH`) for that identifier, so you can gate execution on the right auth step before calling ExecuteTool. An empty `connections` array means the identifier has no connection at all for that tool's provider -- not an error, and distinct from `TOOL_READINESS_STATE_NEEDS_CONNECTION` (a connected account exists but is inactive).
+      tags:
+        - Tool Calling
+      summary: Search tools by query
+      operationId: ToolService_SearchTools
+      responses:
+        '200':
+          description: Ranked tools matching the query, with per-identifier readiness when an identifier is supplied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/toolsSearchToolsResponse'
+        '400':
+          description: Invalid request - the query is empty or exceeds the maximum length
+          content:
+            application/json:
+              schema: {}
+        '401':
+          description: Authentication required - missing or invalid access token
+          content:
+            application/json:
+              schema: {}
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/toolsSearchToolsRequest'
+        required: true
+      x-codeSamples:
+        - label: Node.js SDK
+          lang: javascript
+          source: |-
+            import { ToolReadinessState } from '@scalekit-sdk/node'
+
+            const res = await scalekit.tools.searchTools('send a message to a slack channel', {
+              identifier: 'user@example.com',
+              topK: 10,
+            })
+
+            for (const tool of res.tools) {
+              console.log(tool.name, tool.score)
+              for (const connection of tool.connections) {
+                // readinessState is a number at runtime -- always compare against the
+                // named enum constant, never a raw number or a string.
+                const isReady = connection.readinessState === ToolReadinessState.READY
+                console.log(' ', connection.connectionName, isReady, connection.connectedAccountId)
+              }
+            }
+        - label: Python SDK
+          lang: python
+          source: |-
+            from scalekit.v1.tools.tools_pb2 import TOOL_READINESS_STATE_READY
+
+            response = scalekit_client.tools.search_tools(
+                query="send a message to a slack channel",
+                identifier="user@example.com",
+                top_k=10,
+            )
+
+            for tool in response[0].tools:
+                print(tool.name, tool.score)
+                for connection in tool.connections:
+                    # readiness_state is an int at runtime -- always compare against the
+                    # named enum constant, never a raw int or a string.
+                    is_ready = connection.readiness_state == TOOL_READINESS_STATE_READY
+                    print(" ", connection.connection_name, is_ready, connection.connected_account_id)
+        - label: Go SDK
+          lang: go
+          source: |-
+            // Search tools is not available in the Go SDK public API yet.
+            // Use POST /api/v1/tools:search or the Node.js/Python SDKs.
+        - label: Java SDK
+          lang: java
+          source: |-
+            // Search tools is not part of the Java SDK public API yet.
+            // Use POST /api/v1/tools:search or the Node.js/Python SDKs.
   /api/v1/users:
     get:
       description: Retrieves a paginated list of all users across your entire environment. Use this endpoint to view all users regardless of their organization memberships. This is useful for administrative purposes, user audits, or when you need to see all users in your Scalekit environment. Supports pagination for large user bases.
@@ -5725,7 +5808,7 @@ paths:
               type: string
           style: form
           explode: true
-          description: 'Filter sessions by one or more status values. Possible values: ''active'', ''expired'', ''revoked'', ''logout''. Leave empty to include all statuses. Multiple values use OR logic (e.g., status=[''active'', ''expired''] returns sessions that are either active OR expired).'
+          description: "Filter sessions by one or more status values. Possible values: 'active', 'expired', 'revoked', 'logout'. Leave empty to include all statuses. Multiple values use OR logic (e.g., status=['active', 'expired'] returns sessions that are either active OR expired)."
           name: filter.status
           in: query
         - schema:
@@ -7793,7 +7876,7 @@ components:
           examples:
             - 360
         absolute_session_timeout_unit:
-          description: 'Unit for absolute_session_timeout. Accepted values: ''MINUTES'', ''HOURS'', ''DAYS''. Defaults to MINUTES.'
+          description: "Unit for absolute_session_timeout. Accepted values: 'MINUTES', 'HOURS', 'DAYS'. Defaults to MINUTES."
           $ref: '#/components/schemas/commonsTimeUnit'
           examples:
             - MINUTES
@@ -7809,7 +7892,7 @@ components:
           examples:
             - true
         idle_session_timeout_unit:
-          description: 'Unit for idle_session_timeout. Accepted values: ''MINUTES'', ''HOURS'', ''DAYS''. Defaults to MINUTES.'
+          description: "Unit for idle_session_timeout. Accepted values: 'MINUTES', 'HOURS', 'DAYS'. Defaults to MINUTES."
           $ref: '#/components/schemas/commonsTimeUnit'
           examples:
             - MINUTES
@@ -7887,7 +7970,7 @@ components:
           type: array
           items:
             type: string
-            default: '[''ATTESTATION_KEY_COMPROMISE'', ''USER_VERIFICATION_BYPASS'', ''USER_KEY_REMOTE_COMPROMISE'', ''USER_KEY_PHYSICAL_COMPROMISE'', ''REVOKED'']'
+            default: "['ATTESTATION_KEY_COMPROMISE', 'USER_VERIFICATION_BYPASS', 'USER_KEY_REMOTE_COMPROMISE', 'USER_KEY_PHYSICAL_COMPROMISE', 'REVOKED']"
         validate_anchors:
           description: when set to true enables the validation of the attestation statement against the trust anchor from the metadata statement.
           type: boolean
@@ -8789,8 +8872,8 @@ components:
           examples:
             - authorization_details:
                 oauth_token:
-                  access_token: ...
-                  refresh_token: ...
+                  access_token: '...'
+                  refresh_token: '...'
                   scopes:
                     - read
                     - write
@@ -9024,7 +9107,7 @@ components:
           type: object
           examples:
             - api_key: sk_live_...
-              api_secret: ...
+              api_secret: '...'
     connected_accountsTrustedIDPAuth:
       description: |-
         Trusted IDP federated authentication — used for TRUSTED_IDP connections (e.g. AWS Redshift).
@@ -9066,8 +9149,8 @@ components:
           examples:
             - authorization_details:
                 oauth_token:
-                  access_token: ...
-                  refresh_token: ...
+                  access_token: '...'
+                  refresh_token: '...'
                   scopes:
                     - read
                     - write
@@ -9141,7 +9224,7 @@ components:
       type: object
       properties:
         attribute_mapping:
-          description: 'Maps identity provider attributes to user profile fields. For example, {''email'': ''user.mail'', ''name'': ''user.displayName''}.'
+          description: "Maps identity provider attributes to user profile fields. For example, {'email': 'user.mail', 'name': 'user.displayName'}."
           type: object
           additionalProperties:
             type: string
@@ -9440,6 +9523,11 @@ components:
         extensions:
           description: OAuth extension profiles for this connection, such as SMART on FHIR. Carries typed extension configuration plus a generic escape hatch for provider-specific authorize query parameters.
           $ref: '#/components/schemas/connectionsOauthExtensions'
+        googleads_developer_token:
+          description: Google Ads API developer token, issued once per company from the Google Ads API Center. Applies only to the GOOGLEADS provider, which requires this static application-level credential on every REST call alongside the user's OAuth access token. Configure it once per connection; Scalekit stores it encrypted and injects it as the developer-token header at tool-call time, so individual tool calls never carry it. Read responses return the value masked, showing only the last four characters.
+          type: string
+          examples:
+            - ABcDeFgHiJkLmNoPqRsTuV
         is_cimd:
           description: Indicates whether this connection was registered using Client ID Metadata Document (CIMD) instead of Dynamic Client Registration.
           type: boolean
@@ -9487,6 +9575,11 @@ components:
           type: string
           examples:
             - offline
+        token_endpoint_auth_method:
+          description: How client credentials are sent to the token endpoint during the authorization_code exchange. One of "client_secret_basic" (HTTP Basic Auth, required by some providers e.g. Reddit), "client_secret_post" (POST body params), or "none". Leave unset to keep the current default (POST body params). Does not affect token refresh, which currently uses a separate auto-detected auth style.
+          type: string
+          examples:
+            - client_secret_basic
         token_uri:
           description: Token URI
           type: string
@@ -10729,7 +10822,7 @@ components:
           examples:
             - 360
         absolute_session_timeout_unit:
-          description: 'Unit for absolute_session_timeout. Accepted values: ''minutes'', ''hours'', ''days''. Responses always return ''minutes''.'
+          description: "Unit for absolute_session_timeout. Accepted values: 'minutes', 'hours', 'days'. Responses always return 'minutes'."
           $ref: '#/components/schemas/commonsTimeUnit'
           examples:
             - minutes
@@ -10745,7 +10838,7 @@ components:
           examples:
             - true
         idle_session_timeout_unit:
-          description: 'Unit for idle_session_timeout. Accepted values: ''minutes'', ''hours'', ''days''. Responses always return ''minutes''.'
+          description: "Unit for idle_session_timeout. Accepted values: 'minutes', 'hours', 'days'. Responses always return 'minutes'."
           $ref: '#/components/schemas/commonsTimeUnit'
           examples:
             - minutes
@@ -11312,7 +11405,7 @@ components:
           examples:
             - 120.0.0.0
         device_type:
-          description: 'Categorized device type classification. Possible values: ''desktop'' (traditional computers), ''mobile'' (smartphones and small tablets), ''tablet'' (large tablets), ''other''. Useful for displaying session information by device category.'
+          description: "Categorized device type classification. Possible values: 'desktop' (traditional computers), 'mobile' (smartphones and small tablets), 'tablet' (large tablets), 'other'. Useful for displaying session information by device category."
           type: string
           examples:
             - desktop
@@ -11322,7 +11415,7 @@ components:
           examples:
             - 192.0.2.1
         location:
-          description: 'Geographic location information derived from IP address geolocation. Includes country, region, city, and coordinates. Note: Based on IP location data and may not represent the user''s exact physical location.'
+          description: "Geographic location information derived from IP address geolocation. Includes country, region, city, and coordinates. Note: Based on IP location data and may not represent the user's exact physical location."
           $ref: '#/components/schemas/v1sessionsLocation'
         os:
           description: 'Operating system name extracted from the user agent and device headers. Examples: macOS, Windows, Linux, iOS, Android.'
@@ -11487,7 +11580,7 @@ components:
           examples:
             - ses_1234567890123456
         status:
-          description: 'Current operational status of the session. Possible values: ''active'' (session is valid and requests are allowed), ''expired'' (session terminated due to idle or absolute timeout), ''revoked'' (session was administratively revoked), ''logout'' (user explicitly logged out). Use this to determine if the session can be used for new requests.'
+          description: "Current operational status of the session. Possible values: 'active' (session is valid and requests are allowed), 'expired' (session terminated due to idle or absolute timeout), 'revoked' (session was administratively revoked), 'logout' (user explicitly logged out). Use this to determine if the session can be used for new requests."
           type: string
           examples:
             - active
@@ -11683,6 +11776,96 @@ components:
         tool:
           description: The underlying tool definition
           $ref: '#/components/schemas/toolsTool'
+    toolsSearchedTool:
+      type: object
+      properties:
+        connections:
+          description: Connections for this tool's provider that the supplied identifier has a connected account for (any status), each with its own readiness state and connected_account_id. Populated only when identifier is supplied in the request. An empty array means this identifier does not have any connection at all for this tool's provider -- not an error, and not the same as a connection listed with TOOL_READINESS_STATE_NEEDS_CONNECTION. More than one entry means the identifier has accounts on multiple connections for this provider (e.g. two Slack workspaces) -- inspect each entry's own readiness_state before using its connected_account_id.
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/toolsConnectionReadiness'
+        description:
+          description: Human-readable description of what the tool does
+          type: string
+          examples:
+            - Send a message to a Slack channel or user
+        name:
+          description: Fully qualified tool name to pass to ExecuteTool
+          type: string
+          examples:
+            - slack_send_message
+        provider:
+          description: Provider the tool belongs to
+          type: string
+          examples:
+            - SLACK
+        score:
+          description: Relevance score for this result. Higher is better; comparable only within a single response.
+          type: number
+          format: double
+          examples:
+            - 0.82
+    toolsConnectionReadiness:
+      type: object
+      properties:
+        connected_account_id:
+          description: ID of the connected account for this connection and the supplied identifier. Always populated when this entry is present, regardless of readiness_state -- check readiness_state before using it, since only TOOL_READINESS_STATE_READY means it is safe to pass to ExecuteTool now.
+          type: string
+          examples:
+            - ca_123
+        connection_name:
+          description: Name of this connection.
+          type: string
+          examples:
+            - Acme Slack
+        readiness_state:
+          description: Whether this specific connection is usable right now for the supplied identifier, independent of every other connection listed for this provider.
+          $ref: '#/components/schemas/toolsToolReadinessState'
+          examples:
+            - TOOL_READINESS_STATE_READY
+    toolsToolReadinessState:
+      description: |-
+        Readiness of a connection for use with ExecuteTool.
+
+         - TOOL_READINESS_STATE_READY: Usable now. Safe to pass connected_account_id to ExecuteTool.
+         - TOOL_READINESS_STATE_NEEDS_CONNECTION: A connected account exists for this connection but is inactive (e.g. disconnected). The end user must re-establish the connection.
+         - TOOL_READINESS_STATE_NEEDS_REAUTH: A connected account exists but its token expired. The end user must re-authenticate.
+      type: string
+      enum:
+        - TOOL_READINESS_STATE_READY
+        - TOOL_READINESS_STATE_NEEDS_CONNECTION
+        - TOOL_READINESS_STATE_NEEDS_REAUTH
+    toolsSearchToolsRequest:
+      type: object
+      properties:
+        identifier:
+          description: Optional connected-account identifier (e.g. the end user's email or ID). When set, each result is annotated with a readiness state for this identifier's connections. When omitted, results are ranked without readiness annotation.
+          type: string
+          examples:
+            - user@example.com
+        query:
+          description: Natural-language query or keywords describing the job to be done. Ranked against tool names, descriptions, and providers. 1-256 characters.
+          type: string
+          examples:
+            - send a message to a slack channel
+        top_k:
+          description: Maximum number of ranked results to return. Defaults to 10, capped at 50.
+          type: integer
+          format: int64
+          examples:
+            - 10
+      required:
+        - query
+    toolsSearchToolsResponse:
+      type: object
+      properties:
+        tools:
+          description: Tools matching the query, ordered by descending relevance score
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/toolsSearchedTool'
     toolsTool:
       type: object
       properties:
@@ -12057,7 +12240,7 @@ components:
           examples:
             - Doe
         first_name:
-          description: '[DEPRECATED] Use given_name instead. User''s given name. Maximum 200 characters.'
+          description: "[DEPRECATED] Use given_name instead. User's given name. Maximum 200 characters."
           type: string
           examples:
             - John
@@ -12080,7 +12263,7 @@ components:
             - - engineering
               - managers
         last_name:
-          description: '[DEPRECATED] Use family_name instead. User''s family name. Maximum 200 characters.'
+          description: "[DEPRECATED] Use family_name instead. User's family name. Maximum 200 characters."
           type: string
           examples:
             - Doe
@@ -12559,12 +12742,12 @@ components:
           examples:
             - San Francisco
         latitude:
-          description: 'Latitude coordinate of the estimated location. Decimal format (e.g., ''37.7749''). Note: Represents IP geolocation center and may not be precise.'
+          description: "Latitude coordinate of the estimated location. Decimal format (e.g., '37.7749'). Note: Represents IP geolocation center and may not be precise."
           type: string
           examples:
             - '37.7749'
         longitude:
-          description: 'Longitude coordinate of the estimated location. Decimal format (e.g., ''-122.4194''). Note: Represents IP geolocation center and may not be precise.'
+          description: "Longitude coordinate of the estimated location. Decimal format (e.g., '-122.4194'). Note: Represents IP geolocation center and may not be precise."
           type: string
           examples:
             - '-122.4194'
@@ -15551,7 +15734,7 @@ x-scalar-active-environment: staging
 x-scalekit-docs-operation-rank:
   default: 0
   path-segments:
-    - match: ':external'
+    - match: :external
       rank: 1
-    - match: ':search'
+    - match: :search
       rank: 2

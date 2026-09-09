@@ -1722,7 +1722,7 @@
     },
     "/api/v1/tools:search": {
       "post": {
-        "description": "Ranks tools in the environment against a natural-language query and returns the best matches, drawn from every connection enabled in the environment. Pass `identifier` to also annotate each result with per-connection readiness (`READY`, `NEEDS_CONNECTION`, `NEEDS_REAUTH`) for that identifier, so you can gate execution on the right auth step before calling ExecuteTool. An empty `connections` array means the identifier has no connection at all for that tool's provider -- not an error, and distinct from `NEEDS_CONNECTION` (a connected account exists but is inactive).",
+        "description": "Ranks tools in the environment against a natural-language query and returns the best matches, drawn from every connection enabled in the environment. Pass `identifier` to also annotate each result with per-connection readiness (`TOOL_READINESS_STATE_READY`, `TOOL_READINESS_STATE_NEEDS_CONNECTION`, `TOOL_READINESS_STATE_NEEDS_REAUTH`) for that identifier, so you can gate execution on the right auth step before calling ExecuteTool. An empty `connections` array means the identifier has no connection at all for that tool's provider -- not an error, and distinct from `TOOL_READINESS_STATE_NEEDS_CONNECTION` (a connected account exists but is inactive).",
         "tags": ["Tool Calling"],
         "summary": "Search tools by query",
         "operationId": "ToolService_SearchTools",
@@ -1768,7 +1768,7 @@
           {
             "label": "Node.js SDK",
             "lang": "javascript",
-            "source": "import { ToolReadinessState } from '@scalekit-sdk/node';\n\nconst res = await scalekit.tools.searchTools('send a message to a slack channel', {\n  identifier: 'user@example.com',\n  topK: 10,\n});\n\nfor (const tool of res.tools) {\n  console.log(tool.name, tool.score);\n  for (const connection of tool.connections) {\n    // readinessState is a number at runtime -- always compare against the\n    // named enum constant, never a raw number or a string.\n    const isReady = connection.readinessState === ToolReadinessState.READY;\n    console.log(' ', connection.connectionName, isReady, connection.connectedAccountId);\n  }\n}"
+            "source": "import { ToolReadinessState } from '@scalekit-sdk/node'\n\nconst res = await scalekit.tools.searchTools('send a message to a slack channel', {\n  identifier: 'user@example.com',\n  topK: 10,\n})\n\nfor (const tool of res.tools) {\n  console.log(tool.name, tool.score)\n  for (const connection of tool.connections) {\n    // readinessState is a number at runtime -- always compare against the\n    // named enum constant, never a raw number or a string.\n    const isReady = connection.readinessState === ToolReadinessState.READY\n    console.log(' ', connection.connectionName, isReady, connection.connectedAccountId)\n  }\n}"
           },
           {
             "label": "Python SDK",
@@ -3219,7 +3219,7 @@
         "type": "object",
         "properties": {
           "connections": {
-            "description": "Connections for this tool's provider that the supplied identifier has a connected account for (any status), each with its own readiness state and connected_account_id. Populated only when identifier is supplied in the request. An empty array means this identifier does not have any connection at all for this tool's provider -- not an error, and not the same as a connection listed with NEEDS_CONNECTION. More than one entry means the identifier has accounts on multiple connections for this provider (e.g. two Slack workspaces) -- inspect each entry's own readiness_state before using its connected_account_id.",
+            "description": "Connections for this tool's provider that the supplied identifier has a connected account for (any status), each with its own readiness state and connected_account_id. Populated only when identifier is supplied in the request. An empty array means this identifier does not have any connection at all for this tool's provider -- not an error, and not the same as a connection listed with TOOL_READINESS_STATE_NEEDS_CONNECTION. More than one entry means the identifier has accounts on multiple connections for this provider (e.g. two Slack workspaces) -- inspect each entry's own readiness_state before using its connected_account_id.",
             "type": "array",
             "items": {
               "type": "object",
@@ -3253,7 +3253,7 @@
         "type": "object",
         "properties": {
           "connected_account_id": {
-            "description": "ID of the connected account for this connection and the supplied identifier. Always populated when this entry is present, regardless of readiness_state -- check readiness_state before using it, since only READY means it is safe to pass to ExecuteTool now.",
+            "description": "ID of the connected account for this connection and the supplied identifier. Always populated when this entry is present, regardless of readiness_state -- check readiness_state before using it, since only TOOL_READINESS_STATE_READY means it is safe to pass to ExecuteTool now.",
             "type": "string",
             "examples": ["ca_123"]
           },
@@ -3265,14 +3265,18 @@
           "readiness_state": {
             "description": "Whether this specific connection is usable right now for the supplied identifier, independent of every other connection listed for this provider.",
             "$ref": "#/components/schemas/toolsToolReadinessState",
-            "examples": ["READY"]
+            "examples": ["TOOL_READINESS_STATE_READY"]
           }
         }
       },
       "toolsToolReadinessState": {
-        "description": "Readiness of a connection for use with ExecuteTool.\n\n - READY: Usable now. Safe to pass connected_account_id to ExecuteTool.\n - NEEDS_CONNECTION: A connected account exists for this connection but is inactive (e.g. disconnected). The end user must re-establish the connection.\n - NEEDS_REAUTH: A connected account exists but its token expired. The end user must re-authenticate.",
+        "description": "Readiness of a connection for use with ExecuteTool.\n\n - TOOL_READINESS_STATE_READY: Usable now. Safe to pass connected_account_id to ExecuteTool.\n - TOOL_READINESS_STATE_NEEDS_CONNECTION: A connected account exists for this connection but is inactive (e.g. disconnected). The end user must re-establish the connection.\n - TOOL_READINESS_STATE_NEEDS_REAUTH: A connected account exists but its token expired. The end user must re-authenticate.",
         "type": "string",
-        "enum": ["READY", "NEEDS_CONNECTION", "NEEDS_REAUTH"]
+        "enum": [
+          "TOOL_READINESS_STATE_READY",
+          "TOOL_READINESS_STATE_NEEDS_CONNECTION",
+          "TOOL_READINESS_STATE_NEEDS_REAUTH"
+        ]
       },
       "toolsSearchToolsRequest": {
         "type": "object",
