@@ -5,6 +5,7 @@ import type { Config, Context } from '@netlify/edge-functions'
 const denoEnv = (globalThis as any).Deno?.env as { get(k: string): string | undefined } | undefined
 
 const POSTHOG_HOST = 'https://ph.scalekit.com'
+const PROD_HOST = 'docs.scalekit.com'
 
 type TrafficClass = 'coding_agent' | 'crawler' | 'automation' | 'unknown'
 
@@ -68,8 +69,11 @@ async function hashDistinctId(input: string): Promise<string> {
 export default async function handler(request: Request, context: Context) {
   const token = denoEnv?.get('POSTHOG_PROJECT_TOKEN')
   const response = await context.next()
+  const host = request.headers.get('host') ?? new URL(request.url).hostname
 
-  if (token) {
+  // Preview / branch / localhost stay quiet. Same rule as public/js/posthog.js:
+  // only production docs.scalekit.com writes to the production project.
+  if (token && host === PROD_HOST) {
     const url = new URL(request.url)
     const ip =
       context.ip ||
@@ -77,7 +81,6 @@ export default async function handler(request: Request, context: Context) {
       request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
       ''
     const userAgent = request.headers.get('user-agent') ?? ''
-    const host = request.headers.get('host') ?? url.hostname
     const label = classifyTraffic(userAgent)
 
     context.waitUntil(
