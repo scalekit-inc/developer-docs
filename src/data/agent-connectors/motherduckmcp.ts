@@ -279,25 +279,6 @@ export const tools: Tool[] = [
     ],
   },
   {
-    name: 'motherduckmcp_get_flight_run_logs',
-    description: `[STALE: upstream renamed this tool to get_flight_logs; this upstream_tool_name no longer appears in the live MCP tools/list as of the 2026-08-19 SK-1675 refresh. Kept for backward compatibility, not for new use — see motherduckmcp_get_flight_logs.] Fetch the logs and run record for a single Flight run, combining stdout/stderr with status, exit code, and timing.`,
-    params: [
-      { name: 'id', type: 'string', required: true, description: `Flight identifier (UUID).` },
-      {
-        name: 'run_number',
-        type: 'integer',
-        required: true,
-        description: `Sequential run number for this Flight, as returned by list_flight_runs.`,
-      },
-      {
-        name: 'max_bytes',
-        type: 'integer',
-        required: false,
-        description: `Cap response size in bytes (minimum 1024). When the log exceeds this limit, the tail of the log is returned.`,
-      },
-    ],
-  },
-  {
     name: 'motherduckmcp_get_guide',
     description: `Load a guide by uuid. Guides are curated markdown documents about this organization's data (metric definitions, conventions, pitfalls). Find a guide's uuid with list_guides or via get_query_guide, get_dive_guide, or get_flight_guide.`,
     params: [

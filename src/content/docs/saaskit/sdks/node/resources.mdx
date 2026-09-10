@@ -1,0 +1,95 @@
+---
+title: Resource consents
+description: List and revoke the consents your end users grant against a resource
+topic: saaskit-sdks
+tableOfContents:
+  minHeadingLevel: 3
+  maxHeadingLevel: 3
+sidebar:
+  label: Resource consents
+prev: false
+next: false
+---
+
+import * as CB from '@gesslar/starlight-class-browser'
+import '@/styles/sdk-reference.css'
+
+{/* The `sdk-client-page` and `sdk-method-section` wrappers are required raw
+    elements, not layout decoration: `@/styles/sdk-reference.css` scopes every
+    ClassBrowser override under `.sdk-client-page` so the styles survive
+    ClientRouter navigation, and `.sdk-method-section` frames each method block.
+    No Starlight component emits these hooks. */}
+
+<div class="sdk-client-page">
+
+
+When an end user allows an API client to act on their behalf against a resource, such as an MCP server, Scalekit records that grant as a consent. Use `scalekit.resources` to read those consents and revoke them from your own admin screens instead of the Scalekit dashboard.
+
+Each consent identifies the user by `externalUserId`—the identifier your application supplied when the consent was granted. The same audit and revoke actions are available in the dashboard under [Managing MCP clients](/authenticate/mcp/managing-mcp-clients/).
+
+### listUserConsents
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="ResourceClient" type="class" language="typescript" source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main/src/resource.ts">
+    <CB.ClassMethod name="listUserConsents" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Lists the end-user consents granted against a resource, with pagination. Use this to audit who authorized a client, and to find the `consentId` you need before revoking.
+
+      Filter by user in one of two ways. Pass `userIds` to match external user IDs exactly and case-sensitively. Pass `search` for a case-insensitive substring match. When you give both, `userIds` wins and `search` is ignored.
+
+      <CB.ClassMethodInput name="resourceId" type="string">
+        The resource whose consents to list (format: `res_...`).
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="options" type="ListUserConsentsOptions" hint="search, pageSize, pageToken, userIds">
+        Optional fields: `search`, `pageSize` (max 30), `pageToken`, `userIds` (max 25, takes precedence over `search`).
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="ListResourceUserConsentsResponse">
+        Consents with `id`, `externalUserId`, `clientId`, `clientName`, `scopes`, and `grantedAt`, plus `totalSize` and the `nextPageToken` / `prevPageToken` cursors.
+      </CB.ClassMethodOutput>
+
+```typescript wrap showLineNumbers=false
+const res = await scalekit.resources.listUserConsents('res_abc123', {
+  pageSize: 20,
+  userIds: ['user_456'], // optional; takes precedence over search
+});
+
+console.log(res.totalSize, res.nextPageToken);
+for (const consent of res.consents) {
+  console.log(consent.id, consent.externalUserId, consent.clientId, consent.scopes);
+}
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+### revokeUserConsent
+<div class="sdk-method-section">
+  <CB.ClassBrowser name="ResourceClient" type="class" language="typescript" source="https://github.com/scalekit-inc/scalekit-sdk-node/blob/main/src/resource.ts">
+    <CB.ClassMethod name="revokeUserConsent" open={true}>
+      <CB.ClassModifier type="async" slot="modifiers" />
+
+      Revokes a single end-user consent held by an API client. The client is prompted for consent again on its next authorization attempt, and every active refresh token issued to that client for the same user is revoked.
+
+      Access tokens that Scalekit already issued stay valid until they expire. See [How revocation affects active access tokens](/authenticate/mcp/managing-mcp-clients/#how-revocation-affects-active-access-tokens) for ways to shorten that window.
+
+      <CB.ClassMethodInput name="clientId" type="string">
+        The API client that holds the consent (format: `m2m_...`), not the resource ID.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodInput name="consentId" type="string">
+        The consent to revoke (format: `usrcnst_...`), taken from `listUserConsents`.
+      </CB.ClassMethodInput>
+      <CB.ClassMethodOutput type="RevokeUserConsentResponse">
+        Empty response on success. The call throws on failure.
+      </CB.ClassMethodOutput>
+
+```typescript wrap showLineNumbers=false
+await scalekit.resources.revokeUserConsent('m2m_abc123', 'usrcnst_xyz789');
+```
+
+    </CB.ClassMethod>
+  </CB.ClassBrowser>
+</div>
+
+
+</div>

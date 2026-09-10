@@ -1,5 +1,1035 @@
 [
   {
+    "slug": "aktapromcp",
+    "name": "aktapromcp_website_traffic",
+    "description": "Website traffic: engagement metrics, monthly visit estimates, and\ntraffic by acquisition channel. 1.5 credits. Subscription/Enterprise only.\n\nPrerequisite: `company` must be an akta-pro uuid from company_search\n(free). Names and websites are rejected."
+  },
+  {
+    "slug": "aktapromcp",
+    "name": "aktapromcp_social_posts",
+    "description": "Company social media posts: content type, text, publish date,\npaid/repost flags, an AI classification, and engagement metrics.\n1.5 credits. Subscription/Enterprise only.\n\nPrerequisite: `company` must be an akta-pro uuid from company_search\n(free). Names and websites are rejected."
+  },
+  {
+    "slug": "aktapromcp",
+    "name": "aktapromcp_product_reviews",
+    "description": "Product catalog and per-product reviews (G2 et al.). Call once without\n`products` to get the catalog + product `id`s, then again with those ids\nto fetch reviews. 1.5 credits per 50 reviews. Subscription/Enterprise only.\n\nPrerequisite: `company` must be an akta-pro uuid from comp…"
+  },
+  {
+    "slug": "aktapromcp",
+    "name": "aktapromcp_news_types",
+    "description": "List the news-type taxonomy (tag codes) for filtering news_signals.\n\nCall this FIRST whenever the user wants a specific kind of news — e.g.\n\"product-related\", \"M&A\", \"layoffs\", \"funding\". Map their intent to the\nmatching code(s) below, then pass them to\n`news_signals(type_codes=…"
+  },
+  {
+    "slug": "aktapromcp",
+    "name": "aktapromcp_news_signals",
+    "description": "Fetch a list of news signals by company, industry, topic, or title (JSON).\n\nTypically provide one of `company`, `primary_company`, `industry`,\n`query`, or `title` to anchor the search. Cost: 0.1 credits per call +\n0.01 per article.\n\n`company` matches any article mentioning the c…"
+  },
+  {
+    "slug": "aktapromcp",
+    "name": "aktapromcp_news_detail",
+    "description": "Fetch the full article body for specific news id(s) from news_signals.\n\nUse this after news_signals when you need the complete text of particular\narticles — pass their `id`s here. Returns up to 10 articles with the same\nfields as full_enrichment plus `full_text`. Cost: 0.1 credi…"
+  },
+  {
+    "slug": "aktapromcp",
+    "name": "aktapromcp_list_filters",
+    "description": "List the filters available for building a company list. Free.\n\nCall this FIRST whenever the request is for a SET of companies rather than\none named company. Each entry gives:\n  filter             the field's enrichment path — the key to use in\n                     your output, a…"
+  },
+  {
+    "slug": "aktapromcp",
+    "name": "aktapromcp_job_posts",
+    "description": "Live LinkedIn/Indeed job posts: title, location, description,\ncompensation, experience level, and key skills. 3 credits.\nSubscription/Enterprise only.\n\nPrerequisite: `company` must be an akta-pro uuid from company_search\n(free). Names and websites are rejected."
+  },
+  {
+    "slug": "aktapromcp",
+    "name": "aktapromcp_industry_search",
+    "description": "Resolve a free-text industry to akta-pro industry codes.\n\nFree (0 credits). Use the returned `code` values as the `industry` filter\nin news_signals. Returns code, industry_name, and similarity score."
+  },
+  {
+    "slug": "aktapromcp",
+    "name": "aktapromcp_headcount_trends",
+    "description": "LinkedIn-sourced headcount: total employees, historical growth, and\nbreakdown by function. 2.5 credits. Subscription/Enterprise only.\n\nPrerequisite: `company` must be an akta-pro uuid from company_search\n(free). Names and websites are rejected."
+  },
+  {
+    "slug": "aktapromcp",
+    "name": "aktapromcp_get_filter_values",
+    "description": "Get the allowed values for one or more filters. Free (0 credits).\n\nTwo kinds of result:\n  * A fixed list -> [{label, value}]. Use `value` verbatim; `label` is\n    just the human-readable form. `query` substring-filters the list.\n  * A searched taxonomy (industry.industry, indust…"
+  },
+  {
+    "slug": "aktapromcp",
+    "name": "aktapromcp_generate_company_list",
+    "description": "Run a company list: the companies matching your filters.\n\nCost: 1.5 credits per call that returns companies + 0.2 per company, so\n25 companies is 6.5 credits. A query matching nothing is FREE. The cost\ndoes not depend on the fields: this tool always returns the same\nidentifying …"
+  },
+  {
+    "slug": "aktapromcp",
+    "name": "aktapromcp_employee_reviews",
+    "description": "Employee reviews: overall + dimension-level ratings and individual\nreviews (Glassdoor et al.). 1.5 credits per 50 reviews.\nSubscription/Enterprise only.\n\nPrerequisite: `company` must be an akta-pro uuid from company_search\n(free). Names and websites are rejected."
+  },
+  {
+    "slug": "aktapromcp",
+    "name": "aktapromcp_company_search",
+    "description": "Resolve a company by name or website to its akta-pro identifiers.\n\nALWAYS call this first. Every other company tool accepts ONLY the `uuid`\nreturned here — names and websites are rejected — so this is also the\nonly way to check whether a company exists in akta-pro at all. Free\n(…"
+  },
+  {
+    "slug": "aktapromcp",
+    "name": "aktapromcp_company_data_concise",
+    "description": "Return a condensed company overview (no section selection).\n\nakta-pro returns a slimmed JSON with the fluff redacted — much smaller than\nfull enrichment. Intended flat cost 8 credits.\n\nPrerequisite: `company` must be an akta-pro uuid from company_search\n(free). Names and website…"
+  },
+  {
+    "slug": "aktapromcp",
+    "name": "aktapromcp_company_data",
+    "description": "Enrich a company with the requested sections, returned as Markdown.\n\nakta-pro renders the (large, deeply-nested) company data into clean Markdown\nserver-side. Sections (credits): firmographic 2, business_model 2,\ncompany_assessment 2, trust_signal 0.5, company_hierarchy 0.5,\ndig…"
+  },
+  {
+    "slug": "aktapromcp",
+    "name": "aktapromcp_account_status",
+    "description": "Report the current user's plan tier and credit balance.\n\nFree. No arguments — identity is taken from the authenticated API key.\nCall this when the user asks about their plan, credits, or limits, and\nconsult it before attempting Subscription/Enterprise-only tools\n(headcount_trend…"
+  },
+  {
+    "slug": "aktapro",
+    "name": "aktapro_search_news",
+    "description": "Search company news signals with filters for company, industry, sentiment, entities, and date range. Returns article title, URL, publisher, sentiment, AI summary, and classification metadata."
+  },
+  {
+    "slug": "lokalise",
+    "name": "lokalise_upload_file",
+    "description": "Upload a file to a Lokalise project for import, sending its content as a base64-encoded string alongside its filename and language code.\nReturns a queued process object with a process ID and status, or the completed process details if the import finishes immediately.\nUse this to…"
+  },
+  {
+    "slug": "lokalise",
+    "name": "lokalise_update_webhook",
+    "description": "Update an existing webhook's URL, branch scope, subscribed events, or language mappings on a Lokalise project.\nReturns the updated webhook's ID, URL, secret, subscribed events, and any per-event language mappings.\nUse this to change an existing webhook's settings; only the field…"
+  },
+  {
+    "slug": "lokalise",
+    "name": "lokalise_update_translation",
+    "description": "Update a translation's content, review/unverified flags, or assigned custom translation statuses in a Lokalise project.\nReturns the updated translation object with its current content, status flags, word count, and metadata.\nUse this to edit a single translation. Use lokalise_li…"
+  },
+  {
+    "slug": "lokalise",
+    "name": "lokalise_update_team_user",
+    "description": "Change the role of an existing user on a Lokalise team.\nReturns the updated team user object including their new role.\nUse this to promote or demote a team member between owner, admin, member, and biller roles.\nRequires Admin role in the team and a user ID from lokalise_list_tea…"
+  },
+  {
+    "slug": "lokalise",
+    "name": "lokalise_update_team_group",
+    "description": "Update an existing user group in a Lokalise team, replacing its name, permission-template role or admin rights, and which languages it can view or contribute to.\nReturns the updated group's ID, name, permissions, and team ID.\nUse this to change a group's settings after creation.…"
+  },
+  {
+    "slug": "lokalise",
+    "name": "lokalise_update_task",
+    "description": "Update the title, description, due date, language assignments, or closing behavior of an existing task in a Lokalise project.\nReturns the updated task's full details, including its status, progress, and assigned languages.\nUse this to reassign translators, extend a deadline, or …"
+  },
+  {
+    "slug": "lokalise",
+    "name": "lokalise_update_screenshot",
+    "description": "Update the title, description, tags, or key associations of an existing screenshot in a Lokalise project. Requires the Manage screenshots admin right.\nReturns the updated screenshot object.\nUse this to relabel a screenshot or change which translation keys it is attached to; use …"
+  },
+  {
+    "slug": "lokalise",
+    "name": "lokalise_update_project",
+    "description": "Update an existing Lokalise project's name and/or description.\nReturns the full updated project object, including its type, team, base language, settings, and statistics.\nUse this to rename a project or change its description. Use lokalise_update_project_settings-style tools (if…"
+  },
+  {
+    "slug": "lokalise",
+    "name": "lokalise_update_language",
+    "description": "Update a project language's ISO/locale code, display name, or supported plural forms in a Lokalise project.\nReturns the updated language object with its current ISO code, name, and plural forms.\nUse this to change one language's settings. Use lokalise_list_project_languages to f…"
+  },
+  {
+    "slug": "lokalise",
+    "name": "lokalise_update_key_segment",
+    "description": "Update the translation value, fuzzy flag, reviewed flag, or custom status of a specific segment for a key in a Lokalise project.\nReturns the updated segment object, including its new translation text and status flags.\nUse this to correct or approve one translation segment; use l…"
+  },
+  {
+    "slug": "lokalise",
+    "name": "lokalise_update_key",
+    "description": "Update an existing translation key's name, description, platform assignment, filenames, tags, or plural/hidden/archived flags in a Lokalise project.\nReturns the updated key object, including its metadata and its current translations for every project language.\nUse this to change…"
+  },
+  {
+    "slug": "lokalise",
+    "name": "lokalise_update_glossary_terms",
+    "description": "Update one or more existing glossary terms in a Lokalise project, changing their text, description, flags, translations, or tags.\nReturns the updated term objects along with counts of how many were updated, plus any per-term errors.\nUse lokalise_list_glossary_terms first to find…"
+  },
+  {
+    "slug": "lokalise",
+    "name": "lokalise_update_custom_status",
+    "description": "Update the title or color of an existing custom translation status in a Lokalise project.\nReturns the updated status's ID, title, and hex color.\nUse this to rename a status or change its display color rather than creating a new one.\nRequires the status ID; look it up with lokali…"
+  },
+  {
+    "slug": "lokalise",
+    "name": "lokalise_update_contributor",
+    "description": "Update an existing contributor's permission role, language access, and admin rights in a Lokalise project.\nReturns the updated contributor object, including their admin/reviewer flags, permission role, assigned languages, and admin rights.\nUse this to change what an existing con…"
+  },
+  {
+    "slug": "lokalise",
+    "name": "lokalise_update_billing_details",
+    "description": "Update the billing and invoicing contact details for a Lokalise team, such as company name, mailing address, and VAT number.\nReturns the full billing details object as saved, including billing email, country code, and postal code.\nUse this to keep invoicing information current b…"
+  },
+  {
+    "slug": "lokalise",
+    "name": "lokalise_restore_snapshot",
+    "description": "Restore a Lokalise snapshot into a new project, seeded with the snapshot's saved keys, translations, and settings, inside the same team as the original project.\nReturns the newly created project's full details, including its own (different) project ID, name, settings, and transl…"
+  },
+  {
+    "slug": "lokalise",
+    "name": "lokalise_remove_projects_from_group",
+    "description": "Remove one or more projects from a user group in a Lokalise team, revoking the group's members' access to those projects.\nReturns the group's updated details, including its remaining assigned projects.\nUse this to revoke a group's access to specific projects. Use lokalise_add_pr…"
+  },
+  {
+    "slug": "lokalise",
+    "name": "lokalise_remove_members_from_group",
+    "description": "Remove one or more team members from a user group in a Lokalise team, revoking the group's permissions and project access from them.\nReturns the group's updated details, including its remaining member user IDs.\nUse this to take contributors out of a group without deleting the gr…"
+  },
+  {
+    "slug": "lokalise",
+    "name": "lokalise_regenerate_webhook_secret",
+    "description": "Regenerate the signing secret for an existing webhook on a Lokalise project.\nReturns the project ID and the new webhook secret.\nUse this when you suspect a webhook's secret has been compromised or need to rotate it; the previous secret stops working immediately and any signature…"
+  },
+  {
+    "slug": "lokalise",
+    "name": "lokalise_list_webhooks",
+    "description": "List all webhooks configured on a Lokalise project.\nReturns each webhook's ID, URL, branch scope, secret, subscribed events, and any per-event language mappings.\nUse this to see what webhooks already exist, or to find a webhook_id before running lokalise_get_webhook, lokalise_up…"
+  },
+  {
+    "slug": "lokalise",
+    "name": "lokalise_list_translations",
+    "description": "List translation items in a Lokalise project, ungrouped, optionally filtered by language, review or verification status, QA issues, or task.\nReturns the project ID and an array of translation objects, each with its translation ID, key ID, language, content, and status flags.\nUse…"
+  },
+  {
+    "slug": "lokalise",
+    "name": "lokalise_list_translation_providers",
+    "description": "List all translation service providers configured for a Lokalise team, with pagination.\nReturns each provider's ID, name, and supported pricing tiers.\nUse this to browse available providers or find a provider ID before retrieving its full details with lokalise_get_translation_pr…"
+  },
+  {
+    "slug": "lokalise",
+    "name": "lokalise_list_translation_memories",
+    "description": "List the translation memories enabled for a Lokalise project.\nReturns each translation memory's ID and name.\nUse this to find a translation memory's ID, or to check which memories are attached to a project before working with its translations.\nRequires a project ID from lokalise…"
+  },
+  {
+    "slug": "lokalise",
+    "name": "lokalise_list_teams",
+    "description": "List all Lokalise teams accessible to your API token, with pagination.\nReturns each team's ID, name, plan, creation date, and quota usage and limits (users, keys, projects, MAU).\nUse this to browse available teams or look up a team ID before running other Lokalise tools that ope…"
+  },
+  {
+    "slug": "lokalise",
+    "name": "lokalise_list_team_users",
+    "description": "List all users belonging to a Lokalise team, with pagination.\nReturns each member's user ID, email, full name, role, and creation date.\nUse this to browse team membership or find a user ID before viewing, updating, or removing a specific member with the other team user tools.\nRe…"
+  },
+  {
+    "slug": "lokalise",
+    "name": "lokalise_list_team_groups",
+    "description": "List all user groups defined in a Lokalise team.\nReturns each group's ID, name, permissions (admin/reviewer rights and per-language write access), member IDs, and the projects it's linked to.\nUse this to browse a team's groups or find a group ID before assigning translators to a…"
+  },
+  {
+    "slug": "lokalise",
+    "name": "lokalise_list_tasks",
+    "description": "List all tasks in a Lokalise project, optionally filtered by title text or task status.\nReturns each task's ID, title, type, status, progress, due date, and per-language assignment and progress details.\nUse this to browse existing tasks or find a task ID before running lokalise_…"
+  },
+  {
+    "slug": "lokalise",
+    "name": "lokalise_list_system_languages",
+    "description": "List all languages supported system-wide by Lokalise, independent of any specific project.\nReturns an array of language objects, each with its system language ID, ISO code, name, right-to-left flag, and supported plural forms.\nUse this to look up a language's ISO code before ena…"
+  },
+  {
+    "slug": "lokalise",
+    "name": "lokalise_list_snapshots",
+    "description": "List the snapshots (saved backups) of a Lokalise project. Requires the Manage settings admin right.\nReturns each snapshot's ID, title, creation time, and the user who created it.\nUse this to find a snapshot's ID before restoring or comparing it against the project's current stat…"
+  },
+  {
+    "slug": "lokalise",
+    "name": "lokalise_list_screenshots",
+    "description": "List the screenshots uploaded to a Lokalise project.\nReturns each screenshot's ID, hosted image URL, dimensions, title, attached key IDs, and tags.\nUse this to browse existing screenshots or find a screenshot ID before viewing, updating, or deleting one with lokalise_get_screens…"
+  },
+  {
+    "slug": "lokalise",
+    "name": "lokalise_list_projects",
+    "description": "List all projects accessible to your Lokalise API token, optionally filtered by project name or team.\nReturns each project's ID, name, and description, plus (when requested) translation-progress statistics or project settings.\nUse this to browse available projects or look up a p…"
+  },
+  {
+    "slug": "lokalise",
+    "name": "lokalise_list_project_languages",
+    "description": "List the languages currently enabled in a Lokalise project.\nReturns an array of language objects, each with its language ID, ISO code, name, right-to-left flag, and supported plural forms.\nUse this to look up a language's ID before running lokalise_get_language, lokalise_update_…"
+  },
+  {
+    "slug": "lokalise",
+    "name": "lokalise_list_processes",
+    "description": "List all queued background processes (such as file imports) for a Lokalise project.\nReturns each process's ID, type, status, message, and who created it.\nUse this to check whether a long-running operation like a file import has finished, or to find a process ID to inspect furthe…"
+  },
+  {
+    "slug": "lokalise",
+    "name": "lokalise_list_permission_templates",
+    "description": "List all permission templates (roles) defined for a Lokalise team.\nReturns each template's ID, name, granted permissions, description, display tag, and whether it enables all read-only languages.\nUse this to see the roles available before assigning one to a contributor or a cont…"
+  },
+  {
+    "slug": "lokalise",
+    "name": "lokalise_list_payment_cards",
+    "description": "List the payment cards saved on your Lokalise account.\nReturns each card's ID, brand, and last 4 digits, plus your user ID — never the full card number.\nUse this to find a card ID before placing a translation order or before deleting a card."
+  },
+  {
+    "slug": "lokalise",
+    "name": "lokalise_list_orders",
+    "description": "List all translation orders placed within a Lokalise team.\nReturns each order's ID, status, project, source and target languages, translation provider, tier, briefing, and total cost.\nUse this to review past and in-progress translation orders for a team, or to find an order ID b…"
+  },
+  {
+    "slug": "lokalise",
+    "name": "lokalise_list_keys",
+    "description": "List the translation keys in a Lokalise project, with optional filters for tags, filenames, platforms, key names, and translation status.\nReturns each key's ID, name, platforms, tags, and (when requested) comments, screenshots, and translations.\nUse this to browse or filter a pr…"
+  },
+  {
+    "slug": "lokalise",
+    "name": "lokalise_list_key_segments",
+    "description": "List the translation segments for a specific key and language in a Lokalise project (a key has multiple segments when it uses plural forms).\nReturns each segment's number, translation text, word count, and fuzzy/reviewed/QA-issue status.\nUse this to see all segments for a key an…"
+  },
+  {
+    "slug": "lokalise",
+    "name": "lokalise_list_key_comments",
+    "description": "List all comments left on a specific translation key in a Lokalise project.\nReturns each comment's ID, comment text, author, and timestamps.\nUse this to review discussion on one key. Use List Project Comments instead to see comments across the whole project."
+  },
+  {
+    "slug": "lokalise",
+    "name": "lokalise_list_glossary_terms",
+    "description": "List the glossary terms defined in a Lokalise project, using cursor-based pagination.\nReturns each term's id, term text, description, translations, and flags (case-sensitive, translatable, forbidden), plus a nextCursor for the next page.\nUse this to review existing terminology o…"
+  },
+  {
+    "slug": "lokalise",
+    "name": "lokalise_list_files",
+    "description": "List the files associated with keys in a Lokalise project, including a virtual __unassigned__ entry for keys with no file.\nReturns each file's ID, filename, and key count.\nUse this to look up a file_id before uploading, downloading, or deleting a specific file."
+  },
+  {
+    "slug": "lokalise",
+    "name": "lokalise_list_custom_statuses",
+    "description": "List all custom translation statuses defined in a Lokalise project.\nReturns each status's ID, title, and hex color, paginated by page and limit.\nUse this to browse existing statuses or look up a status ID before retrieving, updating, or deleting one."
+  },
+  {
+    "slug": "lokalise",
+    "name": "lokalise_list_custom_status_colors",
+    "description": "Retrieve the palette of preset colors available for custom translation statuses in a Lokalise project.\nReturns an array of hex color codes (for example #61bd4f, #f2d600).\nUse this before creating or updating a custom translation status to pick a valid color value."
+  },
+  {
+    "slug": "lokalise",
+    "name": "lokalise_list_contributors",
+    "description": "List all contributors on a Lokalise project, including their access level and per-language permissions.\nReturns each contributor's user ID, email, name, admin/reviewer status, and the languages they can access (with write permissions).\nUse this to audit project access before add…"
+  },
+  {
+    "slug": "lokalise",
+    "name": "lokalise_list_comments",
+    "description": "List all comments left on translation keys across a Lokalise project.\nReturns each comment's ID, the key it belongs to, comment text, author, and timestamps.\nUse this to review project-wide comment activity. Use List Key Comments instead to see comments scoped to one specific ke…"
+  },
+  {
+    "slug": "lokalise",
+    "name": "lokalise_import_contributors",
+    "description": "Copy contributors from another Lokalise project into this one, keeping their roles, permissions, and language assignments.\nReturns a per-contributor import summary showing how many were imported versus skipped (e.g. because they already exist in the target project).\nUse this to …"
+  },
+  {
+    "slug": "lokalise",
+    "name": "lokalise_get_webhook",
+    "description": "Retrieve the configuration of a single webhook on a Lokalise project.\nReturns the webhook's URL, branch scope, secret, subscribed events, and any per-event language mappings.\nUse this to inspect one specific webhook by ID; use lokalise_list_webhooks to browse all webhooks on a p…"
+  },
+  {
+    "slug": "lokalise",
+    "name": "lokalise_get_user",
+    "description": "Retrieve basic profile data for a single Lokalise user by user ID.\nReturns the user's numeric ID, UUID, email address, and full name.\nUse this when you already have a user ID and need their basic profile; not available when authenticating via OAuth (server-to-server API token on…"
+  },
+  {
+    "slug": "lokalise",
+    "name": "lokalise_get_translation_provider",
+    "description": "Retrieve details for a single translation service provider by ID.\nReturns the provider's name, pricing tiers, and available source/target language pairs.\nUse this to check a specific provider's supported languages and pricing before placing a translation order. Use lokalise_list…"
+  },
+  {
+    "slug": "lokalise",
+    "name": "lokalise_get_translation",
+    "description": "Retrieve a single translation by its ID from a Lokalise project.\nReturns the translation's content, language, review/unverified flags, word count, and any custom translation statuses.\nUse this to inspect one translation. Use lokalise_list_translations to browse or filter transla…"
+  },
+  {
+    "slug": "lokalise",
+    "name": "lokalise_get_team_user",
+    "description": "Retrieve details for a single user on a Lokalise team by user ID.\nReturns the user's email, full name, role, and creation date.\nUse this to check a specific member's role before updating or removing them. Use lokalise_list_team_users to find the user ID first.\nRequires Admin rol…"
+  },
+  {
+    "slug": "lokalise",
+    "name": "lokalise_get_team_group",
+    "description": "Retrieve a single user group's details from a Lokalise team by its group ID.\nReturns the group's name, its permissions (admin/reviewer flags, admin rights, and language access), plus the list of projects and members currently assigned to it.\nUse this to inspect an existing group…"
+  },
+  {
+    "slug": "lokalise",
+    "name": "lokalise_get_team",
+    "description": "Retrieve details for a single Lokalise team by ID.\nReturns the team's name, plan, quota usage and limits, creation date, and trial/suspension status.\nUse this to check a specific team's plan and usage after finding its ID with lokalise_list_teams."
+  },
+  {
+    "slug": "lokalise",
+    "name": "lokalise_get_task_usage_metrics",
+    "description": "Retrieve usage metrics for a specific task in a Lokalise project, showing how many words it consumed.\nReturns the number of processed words attributed to the task.\nUse this to track translation usage or costs for a task, especially automatic_translation and lqa_by_ai tasks; data…"
+  },
+  {
+    "slug": "lokalise",
+    "name": "lokalise_get_task",
+    "description": "Retrieve the full details of a specific task in a Lokalise project by its task ID.\nReturns the task's title, description, status, progress, due date, assigned languages with per-language translators and progress, and completion metadata.\nUse this to check a task's current state;…"
+  },
+  {
+    "slug": "lokalise",
+    "name": "lokalise_get_screenshot",
+    "description": "Retrieve a single screenshot from a Lokalise project by its ID.\nReturns the screenshot's hosted image URL, title, description, dimensions, attached key IDs, and tags.\nUse this to inspect one screenshot's details; use lokalise_list_screenshots to find its ID first."
+  },
+  {
+    "slug": "lokalise",
+    "name": "lokalise_get_project",
+    "description": "Retrieve a single Lokalise project by its ID.\nReturns the project's name, description, type, team, base language, settings, and translation-progress statistics.\nUse this to check a project's current details or statistics. Use lokalise_list_projects instead when you don't already…"
+  },
+  {
+    "slug": "lokalise",
+    "name": "lokalise_get_process",
+    "description": "Retrieve the current status and details of a queued background process in a Lokalise project, such as a file import.\nReturns the process type, status (queued, running, finished, or failed), who created it, and per-file import results (word and key counts) when applicable.\nUse th…"
+  },
+  {
+    "slug": "lokalise",
+    "name": "lokalise_get_payment_card",
+    "description": "Retrieve a single saved payment card on your Lokalise account by its card ID.\nReturns the card's brand and last 4 digits, its creation date, and your user ID — never the full card number.\nUse this when you already know the card ID. Use the list payment cards tool to browse cards…"
+  },
+  {
+    "slug": "lokalise",
+    "name": "lokalise_get_order",
+    "description": "Retrieve a single translation order in a Lokalise team by its order ID.\nReturns the order's status, project, source and target languages, keys included, translation provider and tier, briefing, and total cost.\nUse this when you already know the order ID. Use the list orders tool…"
+  },
+  {
+    "slug": "lokalise",
+    "name": "lokalise_get_language",
+    "description": "Retrieve a single language's details from a Lokalise project by its language ID.\nReturns the language's ISO code, name, right-to-left flag, and supported plural forms.\nUse this to inspect one project language. Use lokalise_list_project_languages to browse all languages in the pr…"
+  },
+  {
+    "slug": "lokalise",
+    "name": "lokalise_get_key_segment",
+    "description": "Retrieve a single translation segment for a specific key, language, and segment number in a Lokalise project.\nReturns the segment's translation text, word count, fuzzy/reviewed flags, and who last modified it.\nUse this to check one segment's current value before updating it with…"
+  },
+  {
+    "slug": "lokalise",
+    "name": "lokalise_get_key",
+    "description": "Retrieve a single translation key from a Lokalise project by its key ID.\nReturns the key's name, description, platforms, tags, comments, screenshots, and translations for every project language.\nUse this when you already know the key ID. Use lokalise_list_keys instead to browse …"
+  },
+  {
+    "slug": "lokalise",
+    "name": "lokalise_get_glossary_term",
+    "description": "Retrieve a single glossary term from a Lokalise project by its term ID.\nReturns the term's text, description, case-sensitivity and translatable flags, forbidden flag, its per-language translations, and tags.\nUse this when you already know the term ID and need its full details. U…"
+  },
+  {
+    "slug": "lokalise",
+    "name": "lokalise_get_custom_status",
+    "description": "Retrieve a single custom translation status from a Lokalise project by status ID.\nReturns the status's ID, title, and hex color.\nUse this to look up one status rather than listing every custom status in the project.\nRequires the status ID; look it up with lokalise_list_custom_st…"
+  },
+  {
+    "slug": "lokalise",
+    "name": "lokalise_get_current_contributor",
+    "description": "Retrieve the contributor profile of the currently authenticated user for a Lokalise project, including permissions inherited from any group membership.\nReturns the user's ID, email, full name, admin/reviewer flags, assigned languages with write access, and combined admin rights.…"
+  },
+  {
+    "slug": "lokalise",
+    "name": "lokalise_get_contributor_bulk_deletion_job",
+    "description": "Check the status of a bulk contributor-deletion job in a Lokalise project.\nReturns the job's state (queued, running, completed, or failed) along with counts of contributors processed, deleted, failed, and skipped, plus any error reasons and their counts.\nUse this to poll an in-p…"
+  },
+  {
+    "slug": "lokalise",
+    "name": "lokalise_get_contributor",
+    "description": "Retrieve a single contributor's details from a Lokalise project by contributor ID.\nReturns the contributor's user ID, email, full name, admin/reviewer flags, assigned languages with write access, and admin rights.\nUse this to look up one contributor's settings rather than browsi…"
+  },
+  {
+    "slug": "lokalise",
+    "name": "lokalise_get_comment",
+    "description": "Retrieve a single comment on a translation key in a Lokalise project by its ID.\nReturns the comment text, author, and timestamps.\nUse this when you already have a comment ID (from List Key Comments or List Project Comments) and need its full details."
+  },
+  {
+    "slug": "lokalise",
+    "name": "lokalise_get_billing_details",
+    "description": "Retrieve the billing details on file for a Lokalise team, used for invoices and translation orders.\nReturns the team's billing email, address fields (company, address lines, city, ZIP/postal code, state code for US addresses), phone, VAT number, and country code.\nUse this to che…"
+  },
+  {
+    "slug": "lokalise",
+    "name": "lokalise_empty_project",
+    "description": "Delete all keys and translations from a Lokalise project while keeping the project itself.\nReturns the project ID and a flag confirming the keys were deleted.\nUse this to reset a project's content without deleting the project. Use lokalise_delete_project instead to remove the en…"
+  },
+  {
+    "slug": "lokalise",
+    "name": "lokalise_download_files",
+    "description": "Export a Lokalise project's translation files synchronously as a .zip bundle uploaded to Amazon S3.\nReturns the project ID and a bundle_url pointing to the generated .zip, available to download for about a month.\nUse lokalise_async_download_files instead for large projects (10,0…"
+  },
+  {
+    "slug": "lokalise",
+    "name": "lokalise_delete_webhook",
+    "description": "Permanently delete a webhook from a Lokalise project.\nReturns the project ID and a confirmation flag indicating the webhook was deleted.\nUse this to stop event notifications from being sent to a webhook endpoint; this action cannot be undone, so confirm the webhook_id with lokal…"
+  },
+  {
+    "slug": "lokalise",
+    "name": "lokalise_delete_team_user",
+    "description": "Remove a user from a Lokalise team, revoking their access to the team and its projects.\nReturns confirmation that the user was deleted.\nUse this to offboard a team member; this action cannot be undone. Use lokalise_list_team_users to find the user ID first.\nRequires Admin role i…"
+  },
+  {
+    "slug": "lokalise",
+    "name": "lokalise_delete_team_group",
+    "description": "Delete a user group from a Lokalise team, permanently removing the group and its project and member assignments.\nReturns confirmation that the group was deleted, along with the team ID.\nUse this to remove a group you no longer need. The projects and members themselves are not de…"
+  },
+  {
+    "slug": "lokalise",
+    "name": "lokalise_delete_task",
+    "description": "Permanently delete a task from a Lokalise project.\nReturns the project ID and a boolean confirming the task was deleted.\nUse this to remove tasks that are no longer needed; deleted tasks and their language/progress data cannot be recovered afterward."
+  },
+  {
+    "slug": "lokalise",
+    "name": "lokalise_delete_snapshot",
+    "description": "Permanently delete a snapshot from a Lokalise project.\nReturns the project ID and a boolean confirming the snapshot was deleted.\nUse this to clean up snapshots you no longer need; deleted snapshots cannot be recovered or restored afterward, so make sure you won't need lokalise_r…"
+  },
+  {
+    "slug": "lokalise",
+    "name": "lokalise_delete_screenshot",
+    "description": "Permanently delete a screenshot from a Lokalise project. Requires the Manage screenshots admin right.\nReturns a confirmation flag indicating the screenshot was deleted.\nUse this to remove a screenshot that is no longer needed; this action cannot be undone, so confirm the screens…"
+  },
+  {
+    "slug": "lokalise",
+    "name": "lokalise_delete_project",
+    "description": "Permanently delete a Lokalise project, including all of its keys and translations.\nReturns the deleted project's ID and a confirmation flag.\nUse this only when the project itself should be removed entirely. Use lokalise_empty_project instead to clear a project's keys and transla…"
+  },
+  {
+    "slug": "lokalise",
+    "name": "lokalise_delete_payment_card",
+    "description": "Permanently delete a saved payment card from your Lokalise account by its card ID.\nReturns the deleted card's ID and a confirmation flag.\nUse this to remove a card you no longer want available for translation orders. This cannot be undone; use the list payment cards tool first t…"
+  },
+  {
+    "slug": "lokalise",
+    "name": "lokalise_delete_language",
+    "description": "Delete a language from a Lokalise project, permanently removing it and all of its translations.\nReturns the project ID and a boolean confirming the language was deleted.\nUse this to remove a language no longer needed for translation; this action cannot be undone.\nRequires the la…"
+  },
+  {
+    "slug": "lokalise",
+    "name": "lokalise_delete_keys",
+    "description": "Permanently delete one or more translation keys, and their translations, from a Lokalise project.\nReturns a confirmation flag and a count of any keys that were locked and could not be removed.\nUse this to remove keys you no longer need. Use lokalise_empty_project instead to remo…"
+  },
+  {
+    "slug": "lokalise",
+    "name": "lokalise_delete_key",
+    "description": "Delete a single translation key, and all of its translations, from a Lokalise project.\nReturns the project ID, whether the key was removed, and the number of keys still locked in the project.\nUse this to remove one key. Use lokalise_delete_keys to remove multiple keys in a singl…"
+  },
+  {
+    "slug": "lokalise",
+    "name": "lokalise_delete_glossary_terms",
+    "description": "Permanently delete one or more glossary terms from a Lokalise project by ID.\nReturns counts and IDs of the terms that were deleted, plus any that failed to delete with an error message.\nUse lokalise_list_glossary_terms first to find the term IDs you want to remove."
+  },
+  {
+    "slug": "lokalise",
+    "name": "lokalise_delete_file",
+    "description": "Permanently delete a file and all of its associated keys from a Lokalise project.\nReturns the project ID and a file_deleted confirmation flag.\nUse lokalise_list_files first to find the file_id. Only supported for Documents and Marketing/Support project types, not Software (local…"
+  },
+  {
+    "slug": "lokalise",
+    "name": "lokalise_delete_custom_status",
+    "description": "Delete a custom translation status from a Lokalise project.\nReturns confirmation that the status was deleted, along with the project ID.\nUse this to permanently remove a status you no longer need. Use lokalise_update_custom_status to rename or recolor a status instead of deletin…"
+  },
+  {
+    "slug": "lokalise",
+    "name": "lokalise_delete_contributor",
+    "description": "Remove a contributor from a Lokalise project, permanently revoking their access.\nReturns confirmation that the contributor was deleted, along with the project ID.\nUse this to remove a contributor entirely. Use lokalise_update_contributor to change their permissions instead of re…"
+  },
+  {
+    "slug": "lokalise",
+    "name": "lokalise_delete_comment",
+    "description": "Delete a comment from a translation key in a Lokalise project. You can only delete comments you added yourself.\nReturns the project ID and a boolean confirming the comment was deleted.\nUse this to remove an outdated or incorrect comment; this action cannot be undone."
+  },
+  {
+    "slug": "lokalise",
+    "name": "lokalise_delete_all_contributors",
+    "description": "Start an asynchronous job that deletes every contributor from a Lokalise project.\nReturns a job ID for the deletion job, not the deletion result itself.\nUse this to reset project access before re-inviting or re-importing contributors; poll Get Contributor Bulk Deletion Job with …"
+  },
+  {
+    "slug": "lokalise",
+    "name": "lokalise_create_webhook",
+    "description": "Create a new webhook on a Lokalise project to receive notifications for specific events.\nReturns the created webhook's ID, URL, secret, subscribed events, and any per-event language mappings.\nUse this to set up a new webhook endpoint; use lokalise_update_webhook to change an exi…"
+  },
+  {
+    "slug": "lokalise",
+    "name": "lokalise_create_team_group",
+    "description": "Create a new user group in a Lokalise team, setting its name and either a permission-template role or explicit admin rights, plus which languages it can view or contribute to.\nReturns the created group's ID, name, permissions, and team ID.\nUse this to set up a group before grant…"
+  },
+  {
+    "slug": "lokalise",
+    "name": "lokalise_create_task",
+    "description": "Create a new translation, review, or AI-automated task in a Lokalise project, assigning specific keys and languages to translators, reviewers, or an AI engine.\nReturns the created task's ID, title, status, assigned languages with their translators, and (for AI task types) any re…"
+  },
+  {
+    "slug": "lokalise",
+    "name": "lokalise_create_snapshot",
+    "description": "Create a snapshot of a Lokalise project, capturing its current keys, translations, and settings at a point in time.\nReturns the project ID and the new snapshot's ID, title, and creation timestamp.\nUse this before a risky bulk edit so you can roll back with lokalise_restore_snaps…"
+  },
+  {
+    "slug": "lokalise",
+    "name": "lokalise_create_service_jwt",
+    "description": "Create a short-lived service JWT for a Lokalise project, for use with over-the-air (OTA) updates and mobile SDKs.\nReturns the signed JWT string that the SDK or OTA client uses to authenticate.\nUse this only for software (localization_files) projects; Documents and Marketing proj…"
+  },
+  {
+    "slug": "lokalise",
+    "name": "lokalise_create_screenshots",
+    "description": "Upload one or more screenshots to a Lokalise project as base64-encoded JPG or PNG images. Requires the Manage screenshots admin right.\nReturns the created screenshot objects, including their IDs, hosted image URLs, and any translation keys they were attached to.\nUse this to add …"
+  },
+  {
+    "slug": "lokalise",
+    "name": "lokalise_create_project",
+    "description": "Create a new Lokalise project, optionally seeding it with one or more languages and a base language.\nReturns the created project's ID, name, description, team, base language, and default settings.\nUse this to start a new localization project before adding keys and translations. …"
+  },
+  {
+    "slug": "lokalise",
+    "name": "lokalise_create_payment_card",
+    "description": "Add a new payment card to your Lokalise account by sending the card number, CVC, expiration month, and expiration year directly to Lokalise's /payment_cards endpoint over TLS.\nReturns the created card's id, last4 digits, brand, and creation timestamp; Lokalise (not Scalekit) sto…"
+  },
+  {
+    "slug": "lokalise",
+    "name": "lokalise_create_order",
+    "description": "Place a translation order for a set of keys in a Lokalise project, sending them to a translation provider such as Gengo, Babble-on, or a professional translator tier.\nReturns the created order's ID, status, pricing, and language details, or a price estimate when Dry Run is enabl…"
+  },
+  {
+    "slug": "lokalise",
+    "name": "lokalise_create_languages",
+    "description": "Add one or more languages to a Lokalise project by their system language ISO codes, optionally overriding the language code, name, or plural forms.\nReturns the project ID, the newly created language objects (including each new language's assigned ID), and a separate errors array…"
+  },
+  {
+    "slug": "lokalise",
+    "name": "lokalise_create_keys",
+    "description": "Create one or more translation keys, with their translations, in a Lokalise project in a single request.\nReturns the created keys with their assigned IDs and a separate errors array for any per-key failures (for example, a key name that already exists) — the call reports success…"
+  },
+  {
+    "slug": "lokalise",
+    "name": "lokalise_create_key_comment",
+    "description": "Add one or more comments to a translation key in a Lokalise project.\nReturns the created comment objects, each with its ID, text, author, and timestamps.\nUse this to leave notes or feedback for translators on a specific key."
+  },
+  {
+    "slug": "lokalise",
+    "name": "lokalise_create_glossary_terms",
+    "description": "Create one or more new glossary terms in a Lokalise project in a single call.\nReturns the created term objects (with their new IDs) along with a count of how many were created, plus any per-term errors.\nUse lokalise_update_glossary_terms afterward to modify a term, or lokalise_l…"
+  },
+  {
+    "slug": "lokalise",
+    "name": "lokalise_create_custom_status",
+    "description": "Create a new custom translation status in a Lokalise project.\nReturns the created status's ID, title, and hex color.\nUse this to add a new workflow stage (e.g. \"Reviewed by staff\") that translators and reviewers can apply to keys, beyond Lokalise's built-in statuses."
+  },
+  {
+    "slug": "lokalise",
+    "name": "lokalise_create_contributors",
+    "description": "Create one or more new contributors on a Lokalise project, granting them project access and per-language permissions.\nReturns the created contributor object(s) with user ID, admin/reviewer status, and assigned languages. Note (verified live): the returned admin_rights for a give…"
+  },
+  {
+    "slug": "lokalise",
+    "name": "lokalise_create_billing_details",
+    "description": "Create billing details for a Lokalise team, providing the billing email, country, and postal code used for invoices and translation orders.\nReturns the saved billing details, including billing email, address fields, phone, VAT number, and country code.\nUse this to set up billing…"
+  },
+  {
+    "slug": "lokalise",
+    "name": "lokalise_bulk_update_keys",
+    "description": "Update one or more existing translation keys in a Lokalise project in a single request, including their names, tags, and translations.\nReturns the updated keys with their current field values plus a separate errors array for any per-key failures — the call reports success even i…"
+  },
+  {
+    "slug": "lokalise",
+    "name": "lokalise_async_download_files",
+    "description": "Start an asynchronous export of a Lokalise project's translation files as a downloadable bundle, without waiting for it to finish.\nReturns a process_id you can poll with a process-status tool; once complete, that process exposes the bundle's download URL.\nUse this instead of the…"
+  },
+  {
+    "slug": "lokalise",
+    "name": "lokalise_add_projects_to_group",
+    "description": "Add one or more projects to a user group in a Lokalise team, granting the group's members access to those projects.\nReturns the group's updated details, including its full current list of assigned projects.\nUse this after creating a group to grant it access to specific projects.…"
+  },
+  {
+    "slug": "lokalise",
+    "name": "lokalise_add_members_to_group",
+    "description": "Add one or more team members to a user group in a Lokalise team, granting them the group's permissions and project access.\nReturns the group's updated details, including its full current list of member user IDs.\nUse this after creating a group to populate it with contributors. U…"
+  },
+  {
+    "slug": "weflow",
+    "name": "weflow_summary_templates_list",
+    "description": "List the AI summary templates available for the company.\nReturns each template's id and name.\nUse weflow_summary_templates_list to find a template id to pass to weflow_recording_summary_get."
+  },
+  {
+    "slug": "weflow",
+    "name": "weflow_recordings_list",
+    "description": "List call and meeting recordings for the company, newest first.\nReturns a page of recordings (id, title, dates, participants, Salesforce links) plus a nextCursor and hasMore flag for pagination.\nUse weflow_recordings_list to browse or filter recordings; use weflow_recording_get …"
+  },
+  {
+    "slug": "weflow",
+    "name": "weflow_recording_video_get",
+    "description": "Get pre-signed URLs to stream or download a recording's video.\nReturns a stream URL, a download URL, and their expiration timestamp — the URLs expire after 1 hour.\nUse weflow_recording_video_get to access the video itself; use weflow_recording_get for the recording's metadata.\nR…"
+  },
+  {
+    "slug": "weflow",
+    "name": "weflow_recording_transcript_get",
+    "description": "Get the full transcript of a recording, grouped by speaker with per-word timestamps.\nReturns an array of transcript segments, or an empty array if transcription never produced output.\nUse weflow_recording_transcript_get to read or search what was said in a recording.\nRequires a …"
+  },
+  {
+    "slug": "weflow",
+    "name": "weflow_recording_trackers_list",
+    "description": "List trackers that matched on a recording, with each tracker's matched phrases.\nReturns each tracker's name and the phrase matches found in the conversation.\nUse weflow_recording_trackers_list to see which tracked keywords or topics came up in a call.\nRequires a recording id fro…"
+  },
+  {
+    "slug": "weflow",
+    "name": "weflow_recording_summary_get",
+    "description": "Get the AI-generated summary of a recording for a given summary template.\nReturns the generated summary text for the recording.\nUse weflow_recording_summary_get after picking a template with weflow_summary_templates_list, or omit the template to use the company's default.\nRequir…"
+  },
+  {
+    "slug": "weflow",
+    "name": "weflow_recording_scorecards_list",
+    "description": "List cached coaching scorecards for a recording, one per scoring template that has been run against it.\nReturns each scorecard's template, criteria scores, and overall result.\nUse weflow_recording_scorecards_list to review how a call was scored for coaching purposes.\nRequires a …"
+  },
+  {
+    "slug": "weflow",
+    "name": "weflow_recording_interaction_metrics_list",
+    "description": "List per-participant conversation analytics for a recording, such as talk ratio, longest monologue, and questions asked per hour.\nReturns one interaction-metrics object per participant.\nUse weflow_recording_interaction_metrics_list to analyze how a conversation was balanced betw…"
+  },
+  {
+    "slug": "weflow",
+    "name": "weflow_recording_get",
+    "description": "Get full metadata for a single recording by id.\nReturns the recording's title, dates, duration, participants, and any Salesforce records linked to it.\nUse weflow_recording_get once you have a recording id from weflow_recordings_list."
+  },
+  {
+    "slug": "weflow",
+    "name": "weflow_recording_comments_list",
+    "description": "List threaded comments on a recording, with replies nested under their parent comment.\nReturns each comment's author, text, timestamp, and nested replies.\nUse weflow_recording_comments_list to read discussion left on a recording.\nRequires a recording id from weflow_recordings_li…"
+  },
+  {
+    "slug": "weflow",
+    "name": "weflow_recording_clips_list",
+    "description": "List saved clips created from a recording.\nReturns each clip's id, title, start/end time, and creator.\nUse weflow_recording_clips_list to see the highlighted moments saved from a recording.\nRequires a recording id from weflow_recordings_list."
+  },
+  {
+    "slug": "smartlingmcp",
+    "name": "smartlingmcp_smartling_update_job",
+    "description": "Get detailed information about a specific Smartling job by its UID.\n\n# Use cases\n- User wants to set any of optional job properties like due date\n- User needs to edit job metadata\n\n# Job Details Response\nThe response includes detailed job information:\n- Callback method and URL c…"
+  },
+  {
+    "slug": "smartlingmcp",
+    "name": "smartlingmcp_smartling_update_issue_type",
+    "description": "Change the type and sub-type of an issue (optionally narrowing to one locale).\n\n# Use cases\n- Re-categorize a CLARIFICATION issue as MISSPELLING after triage\n- Move a TRANSLATION issue to a specific locale\n\n# Examples\n- project_id=\"p1\", issue_uid=\"i1\", issue_type=\"TRANSLATION\", …"
+  },
+  {
+    "slug": "smartlingmcp",
+    "name": "smartlingmcp_smartling_update_issue_severity_level",
+    "description": "Change the severity level of an issue.\n\n# Use cases\n- Escalate an issue from MEDIUM to HIGH\n- Downgrade severity once mitigated\n\n# Examples\n- project_id=\"p1\", issue_uid=\"i1\", issue_severity_level=\"HIGH\""
+  },
+  {
+    "slug": "smartlingmcp",
+    "name": "smartlingmcp_smartling_update_issue_comment",
+    "description": "Edit the text of an existing comment.\n\n# Use cases\n- Fix a typo in a comment\n- Update outdated guidance in a comment\n\n# Examples\n- project_id=\"p1\", issue_uid=\"i1\", issue_comment_uid=\"c1\", comment_text=\"Edited\""
+  },
+  {
+    "slug": "smartlingmcp",
+    "name": "smartlingmcp_smartling_update_issue_assignee",
+    "description": "Assign an issue to a specific user.\n\n# Use cases\n- Route an issue to the responsible PM or translator for action\n\n# Examples\n- project_id=\"p1\", issue_uid=\"i1\", assignee_user_uid=\"user-xyz\""
+  },
+  {
+    "slug": "smartlingmcp",
+    "name": "smartlingmcp_smartling_update_issue_answered",
+    "description": "Mark an issue as answered or un-answered.\n\n# Use cases\n- Mark an issue answered after a reply is posted\n- Clear the answered flag if the reply is later found inadequate\n\n# Examples\n- project_id=\"p1\", issue_uid=\"i1\", answered=true"
+  },
+  {
+    "slug": "smartlingmcp",
+    "name": "smartlingmcp_smartling_search_translation_memory",
+    "description": "Search translation memory for similar translations in a Smartling project.\n\n# What is translation memory?\nA Translation Memory is a cloud-based database of all translations that have occurred within your Smartling account, as well as any translations that you may have imported t…"
+  },
+  {
+    "slug": "smartlingmcp",
+    "name": "smartlingmcp_smartling_search_strings",
+    "description": "Search for strings in a Smartling project using various filters.\n\n# What is string searching?\nString searching allows you to find translation strings within a Smartling project based on various criteria like status, content, target locales, and more. This helps manage and locate…"
+  },
+  {
+    "slug": "smartlingmcp",
+    "name": "smartlingmcp_smartling_request_upload_url",
+    "description": "Requests a short-lived URL for uploading a local file, for use with other tools that accept an \"upload_id\" parameter (e.g. smartling_machine_translate_file).\n\n# Use cases\n- Preferred, default first step before translating or otherwise processing any local file, whenever you can …"
+  },
+  {
+    "slug": "smartlingmcp",
+    "name": "smartlingmcp_smartling_remove_tags_from_strings",
+    "description": "Remove tags from strings in a Smartling project.\n\n# Use cases\n- Remove outdated tags from strings\n\n# Examples\n- Clean up categorization tags: tags=[\"old-feature\", \"deprecated\"]\n- Remove release tags after deployment: tags=[\"v2.0\", \"pending-release\"]\n\n# Parameters\n- project_id: T…"
+  },
+  {
+    "slug": "smartlingmcp",
+    "name": "smartlingmcp_smartling_remove_strings_from_job",
+    "description": "Remove strings from an existing Smartling job by their hashcodes.\n\n# Use cases\n- User wants to remove specific strings from a translation job\n- User needs to exclude certain content from an existing job\n- User wants to remove strings for specific target locales only\n- User needs…"
+  },
+  {
+    "slug": "smartlingmcp",
+    "name": "smartlingmcp_smartling_remove_all_tags_from_strings",
+    "description": "Remove all tags from strings in a Smartling project.\n\n# Use cases\n- Clean slate for string reorganization - remove all tags before applying new categorization\n- Prepare strings for migration to a different tagging system\n- Batch clean up of strings during project restructuring\n\n…"
+  },
+  {
+    "slug": "smartlingmcp",
+    "name": "smartlingmcp_smartling_open_or_close_issue",
+    "description": "Open or close (resolve) an issue.\n\n# Use cases\n- Resolve an issue once the underlying string question is answered\n- Re-open a resolved issue that needs more discussion\n\n# Examples\n- Resolve: project_id=\"p1\", issue_uid=\"i1\", issue_state=\"RESOLVED\"\n- Re-open: issue_state=\"OPENED\""
+  },
+  {
+    "slug": "smartlingmcp",
+    "name": "smartlingmcp_smartling_match_glossary_terms",
+    "description": "Match terms within a specific glossary.\n\n# Use cases\n- User requests to find specific terms in a source and translated strings.\n- User requests to find specific terms in a source only strings.\n\n# Examples\n- Match glossary terms in source and translated strings:\n{\n    \"glossary_u…"
+  },
+  {
+    "slug": "smartlingmcp",
+    "name": "smartlingmcp_smartling_machine_translate_text",
+    "description": "Translates text content using machine translation.\n\n# Use cases\n- User requests to translate text or simple text files (txt format).\n\nFor file translation, read the file contents first.\nSplit long text into sentence-based chunks to preserve meaning and context - avoid breaking m…"
+  },
+  {
+    "slug": "smartlingmcp",
+    "name": "smartlingmcp_smartling_machine_translate_file",
+    "description": "Translates file content using machine translation.\n\n# Use cases\n- User requests to translate files (text or binary).\n\nTwo ways to supply the file - provide exactly one of `upload_id` or `file_content`:\n1. `upload_id` (preferred, default choice): call smartling_request_upload_url…"
+  },
+  {
+    "slug": "smartlingmcp",
+    "name": "smartlingmcp_smartling_list_workflows",
+    "description": "List workflows from a specific Smartling project with optional filtering.\n\n# What is a workflow?\nA workflow in Smartling defines the translation process steps that content goes through from source to target languages. Each workflow contains steps like translation, editing, revie…"
+  },
+  {
+    "slug": "smartlingmcp",
+    "name": "smartlingmcp_smartling_list_users",
+    "description": "List users from a Smartling account with optional filtering.\n\n# What are users in Smartling?\nUsers are individuals who have access to the Smartling platform with specific roles and permissions. They can be translators, project managers, reviewers, or other team members involved …"
+  },
+  {
+    "slug": "smartlingmcp",
+    "name": "smartlingmcp_smartling_list_styleguides",
+    "description": "List style guides from the current Smartling account by name.\n\n# Use cases\n- User requests to retrieve style guides:\n  - User requests to retrieve all style guides.\n  - User requests to retrieve style guides based on their names.\n\n# Examples\n- List all style guides:\n{} (no param…"
+  },
+  {
+    "slug": "smartlingmcp",
+    "name": "smartlingmcp_smartling_list_projects",
+    "description": "List projects from the current Smartling account by name.\n\n# Use cases\n- User requests to retrieve projects:\n  - User asked to retrieve a list of all projects\n  - User asked to search for projects by name\n  - User asked to filter archived projects\n  - User asked to look for proj…"
+  },
+  {
+    "slug": "smartlingmcp",
+    "name": "smartlingmcp_smartling_list_linguistic_packages",
+    "description": "List all linguistic packages from the current Smartling account.\n\n# Use cases\n- User requests to get a list of available linguistic packages.\n\n# Examples\n- List all linguistic packages:\n{\"account_id\": \"your-account-uid\"}"
+  },
+  {
+    "slug": "smartlingmcp",
+    "name": "smartlingmcp_smartling_list_jobs",
+    "description": "List jobs from a specific Smartling project with optional filtering.\n\n# Use cases\n- User requests to retrieve all jobs from a project\n- User wants to filter jobs by name or status\n- User needs to see job progress and status information\n- User wants to understand what translation…"
+  },
+  {
+    "slug": "smartlingmcp",
+    "name": "smartlingmcp_smartling_list_issue_comments",
+    "description": "List all comments on an issue.\n\n# Use cases\n- Read the discussion thread on an issue before responding\n- Audit comment activity for a specific issue\n\n# Examples\n- project_id=\"p1\", issue_uid=\"i1\""
+  },
+  {
+    "slug": "smartlingmcp",
+    "name": "smartlingmcp_smartling_list_glossaries",
+    "description": "List glossaries by set of filters.\n\n# Use cases\n- User requests to retrieve glossaries:\n  - User asked to retrieve a list of all glossaries\n  - User asked to search for glossaries by name or description\n  - User asked to filter glossaries by state (active, archived, both)\n  - Us…"
+  },
+  {
+    "slug": "smartlingmcp",
+    "name": "smartlingmcp_smartling_list_file_jobs",
+    "description": "Retrieve a list of translation jobs where a specific file is involved in a Smartling project.\n\nReturns a list of translation jobs that include the specified file. Each job object contains job metadata (UID, status, dates).\n**Special case - Unassigned strings**: If the file conta…"
+  },
+  {
+    "slug": "smartlingmcp",
+    "name": "smartlingmcp_smartling_list_content_assignments",
+    "description": "List content assignments for the current Smartling account.\n\n# What is a content assignment?\nA content assignment represents a unit of translation work assigned to a translator (user) or an agency\nwithin a specific workflow step of a translation job. Each assignment ties togethe…"
+  },
+  {
+    "slug": "smartlingmcp",
+    "name": "smartlingmcp_smartling_get_workflow_step_types",
+    "description": "Get available workflow step types from Smartling for use in reporting and filtering.\n\n# What are workflow step types?\nWorkflow step types define the different stages in a translation workflow, such as \"Translation\", \"Review\", \"Edit\", etc. This tool retrieves the complete list of…"
+  },
+  {
+    "slug": "smartlingmcp",
+    "name": "smartlingmcp_smartling_get_word_count_report",
+    "description": "Get word count report from Smartling in CSV format for efficient analysis.\n\n# What is word count report?\nA word count report provides detailed information about word counts and weighted word counts for translation work. It includes data about projects, jobs, translation resource…"
+  },
+  {
+    "slug": "smartlingmcp",
+    "name": "smartlingmcp_smartling_get_styleguide",
+    "description": "Get specific style guide by its unique identifier.\n\n# What is styleguide?\nA Style Guide is a collection of rules about your preferences regarding content formatting, writing tone, and style.\nIt is a tool for ensuring the language and tone of your brand is found accurate and cons…"
+  },
+  {
+    "slug": "smartlingmcp",
+    "name": "smartlingmcp_smartling_get_project",
+    "description": "Retrieve a specific project from the current Smartling account by its UID.\n\n# What is project?\nA project is a translation environment for the various types of content user wants to translate.\n\n# Use cases\n- User requests to get detailed information about a specific project.\n"
+  },
+  {
+    "slug": "smartlingmcp",
+    "name": "smartlingmcp_smartling_get_linguistic_package",
+    "description": "Retrieve a specific linguistic package from the current Smartling account by its UID.\n\n# What is linguistic package?\nA linguistic package is a collection of translation resources, including glossaries and style guides that are used to ensure consistent and accurate translations.…"
+  },
+  {
+    "slug": "smartlingmcp",
+    "name": "smartlingmcp_smartling_get_job_history",
+    "description": "Get the audit history of a specific Smartling job.\n\n# What is job history?\nJob history is the chronological audit trail of everything that has happened\nto a job: creation, status changes, content additions/removals, due date\nchanges, priority changes, and rush request create/rem…"
+  },
+  {
+    "slug": "smartlingmcp",
+    "name": "smartlingmcp_smartling_get_job",
+    "description": "Get detailed information about a specific Smartling job by its UID.\n\n# What is a job?\nA job is a translation task that contains files to be translated. Jobs help organize and manage translation work by grouping files together with specific target languages, due dates, and workfl…"
+  },
+  {
+    "slug": "smartlingmcp",
+    "name": "smartlingmcp_smartling_get_issue_comment",
+    "description": "Retrieve a single issue comment by UID.\n\n# Use cases\n- Read the full text of one specific comment\n\n# Examples\n- project_id=\"p1\", issue_uid=\"i1\", issue_comment_uid=\"c1\""
+  },
+  {
+    "slug": "smartlingmcp",
+    "name": "smartlingmcp_smartling_get_issue",
+    "description": "Retrieve detailed information about a specific string issue.\n\n# What is a string issue?\nA string issue is a question, clarification request, or quality flag raised against a specific string (source or translation) inside a Smartling project.\n\n# Use cases\n- Inspect the full state…"
+  },
+  {
+    "slug": "smartlingmcp",
+    "name": "smartlingmcp_smartling_get_glossary",
+    "description": "Retrieve a specific glossary from the current Smartling account by its UID.\n\n# What is glossary?\nA Glossary is a list of terms and expressions that represent your brand, and influence your translations.\nCompanies create Glossaries in order to provide a shared understanding of te…"
+  },
+  {
+    "slug": "smartlingmcp",
+    "name": "smartlingmcp_smartling_get_available_accounts_for_current_user",
+    "description": "Get available accounts for the current user.\n\n# What are available accounts?\nAvailable accounts are Smartling accounts that the current authenticated user has access to. This tool is essential for determining which account UID to use with other Smartling MCP tools.\n\n# Use cases\n…"
+  },
+  {
+    "slug": "smartlingmcp",
+    "name": "smartlingmcp_smartling_find_project_issues",
+    "description": "Search issues within a single Smartling project, with pagination, sorting, and rich filters.\n\n# Use cases\n- List all OPEN issues in a project, newest first\n- Find HIGH-severity TRANSLATION issues assigned to a specific user\n- Count + page through a project's issue backlog\n\n# Exa…"
+  },
+  {
+    "slug": "smartlingmcp",
+    "name": "smartlingmcp_smartling_find_account_issues",
+    "description": "Search issues across all projects in the current Smartling account, with pagination, sorting, filters, and optional project narrowing. The account is taken from the MCP token credentials.\n\n# Use cases\n- Find all HIGH-severity OPEN issues across the whole account\n- Cross-project …"
+  },
+  {
+    "slug": "smartlingmcp",
+    "name": "smartlingmcp_smartling_export_glossary",
+    "description": "Export glossary entries in various formats (CSV, XLSX, TBX).\n\n# What is glossary export?\nGlossary export allows you to export glossary entries with various filtering and formatting options. You can export entries in CSV, XLSX, or TBX formats with comprehensive filtering capabili…"
+  },
+  {
+    "slug": "smartlingmcp",
+    "name": "smartlingmcp_smartling_execute_lqa_evaluation",
+    "description": "Run an automated Linguistic Quality Assurance (LQA) evaluation on a single translated string and get back any detected quality errors.\n\n# What is an LQA evaluation?\nLQA evaluation checks a translation against its source string using Smartling's linguistic quality\nrules (e.g. blo…"
+  },
+  {
+    "slug": "smartlingmcp",
+    "name": "smartlingmcp_smartling_edit_issue_text",
+    "description": "Edit the body text of an existing issue.\n\n# Use cases\n- Fix a typo in an issue's text\n- Clarify a previously-vague issue description\n\n# Examples\n- project_id=\"abc\", issue_uid=\"i1\", issue_text=\"Updated description\""
+  },
+  {
+    "slug": "smartlingmcp",
+    "name": "smartlingmcp_smartling_delete_issue_comment",
+    "description": "Delete a comment from an issue.\n\n# Use cases\n- Remove an off-topic or incorrect comment\n\n# Examples\n- project_id=\"p1\", issue_uid=\"i1\", issue_comment_uid=\"c1\"\n\n# Important\nThis action cannot be easily undone."
+  },
+  {
+    "slug": "smartlingmcp",
+    "name": "smartlingmcp_smartling_delete_issue_assignee",
+    "description": "Unassign the user currently assigned to an issue.\n\n# Use cases\n- Remove the current assignee when the issue should not be owned by anyone\n\n# Examples\n- project_id=\"p1\", issue_uid=\"i1\""
+  },
+  {
+    "slug": "smartlingmcp",
+    "name": "smartlingmcp_smartling_create_strings",
+    "description": "Create strings in a Smartling project and poll until completion.\n\n# What are strings in Smartling?\nStrings are individual pieces of text content that need to be translated. Each string has a unique identifier (hashcode) and can contain metadata like instructions, format specific…"
+  },
+  {
+    "slug": "smartlingmcp",
+    "name": "smartlingmcp_smartling_create_job",
+    "description": "Create Smartling job.\n\n# Use cases\n- User needs to create jobs with specific parameters\n\n# Job Details Response\nThe response includes detailed job information:\n- Callback method and URL configuration\n- Creation and modification user details\n- Custom field values\n- Complete job m…"
+  },
+  {
+    "slug": "smartlingmcp",
+    "name": "smartlingmcp_smartling_create_issue",
+    "description": "Create a new string issue (question, clarification, quality flag) on a Smartling string.\n\n# Use cases\n- Translator flags an ambiguous source string with a CLARIFICATION sub-type\n- QA raises a POOR_TRANSLATION issue against a translation\n- PM creates a CUSTOM source issue with a …"
+  },
+  {
+    "slug": "smartlingmcp",
+    "name": "smartlingmcp_smartling_count_project_issues",
+    "description": "Count issues within a single Smartling project matching the given filters.\n\n# Use cases\n- Display a badge of how many open issues a project has\n- Sanity-check filter shape before running a full find\n\n# Examples\n- Count all open issues: project_id=\"p1\", issue_state_codes=[\"OPENED…"
+  },
+  {
+    "slug": "smartlingmcp",
+    "name": "smartlingmcp_smartling_count_account_issues",
+    "description": "Count issues across all projects in the current Smartling account (with optional project narrowing). The account is taken from the MCP token credentials.\n\n# Use cases\n- Show a global issue badge for the user\n\n# Examples\n- All open: issue_state_codes=[\"OPENED\"]"
+  },
+  {
+    "slug": "smartlingmcp",
+    "name": "smartlingmcp_smartling_authorize_job",
+    "description": "Authorize a Smartling job to begin translation work with optional locale workflow assignments.\n\n# What does job authorization mean?\nJob authorization moves a job from \"AWAITING_AUTHORIZATION\" status to \"IN_PROGRESS\" status, allowing translators to begin working on the content. T…"
+  },
+  {
+    "slug": "smartlingmcp",
+    "name": "smartlingmcp_smartling_add_tags_to_strings",
+    "description": "Add tags to strings in a Smartling project.\n\n# Use cases\n- Categorize subsets of your content in a Project for quick and easy filtering\n\n# Examples\n- Add tags to mark strings for a specific release: tags=[\"v2.1\", \"new-feature\"]\n- Tag strings by component: tags=[\"navigation\", \"he…"
+  },
+  {
+    "slug": "smartlingmcp",
+    "name": "smartlingmcp_smartling_add_strings_to_job",
+    "description": "Add strings to an existing Smartling job by their hashcodes.\n\n# What are string hashcodes?\nString hashcodes are unique identifiers for translatable strings in Smartling. Each string in your project has a unique hashcode that can be used to reference it in various operations.\n\n# …"
+  },
+  {
+    "slug": "smartlingmcp",
+    "name": "smartlingmcp_smartling_add_issue_comment",
+    "description": "Post a new comment on an issue.\n\n# Use cases\n- Reply to a translator question\n- Add additional context to a flagged issue\n\n# Examples\n- project_id=\"p1\", issue_uid=\"i1\", comment_text=\"Use the formal 'vous' form here\""
+  },
+  {
+    "slug": "quomcp",
+    "name": "quomcp_update_task",
+    "description": "Update a Quo task. Performs exactly one change per call, selected by which parameter is provided: title/description (counted as one change), assignToUserId, unassignUserId, dueDate, removeDueDate, completed (true marks the task done, false reopens it), linkConversationId, or unl…"
+  },
+  {
+    "slug": "quomcp",
+    "name": "quomcp_update_contact",
+    "description": "Update fields on an existing Quo contact. Omit fields you want to leave unchanged; pass `null` for any field you want to clear. Use `get-contact` first if you need to inspect current values before updating."
+  },
+  {
+    "slug": "quomcp",
+    "name": "quomcp_send_message",
+    "description": "Send an SMS text message from a Quo inbox to a single recipient. The `from` number must belong to the user's Quo workspace — use `list-inboxes` to discover available numbers. Recipient must be a valid phone number in E.164 format (international supported)."
+  },
+  {
+    "slug": "quomcp",
+    "name": "quomcp_send_group_message",
+    "description": "Send a single SMS group message from a Quo inbox to 2–10 recipients in one shared thread. IMPORTANT: this creates a group conversation — every recipient can see all the other recipients' phone numbers and all replies, and it cannot be undone once sent. Use `send-message` instead…"
+  },
+  {
+    "slug": "quomcp",
+    "name": "quomcp_send_bulk_messages",
+    "description": "Send SMS to up to 40 recipients as SEPARATE individual (1:1) messages — a broadcast. Two modes: for the SAME text to everyone, pass `to` (2–40 numbers) + `content`; to personalize per recipient, pass `messages` as [{to, content}] instead. Provide one mode or the other, never bot…"
+  },
+  {
+    "slug": "quomcp",
+    "name": "quomcp_list_users",
+    "description": "List the users (members) in the Quo workspace. Returns each user's ID, name, email, and role. Use the returned `id` (US… format) to filter other tools like `list-inboxes` by user. Supports pagination via `pageToken` (1–50 results per page, max 50)."
+  },
+  {
+    "slug": "quomcp",
+    "name": "quomcp_list_tasks",
+    "description": "List tasks in the Quo workspace. Returns compact rows with task ID, status, title, due date, assignee, linked phone number/conversation/activity, creation time, and revision. Supports pagination via `pageToken` (1-100 results per page)."
+  },
+  {
+    "slug": "quomcp",
+    "name": "quomcp_list_inboxes",
+    "description": "List the phone numbers (inboxes) available in the Quo workspace, including assigned users. Use this first to discover the correct `from` number for `send-message` or the `inboxPhoneNumber` for `fetch-messages` / `fetch-call-transcripts`. When showing a phone number to the user, …"
+  },
+  {
+    "slug": "quomcp",
+    "name": "quomcp_list_contacts",
+    "description": "List contacts in the Quo workspace, optionally filtered by `externalIds` or `sources`. Returns a compact pipe-separated table (id | name | company | role | email | phone) and supports pagination via `pageToken` (1–50 results per page). When showing a phone number to the user, re…"
+  },
+  {
+    "slug": "quomcp",
+    "name": "quomcp_get_contact",
+    "description": "Fetch a single Quo contact by ID, including its default fields (name, company, role, email, phone) and any custom fields configured on the workspace. Use `list-contacts` first if you need to discover contact IDs. When showing a phone number to the user, render it as a click-to-c…"
+  },
+  {
+    "slug": "quomcp",
+    "name": "quomcp_fetch_missed_calls",
+    "description": "Fetch missed incoming calls for a Quo inbox, each enriched with the voicemail the caller left (transcript + recording URL) when there is one. Only returns incoming calls whose status is 'missed', 'no-answer', or 'abandoned' — this filter is fixed and cannot be changed or broaden…"
+  },
+  {
+    "slug": "quomcp",
+    "name": "quomcp_fetch_messages",
+    "description": "Fetch message history for a Quo inbox. Two modes:\n\n• Single contact (`participantPhoneNumber` set) — DEPTH: returns that contact's full message history, most-recent-first, with pagination via `pageToken` (up to 100 per page). Each message is `id | participant | direction | times…"
+  },
+  {
+    "slug": "quomcp",
+    "name": "quomcp_fetch_call_transcripts",
+    "description": "Fetch call transcripts for a Quo inbox. Requires the Quo Business plan and calls where transcription was enabled. Optionally filter by `userId` to return only calls handled by a specific team member (use `list-users` to look up user IDs). Each result row is `id | participant | d…"
+  },
+  {
+    "slug": "quomcp",
+    "name": "quomcp_create_task",
+    "description": "Create a task in Quo linked to exactly one inbox, conversation, or conversation activity. Pick the most specific link target available: if a fetch result row gives you an AC… activity ID (a specific call or message), prefer `activityId` — it ties the task to exactly what the use…"
+  },
+  {
+    "slug": "quomcp",
+    "name": "quomcp_create_contact",
+    "description": "Create a new contact in the Quo workspace. Returns the new contact ID and a compact pipe-separated row that can be chained into `update-contact` or `get-contact`. Only `firstName` is required; all other fields are optional."
+  },
+  {
     "slug": "roammcp",
     "name": "roammcp_webhook_unsubscribe",
     "description": "Unsubscribe from a webhook by ID."
@@ -3388,11 +4418,6 @@
     "slug": "clickupmcp",
     "name": "clickupmcp_clickup_delete_comment",
     "description": "Delete a comment by comment_id. This cannot be undone. Use clickup_get_task_comments or clickup_get_threaded_comments to find the comment ID."
-  },
-  {
-    "slug": "clickupmcp",
-    "name": "clickupmcp_clickup_create_task_comment",
-    "description": "[DEPRECATED â clickup_create_comment] Legacy name for creating a task comment, kept for clients with stale tool listings. Prefer the replacement tool; it takes entity_id instead of task_id."
   },
   {
     "slug": "clickupmcp",
@@ -27793,11 +28818,6 @@
   },
   {
     "slug": "runwaremcp",
-    "name": "runwaremcp_image_upload",
-    "description": "[STALE: upstream removed this tool; replaced by media_storage (operation=upload/delete), see runwaremcp_media_storage] Upload an image to Runware for use as input in subsequent generation tasks. Returns an image UUID that can be used as seedImage, maskImage, etc."
-  },
-  {
-    "slug": "runwaremcp",
     "name": "runwaremcp_get_task_details",
     "description": "Retrieve the original request and response for a previously executed task. Useful for recovering results or auditing past generations."
   },
@@ -32010,16 +33030,6 @@
   },
   {
     "slug": "eodhdmcp",
-    "name": "eodhdmcp_mp_illio_risk_insights",
-    "description": "[STALE - upstream tool not present in the eodhdmcp MCP tools/list response as of 2026-08-19 (SK-1675 refresh); retained per policy, not deleted] [Illio] Retrieve portfolio-level risk attributes for a major US index.\nCovers S&P 500, Dow Jones, and Nasdaq-100. Returns risk metrics…"
-  },
-  {
-    "slug": "eodhdmcp",
-    "name": "eodhdmcp_mp_illio_performance_insights",
-    "description": "[STALE - upstream tool not present in the eodhdmcp MCP tools/list response as of 2026-08-19 (SK-1675 refresh); retained per policy, not deleted] [Illio] Retrieve portfolio-level performance attributes for a major US index.\nCovers S&P 500, Dow Jones, and Nasdaq-100. Returns retur…"
-  },
-  {
-    "slug": "eodhdmcp",
     "name": "eodhdmcp_get_ust_yield_rates",
     "description": "Fetch daily US Treasury par yield curve rates. Use when the user asks about Treasury\nyields, the yield curve, government bond rates, or interest rates across maturities.\n\nReturns nominal par yield curve rates for tenors: 1M, 1.5M, 2M, 3M, 4M, 6M, 1Y, 2Y,\n3Y, 5Y, 7Y, 10Y, 20Y, 30…"
   },
@@ -32242,36 +33252,6 @@
     "slug": "eodhdmcp",
     "name": "eodhdmcp_get_mp_investverte_esg_list_companies",
     "description": "[InvestVerte] List all companies available in the ESG dataset.\nReturns an array of symbol/name pairs for every company with ESG coverage.\nUse as a reference lookup before calling get_mp_investverte_esg_view_company for detailed ESG scores.\nConsumes 10 API calls per request.\nFor …"
-  },
-  {
-    "slug": "eodhdmcp",
-    "name": "eodhdmcp_get_mp_illio_market_insights_volatility",
-    "description": "[STALE - upstream tool not present in the eodhdmcp MCP tools/list response as of 2026-08-19 (SK-1675 refresh); retained per policy, not deleted] [Illio] Get volatility bands and daily move distribution for index constituents.\nCovers S&P 500, Dow Jones, and Nasdaq-100. Returns vo…"
-  },
-  {
-    "slug": "eodhdmcp",
-    "name": "eodhdmcp_get_mp_illio_market_insights_risk_return",
-    "description": "[STALE - upstream tool not present in the eodhdmcp MCP tools/list response as of 2026-08-19 (SK-1675 refresh); retained per policy, not deleted] [Illio] Analyze market-level risk-return tradeoff for index constituents.\nCovers S&P 500, Dow Jones, and Nasdaq-100. Returns risk-adju…"
-  },
-  {
-    "slug": "eodhdmcp",
-    "name": "eodhdmcp_get_mp_illio_market_insights_performance",
-    "description": "[STALE - upstream tool not present in the eodhdmcp MCP tools/list response as of 2026-08-19 (SK-1675 refresh); retained per policy, not deleted] [Illio] Analyze market-level performance of index constituents versus the overall market.\nCovers S&P 500, Dow Jones, and Nasdaq-100. R…"
-  },
-  {
-    "slug": "eodhdmcp",
-    "name": "eodhdmcp_get_mp_illio_market_insights_largest_volatility",
-    "description": "[STALE - upstream tool not present in the eodhdmcp MCP tools/list response as of 2026-08-19 (SK-1675 refresh); retained per policy, not deleted] [Illio] Identify constituents with the largest year-over-year volatility changes.\nCovers S&P 500, Dow Jones, and Nasdaq-100. Returns t…"
-  },
-  {
-    "slug": "eodhdmcp",
-    "name": "eodhdmcp_get_mp_illio_market_insights_beta_bands",
-    "description": "[STALE - upstream tool not present in the eodhdmcp MCP tools/list response as of 2026-08-19 (SK-1675 refresh); retained per policy, not deleted] [Illio] Analyze beta sensitivity distribution of index constituents relative to the market.\nCovers S&P 500, Dow Jones, and Nasdaq-100.…"
-  },
-  {
-    "slug": "eodhdmcp",
-    "name": "eodhdmcp_get_mp_illio_market_insights_best_worst",
-    "description": "[STALE - upstream tool not present in the eodhdmcp MCP tools/list response as of 2026-08-19 (SK-1675 refresh); retained per policy, not deleted] [Illio] Get the largest single-day gains and losses for index constituents.\nCovers S&P 500, Dow Jones, and Nasdaq-100. Returns best an…"
   },
   {
     "slug": "eodhdmcp",
@@ -36377,33 +37357,8 @@
   },
   {
     "slug": "sendmcp",
-    "name": "sendmcp_manage_guideline",
-    "description": "[STALE - upstream renamed \"manage_guideline\" to \"manage_skill\" (guidelines are now called skills; see sendmcp_manage_skill); this tool no longer exists on the upstream MCP server and will fail if invoked] Create, update, or delete a user-defined Send guideline. Call only when th…"
-  },
-  {
-    "slug": "sendmcp",
-    "name": "sendmcp_getdocument",
-    "description": "[STALE - upstream renamed \"GetDocument\" to \"GetSite\" (see sendmcp_getsite); this tool no longer exists on the upstream MCP server and will fail if invoked] Fetch an existing Send document by share URL or share ID. Returns the full HTML source and metadata. Call this before EditD…"
-  },
-  {
-    "slug": "sendmcp",
     "name": "sendmcp_get_image_gallery",
     "description": "Returns all workspace images with proxy URLs for display in the gallery UI. Each item includes an optional description for model context (not shown in the UI). No parameters required."
-  },
-  {
-    "slug": "sendmcp",
-    "name": "sendmcp_get_guidelines",
-    "description": "[STALE - upstream renamed \"get_guidelines\" to \"get_skills\" (guidelines are now called skills; see sendmcp_get_skills); this tool no longer exists on the upstream MCP server and will fail if invoked] Fetches Send guidelines by ID, or lists all available guidelines. With id, retur…"
-  },
-  {
-    "slug": "sendmcp",
-    "name": "sendmcp_editdocument",
-    "description": "[STALE - upstream renamed \"EditDocument\" to \"EditSite\" (see sendmcp_editsite); this tool no longer exists on the upstream MCP server and will fail if invoked] Edit an existing Send document via deterministic string replacement. Requires at least one entry in edits — instruction …"
-  },
-  {
-    "slug": "sendmcp",
-    "name": "sendmcp_createdocument",
-    "description": "[STALE - upstream renamed \"CreateDocument\" to \"CreateSite\" (see sendmcp_createsite); this tool no longer exists on the upstream MCP server and will fail if invoked] Three modes: plan (pass intent only to get guidance), copy (pass sourceShareId to copy an existing doc), and creat…"
   },
   {
     "slug": "sendmcp",
@@ -37482,11 +38437,6 @@
   },
   {
     "slug": "motherduckmcp",
-    "name": "motherduckmcp_get_flight_run_logs",
-    "description": "[STALE: upstream renamed this tool to get_flight_logs; this upstream_tool_name no longer appears in the live MCP tools/list as of the 2026-08-19 SK-1675 refresh. Kept for backward compatibility, not for new use — see motherduckmcp_get_flight_logs.] Fetch the logs and run record …"
-  },
-  {
-    "slug": "motherduckmcp",
     "name": "motherduckmcp_get_flight_guide",
     "description": "Retrieve the authoritative guide for working with MotherDuck Flights (anatomy, config vs. secrets, scheduling, run lifecycle, common failures). Call this first before using other Flight tools."
   },
@@ -38339,11 +39289,6 @@
     "slug": "circlebackmcp",
     "name": "circlebackmcp_findprofiles",
     "description": "Find profiles matching the given names. The data returned will be an array of objects representing each of the matching profiles."
-  },
-  {
-    "slug": "circlebackmcp",
-    "name": "circlebackmcp_finddomains",
-    "description": "[STALE: not present in the live upstream tools/list as of 2026-08-21 - likely replaced by FindCompanies, which returns the same domain data plus company name] Find company domains matching the given search terms. The data returned will be an array of domain strings representing …"
   },
   {
     "slug": "closemcp",
@@ -43553,11 +44498,6 @@
   },
   {
     "slug": "mintlifymcp",
-    "name": "mintlifymcp_search_operations",
-    "description": "[STALE: upstream tool \"search_operations\" no longer present as of 2026-08-19; upstream MCP now exposes \"search_code_operations\" instead] Search the Admin MCP SDK for available methods by keyword to find the right operation before writing an execute script."
-  },
-  {
-    "slug": "mintlifymcp",
     "name": "mintlifymcp_search",
     "description": "Find lines matching a substring or regex pattern across all pages on the current branch."
   },
@@ -43590,11 +44530,6 @@
     "slug": "mintlifymcp",
     "name": "mintlifymcp_get_session_state",
     "description": "Return the current session state including the active branch name, edited files, and navigation diff."
-  },
-  {
-    "slug": "mintlifymcp",
-    "name": "mintlifymcp_execute",
-    "description": "[STALE: upstream tool \"execute\" no longer present as of 2026-08-19; upstream MCP now exposes \"execute_code\" instead] Run TypeScript or JavaScript against the Admin MCP dashboard SDK in a sandboxed isolate to call workflows, deployment, billing, or analytics APIs."
   },
   {
     "slug": "mintlifymcp",
@@ -43778,33 +44713,8 @@
   },
   {
     "slug": "lushamcp",
-    "name": "lushamcp_prospecting_search_guide",
-    "description": "[STALE: upstream tool 'prospecting_search_guide' is no longer present in the live MCP tool list as of 2026-08-19; no equivalent replacement tool was found] Return a step-by-step guide for structuring Lusha prospecting searches."
-  },
-  {
-    "slug": "lushamcp",
-    "name": "lushamcp_prospecting_contact_search",
-    "description": "[STALE: upstream tool 'prospecting_contact_search' is no longer present in the live MCP tool list as of 2026-08-19; it appears to have been renamed to 'prospecting_contact_search_by_text' (see lushamcp_prospecting_contact_search_by_text)] Find business contacts by filters such a…"
-  },
-  {
-    "slug": "lushamcp",
-    "name": "lushamcp_prospecting_contact_filters",
-    "description": "[STALE: upstream tool 'prospecting_contact_filters' is no longer present in the live MCP tool list as of 2026-08-19; no equivalent replacement tool was found] Resolve valid filter values accepted by the contact prospecting search."
-  },
-  {
-    "slug": "lushamcp",
     "name": "lushamcp_prospecting_contact_enrich",
     "description": "Reveal emails and phone numbers for one or more Lusha contact IDs."
-  },
-  {
-    "slug": "lushamcp",
-    "name": "lushamcp_prospecting_company_search",
-    "description": "[STALE: upstream tool 'prospecting_company_search' is no longer present in the live MCP tool list as of 2026-08-19; it appears to have been renamed to 'prospecting_company_search_by_text' (see lushamcp_prospecting_company_search_by_text)] Find companies by firmographic filters s…"
-  },
-  {
-    "slug": "lushamcp",
-    "name": "lushamcp_prospecting_company_filters",
-    "description": "[STALE: upstream tool 'prospecting_company_filters' is no longer present in the live MCP tool list as of 2026-08-19; no equivalent replacement tool was found] Resolve valid filter values accepted by the company prospecting search."
   },
   {
     "slug": "lushamcp",
@@ -50746,11 +51656,6 @@
   },
   {
     "slug": "pendomcp",
-    "name": "pendomcp_visitorquery",
-    "description": "[STALE: upstream tool \"visitorQuery\" is no longer present in the Pendo MCP server's tools/list as of 2026-08-19; may have been removed or replaced.] Retrieve visitor data and metadata, or count matching visitors."
-  },
-  {
-    "slug": "pendomcp",
     "name": "pendomcp_visitormetadataschema",
     "description": "Return the set of metadata fields available for visitors."
   },
@@ -50783,61 +51688,6 @@
     "slug": "pendomcp",
     "name": "pendomcp_listguides",
     "description": "List, filter, and search in-app guides, or fetch a single guide's full content."
-  },
-  {
-    "slug": "pendomcp",
-    "name": "pendomcp_list_use_cases",
-    "description": "[STALE: upstream tool \"list_use_cases\" is no longer present in the Pendo MCP server's tools/list as of 2026-08-19; likely renamed to \"listUseCases\".] Return conversation clustering analysis for an AI agent, grouped by semantic topic."
-  },
-  {
-    "slug": "pendomcp",
-    "name": "pendomcp_list_spaces",
-    "description": "[STALE: upstream tool \"list_spaces\" is no longer present in the Pendo MCP server's tools/list as of 2026-08-19; likely renamed to \"listSpaces\".] List the Pendo Spaces accessible to the current user."
-  },
-  {
-    "slug": "pendomcp",
-    "name": "pendomcp_list_all_applications",
-    "description": "[STALE: upstream tool \"list_all_applications\" is no longer present in the Pendo MCP server's tools/list as of 2026-08-19; likely renamed to \"listAllApplications\".] List all applications and subscriptions the current user has access to."
-  },
-  {
-    "slug": "pendomcp",
-    "name": "pendomcp_list_ai_agents",
-    "description": "[STALE: upstream tool \"list_ai_agents\" is no longer present in the Pendo MCP server's tools/list as of 2026-08-19; likely renamed to \"listAiAgents\".] List all AI agents accessible in this subscription with agent IDs, names, and deployment configuration."
-  },
-  {
-    "slug": "pendomcp",
-    "name": "pendomcp_list_ai_agent_issues",
-    "description": "[STALE: upstream tool \"list_ai_agent_issues\" is no longer present in the Pendo MCP server's tools/list as of 2026-08-19; likely renamed to \"listAiAgentIssues\".] List detected issues in an AI agent's conversations with instance and conversation counts."
-  },
-  {
-    "slug": "pendomcp",
-    "name": "pendomcp_guidemetrics",
-    "description": "[STALE: upstream tool \"guideMetrics\" is no longer present in the Pendo MCP server's tools/list as of 2026-08-19; likely renamed to \"aggregateGuideMetrics\".] Get performance metrics for a single guide over a date range, including reach, views, and completion rates."
-  },
-  {
-    "slug": "pendomcp",
-    "name": "pendomcp_get_agent_context",
-    "description": "[STALE: upstream tool \"get_agent_context\" is no longer present in the Pendo MCP server's tools/list as of 2026-08-19; likely renamed to \"getAgentContext\".] Fetch a grounding document describing a Pendo product resource so an LLM can answer questions about it."
-  },
-  {
-    "slug": "pendomcp",
-    "name": "pendomcp_ai_agent_issue_analysis",
-    "description": "[STALE: upstream tool \"ai_agent_issue_analysis\" is no longer present in the Pendo MCP server's tools/list as of 2026-08-19; likely renamed to \"agentAnalyticsIssueAnalysis\".] Return diagnoses, flagged tool/model usage, and user prompt content for a specific detected issue in an A…"
-  },
-  {
-    "slug": "pendomcp",
-    "name": "pendomcp_agent_analytics_key_metrics",
-    "description": "[STALE: upstream tool \"agent_analytics_key_metrics\" is no longer present in the Pendo MCP server's tools/list as of 2026-08-19; likely renamed to \"agentAnalyticsKeyMetrics\".] Return key aggregate metrics for an AI agent's conversations over a date range, with period-over-period …"
-  },
-  {
-    "slug": "pendomcp",
-    "name": "pendomcp_activityquery",
-    "description": "[STALE: upstream tool \"activityQuery\" is no longer present in the Pendo MCP server's tools/list as of 2026-08-19; may have been removed or replaced.] Query aggregated activity metrics for pages, features, and track types over a date range."
-  },
-  {
-    "slug": "pendomcp",
-    "name": "pendomcp_accountquery",
-    "description": "[STALE: upstream tool \"accountQuery\" is no longer present in the Pendo MCP server's tools/list as of 2026-08-19; may have been removed or replaced.] Retrieve account data and metadata, or count matching accounts."
   },
   {
     "slug": "pendomcp",
@@ -51301,16 +52151,6 @@
   },
   {
     "slug": "memberstackmcp",
-    "name": "memberstackmcp_get_tool_schema",
-    "description": "[STALE: no longer present in upstream Memberstack MCP tools/list as of 2026-08-19 refresh; left in repo per policy, not deleted] Load the full input schema and usage instructions for a specific Memberstack tool by name."
-  },
-  {
-    "slug": "memberstackmcp",
-    "name": "memberstackmcp_explore_tools",
-    "description": "[STALE: no longer present in upstream Memberstack MCP tools/list as of 2026-08-19 refresh; left in repo per policy, not deleted] Browse available Memberstack tools by category or search term. Returns tool names with brief descriptions. Use get_tool_schema to load the full schema…"
-  },
-  {
-    "slug": "memberstackmcp",
     "name": "memberstackmcp_currentuser",
     "description": "Get the authenticated dashboard user's profile and the list of Memberstack apps they can manage."
   },
@@ -51716,11 +52556,6 @@
   },
   {
     "slug": "fiberymcp",
-    "name": "fiberymcp_set_document_content",
-    "description": "[STALE: removed upstream, replaced by block-based document tools (set_block_text/replace_block_text/insert_document_blocks)] Sets (replaces) the content of a document field on a Fibery entity."
-  },
-  {
-    "slug": "fiberymcp",
     "name": "fiberymcp_search_history",
     "description": "Searches the workspace activity history and returns matching history events."
   },
@@ -51771,11 +52606,6 @@
   },
   {
     "slug": "fiberymcp",
-    "name": "fiberymcp_get_tool_reference",
-    "description": "[STALE: removed upstream, replaced by get_fibery_skill] Returns extended reference documentation for a specific Fibery MCP tool."
-  },
-  {
-    "slug": "fiberymcp",
     "name": "fiberymcp_get_me",
     "description": "Returns information about the currently authenticated Fibery user."
   },
@@ -51793,11 +52623,6 @@
     "slug": "fiberymcp",
     "name": "fiberymcp_get_entity_links",
     "description": "Generates Fibery web links for entities by their public IDs."
-  },
-  {
-    "slug": "fiberymcp",
-    "name": "fiberymcp_get_documents_content",
-    "description": "[STALE: removed upstream, replaced by read_document] Returns the Markdown content of one or more Fibery document fields identified by their secrets."
   },
   {
     "slug": "fiberymcp",
@@ -51936,11 +52761,6 @@
   },
   {
     "slug": "fiberymcp",
-    "name": "fiberymcp_append_document_content",
-    "description": "[STALE: removed upstream, replaced by block-based document tools (insert_document_blocks/set_block_text/read_document)] Appends Markdown content to the end of a document field on a Fibery entity."
-  },
-  {
-    "slug": "fiberymcp",
     "name": "fiberymcp_add_file_from_url",
     "description": "Attaches a file to a Fibery entity by downloading it from a publicly accessible URL."
   },
@@ -52013,11 +52833,6 @@
     "slug": "fullenrichmcp",
     "name": "fullenrichmcp_enrich_search_contact",
     "description": "Launch an asynchronous enrichment job for contacts matching search filters, enriching them with professional emails or phone numbers. Returns an enrichment ID to track progress."
-  },
-  {
-    "slug": "fullenrichmcp",
-    "name": "fullenrichmcp_enrich_personal_email_bulk",
-    "description": "[STALE: no longer present in upstream FullEnrich MCP tools/list as of 2026-08-19 refresh (SK-1675) - kept for reference, not upstream-callable] Launch an asynchronous bulk enrichment job to find personal email addresses for a list of contacts. Requires personal email enrichment …"
   },
   {
     "slug": "fullenrichmcp",
@@ -52211,16 +53026,6 @@
   },
   {
     "slug": "kitmcp",
-    "name": "kitmcp_bulk_add_subscribers_to_forms",
-    "description": "[Forms] Subscribe multiple existing subscribers to one or more forms in a single call, triggering the form's confirmation or incentive email for each. Use this instead of calling add_subscriber_to_form repeatedly for onboarding or lead-import workflows.\n\nSubscribers must already…"
-  },
-  {
-    "slug": "kitmcp",
-    "name": "kitmcp_update_tag",
-    "description": "[STALE — upstream renamed 'update_tag' to 'update_tag_name'; kept for compatibility, no longer exposed by upstream MCP server] Rename a tag by ID."
-  },
-  {
-    "slug": "kitmcp",
     "name": "kitmcp_update_subscriber",
     "description": "Update a subscriber's email, name, or custom field values by subscriber ID."
   },
@@ -52251,16 +53056,6 @@
   },
   {
     "slug": "kitmcp",
-    "name": "kitmcp_update_account_colors",
-    "description": "[STALE — upstream renamed 'update_account_colors' to 'update_colors'; kept for compatibility, no longer exposed by upstream MCP server] Update the custom brand color palette for the Kit account."
-  },
-  {
-    "slug": "kitmcp",
-    "name": "kitmcp_untag_subscriber",
-    "description": "[STALE — upstream renamed 'untag_subscriber' to 'remove_tag_from_subscriber'; kept for compatibility, no longer exposed by upstream MCP server] Remove a tag from a subscriber by subscriber ID and tag ID."
-  },
-  {
-    "slug": "kitmcp",
     "name": "kitmcp_unsubscribe",
     "description": "Cancel a subscriber's subscription by subscriber ID."
   },
@@ -52277,11 +53072,6 @@
   { "slug": "kitmcp", "name": "kitmcp_list_tags", "description": "List all tags in the account." },
   {
     "slug": "kitmcp",
-    "name": "kitmcp_list_tag_subscribers",
-    "description": "[STALE — upstream renamed 'list_tag_subscribers' to 'list_subscribers_for_tag'; kept for compatibility, no longer exposed by upstream MCP server] List all subscribers who have a specific tag applied."
-  },
-  {
-    "slug": "kitmcp",
     "name": "kitmcp_list_subscribers",
     "description": "List all subscribers with optional status, sort, and cursor pagination."
   },
@@ -52294,11 +53084,6 @@
     "slug": "kitmcp",
     "name": "kitmcp_list_sequences",
     "description": "List all email sequences in the account."
-  },
-  {
-    "slug": "kitmcp",
-    "name": "kitmcp_list_sequence_subscribers",
-    "description": "[STALE — upstream renamed 'list_sequence_subscribers' to 'list_subscribers_for_sequence'; kept for compatibility, no longer exposed by upstream MCP server] List all subscribers enrolled in a specific sequence."
   },
   {
     "slug": "kitmcp",
@@ -52332,11 +53117,6 @@
   },
   {
     "slug": "kitmcp",
-    "name": "kitmcp_list_form_subscribers",
-    "description": "[STALE — upstream renamed 'list_form_subscribers' to 'list_subscribers_for_form'; kept for compatibility, no longer exposed by upstream MCP server] List all subscribers on a specific form, paginated."
-  },
-  {
-    "slug": "kitmcp",
     "name": "kitmcp_list_email_templates",
     "description": "List all email templates in the account."
   },
@@ -52349,16 +53129,6 @@
     "slug": "kitmcp",
     "name": "kitmcp_list_broadcasts",
     "description": "List all broadcasts with optional status filter and cursor pagination."
-  },
-  {
-    "slug": "kitmcp",
-    "name": "kitmcp_get_subscriber_tags",
-    "description": "[STALE — upstream renamed 'get_subscriber_tags' to 'list_tags_for_a_subscriber'; kept for compatibility, no longer exposed by upstream MCP server] Retrieve all tags applied to a specific subscriber, paginated."
-  },
-  {
-    "slug": "kitmcp",
-    "name": "kitmcp_get_subscriber_stats",
-    "description": "[STALE — upstream renamed 'get_subscriber_stats' to 'list_stats_for_a_subscriber'; kept for compatibility, no longer exposed by upstream MCP server] Retrieve engagement statistics for a single subscriber."
   },
   {
     "slug": "kitmcp",
@@ -52412,33 +53182,8 @@
   },
   {
     "slug": "kitmcp",
-    "name": "kitmcp_get_broadcasts_stats",
-    "description": "[STALE — upstream renamed 'get_broadcasts_stats' to 'get_stats_for_a_list_of_broadcasts'; kept for compatibility, no longer exposed by upstream MCP server] Retrieve aggregated performance statistics for multiple broadcasts, with optional date and status filters."
-  },
-  {
-    "slug": "kitmcp",
-    "name": "kitmcp_get_broadcast_stats",
-    "description": "[STALE — upstream renamed 'get_broadcast_stats' to 'get_stats_for_a_broadcast'; kept for compatibility, no longer exposed by upstream MCP server] Retrieve performance statistics (opens, clicks, etc.) for a specific broadcast."
-  },
-  {
-    "slug": "kitmcp",
-    "name": "kitmcp_get_broadcast_clicks",
-    "description": "[STALE — upstream renamed 'get_broadcast_clicks' to 'get_link_clicks_for_a_broadcast'; kept for compatibility, no longer exposed by upstream MCP server] Retrieve click data for a specific broadcast, paginated by cursor."
-  },
-  {
-    "slug": "kitmcp",
     "name": "kitmcp_get_broadcast",
     "description": "Retrieve a single broadcast record by ID."
-  },
-  {
-    "slug": "kitmcp",
-    "name": "kitmcp_get_account_colors",
-    "description": "[STALE — upstream renamed 'get_account_colors' to 'list_colors'; kept for compatibility, no longer exposed by upstream MCP server] Retrieve the custom brand color palette for the Kit account."
-  },
-  {
-    "slug": "kitmcp",
-    "name": "kitmcp_get_account",
-    "description": "[STALE — upstream renamed 'get_account' to 'get_current_account'; kept for compatibility, no longer exposed by upstream MCP server] Retrieve the Kit account details for the authenticated user."
   },
   {
     "slug": "kitmcp",
@@ -52514,11 +53259,6 @@
     "slug": "kitmcp",
     "name": "kitmcp_bulk_update_subscriber_custom_field_values",
     "description": "Update custom field values for multiple subscribers in one request."
-  },
-  {
-    "slug": "kitmcp",
-    "name": "kitmcp_bulk_untag_subscribers",
-    "description": "[STALE — upstream renamed 'bulk_untag_subscribers' to 'bulk_remove_tags_from_subscribers'; kept for compatibility, no longer exposed by upstream MCP server] Remove a tag from multiple subscribers in one request. Batches over 100 are processed asynchronously."
   },
   {
     "slug": "kitmcp",
@@ -53249,11 +53989,6 @@
     "slug": "lemlistmcp",
     "name": "lemlistmcp_create_campaign_with_sequence",
     "description": "Create campaign. If subject AND body are provided, creates the first email step. If omitted, creates an empty sequence (use add_sequence_step to add a condition or any step type as the first step). Call add_sequence_step for each additional step. Supports Liquid syntax."
-  },
-  {
-    "slug": "lemlistmcp",
-    "name": "lemlistmcp_create_campaign_from_proposal",
-    "description": "[STALE: upstream tool 'create_campaign_from_proposal' no longer appears in the lemlist MCP server's live tools/list as of 2026-08-19; likely superseded by propose_sequence + create_campaign_with_sequence. Kept for reference, not for active use.] Create a campaign from a previous…"
   },
   {
     "slug": "lemlistmcp",
@@ -54238,11 +54973,6 @@
   },
   {
     "slug": "mailerlitemcp",
-    "name": "mailerlitemcp_suggest_subject_lines",
-    "description": "[STALE: upstream tool 'suggest_subject_lines' is no longer present in the MailerLite MCP tool list as of 2026-08-19; it appears to have been renamed to 'validate_subject_lines' (added as mailerlitemcp_validate_subject_lines).] Generate and return improved subject line suggestion…"
-  },
-  {
-    "slug": "mailerlitemcp",
     "name": "mailerlitemcp_start_automation_conversation",
     "description": "Start a guided conversation to help build an automation from a natural language request."
   },
@@ -54405,11 +55135,6 @@
     "slug": "mailerlitemcp",
     "name": "mailerlitemcp_get_auth_status",
     "description": "Check the current authentication status and account details for the connected MailerLite account."
-  },
-  {
-    "slug": "mailerlitemcp",
-    "name": "mailerlitemcp_generate_email_content",
-    "description": "[STALE: upstream tool 'generate_email_content' is no longer present in the MailerLite MCP tool list as of 2026-08-19; it appears to have been renamed to 'validate_email_content' (added as mailerlitemcp_validate_email_content).] Generate email body content from a subject line and…"
   },
   {
     "slug": "mailerlitemcp",
@@ -55958,11 +56683,6 @@
   },
   {
     "slug": "todoistmcp",
-    "name": "todoistmcp_update-goals",
-    "description": "[STALE - upstream Todoist MCP no longer exposes the Goals feature as of 2026-08-19; this tool is flagged for removal and hidden from public listing, not deleted] Update one or more goals by their IDs."
-  },
-  {
-    "slug": "todoistmcp",
     "name": "todoistmcp_update-filters",
     "description": "Update one or more existing personal filters with new values."
   },
@@ -56010,11 +56730,6 @@
     "slug": "todoistmcp",
     "name": "todoistmcp_list-workspaces",
     "description": "Get all workspaces for the authenticated user. Returns workspace details including ID, name, plan type (STARTER/BUSINESS), user role (ADMIN/MEMBER/GUEST), link sharing settings, guest permissions, creation date, and creator ID."
-  },
-  {
-    "slug": "todoistmcp",
-    "name": "todoistmcp_link-goal-tasks",
-    "description": "[STALE - upstream Todoist MCP no longer exposes the Goals feature as of 2026-08-19; this tool is flagged for removal and hidden from public listing, not deleted] Link or unlink tasks to/from a goal."
   },
   {
     "slug": "todoistmcp",
@@ -56078,11 +56793,6 @@
   },
   {
     "slug": "todoistmcp",
-    "name": "todoistmcp_find-goals",
-    "description": "[STALE - upstream Todoist MCP no longer exposes the Goals feature as of 2026-08-19; this tool is flagged for removal and hidden from public listing, not deleted] Search for goals by name or list all accessible goals. Results are paginated — use the returned `nextCursor` to fetch…"
-  },
-  {
-    "slug": "todoistmcp",
     "name": "todoistmcp_find-filters",
     "description": "List all personal filters or search for filters by name. Filters are saved custom views that use query syntax to organize tasks (e.g. \"today & p1\", \"#Work & overdue\")."
   },
@@ -56123,11 +56833,6 @@
   },
   {
     "slug": "todoistmcp",
-    "name": "todoistmcp_complete-goals",
-    "description": "[STALE - upstream Todoist MCP no longer exposes the Goals feature as of 2026-08-19; this tool is flagged for removal and hidden from public listing, not deleted] Complete or uncomplete one or more goals by their IDs."
-  },
-  {
-    "slug": "todoistmcp",
     "name": "todoistmcp_analyze-project-health",
     "description": "Trigger a new health analysis for a project. Use this when the health data is stale or you want a fresh assessment. The analysis may take time to complete — use get-project-health afterward to see updated results."
   },
@@ -56155,11 +56860,6 @@
     "slug": "todoistmcp",
     "name": "todoistmcp_add-labels",
     "description": "Add one or more new personal labels."
-  },
-  {
-    "slug": "todoistmcp",
-    "name": "todoistmcp_add-goals",
-    "description": "[STALE - upstream Todoist MCP no longer exposes the Goals feature as of 2026-08-19; this tool is flagged for removal and hidden from public listing, not deleted] Create one or more goals. Omit workspaceId for personal goals."
   },
   {
     "slug": "todoistmcp",
@@ -57938,11 +58638,6 @@
   },
   {
     "slug": "tinyfishmcp",
-    "name": "tinyfishmcp_batch_create",
-    "description": "[STALE-2026-08-19: not found in the live upstream tools/list; may have been removed or renamed by TinyFish. Kept here for review, not deleted, pending confirmation.] Start up to 8 web automations simultaneously and return all run IDs immediately. Poll progress with batch_status."
-  },
-  {
-    "slug": "tinyfishmcp",
     "name": "tinyfishmcp_batch_cancel",
     "description": "Cancel up to 8 running or pending automation runs by their IDs. Already-terminal runs are returned with their current status."
   },
@@ -59108,11 +59803,6 @@
   },
   {
     "slug": "airopsmcp",
-    "name": "airopsmcp_create_report",
-    "description": "[STALE: no longer present in the upstream airopsmcp MCP tools/list as of 2026-08-19 — upstream only exposes get_report and list_reports now, with no create_report equivalent] Create a new analytics report for a Brand Kit. Reports contain one or more modules that visualize metric…"
-  },
-  {
-    "slug": "airopsmcp",
     "name": "airopsmcp_create_grid_sheet",
     "description": "Create a new sheet (grid table) within an existing grid. The sheet is created with zero rows and zero columns."
   },
@@ -59390,21 +60080,6 @@
     "slug": "otteraimcp",
     "name": "otteraimcp_otter_fetch",
     "description": "Retrieve the full transcript and metadata for a single OtterAI meeting by its ID, returned by otter_search."
-  },
-  {
-    "slug": "otteraimcp",
-    "name": "otteraimcp_search",
-    "description": "[STALE: upstream renamed this tool to `otter_search` as of 2026-08-19 refresh; left in repo per policy, not deleted — see otteraimcp_otter_search] Search OtterAI meetings by keyword, title, attendee, folder, date range, or transcript content."
-  },
-  {
-    "slug": "otteraimcp",
-    "name": "otteraimcp_get_user_info",
-    "description": "[STALE: upstream renamed this tool to `otter_get_user_info` as of 2026-08-19 refresh; left in repo per policy, not deleted — see otteraimcp_otter_get_user_info] Return the name and email of the currently authenticated OtterAI user."
-  },
-  {
-    "slug": "otteraimcp",
-    "name": "otteraimcp_fetch",
-    "description": "[STALE: upstream renamed this tool to `otter_fetch` as of 2026-08-19 refresh; left in repo per policy, not deleted — see otteraimcp_otter_fetch] Retrieve the full transcript and metadata for a single OtterAI meeting by its ID."
   },
   {
     "slug": "webflowmcp",
@@ -61625,11 +62300,6 @@
   },
   {
     "slug": "firecrawlmcp",
-    "name": "firecrawlmcp_firecrawl_extract",
-    "description": "[STALE: upstream firecrawlmcp MCP server no longer exposes a `firecrawl_extract` tool as of the 2026-08-19 refresh (SK-1675); tool_version left untouched pending removal decision] Extract structured data from one or more URLs using a natural-language prompt and optional JSON Sch…"
-  },
-  {
-    "slug": "firecrawlmcp",
     "name": "firecrawlmcp_firecrawl_crawl",
     "description": "Start a crawl job that extracts content from all pages of a website. Returns a job ID; use firecrawlmcp_firecrawl_check_crawl_status to poll for results."
   },
@@ -61637,21 +62307,6 @@
     "slug": "firecrawlmcp",
     "name": "firecrawlmcp_firecrawl_check_crawl_status",
     "description": "Check the progress and results of an in-progress crawl job by its ID."
-  },
-  {
-    "slug": "firecrawlmcp",
-    "name": "firecrawlmcp_firecrawl_browser_list",
-    "description": "[STALE: upstream firecrawlmcp MCP server no longer exposes a `firecrawl_browser_list` tool as of the 2026-08-19 refresh (SK-1675); tool_version left untouched pending removal decision] List active or destroyed browser sessions for the account."
-  },
-  {
-    "slug": "firecrawlmcp",
-    "name": "firecrawlmcp_firecrawl_browser_delete",
-    "description": "[STALE: upstream firecrawlmcp MCP server no longer exposes a `firecrawl_browser_delete` tool as of the 2026-08-19 refresh (SK-1675); tool_version left untouched pending removal decision] Destroy a browser session and release its resources."
-  },
-  {
-    "slug": "firecrawlmcp",
-    "name": "firecrawlmcp_firecrawl_browser_create",
-    "description": "[STALE: upstream firecrawlmcp MCP server no longer exposes a `firecrawl_browser_create` tool as of the 2026-08-19 refresh (SK-1675); tool_version left untouched pending removal decision] Create a persistent browser session for interactive scraping."
   },
   {
     "slug": "firecrawlmcp",
@@ -62365,11 +63020,6 @@
   },
   {
     "slug": "supermetricsmcp",
-    "name": "supermetricsmcp_user_info",
-    "description": "[STALE: no longer present in upstream tools/list as of 2026-08-19 refresh; superseded by supermetricsmcp_manage_user_and_team's get_info action] Retrieve the authenticated Supermetrics user's profile information."
-  },
-  {
-    "slug": "supermetricsmcp",
     "name": "supermetricsmcp_resources_manage",
     "description": "Open the visual media picker or manage ad creative assets for a supported platform."
   },
@@ -62497,11 +63147,6 @@
     "slug": "zapiermcp",
     "name": "zapiermcp_list_zapier_skills",
     "description": "List all saved Zapier Skills with their names and descriptions."
-  },
-  {
-    "slug": "zapiermcp",
-    "name": "zapiermcp_list_enabled_zapier_actions",
-    "description": "[STALE - upstream tool `list_enabled_zapier_actions` no longer appears in the live Zapier MCP tools/list; it has been superseded by `inspect_zapier_actions` (added separately) which returns a richer action/parameter schema. Kept for backward compatibility, not for new integratio…"
   },
   {
     "slug": "zapiermcp",
@@ -95316,16 +95961,6 @@
   },
   {
     "slug": "gmail",
-    "name": "gmail_verify_send_as",
-    "description": "Send a verification email for a pending send-as alias on the authenticated Gmail account. The recipient must click the link in that email before the alias can be used to send mail. Has no effect on aliases that are already verified. Uses OAuth credentials."
-  },
-  {
-    "slug": "gmail",
-    "name": "gmail_update_auto_forwarding",
-    "description": "Update the auto-forwarding settings for the authenticated Gmail account. The target address must already be a verified forwarding address (see create_forwarding_address) before auto-forwarding to it can be enabled. Uses OAuth credentials."
-  },
-  {
-    "slug": "gmail",
     "name": "gmail_untrash_thread",
     "description": "Remove an entire Gmail thread from Trash, restoring it and its messages to their prior location. Idempotent — untrashing a thread that isn't in Trash is a no-op. Uses OAuth credentials."
   },
@@ -95356,11 +95991,6 @@
   },
   {
     "slug": "gmail",
-    "name": "gmail_list_delegates",
-    "description": "List the delegate accounts (other users granted access to read, send, and manage mail) for the authenticated Gmail account. Delegates can be added only in a Google Workspace account. Uses OAuth credentials."
-  },
-  {
-    "slug": "gmail",
     "name": "gmail_insert_message",
     "description": "Directly insert a fully-formed RFC 822 message into the authenticated Gmail mailbox without sending it and without running it through Gmail's normal receiving pipeline (no spam filtering, no user filters applied). Intended for migrating or restoring existing messages that alread…"
   },
@@ -95383,31 +96013,6 @@
     "slug": "gmail",
     "name": "gmail_delete_thread",
     "description": "Permanently and immediately delete a Gmail thread and all of its messages, bypassing Trash. This cannot be undone — prefer trash_thread unless permanent deletion is specifically required. Uses OAuth credentials."
-  },
-  {
-    "slug": "gmail",
-    "name": "gmail_delete_send_as",
-    "description": "Permanently delete a send-as alias from the authenticated Gmail account. The primary email address of the account cannot be deleted this way. Uses OAuth credentials."
-  },
-  {
-    "slug": "gmail",
-    "name": "gmail_delete_forwarding_address",
-    "description": "Permanently remove a forwarding address from the authenticated Gmail account. If auto-forwarding or any filter currently uses this address, remove those references first. Uses OAuth credentials."
-  },
-  {
-    "slug": "gmail",
-    "name": "gmail_create_send_as",
-    "description": "Add a new send-as alias to the authenticated Gmail account, letting the user send mail that appears to come from a different address. Unless the address is on a domain the account owns via Workspace, Gmail sends a confirmation email that must be clicked before the alias can send…"
-  },
-  {
-    "slug": "gmail",
-    "name": "gmail_create_forwarding_address",
-    "description": "Add a new forwarding address to the authenticated Gmail account. Gmail sends a confirmation email to the address; the recipient must click the confirmation link before the address can be used for auto-forwarding or set as a filter action. Uses OAuth credentials."
-  },
-  {
-    "slug": "gmail",
-    "name": "gmail_create_delegate",
-    "description": "Grant another user delegate access to the authenticated Gmail mailbox, letting them read, send, and manage mail on its behalf. The delegate must accept an invitation email before access becomes effective, and delegation is only available on Google Workspace accounts. Uses OAuth …"
   },
   {
     "slug": "gmail",

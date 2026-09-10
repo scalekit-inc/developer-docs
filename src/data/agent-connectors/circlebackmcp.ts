@@ -16,18 +16,6 @@ export const tools: Tool[] = [
     ],
   },
   {
-    name: 'circlebackmcp_finddomains',
-    description: `[STALE: not present in the live upstream tools/list as of 2026-08-21 - likely replaced by FindCompanies, which returns the same domain data plus company name] Find company domains matching the given search terms. The data returned will be an array of domain strings representing companies accessible through meetings.`,
-    params: [
-      {
-        name: 'searchTerms',
-        type: 'array',
-        required: true,
-        description: `Array of search terms to find matching company domains.`,
-      },
-    ],
-  },
-  {
     name: 'circlebackmcp_findprofiles',
     description: `Find profiles matching the given names. The data returned will be an array of objects representing each of the matching profiles.`,
     params: [

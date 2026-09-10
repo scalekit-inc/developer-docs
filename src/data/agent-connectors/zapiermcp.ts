@@ -234,24 +234,6 @@ export const tools: Tool[] = [
     ],
   },
   {
-    name: 'zapiermcp_list_enabled_zapier_actions',
-    description: `[STALE - upstream tool \`list_enabled_zapier_actions\` no longer appears in the live Zapier MCP tools/list; it has been superseded by \`inspect_zapier_actions\` (added separately) which returns a richer action/parameter schema. Kept for backward compatibility, not for new integrations.] List all apps and actions currently enabled on this Zapier MCP server. Pass an app name to see its available action keys. Use action keys with execute_zapier_read_action and execute_zapier_write_action.`,
-    params: [
-      {
-        name: 'action',
-        type: 'string',
-        required: false,
-        description: `Filter by action key. Omit to list all actions.`,
-      },
-      {
-        name: 'app',
-        type: 'string',
-        required: false,
-        description: `Filter by app name (e.g., 'gmail', 'jira', 'slack'). Omit to list all apps.`,
-      },
-    ],
-  },
-  {
     name: 'zapiermcp_list_zapier_connections',
     description: `List the Zapier connections (authenticated accounts) available for an app. Use the \`selected_api\` from discover_zapier_actions or inspect_zapier_actions. Returns each connection's \`connection_id\`, which you can pass to execute_zapier_read_action / execute_zapier_write_action to run with that specific account. By default only the user's own connections are returned; pass \`include_shared: true\` to also return connections shared with them. Paginated via \`cursor\`.`,
     params: [

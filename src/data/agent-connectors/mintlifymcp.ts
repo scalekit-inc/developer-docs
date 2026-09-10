@@ -63,11 +63,6 @@ export const tools: Tool[] = [
     ],
   },
   {
-    name: 'mintlifymcp_execute',
-    description: `[STALE: upstream tool "execute" no longer present as of 2026-08-19; upstream MCP now exposes "execute_code" instead] Run TypeScript or JavaScript against the Admin MCP dashboard SDK in a sandboxed isolate to call workflows, deployment, billing, or analytics APIs.`,
-    params: [{ name: 'code', type: 'string', required: true, description: `No description.` }],
-  },
-  {
     name: 'mintlifymcp_execute_code',
     description: `Run TypeScript/JavaScript against the Admin MCP dashboard SDK inside a sandboxed Cloudflare isolate to call workflows, deployment, billing, or analytics APIs.`,
     params: [
@@ -148,14 +143,6 @@ export const tools: Tool[] = [
       { name: 'query', type: 'string', required: true, description: `No description.` },
       { name: 'limit', type: 'integer', required: false, description: `No description.` },
       { name: 'namespace', type: 'string', required: false, description: `No description.` },
-    ],
-  },
-  {
-    name: 'mintlifymcp_search_operations',
-    description: `[STALE: upstream tool "search_operations" no longer present as of 2026-08-19; upstream MCP now exposes "search_code_operations" instead] Search the Admin MCP SDK for available methods by keyword to find the right operation before writing an execute script.`,
-    params: [
-      { name: 'query', type: 'string', required: true, description: `No description.` },
-      { name: 'limit', type: 'integer', required: false, description: `No description.` },
     ],
   },
   {

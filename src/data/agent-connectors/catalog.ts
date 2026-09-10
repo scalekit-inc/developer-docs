@@ -7,6 +7,36 @@ export interface ProviderMeta {
 }
 
 export const catalog: Record<string, ProviderMeta> = {
+  aktapromcp: {
+    iconUrl: 'https://akta.pro/favicon.ico?favicon.0_ooe5s20rw4w.ico',
+    authType: 'API Key',
+    categories: ['Analytics', 'Search'],
+  },
+  aktapro: {
+    iconUrl: 'https://akta.pro/favicon.ico?favicon.0_ooe5s20rw4w.ico',
+    authType: 'API Key',
+    categories: ['Analytics', 'Search'],
+  },
+  lokalise: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/lokalise.svg',
+    authType: 'API Key',
+    categories: ['Developer Tools', 'Files & Documents'],
+  },
+  weflow: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/weflow.svg',
+    authType: 'Bearer Token',
+    categories: ['CRM & Sales', 'Transcription', 'Analytics'],
+  },
+  smartlingmcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/smartling.svg',
+    authType: 'OAuth 2.1/DCR',
+    categories: ['AI', 'Productivity'],
+  },
+  quomcp: {
+    iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/quo.svg',
+    authType: 'OAuth 2.1/DCR',
+    categories: ['Communication', 'CRM & Sales'],
+  },
   roammcp: {
     iconUrl: 'https://cdn.scalekit.com/sk-connect/assets/provider-icons/roam.svg',
     authType: 'OAuth2.1/DCR',

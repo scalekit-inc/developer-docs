@@ -264,31 +264,6 @@ Reports are a specialized domain — call \`get_fibery_skill\` with \`skill: "re
     ],
   },
   {
-    name: 'fiberymcp_append_document_content',
-    description: `[STALE: removed upstream, replaced by block-based document tools (insert_document_blocks/set_block_text/read_document)] Appends Markdown content to the end of a document field on a Fibery entity.`,
-    params: [
-      {
-        name: 'content',
-        type: 'string',
-        required: true,
-        description: `Document's content in MD format. Any content you write here will be APPENDED to already existing content in the document`,
-      },
-      {
-        name: 'database',
-        type: 'string',
-        required: true,
-        description: `Full database name (e.g., 'SoftDev/Task')`,
-      },
-      { name: 'entityId', type: 'string', required: true, description: `fibery/id of an entity` },
-      {
-        name: 'field',
-        type: 'string',
-        required: true,
-        description: `The name of the document field`,
-      },
-    ],
-  },
-  {
     name: 'fiberymcp_create_avatars_fields',
     description: `Enables avatar/profile-picture attachments on entities in one or more databases.`,
     params: [
@@ -819,19 +794,6 @@ Custom apps are small React apps embedded in Fibery views. Use the \`id\` to wor
     params: [],
   },
   {
-    name: 'fiberymcp_get_documents_content',
-    description: `[STALE: removed upstream, replaced by read_document] Returns the Markdown content of one or more Fibery document fields identified by their secrets.`,
-    params: [
-      { name: 'secrets', type: 'array', required: true, description: `Secrets of documents` },
-      {
-        name: 'reducePrompt',
-        type: 'string',
-        required: false,
-        description: `Controls how large documents are summarized when too long. By default: 'Summarize this document in 2-3 paragraphs max.'`,
-      },
-    ],
-  },
-  {
     name: 'fiberymcp_get_entity_links',
     description: `Generates Fibery web links for entities by their public IDs.`,
     params: [
@@ -971,18 +933,6 @@ Returns an array of report summaries with \`id\` and \`title\`. Use the \`id\` f
 
 Reports are a specialized domain — call \`get_fibery_skill\` with \`skill: "reports"\` for the full report model, expression syntax, palettes, conditions, and workflow.`,
     params: [],
-  },
-  {
-    name: 'fiberymcp_get_tool_reference',
-    description: `[STALE: removed upstream, replaced by get_fibery_skill] Returns extended reference documentation for a specific Fibery MCP tool.`,
-    params: [
-      {
-        name: 'toolName',
-        type: 'string',
-        required: true,
-        description: `The snake_case MCP tool name to look up (e.g. 'query', 'create_entities')`,
-      },
-    ],
   },
   {
     name: 'fiberymcp_get_user_mention',
@@ -1469,31 +1419,6 @@ Each \`content\` must resolve to a **single top-level block** — it replaces on
         type: 'string',
         required: true,
         description: `Document secret (UUID). For entity document fields, select the field's secret via query (e.g. {Secret: ['Space/Field', 'Collaboration~Documents/secret']}). For standalone documents, use search with viewType 'document'`,
-      },
-    ],
-  },
-  {
-    name: 'fiberymcp_set_document_content',
-    description: `[STALE: removed upstream, replaced by block-based document tools (set_block_text/replace_block_text/insert_document_blocks)] Sets (replaces) the content of a document field on a Fibery entity.`,
-    params: [
-      {
-        name: 'content',
-        type: 'string',
-        required: true,
-        description: `Document's content in MD format. It has to be full document content`,
-      },
-      {
-        name: 'database',
-        type: 'string',
-        required: true,
-        description: `Full database name (e.g., 'SoftDev/Task')`,
-      },
-      { name: 'entityId', type: 'string', required: true, description: `fibery/id of an entity` },
-      {
-        name: 'field',
-        type: 'string',
-        required: true,
-        description: `The name of the document field`,
       },
     ],
   },

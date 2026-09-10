@@ -26,18 +26,6 @@ export const tools: Tool[] = [
     ],
   },
   {
-    name: 'todoistmcp_add-goals',
-    description: `[STALE - upstream Todoist MCP no longer exposes the Goals feature as of 2026-08-19; this tool is flagged for removal and hidden from public listing, not deleted] Create one or more goals. Omit workspaceId for personal goals.`,
-    params: [
-      {
-        name: 'goals',
-        type: 'array',
-        required: true,
-        description: `The array of goals to create (max 25).`,
-      },
-    ],
-  },
-  {
     name: 'todoistmcp_add-labels',
     description: `Add one or more new personal labels.`,
     params: [
@@ -106,24 +94,6 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `The ID of the project. Get it from find-projects.`,
-      },
-    ],
-  },
-  {
-    name: 'todoistmcp_complete-goals',
-    description: `[STALE - upstream Todoist MCP no longer exposes the Goals feature as of 2026-08-19; this tool is flagged for removal and hidden from public listing, not deleted] Complete or uncomplete one or more goals by their IDs.`,
-    params: [
-      {
-        name: 'action',
-        type: 'string',
-        required: true,
-        description: `Whether to complete or uncomplete the goals.`,
-      },
-      {
-        name: 'ids',
-        type: 'array',
-        required: true,
-        description: `IDs of the goals to act on (max 25).`,
       },
     ],
   },
@@ -401,36 +371,6 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Filter by name (partial, case-insensitive match). Returns all if omitted.`,
-      },
-    ],
-  },
-  {
-    name: 'todoistmcp_find-goals',
-    description: `[STALE - upstream Todoist MCP no longer exposes the Goals feature as of 2026-08-19; this tool is flagged for removal and hidden from public listing, not deleted] Search for goals by name or list all accessible goals. Results are paginated — use the returned \`nextCursor\` to fetch subsequent pages.`,
-    params: [
-      {
-        name: 'cursor',
-        type: 'string',
-        required: false,
-        description: `Pagination cursor from the previous response to fetch the next page.`,
-      },
-      {
-        name: 'limit',
-        type: 'integer',
-        required: false,
-        description: `Maximum number of items to return per page.`,
-      },
-      {
-        name: 'ownerType',
-        type: 'string',
-        required: false,
-        description: `Filter by ownership type. Omit for all accessible goals.`,
-      },
-      {
-        name: 'searchText',
-        type: 'string',
-        required: false,
-        description: `Text to search for across names and content.`,
       },
     ],
   },
@@ -794,30 +734,6 @@ export const tools: Tool[] = [
     ],
   },
   {
-    name: 'todoistmcp_link-goal-tasks',
-    description: `[STALE - upstream Todoist MCP no longer exposes the Goals feature as of 2026-08-19; this tool is flagged for removal and hidden from public listing, not deleted] Link or unlink tasks to/from a goal.`,
-    params: [
-      {
-        name: 'action',
-        type: 'string',
-        required: true,
-        description: `Whether to link or unlink the tasks.`,
-      },
-      {
-        name: 'goalId',
-        type: 'string',
-        required: true,
-        description: `The ID of the goal. Get it from find-goals.`,
-      },
-      {
-        name: 'taskIds',
-        type: 'array',
-        required: true,
-        description: `The IDs of the tasks to link or unlink (max 50).`,
-      },
-    ],
-  },
-  {
     name: 'todoistmcp_list-workspaces',
     description: `Get all workspaces for the authenticated user. Returns workspace details including ID, name, plan type (STARTER/BUSINESS), user role (ADMIN/MEMBER/GUEST), link sharing settings, guest permissions, creation date, and creator ID.`,
     params: [],
@@ -978,18 +894,6 @@ export const tools: Tool[] = [
     description: `Update one or more existing personal filters with new values.`,
     params: [
       { name: 'filters', type: 'array', required: true, description: `The filters to update.` },
-    ],
-  },
-  {
-    name: 'todoistmcp_update-goals',
-    description: `[STALE - upstream Todoist MCP no longer exposes the Goals feature as of 2026-08-19; this tool is flagged for removal and hidden from public listing, not deleted] Update one or more goals by their IDs.`,
-    params: [
-      {
-        name: 'goals',
-        type: 'array',
-        required: true,
-        description: `The array of goals to update (max 25).`,
-      },
     ],
   },
   {

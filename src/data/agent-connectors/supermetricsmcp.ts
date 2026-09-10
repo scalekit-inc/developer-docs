@@ -632,9 +632,4 @@ export const tools: Tool[] = [
       },
     ],
   },
-  {
-    name: 'supermetricsmcp_user_info',
-    description: `[STALE: no longer present in upstream tools/list as of 2026-08-19 refresh; superseded by supermetricsmcp_manage_user_and_team's get_info action] Retrieve the authenticated Supermetrics user's profile information.`,
-    params: [],
-  },
 ]

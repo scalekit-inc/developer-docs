@@ -68,36 +68,6 @@ export const tools: Tool[] = [
     ],
   },
   {
-    name: 'sendmcp_createdocument',
-    description: `[STALE - upstream renamed "CreateDocument" to "CreateSite" (see sendmcp_createsite); this tool no longer exists on the upstream MCP server and will fail if invoked] Three modes: plan (pass intent only to get guidance), copy (pass sourceShareId to copy an existing doc), and create (pass html to publish a new document). If intent is passed without html or sourceShareId, returns tailored guidance — call CreateDocument again with html to actually publish. When sourceShareId is provided, the new document starts as an exact copy; do not also pass html. The html field must be a complete, self-contained HTML document starting with <!DOCTYPE html>, using no external dependencies, pure CSS and vanilla JS only, with sections wrapped in <section>, fully responsive and mobile-first, images referenced as <img src="asset:{fileId}">, all links with target="_blank" rel="noopener noreferrer", and icons as <i data-lucide="name"></i>.`,
-    params: [
-      {
-        name: 'html',
-        type: 'string',
-        required: false,
-        description: `The complete, self-contained HTML document to publish. Must start with <!DOCTYPE html>. Single file: body then style then script. No external dependencies — pure CSS and vanilla JS only. Wrap each section in <section>. Fully responsive, mobile-first. Reference images as <img src="asset:{fileId}">. Every <a href> uses target="_blank" rel="noopener noreferrer". For icons, use <i data-lucide="name"></i>. Do not pass this when sourceShareId is provided.`,
-      },
-      {
-        name: 'intent',
-        type: 'string',
-        required: false,
-        description: `One-sentence description of what the user wants to make (max 256 characters). If passed without html or sourceShareId, the tool returns tailored guidance — call CreateDocument again with html to actually create the document.`,
-      },
-      {
-        name: 'sourceShareId',
-        type: 'string',
-        required: false,
-        description: `Share ID or full URL of an existing Send document to copy. When provided, the new document starts as an exact copy. Do not also pass html when using this field.`,
-      },
-      {
-        name: 'title',
-        type: 'string',
-        required: false,
-        description: `Title of the document to create or copy.`,
-      },
-    ],
-  },
-  {
     name: 'sendmcp_createsite',
     description: `Creates a Send site or document — a shareable HTML page. Making one takes two calls. First call — intent only. One line on what the user is making and why. Nothing is created. Returns any skills this workspace expects you to follow — brand rules, layouts, tone — and an intentId. Second call — html plus that intentId. See the html field for format requirements. To copy an existing site instead of writing one, pass sourceShareId (share ID or URL) with no html.`,
     params: [
@@ -130,36 +100,6 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Title of the document. Something short and simple that describes the document.`,
-      },
-    ],
-  },
-  {
-    name: 'sendmcp_editdocument',
-    description: `[STALE - upstream renamed "EditDocument" to "EditSite" (see sendmcp_editsite); this tool no longer exists on the upstream MCP server and will fail if invoked] Edit an existing Send document via deterministic string replacement. Requires at least one entry in edits — instruction alone does nothing. If you don't have the document's current HTML, call GetDocument first. Edits apply sequentially; if any edit fails, none are persisted. Use when the user asks to change, tweak, fix, reword, restyle, add to, or remove anything from an existing document.`,
-    params: [
-      {
-        name: 'edits',
-        type: 'array',
-        required: true,
-        description: `Array of edit objects. Each object must include old_string (the exact text to replace, with enough surrounding context to be unique) and new_string (replacement text, or empty string to delete). Optionally set replace_all to true to replace every occurrence. Edits apply in order; all-or-nothing — if any fails, none are saved.`,
-      },
-      {
-        name: 'shareIdOrUrl',
-        type: 'string',
-        required: true,
-        description: `The document's share ID (8-char alphanumeric) or full URL (e.g. https://send.co/a/RaU0Kud4). Returned by CreateDocument or GetDocument.`,
-      },
-      {
-        name: 'codeEdit',
-        type: 'string',
-        required: false,
-        description: `Optional raw code edit string.`,
-      },
-      {
-        name: 'instruction',
-        type: 'string',
-        required: false,
-        description: `Optional brief description of the intended change. Recorded for analytics only — does NOT perform the edit. You must still provide edits.`,
       },
     ],
   },
@@ -200,18 +140,6 @@ export const tools: Tool[] = [
     ],
   },
   {
-    name: 'sendmcp_get_guidelines',
-    description: `[STALE - upstream renamed "get_guidelines" to "get_skills" (guidelines are now called skills; see sendmcp_get_skills); this tool no longer exists on the upstream MCP server and will fail if invoked] Fetches Send guidelines by ID, or lists all available guidelines. With id, returns a single guideline including its full content. Without id, returns a list of all available guidelines (name and description only). Call only when the user explicitly references a guideline by name or asks to apply or browse guidelines — do not call proactively when creating or editing documents.`,
-    params: [
-      {
-        name: 'id',
-        type: 'string',
-        required: false,
-        description: `ID of the guideline to load. Omit to list all available guidelines (name and description only). Only call with an ID when the user has explicitly named or requested a specific guideline.`,
-      },
-    ],
-  },
-  {
     name: 'sendmcp_get_image_gallery',
     description: `Returns all workspace images with proxy URLs for display in the gallery UI. Each item includes an optional description for model context (not shown in the UI). No parameters required.`,
     params: [],
@@ -235,18 +163,6 @@ export const tools: Tool[] = [
     ],
   },
   {
-    name: 'sendmcp_getdocument',
-    description: `[STALE - upstream renamed "GetDocument" to "GetSite" (see sendmcp_getsite); this tool no longer exists on the upstream MCP server and will fail if invoked] Fetch an existing Send document by share URL or share ID. Returns the full HTML source and metadata. Call this before EditDocument when you need the document's current HTML bytes.`,
-    params: [
-      {
-        name: 'shareIdOrUrl',
-        type: 'string',
-        required: true,
-        description: `The document's share ID (8-char alphanumeric string), slug (e.g. 'my-proposal-RaU0Kud4'), or full URL (e.g. 'https://send.co/a/RaU0Kud4').`,
-      },
-    ],
-  },
-  {
     name: 'sendmcp_getsite',
     description: `Fetch an existing Send site or document by share URL or share ID. Returns the full HTML source and metadata; the response includes shareId for EditSite or CreateSite (copy mode).`,
     params: [
@@ -255,42 +171,6 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `The document's share ID (8-char alphanumeric string), slug (e.g. 'my-proposal-RaU0Kud4'), or full URL (e.g. 'https://send.co/a/RaU0Kud4').`,
-      },
-    ],
-  },
-  {
-    name: 'sendmcp_manage_guideline',
-    description: `[STALE - upstream renamed "manage_guideline" to "manage_skill" (guidelines are now called skills; see sendmcp_manage_skill); this tool no longer exists on the upstream MCP server and will fail if invoked] Create, update, or delete a user-defined Send guideline. Call only when the user explicitly asks to create, edit, or delete a guideline — not during document creation. Actions: create (provide name, description, content), update (provide id and the fields to change), delete (provide id). Destructive for the delete action.`,
-    params: [
-      {
-        name: 'action',
-        type: 'string',
-        required: true,
-        description: `Action to perform on the guideline. 'create' creates a new guideline (requires name, description, content). 'update' modifies an existing guideline (requires id). 'delete' removes a guideline permanently (requires id).`,
-      },
-      {
-        name: 'content',
-        type: 'string',
-        required: false,
-        description: `Full guideline content — includes instructions, code samples, asset references, example document URLs. Required when action is 'create'. Optional for 'update'.`,
-      },
-      {
-        name: 'description',
-        type: 'string',
-        required: false,
-        description: `Short description of the guideline's purpose. Displayed in the guidelines list.`,
-      },
-      {
-        name: 'id',
-        type: 'string',
-        required: false,
-        description: `Guideline ID. Required for 'update' and 'delete' actions. Omit when creating a new guideline.`,
-      },
-      {
-        name: 'name',
-        type: 'string',
-        required: false,
-        description: `Guideline name. Required when action is 'create'. Optional for 'update'.`,
       },
     ],
   },
