@@ -198,6 +198,8 @@ Load https://docs.scalekit.com/llms.txt, then the AgentKit set at https://docs.s
 
 This run wires a Hermes Agent to Scalekit. Hermes holds no provider tokens. Scalekit holds the connected account and refreshes the access token. Default connector is GitHub, connection name github-connect, unless I name another.
 
+This run uses the delegated skill. It does not use Virtual MCP. Virtual MCP on a Hermes host is supported, and it scopes the host to one operator and one tool list. Say so if I want that setup instead, and read https://docs.scalekit.com/agentkit/hermes/ first.
+
 Follow these in order. A step is done only when its check passes.
 
 0. Host — confirm Hermes Agent is installed and uv is on PATH. Confirm the connector I want exists under https://app.scalekit.com → AgentKit → Connections, and use that Connection name exactly. New environments ship github-connect.
