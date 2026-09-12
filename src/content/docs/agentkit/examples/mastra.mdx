@@ -1,6 +1,6 @@
 ---
 title: Mastra
-description: Connect a Mastra agent to Scalekit-authenticated tools using MCP. Mastra's native MCP client connects directly to a Scalekit-generated MCP URL.
+description: Connect a Mastra agent to Scalekit-authenticated tools using MCP. Mastra's native MCP client connects to a Scalekit Virtual MCP Server URL using a session token.
 slug: agentkit/examples/mastra
 sidebar:
   label: Mastra
@@ -16,7 +16,7 @@ next:
 
 import { Aside } from '@astrojs/starlight/components';
 
-Connect a Mastra agent to Scalekit tools using MCP. Mastra has native MCP support via `@mastra/mcp`. Pass a Scalekit-generated URL and Mastra handles tool discovery automatically.
+Connect a Mastra agent to Scalekit tools using MCP. Mastra has native MCP support via `@mastra/mcp`. Pass a Scalekit Virtual MCP Server URL and a session token, and Mastra handles tool discovery automatically.
 
 <Aside type="note" title="Why MCP for Mastra">
   Mastra's tool system uses Zod schemas internally. The MCP path skips manual schema conversion. Mastra discovers tools and their schemas directly from the Scalekit MCP server.
@@ -28,29 +28,59 @@ Connect a Mastra agent to Scalekit tools using MCP. Mastra has native MCP suppor
 npm install @scalekit-sdk/node @mastra/core @mastra/mcp @ai-sdk/openai
 ```
 
-## Get a per-user MCP URL
+## Create the Virtual MCP server
 
-Generate a Scalekit MCP URL for the user. This requires the Python SDK. Call this from your backend for the **current user**, then pass that URL into your Mastra app (API response, session store, or request-scoped config).
+Create the server once per agent role, not once per user. The response includes a static `mcp_server_url` that every user and every session reuses.
 
 ```python
-# Backend (Python): generate once per user session
-inst_response = actions.mcp.ensure_instance(
-    config_name="your-mcp-config",
-    user_identifier="user_123",
+# Backend (Python): run once, then save the values
+from scalekit.actions.models.mcp_config import McpConfigConnectionToolMapping
+
+vmcp_response = scalekit_client.actions.mcp.create_config(
+    name="gmail-user-tools",
+    connection_tool_mappings=[
+        McpConfigConnectionToolMapping(
+            connection_name="gmail",
+            tools=["gmail_fetch_mails"],
+        ),
+    ],
 )
-mcp_url = inst_response.instance.url
-# Return mcp_url to the Mastra app for this user only
+
+config_id = vmcp_response.config.id
+mcp_server_url = vmcp_response.config.mcp_server_url
 ```
 
-See [Virtual MCP Servers](/agentkit/mcp/overview/) to set up the config and generate the URL.
+See [Set up and connect a Virtual MCP server](/agentkit/mcp/configure-mcp-server/) for the full setup, including how to choose which tools to expose.
 
-<Aside type="caution" title="Do not share one MCP URL across users">
-  Each URL is pre-authenticated for a single user. In multi-user deployments, look up the URL for the authenticated user on the server. A process-wide `SCALEKIT_MCP_URL` is only safe for single-user demos; sharing it runs every request as that user.
+## Mint a session token for the user
+
+The server URL is static. The **session token** carries the user identity. Mint a fresh token before each agent run and pass it to your Mastra app.
+
+```python
+# Backend (Python): run before each agent session
+from datetime import timedelta
+
+list_response = scalekit_client.actions.mcp.list_configs(filter_name="gmail-user-tools")
+mcp_server_url = list_response.configs[0].mcp_server_url
+config_id = list_response.configs[0].id
+
+token_response = scalekit_client.actions.mcp.create_session_token(
+    mcp_config_id=config_id,
+    identifier="user_123",
+    expiry=timedelta(hours=1),
+)
+# Return mcp_server_url and token_response.token to the Mastra app for this user only
+```
+
+Set `expiry` longer than the expected agent run. `create_session_token` is also how you get a replacement token: call it again whenever you need a new one.
+
+<Aside type="caution" title="Do not share one session token across users">
+  The `mcp_server_url` is safe to share, because it is the same for every user. The session token is not: it is scoped to one identifier, and any request that carries it runs as that user. Mint a token per user on the server, and never put one in client-side code.
 </Aside>
 
 ## Build the agent
 
-Pass the **current user's** MCP URL to `MCPClient`. Mastra fetches the tool list and schemas automatically:
+Pass the static server URL to `MCPClient`, and the user's session token as a bearer header in `requestInit`. Mastra fetches the tool list and schemas automatically:
 
 ```typescript
 import { Agent } from '@mastra/core/agent';
@@ -58,11 +88,16 @@ import { MCPClient } from '@mastra/mcp';
 import { openai } from '@ai-sdk/openai';
 
 // From your backend for the authenticated user — not a shared process-wide secret
-const mcpUrl = await getMcpUrlForUser(currentUserId);
+const { mcpServerUrl, mcpToken } = await getMcpSessionForUser(currentUserId);
 
 const mcp = new MCPClient({
   servers: {
-    scalekit: { url: new URL(mcpUrl) },
+    scalekit: {
+      url: new URL(mcpServerUrl),
+      requestInit: {
+        headers: { Authorization: `Bearer ${mcpToken}` },
+      },
+    },
   },
 });
 

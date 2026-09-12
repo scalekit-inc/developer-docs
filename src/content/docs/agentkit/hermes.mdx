@@ -275,6 +275,28 @@ The connected account must already be `ACTIVE`. Cron cannot click a magic link.
 
 Leave the gateway running on a headless host. A new magic link can then land in Slack or Telegram. Do not put Gmail or Calendar refresh tokens in `~/.hermes/.env`.
 
+## Choose how Hermes reaches Scalekit
+
+There are three patterns. Pick the one that matches your host.
+
+**Pattern A — Delegated skill.** The default for Hermes. The host holds Scalekit client credentials, and each turn names an identifier. Nothing on the host expires, because there is no token on the host.
+
+**Pattern B — Virtual MCP on the host.** A Virtual MCP server exposes only the tools you list. Hermes reads one bearer token, so the host acts as one operator. You mint the token and reload the host.
+
+**Pattern C — Virtual MCP in your app.** Your application mints a token before each agent run and passes it to the agent framework. Claude Managed Agents, Mastra, and CrewAI use this pattern.
+
+| | A — Delegated skill | B — Virtual MCP on the host | C — Virtual MCP in your app |
+|---|---|---|---|
+| Who runs the agent | Hermes | Hermes | your app |
+| How many end users | many; switch with `--identifier` | one operator | many |
+| Credential on the host | Scalekit client ID and secret | one session-token bearer | none |
+| Anything expires? | no | yes, about 1 hour by default | yes, per run |
+| Who mints a replacement | nobody; there is no token | you, on a schedule, then reload | your code, before each run |
+| Tool scoping | the full connector catalog | only the tools in the config | only the tools in the config |
+| Best for | multi-user hosts and cron | a scoped, single-operator gateway | short agent runs |
+
+The rest of this page covers Pattern A. For Pattern B, see [Can I use Virtual MCP with Hermes?](#common-scenarios) below. For Pattern C, see [Set up and connect a Virtual MCP server](/agentkit/mcp/configure-mcp-server/).
+
 ## Avoid these mistakes
 
 - Do not put provider tokens in `~/.hermes/.env`. Put only Scalekit client credentials there.
@@ -282,7 +304,7 @@ Leave the gateway running on a headless host. A new magic link can then land in 
 - Do not use the bundled Google Workspace skill (`~/.hermes/google_token.json`) if AgentKit owns the Google user. `~/.hermes/google_token.json` is one laptop login, not a per-user identifier.
 - Do not run `hermes mcp login` against Scalekit Virtual MCP (a Scalekit MCP URL plus a session token). Virtual MCP uses a static bearer session token, and a static bearer token is not MCP OAuth.
 - Do not treat the Slack bot token as “send as usr_8f3a2c”.
-- Do not use a Hermes host as a multi-tenant identity provider. One gateway is one operator. Switch identifiers on the same host. Do not mint per-customer session tokens inside Hermes.
+- Do not use one Hermes host as a multi-tenant identity provider. One gateway is one operator. Switch identifiers on the same host with `--identifier`. Mint per-end-user Virtual MCP session tokens in your own application, not inside Hermes.
 
 ## Next steps
 
@@ -352,28 +374,35 @@ See [Manage connected accounts](/agentkit/connected-accounts/).
 </details>
 
 <details>
-<summary>Should I use Virtual MCP instead?</summary>
+<summary>Can I use Virtual MCP with Hermes?</summary>
 
-No, not as the default. Hermes is a long-lived host. The skill calls `execute_tool` with client credentials. You do not mint a session token.
+Yes. Pick the pattern that matches your host.
 
-Virtual MCP is a Scalekit MCP URL plus a session token that your app mints. Hermes gateway and cron stay up for days. A bearer token in `~/.hermes/.env` expires. There is no shipped remint hook.
+**The skill is the default.** `hermes-delegated-auth` calls `execute_tool` with Scalekit client credentials and an identifier. No token sits on the host, so nothing expires. Use this for a host that serves more than one user, and for cron.
 
-Use Virtual MCP in your **app** for a short agent run (Claude Managed Agents, Mastra, CrewAI), or for a short `hermes chat` demo:
+**Virtual MCP is the scoped alternative.** A Virtual MCP server exposes only the tools you list, which is the reason to choose it. Hermes reads the bearer from `config.yaml` as `${SCALEKIT_MCP_SESSION_TOKEN}` and resolves it when it connects, or when you run `/reload-mcp`.
 
-1. Create a Virtual MCP config in the Dashboard.
-2. Mint a session token for one identifier.
-3. Point Hermes at the static `mcp_server_url` with `Authorization: Bearer ${SCALEKIT_MCP_SESSION_TOKEN}`.
-4. Start a new chat before the token expires.
+Hermes never calls `create_session_token`. Nothing inside Hermes refreshes the bearer, so you refresh it yourself:
 
-Do not set `auth: oauth` on the Virtual MCP server.
+1. Create the Virtual MCP config once. Save the static `mcp_server_url`.
+2. Mint a token with `create_session_token` for one identifier. Set `expiry` above your reload interval.
+3. Write the token to the environment variable named in `config.yaml`.
+4. Restart Hermes, or run `/reload-mcp`.
+5. Repeat step 2 through step 4 before the token expires.
+
+An expired bearer fails at the next tool call, not at startup.
+
+One Hermes host is one operator. Do not mint a session token per end user inside the host. Mint per-user tokens in your own application instead, as in [Set up a Virtual MCP server](/agentkit/mcp/configure-mcp-server/).
+
+Do not set `auth: oauth` on a Scalekit Virtual MCP server. The server takes a bearer token, not MCP OAuth.
 
 </details>
 
 <details>
-<summary>Why does hermes mcp login fail against Scalekit?</summary>
+<summary>Why does `hermes mcp login` fail against Scalekit?</summary>
 
-`hermes mcp login` is for vendor MCP OAuth. Scalekit Virtual MCP is a static URL plus a session token that **your app** mints.
+`hermes mcp login` performs MCP OAuth against a vendor's MCP server. A Scalekit Virtual MCP server does not use MCP OAuth. It takes a static URL plus a session token that **your application** mints with `create_session_token`.
 
-Use the `hermes-delegated-auth` skill, or set a bearer header as in [Set up a Virtual MCP server](/agentkit/mcp/configure-mcp-server/).
+Set the bearer header in `config.yaml` instead. See [Set up a Virtual MCP server](/agentkit/mcp/configure-mcp-server/).
 
 </details>
