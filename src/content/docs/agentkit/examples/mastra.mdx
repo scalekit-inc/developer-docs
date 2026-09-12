@@ -60,22 +60,41 @@ The server URL is static. The **session token** carries the user identity. Mint 
 # Backend (Python): run before each agent session
 from datetime import timedelta
 
-list_response = scalekit_client.actions.mcp.list_configs(filter_name="gmail-user-tools")
-mcp_server_url = list_response.configs[0].mcp_server_url
-config_id = list_response.configs[0].id
-
-token_response = scalekit_client.actions.mcp.create_session_token(
-    mcp_config_id=config_id,
-    identifier="user_123",
-    expiry=timedelta(hours=1),
+from scalekit.common.exceptions import (
+    ScalekitNotFoundException,
+    ScalekitUnauthorizedException,
+    ScalekitServerException,
 )
-# Return mcp_server_url and token_response.token to the Mastra app for this user only
+
+try:
+    list_response = scalekit_client.actions.mcp.list_configs(filter_name="gmail-user-tools")
+    mcp_server_url = list_response.configs[0].mcp_server_url
+    config_id = list_response.configs[0].id
+
+    token_response = scalekit_client.actions.mcp.create_session_token(
+        mcp_config_id=config_id,
+        identifier="user_123",
+        expiry=timedelta(hours=1),
+    )
+    # Return mcp_server_url and token_response.token to the Mastra app for this user only
+except ScalekitNotFoundException:
+    # The server was deleted or renamed — recreate it, then retry
+    raise
+except ScalekitUnauthorizedException:
+    # Scalekit client credentials are wrong or expired — fix the environment variables
+    raise
+except ScalekitServerException as e:
+    # Unexpected platform error — do not start the agent without a token
+    print(e.error_code, e.http_status)
+    raise
 ```
 
-Set `expiry` longer than the expected agent run. `create_session_token` is also how you get a replacement token: call it again whenever you need a new one.
+Do not start the agent when minting fails. An agent that runs without a token calls every tool and gets a `401`. See [Error handling](/agentkit/sdks/python/errors/) for the full exception list.
+
+Set `expiry` longer than the expected agent run. `create_session_token` also mints replacements. Call it again whenever you need a new token.
 
 <Aside type="caution" title="Do not share one session token across users">
-  The `mcp_server_url` is safe to share, because it is the same for every user. The session token is not: it is scoped to one identifier, and any request that carries it runs as that user. Mint a token per user on the server, and never put one in client-side code.
+  The `mcp_server_url` is safe to share, because every user gets the same URL. The session token is different. Each token is scoped to one identifier, and any request carrying that token runs as that user. Mint a token per user on the server, and never put a token in client-side code.
 </Aside>
 
 ## Build the agent

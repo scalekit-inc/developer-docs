@@ -277,13 +277,13 @@ Leave the gateway running on a headless host. A new magic link can then land in 
 
 ## Choose how Hermes reaches Scalekit
 
-There are three patterns. Pick the one that matches your host.
+Three patterns connect Hermes to Scalekit. Pick the one that matches your host.
 
-**Pattern A — Delegated skill.** The default for Hermes. The host holds Scalekit client credentials, and each turn names an identifier. Nothing on the host expires, because there is no token on the host.
+**Pattern A — Delegated skill.** The default for Hermes. The host holds Scalekit client credentials, and each turn names an identifier. No token sits on the host, so nothing expires.
 
 **Pattern B — Virtual MCP on the host.** A Virtual MCP server exposes only the tools you list. Hermes reads one bearer token, so the host acts as one operator. You mint the token and reload the host.
 
-**Pattern C — Virtual MCP in your app.** Your application mints a token before each agent run and passes it to the agent framework. Claude Managed Agents, Mastra, and CrewAI use this pattern.
+**Pattern C — Virtual MCP in your app.** Your application mints a token before each agent run and passes it to the agent framework. Claude Managed Agents, Mastra, and CrewAI use Pattern C.
 
 | Question | A — Delegated skill | B — Virtual MCP on the host | C — Virtual MCP in your app |
 |---|---|---|---|
@@ -378,9 +378,9 @@ See [Manage connected accounts](/agentkit/connected-accounts/).
 
 Yes. Pick the pattern that matches your host.
 
-**The skill is the default.** `hermes-delegated-auth` calls `execute_tool` with Scalekit client credentials and an identifier. No token sits on the host, so nothing expires. Use this for a host that serves more than one user, and for cron.
+**The skill is the default.** `hermes-delegated-auth` calls `execute_tool` with Scalekit client credentials and an identifier. No token sits on the host, so nothing expires. Use the skill for a host that serves more than one user, and for cron.
 
-**Virtual MCP is the scoped alternative.** A Virtual MCP server exposes only the tools you list, which is the reason to choose it. Hermes reads the bearer from `config.yaml` as `${SCALEKIT_MCP_SESSION_TOKEN}` and resolves it when it connects, or when you run `/reload-mcp`.
+**Virtual MCP is the scoped alternative.** A Virtual MCP server exposes only the tools you list. Tool scoping is the reason to choose it. Hermes reads the bearer from `config.yaml` as `${SCALEKIT_MCP_SESSION_TOKEN}`. Hermes resolves that variable when it connects, and again when you run `/reload-mcp`.
 
 Hermes never calls `create_session_token`. Nothing inside Hermes refreshes the bearer, so you refresh it yourself:
 
