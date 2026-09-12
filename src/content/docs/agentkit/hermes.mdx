@@ -295,11 +295,75 @@ Three patterns connect Hermes to Scalekit. Pick the one that matches your host.
 | Tool scoping | the full connector catalog | only the tools in the config | only the tools in the config |
 | Best for | multi-user hosts and cron | a scoped, single-operator gateway | short agent runs |
 
-The rest of this page covers Pattern A. For Pattern B, see [Can I use Virtual MCP with Hermes?](#common-scenarios) below. For Pattern C, see [Set up and connect a Virtual MCP server](/agentkit/mcp/configure-mcp-server/).
+The rest of this page covers Pattern A. For Pattern B, see [Run Virtual MCP on a Hermes host](#run-virtual-mcp-on-a-hermes-host). For Pattern C, see [Set up and connect a Virtual MCP server](/agentkit/mcp/configure-mcp-server/).
+
+## Run Virtual MCP on a Hermes host
+
+<Aside type="caution" title="Draft — not live-verified">
+  This flow has not been live-verified yet. Confirm the remint and `/reload-mcp` loop on a Hermes host before you treat this section as production guidance.
+</Aside>
+
+This is the long-running host setup. One operator. One bearer. You remint.
+
+Use this when you want a scoped tool list on a single-operator Hermes gateway. Create the Virtual MCP config once. Mint a session token with `create_session_token`. Put the token in Hermes `config.yaml`. Reload the host before the token expires.
+
+<Steps>
+1. ### Create the Virtual MCP config once
+
+   Create the server once per operator role. Save the static `mcp_server_url`. Do not regenerate the config on each remint.
+
+   See [Set up and connect a Virtual MCP server](/agentkit/mcp/configure-mcp-server/).
+
+2. ### Mint a session token
+
+   Call `create_session_token` for one identifier. Set `expiry` above your reload interval.
+
+   ```python showLineNumbers=false
+   from datetime import timedelta
+
+   token_response = scalekit_client.actions.mcp.create_session_token(
+       mcp_config_id=config_id,
+       identifier="usr_8f3a2c",
+       expiry=timedelta(hours=2),
+   )
+
+   token = token_response.token
+   ```
+
+   `create_session_token` is the remint call. Call it again whenever you need a new token.
+
+3. ### Put the token in Hermes config
+
+   Write the token to `SCALEKIT_MCP_SESSION_TOKEN` in `~/.hermes/.env`. Point `~/.hermes/config.yaml` at the static URL and that env var.
+
+   ```yaml title="~/.hermes/config.yaml"
+   mcp_servers:
+     scalekit:
+       url: "<mcp_server_url>"
+       headers:
+         Authorization: "Bearer ${SCALEKIT_MCP_SESSION_TOKEN}"
+   ```
+
+   Do not set `auth: oauth`. A Scalekit Virtual MCP server takes a bearer token, not MCP OAuth.
+
+   Do not run `hermes mcp login` against this URL.
+
+4. ### Reload Hermes
+
+   Restart Hermes, or run `/reload-mcp` so Hermes rereads the bearer.
+
+5. ### Remint on a schedule
+
+   On a cron, mint a new token, write `SCALEKIT_MCP_SESSION_TOKEN`, then run `/reload-mcp`. Repeat before the token expires. Set `expiry` above that interval.
+</Steps>
+
+An expired bearer fails at the next tool call, not at startup.
+
+One Hermes host is one operator. Mint per-end-user tokens in your own application. See [Set up and connect a Virtual MCP server](/agentkit/mcp/configure-mcp-server/).
 
 ## Avoid these mistakes
 
-- Do not put provider tokens in `~/.hermes/.env`. Put only Scalekit client credentials there.
+- Do not put provider tokens in `~/.hermes/.env`. Put only Scalekit credentials there.
 - Do not set `SCALEKIT_IDENTIFIER` to an email or another guessable value.
 - Do not use the bundled Google Workspace skill (`~/.hermes/google_token.json`) if AgentKit owns the Google user. `~/.hermes/google_token.json` is one laptop login, not a per-user identifier.
 - Do not run `hermes mcp login` against Scalekit Virtual MCP (a Scalekit MCP URL plus a session token). Virtual MCP uses a static bearer session token, and a static bearer token is not MCP OAuth.
@@ -380,7 +444,7 @@ Yes. Pick the pattern that matches your host.
 
 **The skill is the default.** `hermes-delegated-auth` calls `execute_tool` with Scalekit client credentials and an identifier. No token sits on the host, so nothing expires. Use the skill for a host that serves more than one user, and for cron.
 
-**Virtual MCP is the scoped alternative.** A Virtual MCP server exposes only the tools you list. Tool scoping is the reason to choose it. Hermes reads the bearer from `config.yaml` as `${SCALEKIT_MCP_SESSION_TOKEN}`. Hermes resolves that variable when it connects, and again when you run `/reload-mcp`.
+**Virtual MCP is the scoped alternative.** A Virtual MCP server exposes only the tools you list. Tool scoping is the reason to choose it. Hermes reads the bearer from `config.yaml` as `${SCALEKIT_MCP_SESSION_TOKEN}`. Hermes resolves that variable when it connects, and again when you run `/reload-mcp`. For the host how-to, see [Run Virtual MCP on a Hermes host](#run-virtual-mcp-on-a-hermes-host).
 
 Hermes never calls `create_session_token`. Nothing inside Hermes refreshes the bearer, so you refresh it yourself:
 
