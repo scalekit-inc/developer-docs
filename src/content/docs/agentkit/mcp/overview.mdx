@@ -44,6 +44,21 @@ The lifecycle has two phases:
 
 2. **Runtime (before each run)** — Confirm the user has authorized all required connections, mint a session token for that user, and pass the URL and token to your agent as bearer auth.
 
+## Token lifetime and reminting
+
+A session token is short-lived. The default expiry is about one hour. Set a different lifetime with the `expiry` parameter on `create_session_token`.
+
+`create_session_token` is the remint call. Call it again whenever you need a new token. There is no separate refresh endpoint, and a token cannot be extended in place.
+
+Where you call `create_session_token` depends on the agent's lifetime:
+
+| Agent lifetime | When to mint |
+|---|---|
+| One run, minutes | Once, before the run. Set `expiry` above the expected run time. |
+| Long-running host or gateway | On your own schedule, before the current token expires. Write the new token where the host reads it, then reload the host. |
+
+A host that holds an expired bearer fails at its next tool call, not at startup.
+
 ## Use cases
 
 - **Background agents** — process data without a user present, such as summarizing overnight emails or syncing records between services
