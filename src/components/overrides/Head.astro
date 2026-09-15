@@ -3,6 +3,7 @@ import Default from '@astrojs/starlight/components/Head.astro'
 import { ClientRouter } from 'astro:transitions'
 import interLatin from '@fontsource-variable/inter/files/inter-latin-wght-normal.woff2?url'
 import outfitLatin from '@fontsource-variable/outfit/files/outfit-latin-wght-normal.woff2?url'
+import { API_REFERENCE_PATH_PREFIXES, SCALAR_API_REFERENCE_CDN } from '../../utils/scalar-cdn.js'
 ---
 
 <link rel="preload" href={outfitLatin} as="font" type="font/woff2" crossorigin="anonymous" />
@@ -22,9 +23,37 @@ import outfitLatin from '@fontsource-variable/outfit/files/outfit-latin-wght-nor
 <ClientRouter />
 
 <!-- Prefetch + navigation UX: cut ~1s secondary-nav/product-switch lag -->
-<script is:inline>
+<script
+  is:inline
+  define:vars={{
+    scalarCdn: SCALAR_API_REFERENCE_CDN,
+    apiReferencePrefixes: API_REFERENCE_PATH_PREFIXES,
+  }}
+>
   ;(() => {
     const prefetched = new Set()
+
+    const pathnameIsApiReference = (href) => {
+      try {
+        const path = new URL(href, location.origin).pathname.replace(/\/+$/, '') || '/'
+        return apiReferencePrefixes.some(
+          (prefix) => path === prefix || path.startsWith(`${prefix}/`),
+        )
+      } catch {
+        return false
+      }
+    }
+
+    const prefetchScalarCdn = () => {
+      if (prefetched.has(scalarCdn)) return
+      prefetched.add(scalarCdn)
+      const link = document.createElement('link')
+      link.rel = 'prefetch'
+      link.as = 'script'
+      link.href = scalarCdn
+      link.crossOrigin = 'anonymous'
+      document.head.appendChild(link)
+    }
 
     const prefetchDocument = (href) => {
       try {
@@ -48,14 +77,20 @@ import outfitLatin from '@fontsource-variable/outfit/files/outfit-latin-wght-nor
     }
 
     const prefetchChromeDestinations = () => {
+      const hrefs = []
       document
         .querySelectorAll(
           '.secondary-nav a[href], #dropdown-portal a[href], [data-product-switch][href]',
         )
-        .forEach((a) => prefetchDocument(a.getAttribute('href')))
+        .forEach((a) => {
+          const href = a.getAttribute('href')
+          hrefs.push(href)
+          prefetchDocument(href)
+        })
       // Product homes — always warm both
       prefetchDocument('/agentkit/quickstart/')
       prefetchDocument('/authenticate/fsa/quickstart/')
+      if (hrefs.some(pathnameIsApiReference)) prefetchScalarCdn()
     }
 
     // Optimistic current-state so secondary nav feels instant before HTML arrives
