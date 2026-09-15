@@ -223,6 +223,8 @@ if (!isNonProdHost) {
   // (session recorder, surveys, dead-clicks, exception autocapture) that dominate
   // lab main-thread time on docs. capture_exceptions: false is required; the
   // hosted array.js still autocaptures unhandled errors by default.
+  // $pageview from this script is the human-reader signal. $http_log (edge)
+  // names machines. Do not treat a Mozilla user-agent as a human.
   posthog.init('phc_85pLP8gwYvRCQdxgLQP24iqXHPRGaLgEw4S4dgZHJZ', {
     api_host: 'https://ph.scalekit.com',
     person_profiles: 'identified_only',
