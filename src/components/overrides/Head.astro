@@ -3,7 +3,11 @@ import Default from '@astrojs/starlight/components/Head.astro'
 import { ClientRouter } from 'astro:transitions'
 import interLatin from '@fontsource-variable/inter/files/inter-latin-wght-normal.woff2?url'
 import outfitLatin from '@fontsource-variable/outfit/files/outfit-latin-wght-normal.woff2?url'
-import { API_REFERENCE_PATH_PREFIXES, SCALAR_API_REFERENCE_CDN } from '../../utils/scalar-cdn.js'
+import {
+  API_REFERENCE_PATH_PREFIXES,
+  SCALAR_API_REFERENCE_CDN,
+  SCALAR_PREFETCH_EXCLUDED_PATHS,
+} from '../../utils/scalar-cdn.js'
 ---
 
 <link rel="preload" href={outfitLatin} as="font" type="font/woff2" crossorigin="anonymous" />
@@ -28,6 +32,7 @@ import { API_REFERENCE_PATH_PREFIXES, SCALAR_API_REFERENCE_CDN } from '../../uti
   define:vars={{
     scalarCdn: SCALAR_API_REFERENCE_CDN,
     apiReferencePrefixes: API_REFERENCE_PATH_PREFIXES,
+    prefetchExcludedPaths: SCALAR_PREFETCH_EXCLUDED_PATHS,
   }}
 >
   ;(() => {
@@ -83,6 +88,8 @@ import { API_REFERENCE_PATH_PREFIXES, SCALAR_API_REFERENCE_CDN } from '../../uti
           '.secondary-nav a[href], #dropdown-portal a[href], [data-product-switch][href]',
         )
         .forEach((a) => {
+          // Skip hidden product rows / portals. Home also CSS-hides .secondary-nav.
+          if (a.closest('[hidden]')) return
           const href = a.getAttribute('href')
           hrefs.push(href)
           prefetchDocument(href)
@@ -90,7 +97,10 @@ import { API_REFERENCE_PATH_PREFIXES, SCALAR_API_REFERENCE_CDN } from '../../uti
       // Product homes — always warm both
       prefetchDocument('/agentkit/quickstart/')
       prefetchDocument('/authenticate/fsa/quickstart/')
-      if (hrefs.some(pathnameIsApiReference)) prefetchScalarCdn()
+      const pagePath = (location.pathname || '/').replace(/\/+$/, '') || '/'
+      if (!prefetchExcludedPaths.includes(pagePath) && hrefs.some(pathnameIsApiReference)) {
+        prefetchScalarCdn()
+      }
     }
 
     // Optimistic current-state so secondary nav feels instant before HTML arrives

@@ -3,7 +3,12 @@ import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { pathnameIsApiReference, SCALAR_API_REFERENCE_CDN } from './scalar-cdn.js'
+import {
+  pathnameIsApiReference,
+  SCALAR_API_REFERENCE_CDN,
+  SCALAR_PREFETCH_EXCLUDED_PATHS,
+  shouldPrefetchScalarCdn,
+} from './scalar-cdn.js'
 
 const here = dirname(fileURLToPath(import.meta.url))
 const pages = [
@@ -28,6 +33,7 @@ test('Head prefetches the pinned CDN only via the shared constant', () => {
   const source = readFileSync(join(here, '../components/overrides/Head.astro'), 'utf8')
   assert.match(source, /SCALAR_API_REFERENCE_CDN/)
   assert.match(source, /API_REFERENCE_PATH_PREFIXES/)
+  assert.match(source, /SCALAR_PREFETCH_EXCLUDED_PATHS/)
   assert.doesNotMatch(source, /cdn\.jsdelivr\.net\/npm\/@scalar\/api-reference(?!@)/)
 })
 
@@ -39,4 +45,31 @@ test('pathnameIsApiReference matches only API reference routes', () => {
   assert.equal(pathnameIsApiReference('/apis.md'), false)
   assert.equal(pathnameIsApiReference('/agentkit/quickstart/'), false)
   assert.equal(pathnameIsApiReference('/sdks/'), false)
+})
+
+const hiddenHomeApiHrefs = [
+  '/agentkit/apis/#description/quickstart',
+  '/saaskit/apis/#description/quickstart',
+]
+
+test('shouldPrefetchScalarCdn skips home even when hidden API hrefs exist', () => {
+  assert.deepEqual(SCALAR_PREFETCH_EXCLUDED_PATHS, ['/'])
+  assert.equal(shouldPrefetchScalarCdn('/', hiddenHomeApiHrefs), false)
+  assert.equal(shouldPrefetchScalarCdn('', hiddenHomeApiHrefs), false)
+  assert.equal(shouldPrefetchScalarCdn('https://docs.scalekit.com/', hiddenHomeApiHrefs), false)
+})
+
+test('shouldPrefetchScalarCdn prefetches on product pages with a visible APIs tab', () => {
+  assert.equal(
+    shouldPrefetchScalarCdn('/agentkit/quickstart/', ['/agentkit/apis/#description/quickstart']),
+    true,
+  )
+  assert.equal(
+    shouldPrefetchScalarCdn('/authenticate/fsa/quickstart/', [
+      '/saaskit/apis/#description/quickstart',
+    ]),
+    true,
+  )
+  assert.equal(shouldPrefetchScalarCdn('/agentkit/quickstart/', ['/agentkit/quickstart/']), false)
+  assert.equal(shouldPrefetchScalarCdn('/cookbooks/', []), false)
 })
