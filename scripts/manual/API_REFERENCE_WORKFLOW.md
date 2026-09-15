@@ -44,6 +44,18 @@ There is **no** `openapi/paths/`, **no** `openapi/agentkit.yaml` / `openapi/saas
 
 **Never** treat `public/api/*.scalar.*` as the durable source of truth.
 
+### PREVIEW RPCs stay off Scalar
+
+Backend marks an unpublished RPC with:
+
+```proto
+option (google.api.method_visibility).restriction = "PREVIEW";
+```
+
+That RPC does not appear in generated swagger. Do not add it to `openapi/scalekit.yaml`.
+
+**Gateway** (`/api/v1/gateway/*`) is PREVIEW ([SK-1932](https://linear.app/scalekit/issue/SK-1932/gateway-apis-ship-on-developer-docs-or-mark-preview), [scalekit#2643](https://github.com/scalekit-inc/scalekit/pull/2643)). `pnpm run validate-api-split` fails if those paths appear in a bundled spec.
+
 ---
 
 ## 3. Typical maintenance tasks
