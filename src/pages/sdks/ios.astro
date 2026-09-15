@@ -1,5 +1,10 @@
 ---
 import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro'
+
+// Starlight 0.42 pulls a native addon into this module. Netlify's SSR
+// function omits that binding, so request-time render 500s. Bake HTML
+// at build time instead (same path as content MDX pages).
+export const prerender = true
 import { Badge, Code } from '@astrojs/starlight/components'
 import { getCollection } from 'astro:content'
 import SDKInstallPanel from '@components/SDKInstallPanel.astro'
