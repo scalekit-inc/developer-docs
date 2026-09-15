@@ -4,8 +4,10 @@ import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro'
 import { ScalarComponent } from '@scalar/astro'
 import ApiSearchIndex from '../components/ApiSearchIndex.astro'
 import ScalarClientPicker from '../components/ScalarClientPicker.astro'
+import ScalarFunctionBridge from '../components/ScalarFunctionBridge.astro'
 import { createOperationsSorter, loadOperationRankConfig } from '../utils/openapiOperationRank'
 import { SCALAR_API_REFERENCE_CDN } from '../utils/scalar-cdn.js'
+import { SCALEKIT_TAG_ORDER, createTagsSorter, generateWebhookSlug } from '../utils/scalarApiFns.js'
 
 /*
 TODO:
@@ -16,6 +18,7 @@ TODO:
 // Path sort rules ship in the OpenAPI spec (x-scalekit-docs-operation-rank from scalekit).
 const operationRankConfig = loadOperationRankConfig()
 const operationsSorter = createOperationsSorter(operationRankConfig)
+const tagsSorter = createTagsSorter(SCALEKIT_TAG_ORDER)
 
 // Page metadata
 const template = 'splash' as const
@@ -64,6 +67,11 @@ const frontmatter = {
 <!-- Agent/LLM note: For machine-readable API reference, prefer /apis.md (generated OpenAPI markdown) or /api/scalekit.scalar.yaml -->
 <div class="scalar-api-reference">
   <ScalarClientPicker />
+  <ScalarFunctionBridge
+    tagsSorter={tagsSorter}
+    operationsSorter={operationsSorter}
+    generateWebhookSlug={generateWebhookSlug}
+  />
   <ScalarComponent
     renderMode="client"
     configuration={{
@@ -80,43 +88,6 @@ const frontmatter = {
       darkMode: false,
       proxyUrl: 'https://proxy.scalar.com',
       defaultOpenAllTags: false,
-      tagsSorter: (a, b) => {
-        // Keep in sync with openapi/extensions/all.yaml tags order.
-        const tagOrder = [
-          'Organizations',
-          'Permissions',
-          'Users',
-          'Connections',
-          'Directory',
-          'Roles',
-          'Sessions',
-          'Domains',
-          'API Auth',
-          'Magic link & OTP',
-          'Passkeys',
-          'Connected Accounts',
-          'Connectors',
-          'Tool Calling',
-          'MCP Configurations',
-        ]
-        // Scalar may pass tag name strings or { name } objects depending on version.
-        const tagName = (tag) => (typeof tag === 'string' ? tag : (tag?.name ?? ''))
-        const getTagRank = (name) => {
-          const rank = tagOrder.indexOf(name ?? '')
-          return rank === -1 ? Number.POSITIVE_INFINITY : rank
-        }
-        const nameA = tagName(a)
-        const nameB = tagName(b)
-        const rankA = getTagRank(nameA)
-        const rankB = getTagRank(nameB)
-
-        if (rankA !== rankB) {
-          return rankA - rankB
-        }
-
-        return nameA.localeCompare(nameB)
-      },
-      operationsSorter,
       servers: [
         {
           url: 'https://{SCALEKIT_ENVIRONMENT_URL}',
@@ -181,21 +152,6 @@ const frontmatter = {
         #scalar-client-0 { margin-top: 8rem; }
         .introduction-card-item.scalar-reference-intro-clients { display: none; }
       `,
-      // Custom slug generation for webhooks to prevent "undefined" in URLs
-      generateWebhookSlug: (webhook) => {
-        // For OpenAPI webhooks, the key is typically not included in the parsed object
-        // We need to use the summary as a fallback when name is not available
-        const name = webhook.name || webhook.summary || 'list-of-events'
-
-        // Convert to a URL-friendly slug
-        // For example: "Organization Created" -> "organization-created"
-        return name
-          .toLowerCase()
-          .replace(/[^a-z0-9\s-]/g, '') // Remove special characters except spaces and hyphens
-          .replace(/\s+/g, '-') // Replace spaces with hyphens
-          .replace(/-+/g, '-') // Replace multiple hyphens with single hyphen
-          .replace(/^-|-$/g, '') // Remove leading/trailing hyphens
-      },
     }}
   />
 </div>

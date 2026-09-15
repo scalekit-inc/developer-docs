@@ -2,7 +2,17 @@
 import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro'
 import { ScalarComponent } from '@scalar/astro'
 import ScalarClientPicker from '../../components/ScalarClientPicker.astro'
+import ScalarFunctionBridge from '../../components/ScalarFunctionBridge.astro'
 import { SCALAR_API_REFERENCE_CDN } from '../../utils/scalar-cdn.js'
+import {
+  SAASKIT_TAG_ORDER,
+  createMethodPathSorter,
+  createTagsSorter,
+  generateWebhookSlug,
+} from '../../utils/scalarApiFns.js'
+
+const tagsSorter = createTagsSorter(SAASKIT_TAG_ORDER)
+const operationsSorter = createMethodPathSorter()
 
 const template = 'splash' as const
 const frontmatter = {
@@ -47,6 +57,11 @@ const frontmatter = {
 
 <div class="scalar-api-reference">
   <ScalarClientPicker />
+  <ScalarFunctionBridge
+    tagsSorter={tagsSorter}
+    operationsSorter={operationsSorter}
+    generateWebhookSlug={generateWebhookSlug}
+  />
   {
     /*
     renderMode="client" is required under Astro ClientRouter / Starlight soft
@@ -70,51 +85,6 @@ const frontmatter = {
       darkMode: false,
       proxyUrl: 'https://proxy.scalar.com',
       defaultOpenAllTags: false,
-      tagsSorter: (a, b) => {
-        const tagOrder = [
-          'Organizations',
-          'Permissions',
-          'Users',
-          'Connections',
-          'Directory',
-          'Roles',
-          'Sessions',
-          'Domains',
-          'API Auth',
-          'Magic link & OTP',
-          'Passkeys',
-        ]
-        // Scalar may pass tag name strings or { name } objects depending on version.
-        const tagName = (tag) => (typeof tag === 'string' ? tag : (tag?.name ?? ''))
-        const getTagRank = (name) => {
-          const rank = tagOrder.indexOf(name ?? '')
-          return rank === -1 ? Number.POSITIVE_INFINITY : rank
-        }
-        const nameA = tagName(a)
-        const nameB = tagName(b)
-        const rankA = getTagRank(nameA)
-        const rankB = getTagRank(nameB)
-
-        if (rankA !== rankB) {
-          return rankA - rankB
-        }
-
-        return nameA.localeCompare(nameB)
-      },
-      operationsSorter: (a, b) => {
-        const methodOrder = ['get', 'post', 'put', 'patch', 'delete']
-        const getMethodRank = (method) => {
-          const rank = methodOrder.indexOf((method ?? '').toLowerCase())
-          return rank === -1 ? Number.POSITIVE_INFINITY : rank
-        }
-        const methodComparison = getMethodRank(a?.method) - getMethodRank(b?.method)
-
-        if (methodComparison !== 0) {
-          return methodComparison
-        }
-
-        return (a?.path ?? '').localeCompare(b?.path ?? '')
-      },
       servers: [
         {
           url: 'https://{SCALEKIT_ENVIRONMENT_URL}',
@@ -177,16 +147,6 @@ const frontmatter = {
         #scalar-client-0 { margin-top: 8rem; }
         .introduction-card-item.scalar-reference-intro-clients { display: none; }
       `,
-      generateWebhookSlug: (webhook) => {
-        const name = webhook.name || webhook.summary || 'list-of-events'
-
-        return name
-          .toLowerCase()
-          .replace(/[^a-z0-9\s-]/g, '')
-          .replace(/\s+/g, '-')
-          .replace(/-+/g, '-')
-          .replace(/^-|-$/g, '')
-      },
     }}
   />
 </div>
