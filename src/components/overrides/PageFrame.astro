@@ -1,0 +1,88 @@
+---
+/**
+ * Nova layout with Starlight 0.42's popover sidebar.
+ * Nova 0.12 still keys visibility off body[data-mobile-menu-expanded],
+ * which 0.42 no longer sets. Keep Nova chrome; make the pane a popover
+ * so Header's MobileMenuToggle (popovertarget="starlight__sidebar") works.
+ */
+const { hasSidebar } = Astro.locals.starlightRoute
+---
+
+<div class="flex min-h-screen flex-col">
+  <header
+    class="fixed inset-0 z-(--sl-z-index-navbar) box-border h-(--sl-nav-height) w-full border-0 border-b border-solid border-(--sl-color-hairline) bg-(--sl-color-bg-nav) px-(--sl-nav-pad-x) py-(--sl-nav-pad-y) backdrop-blur"
+  >
+    <slot name="header" />
+  </header>
+  {
+    hasSidebar && (
+      <nav
+        class="sidebar print:hidden"
+        aria-label={Astro.locals.t('sidebarNav.accessibleLabel')}
+        id="nova-sidebar-nav"
+      >
+        <sl-sidebar-pane
+          popover=""
+          id="starlight__sidebar"
+          class="sidebar-pane nova-scroll-container"
+        >
+          <div class="sidebar-content flex h-full min-h-max flex-col px-(--sl-sidebar-pad-x) py-4">
+            <slot name="sidebar" />
+          </div>
+        </sl-sidebar-pane>
+      </nav>
+    )
+  }
+  <div class="main-frame"><slot /></div>
+</div>
+
+{/* Script stays outside the JSX expression so prettier-plugin-astro can parse the file. */}
+<script>
+  class StarlightSidebarPane extends HTMLElement {
+    constructor() {
+      super()
+      matchMedia('(min-width: 50em)').addEventListener('change', () => this.hidePopover())
+      this.addEventListener('toggle', ({ newState }) => this.trapFocus(newState === 'open'))
+    }
+    trapFocus(shouldTrap) {
+      document.querySelectorAll('.main-frame, .sl-skip-link').forEach((el) => {
+        el.toggleAttribute('inert', shouldTrap)
+      })
+    }
+  }
+  if (!customElements.get('sl-sidebar-pane')) {
+    customElements.define('sl-sidebar-pane', StarlightSidebarPane)
+  }
+</script>
+
+<style>
+  @layer nova {
+    .main-frame {
+      padding-top: calc(var(--sl-nav-height) + var(--sl-mobile-toc-height));
+      padding-inline-start: var(--sl-content-inline-start);
+    }
+
+    .sidebar-pane {
+      border: unset;
+      padding: unset;
+      height: unset;
+      color: unset;
+      position: fixed;
+      z-index: var(--sl-z-index-menu);
+      inset-block: var(--sl-nav-height) 0;
+      inset-inline-start: 0;
+      width: 100%;
+      overflow-y: auto;
+      background-color: var(--sl-color-black);
+    }
+
+    @media (min-width: 50rem) {
+      .sidebar-pane {
+        display: block;
+        width: var(--sl-sidebar-width);
+        background-color: var(--sl-color-bg-sidebar);
+        border-inline-end: 1px solid var(--sl-color-hairline);
+      }
+    }
+  }
+</style>

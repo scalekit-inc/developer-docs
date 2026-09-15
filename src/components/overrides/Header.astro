@@ -140,6 +140,20 @@ const { entry, locale } = Astro.props
       min-width: 250px;
     }
 
+    /* Toggle lives in the header, not as a sibling of the popover.
+       Default Starlight CSS uses :has(~ :popover-open) and would miss this. */
+    :global(body:has(#starlight__sidebar:popover-open)) :global(.sl-menu-button .open-menu) {
+      display: none;
+    }
+
+    :global(body:has(#starlight__sidebar:popover-open)) :global(.sl-menu-button .close-menu) {
+      display: block;
+    }
+
+    :global(body:not(:has(#starlight__sidebar:popover-open))) :global(.sl-menu-button .close-menu) {
+      display: none;
+    }
+
     .right-actions {
       display: none;
       gap: 1rem; /* Back to original spacing */

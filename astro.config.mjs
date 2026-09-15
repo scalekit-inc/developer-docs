@@ -68,6 +68,7 @@ export default defineConfig({
         Icon: './src/components/overrides/Icon.astro',
         Sidebar: './src/components/overrides/Sidebar.astro',
         Header: './src/components/overrides/Header.astro',
+        PageFrame: './src/components/overrides/PageFrame.astro',
         Footer: './src/components/overrides/Footer.astro',
         PageSidebar: './src/components/overrides/PageSidebar.astro',
         PageTitle: './src/components/overrides/PageTitle.astro',
@@ -439,10 +440,10 @@ export default defineConfig({
         '@': path.resolve('./src'),
         '@components': path.resolve('./src/components'),
         '@starlight/rehype-tabs': path.resolve(
-          './node_modules/@astrojs/starlight/user-components/rehype-tabs.ts',
+          './node_modules/@astrojs/starlight/dist/user-components/tabs-processor.js',
         ),
         '@astrojs/starlight/components/Icon.astro': path.resolve(
-          './node_modules/@astrojs/starlight/user-components/Icon.astro',
+          './node_modules/@astrojs/starlight/dist/user-components/Icon.astro',
         ),
       },
     },
