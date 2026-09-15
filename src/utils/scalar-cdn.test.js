@@ -20,6 +20,6 @@ test('API reference CDN is pinned to Scalar 1.67.0', () => {
 test('all three API reference pages use the pinned CDN', () => {
   for (const page of pages) {
     const source = readFileSync(page, 'utf8')
-    assert.match(source, /SCALAR_API_REFERENCE_CDN/, page)
+    assert.match(source, /cdn:\s*SCALAR_API_REFERENCE_CDN\b/, page)
   }
 })
