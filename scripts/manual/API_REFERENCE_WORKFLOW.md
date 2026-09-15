@@ -17,15 +17,15 @@ public/api/{scalekit,agentkit,saaskit}.scalar.{yaml,json}   ← generated; do no
 /apis  ·  /agentkit/apis  ·  /saaskit/apis
 ```
 
-| Piece                           | Role                                                                                                                                  |
-| ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
-| `openapi/scalekit.yaml`         | **Docs working root** for all three Scalar pages. Paths, schemas, and `webhooks:` live here.                                          |
-| `openapi/extensions/*.yaml`     | Product overlays: `include.tags` / `include.webhooks`, curated `info`/`tags`, and deep-merged `operations` / `schemas` / `root` x-\*. |
-| `openapi/code_samples/`         | Multi-language samples. Plugin injects them as `x-codeSamples` (docs samples win per language).                                       |
-| `redocly.yaml`                  | Defines three APIs (`agentkit`, `saaskit`, `all`), each with `root: openapi/scalekit.yaml` + overlay.                                 |
-| `public/api/*.scalar.*`         | **Bundle outputs**. Overwritten by `pnpm run bundle:apis`.                                                                            |
-| `scripts/validate-api-split.js` | Fails the build if an operation is missing from both splits or present in both.                                                       |
-| `scripts/search-index-apis.js`  | Builds deep-link records for DocSearch; also used by `ApiSearchIndex.astro` at build.                                                 |
+| Piece                           | Role                                                                                                                                                    |
+| ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `openapi/scalekit.yaml`         | **Docs working root** for all three Scalar pages. Paths, schemas, and `webhooks:` live here.                                                            |
+| `openapi/extensions/*.yaml`     | Product overlays: `include.tags` / `include.webhooks` / `exclude.paths`, curated `info`/`tags`, and deep-merged `operations` / `schemas` / `root` x-\*. |
+| `openapi/code_samples/`         | Multi-language samples. Plugin injects them as `x-codeSamples` (docs samples win per language).                                                         |
+| `redocly.yaml`                  | Defines three APIs (`agentkit`, `saaskit`, `all`), each with `root: openapi/scalekit.yaml` + overlay.                                                   |
+| `public/api/*.scalar.*`         | **Bundle outputs**. Overwritten by `pnpm run bundle:apis`.                                                                                              |
+| `scripts/validate-api-split.js` | Fails the build if an operation is missing from both splits or present in both.                                                                         |
+| `scripts/search-index-apis.js`  | Builds deep-link records for DocSearch; also used by `ApiSearchIndex.astro` at build.                                                                   |
 
 There is **no** `openapi/paths/`, **no** `openapi/agentkit.yaml` / `openapi/saaskit.yaml` product roots, and **no** `pnpm run inject-code-samples` script. Code samples are injected only by the Redocly plugin during `bundle:apis`.
 
@@ -44,6 +44,29 @@ There is **no** `openapi/paths/`, **no** `openapi/agentkit.yaml` / `openapi/saas
 
 **Never** treat `public/api/*.scalar.*` as the durable source of truth.
 
+### PREVIEW RPCs stay off Scalar
+
+Backend marks an unpublished RPC with:
+
+```proto
+option (google.api.method_visibility).restriction = "PREVIEW";
+```
+
+That RPC does not appear in generated swagger. Do not add it to `openapi/scalekit.yaml`.
+
+If a spec refresh still copies the path, drop it in the overlay. Combined `/apis` has no `include.tags`, so it would keep the path otherwise.
+
+```yaml
+# openapi/extensions/all.yaml
+exclude:
+  paths:
+    - /api/v1/gateway
+```
+
+The Redocly decorator `scalekit/product` removes those prefixes before it writes `public/api/*.scalar.*`.
+
+**Gateway** (`/api/v1/gateway/*`) is PREVIEW ([SK-1932](https://linear.app/scalekit/issue/SK-1932/gateway-apis-ship-on-developer-docs-or-mark-preview), [scalekit#2643](https://github.com/scalekit-inc/scalekit/pull/2643)).
+
 ---
 
 ## 3. Typical maintenance tasks
@@ -52,7 +75,7 @@ There is **no** `openapi/paths/`, **no** `openapi/agentkit.yaml` / `openapi/saas
 
 1. Prefer implementing the contract in the backend and regenerating OpenAPI.
 2. Land the operation under `paths:` in `openapi/scalekit.yaml` (with the correct `tags`).
-3. Ensure the tag is listed in the product overlay’s `include.tags` (`agentkit.yaml` or `saaskit.yaml`) so the op appears on the right product page. Combined (`all.yaml`) keeps everything when `include.tags` is absent.
+3. Ensure the tag is listed in the product overlay’s `include.tags` (`agentkit.yaml` or `saaskit.yaml`) so the op appears on the right product page. Combined (`all.yaml`) keeps remaining paths when `include.tags` is absent. `exclude.paths` still drops PREVIEW prefixes.
 4. Add code samples under `openapi/code_samples/{lang}/{path-slug}/{method}.{ext}`
    - Slug = path with leading `/` stripped and `/` → `_` (params and colons kept literal).
    - Example: `/api/v1/organizations/{id}` → `api_v1_organizations_{id}`
