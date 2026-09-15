@@ -1,0 +1,46 @@
+---
+/**
+ * Client-mode Scalar JSON.stringifies configuration, so function props never
+ * reach createApiReference. This script runs before <ScalarComponent> and
+ * wraps window.Scalar so tagsSorter, operationsSorter, and generateWebhookSlug
+ * are merged back in.
+ */
+import { serializeFunctionsToJs } from '../utils/scalarApiFns.js'
+
+type Props = {
+  tagsSorter?: (a: unknown, b: unknown) => number
+  operationsSorter?: (a: unknown, b: unknown) => number
+  generateWebhookSlug?: (webhook: { name?: string; summary?: string }) => string
+}
+
+const { tagsSorter, operationsSorter, generateWebhookSlug } = Astro.props
+const configJs = serializeFunctionsToJs({
+  tagsSorter,
+  operationsSorter,
+  generateWebhookSlug,
+})
+---
+
+<Fragment
+  set:html={`<script data-sk-scalar-fns>
+(function () {
+  window.__SK_SCALAR_FNS = ${configJs};
+  function wrap(S) {
+    if (!S || !S.createApiReference || S.__skFnsWrapped) return S;
+    var orig = S.createApiReference.bind(S);
+    S.createApiReference = function (el, cfg) {
+      return orig(el, Object.assign({}, cfg, window.__SK_SCALAR_FNS || {}));
+    };
+    S.__skFnsWrapped = true;
+    return S;
+  }
+  var current = window.Scalar ? wrap(window.Scalar) : undefined;
+  Object.defineProperty(window, 'Scalar', {
+    configurable: true,
+    enumerable: true,
+    get: function () { return current; },
+    set: function (value) { current = wrap(value); }
+  });
+})();
+</script>`}
+/>
