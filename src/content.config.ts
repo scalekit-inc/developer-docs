@@ -5,15 +5,13 @@ import { topicSchema } from 'starlight-sidebar-topics/schema'
 import { videosSchema } from 'starlight-videos/schemas'
 import { githubReleasesLoader } from 'astro-loader-github-releases'
 import { githubFilesLoader } from './loaders/github-files-loader'
-import { blogSchema } from 'starlight-blog/schema'
 
 export const collections = {
   docs: defineCollection({
     loader: docsLoader(),
     schema: docsSchema({
       extend: (context) =>
-        blogSchema(context)
-          .merge(topicSchema)
+        topicSchema
           .merge(videosSchema)
           .merge(z.object({ overviewTitle: z.string().optional() }))
           .merge(

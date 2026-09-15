@@ -74,7 +74,9 @@ test('product agent block is a copy-only CTA', () => {
 
 test('AgentKit pages do not point at a removed FoldCard playbook', () => {
   const quickstart = read('src/content/docs/agentkit/quickstart.mdx')
-  const cookbook = read('src/content/docs/cookbooks/set-up-agentkit-with-your-coding-agent.mdx')
+  const cookbook = read(
+    'src/content/docs/agentkit/recipes/set-up-agentkit-with-your-coding-agent.mdx',
+  )
   assert.equal(quickstart.includes('Build with a coding agent'), false)
   assert.equal(cookbook.includes('playbook below'), false)
 })

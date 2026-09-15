@@ -13,12 +13,21 @@
  */
 
 import { isHashOnly, normalizePath } from './path-matching.ts'
-import { SELF_HOSTED_COLD_DEFAULT_PRODUCT, isDocsProduct } from '../configs/self-hosted.ts'
+import {
+  SELF_HOSTED_COLD_DEFAULT_PRODUCT,
+  SHARED_HOW_TO_COLD_DEFAULT_PRODUCT,
+  guidesTopicForProduct,
+  isDocsProduct,
+  isSharedHowToPath,
+} from '../configs/self-hosted.ts'
 
 export {
   PRODUCT_STORAGE_KEY,
   SELF_HOSTED_COLD_DEFAULT_PRODUCT,
+  SHARED_HOW_TO_COLD_DEFAULT_PRODUCT,
   isDocsProduct,
+  isSharedHowToPath,
+  isSharedProductPath,
 } from '../configs/self-hosted.ts'
 
 /**
@@ -32,19 +41,22 @@ export function isSelfHostedPath(pathname) {
 
 /**
  * Determines which product is active based on the current page context.
- * Frontmatter topic and path take precedence; shared self-hosted routes use
- * ?product= then a cold default (sessionStorage is applied client-side only).
+ * A valid `?product=` query param wins over topic and path. Shared routes
+ * without that param use topic, then path, then a cold default
+ * (sessionStorage is applied client-side only).
  */
 export function getActiveProduct(pathname, topic, searchParams) {
   const productParam = searchParams?.get('product')
   if (isDocsProduct(productParam)) return productParam
 
-  if (topic === 'connect') return 'agentkit'
+  if (topic === 'connect' || topic === 'agentkit-guides') return 'agentkit'
+  if (topic === 'saaskit-guides') return 'saaskit'
   if (pathname.startsWith('/agentkit/')) return 'agentkit'
 
-  // Shared self-hosted docs: server-side cold default is AgentKit. Client restores
-  // SaaS from sessionStorage when the visitor arrived from Auth for SaaS.
+  // Shared routes: server-side cold default. Client restores the other product
+  // from sessionStorage when the visitor arrived from that product.
   if (isSelfHostedPath(pathname)) return SELF_HOSTED_COLD_DEFAULT_PRODUCT
+  if (isSharedHowToPath(pathname)) return SHARED_HOW_TO_COLD_DEFAULT_PRODUCT
 
   return 'saaskit'
 }
@@ -171,6 +183,14 @@ export function getActiveSecondaryNavId(
   // Map old home routes for backwards compatibility
   if (pathname === '/home/saaskit/' || pathname === '/home/saaskit') {
     return 'saaskit-user-management'
+  }
+
+  // Shared workspace how-tos: product (query / topic set by middleware) picks
+  // which Keep building tab to highlight. Do this before the path map, which would
+  // pin /how-to/** to whichever sidebar listed the folder first.
+  if (isSharedHowToPath(pathname)) {
+    const product = getActiveProduct(pathname, entry?.data?.topic, searchParams)
+    return guidesTopicForProduct(product)
   }
 
   // 1. First check explicit topic from page frontmatter
