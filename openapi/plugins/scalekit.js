@@ -5,6 +5,7 @@
  * overlay file (openapi/extensions/{all,agentkit,saaskit}.yaml). Per bundle it:
  *
  *   1. Filters operations by tag (overlay `include.tags`; absent = keep all)
+ *      and drops path prefixes in overlay `exclude.paths` (PREVIEW surfaces)
  *   2. Filters webhooks by name prefix (overlay `include.webhooks`; absent = keep all)
  *   3. Injects x-codeSamples from openapi/code_samples/{lang}/{path-slug}/{method}.{ext}
  *      (developer-docs samples win per language; spec-provided samples for other
@@ -95,12 +96,21 @@ function loadOverlay(file) {
   return YAML.parse(fs.readFileSync(overlayPath, 'utf8')) || {}
 }
 
+function pathExcluded(pathKey, prefixes) {
+  return prefixes.some((prefix) => pathKey === prefix || pathKey.startsWith(`${prefix}/`))
+}
+
 function applyProduct(root, overlay) {
   const includeTags = overlay.include?.tags ? new Set(overlay.include.tags) : null
+  const excludePaths = overlay.exclude?.paths || []
   const includeWebhooks = overlay.include?.webhooks || null
 
-  // 1. Filter operations by tag; drop path items left with no operations
+  // 1. Filter operations by tag / exclude.paths; drop empty path items
   for (const [pathKey, pathItem] of Object.entries(root.paths || {})) {
+    if (pathExcluded(pathKey, excludePaths)) {
+      delete root.paths[pathKey]
+      continue
+    }
     for (const method of HTTP_METHODS) {
       const operation = pathItem[method]
       if (!operation) continue

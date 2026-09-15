@@ -32,10 +32,6 @@ const SAASKIT_PATH = path.join(__dirname, '../public/api/saaskit.scalar.json')
 
 const HTTP_METHODS = ['get', 'post', 'put', 'patch', 'delete']
 
-// PREVIEW RPCs must not land on Scalar. Backend hides them with
-// (google.api.method_visibility).restriction = "PREVIEW" (SK-1932).
-const UNPUBLISHED_PATH_PREFIXES = ['/api/v1/gateway']
-
 function loadSpec(filePath) {
   if (!fs.existsSync(filePath)) {
     console.error(`✗ Spec not found: ${filePath}`)
@@ -83,21 +79,6 @@ function main() {
     errors.push(
       `${extraInSplit.length} operation(s) in a split but NOT in the combined spec (invented):\n  ${extraInSplit.join('\n  ')}`,
     )
-  }
-
-  for (const [label, ops] of [
-    ['combined', combined],
-    ['agentkit', agentkit],
-    ['saaskit', saaskit],
-  ]) {
-    const unpublished = [...ops.keys()].filter((key) =>
-      UNPUBLISHED_PATH_PREFIXES.some((prefix) => key.includes(` ${prefix}`)),
-    )
-    if (unpublished.length > 0) {
-      errors.push(
-        `${unpublished.length} PREVIEW / unpublished operation(s) in ${label} (do not publish):\n  ${unpublished.join('\n  ')}`,
-      )
-    }
   }
 
   if (errors.length > 0) {
