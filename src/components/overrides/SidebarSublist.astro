@@ -44,6 +44,12 @@ function flattenSidebar(sidebar: SidebarEntry[]): SidebarLink[] {
     entry.type === 'group' ? flattenSidebar(entry.entries) : entry,
   )
 }
+
+/** Spread attrs without `class` so class:list keeps the Astro scoped class. */
+function attrsWithoutClass(attrs: Record<string, unknown>) {
+  const { class: _className, ...rest } = attrs
+  return rest
+}
 ---
 
 <ul class:list={{ 'top-level': !nested }}>
@@ -52,10 +58,10 @@ function flattenSidebar(sidebar: SidebarEntry[]): SidebarLink[] {
       <li>
         {entry.type === 'link' ? (
           <a
-            {...entry.attrs}
             href={entry.href}
             aria-current={entry.isCurrent ? 'page' : undefined}
             class:list={[{ large: !nested }, entry.attrs?.class]}
+            {...attrsWithoutClass(entry.attrs)}
           >
             <span>{entry.label}</span>
             {entry.badge && (
